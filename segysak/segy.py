@@ -282,8 +282,8 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
         head_df['CROSSLINE_3D'].values[1:] - head_df['CROSSLINE_3D'].values[:-1]
     )
     # first and last values
-    ni = 1 + iln - il0
-    nx = 1 + xln - xl0
+    ni = 1 + (iln - il0)//dil
+    nx = 1 + (xln - xl0)//dxl
 
     # binary header translation
     ns = head_bin['Samples']
@@ -305,17 +305,18 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
         #assign CDPXY
         seisnc['CDP_X'][:, :] = head_df['CDP_X'].values.reshape((ni, nx))
         seisnc['CDP_Y'][:, :] = head_df['CDP_Y'].values.reshape((ni, nx))
+
         segyf.mmap()
         # load trace
         temp_line = np.full((nx, ns), np.nan, float)
         cur_iline = head_df['INLINE_3D'][0]
         pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
         for n, trc in enumerate(segyf.trace):
-            cur_xline = head_df['CROSSLINE_3D'][n] - xl0
+            cur_xline = (head_df['CROSSLINE_3D'][n] - xl0)//dxl
             temp_line[cur_xline, :] = trc
             if head_df['INLINE_3D'][n] > cur_iline:
                 cur_iline = head_df['INLINE_3D'][n]
-                seisnc['data'][cur_iline-il0, :, :] = temp_line
+                seisnc['data'][(cur_iline-il0)/dil, :, :] = temp_line
                 temp_line[:, :] = np.nan
             pb.update()
         pb.close()
