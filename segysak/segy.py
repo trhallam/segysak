@@ -274,7 +274,8 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
     iln = head_df["INLINE_3D"].max()
     xl0 = head_df['CROSSLINE_3D'].min()
     xln = head_df['CROSSLINE_3D'].max()
-    ns0 = head_df.TRACE_SAMPLE_COUNT.min()
+    nsamp = head_df.TRACE_SAMPLE_COUNT.min()
+    ns0 = head_df.DelayRecordingTime.min()
 
     dil = np.max(
         head_df['INLINE_3D'].values[1:] - head_df['INLINE_3D'].values[:-1]
@@ -297,7 +298,7 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
     msys = _SEGY_MEASUREMENT_SYSTEM[head_bin['MeasurementSystem']]
 
 
-    create_empty_seisnc(ncfile, (ni, nx, ns))
+    create_empty_seisnc(ncfile, (ni, nx, nsamp))
     set_seisnc_dims(ncfile, first_sample=ns0//1000, sample_rate=ds//1000,
                     first_iline=il0, iline_step=dil,
                     first_xline=xl0, xline_step=dxl, vert_domain=vert,
@@ -328,7 +329,8 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
             cur_xline = (cxl - xl0)//dxl
             temp_line[cur_xline, :] = trc
             if cil > cur_iline:
-                seisnc['data'][(cil-il0)/dil, :, :] = temp_line
+                cur_iline = cil
+                seisnc['data'][(cur_iline-il0)/dil, :, :] = temp_line
                 temp_line[:, :] = np.nan
             pb.update()
         pb.close()
