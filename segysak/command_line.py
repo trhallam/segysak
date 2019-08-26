@@ -60,6 +60,8 @@ class segysakArgsParser():
             default=189, type=int)
         self.parser.add_argument('--xline', help='Crossline byte location',
             default=193, type=int)
+        self.parser.add_argument('--crop', help='Crop the input volume using a list [minil, maxil, minxl, maxxl]',
+            default=None, nargs='+')
 
     def parse_args(self):
         args = self.parser.parse_args()
@@ -71,6 +73,9 @@ class segysakArgsParser():
         if args.L == 'DEFAULT':
              t = time.localtime(time.time())
              args.L = f"{self.app_name}_{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}_{t.tm_hour:02d}{t.tm_min:02d}{t.tm_sec:02d}.log"
+
+        if args.crop:
+            args.crop = [int(i) for i in args.crop]
 
         return args
 
@@ -133,7 +138,7 @@ def main():
             outfile = input_file.stem + '.SEISNC'
         else:
             outfile = args.netCDF
-        segy2ncdf(input_file, outfile, iline=iline, xline=xline)
+        segy2ncdf(input_file, outfile, iline=iline, xline=xline, crop=args.crop)
         LOGGER.info(f"NetCDF output written to {outfile}")
 
     if args.SEGY is None or args.SEGY is not False:
@@ -141,7 +146,7 @@ def main():
             outfile = input_file.stem + '.segy'
         else:
             outfile = args.SEGY
-        ncdf2segy(input_file, outfile, iline=iline, xline=xline)
+        ncdf2segy(input_file, outfile, iline=iline, xline=xline, crop=args.crop)
         LOGGER.info(f"SEGY output written to {outfile}")
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ import xarray as xr
 
 from tqdm.autonotebook import tqdm
 from segysak.seisnc import create_empty_seisnc, set_seisnc_dims
+from segysak.tools import check_crop
 
 _SEGY_MEASUREMENT_SYSTEM = defaultdict(lambda: 0)
 _SEGY_MEASUREMENT_SYSTEM[1] = 'm'
@@ -237,7 +238,7 @@ def segy_header_scrape(segyfile, silent=False):
     return head_df
 
 def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=185,
-              vert='TWT', units='AMP', silent=False):
+              vert='TWT', units='AMP', crop=None, silent=False):
     """Convert SEGY data to NetCDF4 File
 
     The output ncfile has the following structure
@@ -281,6 +282,11 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
     dxl = np.max(
         head_df['CROSSLINE_3D'].values[1:] - head_df['CROSSLINE_3D'].values[:-1]
     )
+
+    if crop is not None:
+        crop = check_crop(crop, [il0, iln, xl0, xln])
+        il0, iln, xl0, xln = crop
+
     # first and last values
     ni = 1 + (iln - il0)//dil
     nx = 1 + (xln - xl0)//dxl
@@ -289,6 +295,7 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
     ns = head_bin['Samples']
     ds = head_bin['Interval']
     msys = _SEGY_MEASUREMENT_SYSTEM[head_bin['MeasurementSystem']]
+
 
     create_empty_seisnc(ncfile, (ni, nx, ns))
     set_seisnc_dims(ncfile, first_sample=ns0//1000, sample_rate=ds//1000,
@@ -303,8 +310,9 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
         seisnc.text = text
 
         #assign CDPXY
-        seisnc['CDP_X'][:, :] = head_df['CDP_X'].values.reshape((ni, nx))
-        seisnc['CDP_Y'][:, :] = head_df['CDP_Y'].values.reshape((ni, nx))
+        query = "INLINE_3D >= @il0 & INLINE_3D <= @iln & CROSSLINE_3D >= @xl0 and CROSSLINE_3D <= @xln"
+        seisnc['CDP_X'][:, :] = head_df.query(query)['CDP_X'].values.reshape((ni, nx))
+        seisnc['CDP_Y'][:, :] = head_df.query(query)['CDP_Y'].values.reshape((ni, nx))
 
         segyf.mmap()
         # load trace
@@ -312,11 +320,15 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
         cur_iline = head_df['INLINE_3D'][0]
         pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
         for n, trc in enumerate(segyf.trace):
-            cur_xline = (head_df['CROSSLINE_3D'][n] - xl0)//dxl
+            cxl = head_df['CROSSLINE_3D'][n]
+            cil = head_df['INLINE_3D'][n]
+            if cxl < xl0 or cxl > xln or cil < il0 or cil > iln:
+                pb.update()
+                continue
+            cur_xline = (cxl - xl0)//dxl
             temp_line[cur_xline, :] = trc
-            if head_df['INLINE_3D'][n] > cur_iline:
-                cur_iline = head_df['INLINE_3D'][n]
-                seisnc['data'][(cur_iline-il0)/dil, :, :] = temp_line
+            if cil > cur_iline:
+                seisnc['data'][(cil-il0)/dil, :, :] = temp_line
                 temp_line[:, :] = np.nan
             pb.update()
         pb.close()
