@@ -86,6 +86,9 @@ def set_seisnc_dims(ncfile, first_sample=0, sample_rate=1, first_iline=1,
         seisnc.createVariable('xline', 'i4', ('j'))
 
         seisnc['data'].units = units
+        seisnc['iline'][:] = ilines
+        seisnc['xline'][:] = xlines
+        seisnc['vert'][:] = vert
         seisnc.ns = ns
         seisnc.ds = sample_rate
         seisnc.measurement_system = measurement_system
