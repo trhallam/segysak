@@ -10,7 +10,7 @@ import netCDF4
 import numpy as np
 import xarray as xr
 
-SEINC_DIMS = ['il', 'xl', 'v']
+SEINC_DIMS = ['i', 'j', 'k']
 SEISNC_COORDS = ['iline', 'xline', 'z']
 SEISNC_NONDATA_VAR = ['CDP_X', 'CDP_Y', 'CDP_TRACE']
 SEISNC_ATTR = ['ns', 'ds', 'text', ]
@@ -29,14 +29,15 @@ def create_empty_seisnc(ncfile, dims):
     xlines = np.arange(nx, dtype=int)
     vert = np.arange(ns, dtype=int)
 
+    # use i j k here to match REM and because xarray orders dimensions at this 
+    # step based upon the alphanumeric name
     seisnc = xr.Dataset(
         coords={
-            'iline': (['il'], ilines),
-            'xline': (['xl'], xlines),
-            'z':  (['v'], vert)
+            'iind': (['i'], ilines),
+            'jind': (['j'], xlines),
+            'kind':  (['k'], vert)
         }
     )
-
     seisnc.to_netcdf(path=ncfile, mode='w')
 
 def set_seisnc_dims(ncfile, first_sample=0, sample_rate=1, first_iline=1,
@@ -66,23 +67,23 @@ def set_seisnc_dims(ncfile, first_sample=0, sample_rate=1, first_iline=1,
         dims = seisnc.dims
 
     # create dimension arrays
-    ns = dims['v']
-    ni = dims['il']
-    nx = dims['xl']
+    ns = dims['k']
+    ni = dims['i']
+    nx = dims['j']
     vert = np.arange(first_sample, first_sample + sample_rate*ns, sample_rate, dtype=int)
     ilines = np.arange(first_iline, first_iline + iline_step*ni, iline_step, dtype=int)
     xlines = np.arange(first_xline, first_xline + xline_step*nx, xline_step, dtype=int)
 
     # update seisnc on disk
     with netCDF4.Dataset(str(ncfile), mode="a") as seisnc:
-        seisnc.createVariable("CDP_X", 'f4', ('il', 'xl', ))
-        seisnc.createVariable("CDP_Y", 'f4', ('il', 'xl', ))
-        seisnc.createVariable("CDP_TRACE", 'i4', ('il', 'xl', ))
-        seisnc.createVariable("data", 'f4', ('il', 'xl', 'v'))
+        seisnc.createVariable("CDP_X", 'f4', ('i', 'j', ))
+        seisnc.createVariable("CDP_Y", 'f4', ('i', 'j', ))
+        seisnc.createVariable("CDP_TRACE", 'i4', ('i', 'j', ))
+        seisnc.createVariable("data", 'f4', ('i', 'j', 'k'))
 
-        seisnc['z'][:] = vert
-        seisnc['iline'][:] = ilines
-        seisnc['xline'][:] = xlines
+        seisnc.createVariable('vert', 'f4', ('k'))
+        seisnc.createVariable('iline', 'i4', ('i'))
+        seisnc.createVariable('xline', 'i4', ('j'))
 
         seisnc['data'].units = units
         seisnc.ns = ns
