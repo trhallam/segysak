@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ maxrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       max-parallel: 4
       matrix:
