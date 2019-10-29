@@ -335,7 +335,7 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
             pb.update()
         pb.close()
 
-def ncdf2segy(ncfile, segyfile, CMP=False, iline=189, xline=193, xl_chunks=10, silent=False):
+def ncdf2segy(ncfile, segyfile, CMP=False, iline=189, xline=193, il_chunks=10, silent=False):
     """Convert etlpy siesnc format (NetCDF4) to SEGY.
 
     Args:
@@ -349,8 +349,8 @@ def ncdf2segy(ncfile, segyfile, CMP=False, iline=189, xline=193, xl_chunks=10, s
         silent (bool, optional): Turn off progress reporting. Defaults to False.
     """
 
-    with xr.open_dataset(ncfile, chunks={'xl':xl_chunks}) as seisnc:
-        ni, nj, nk = seisnc.dims['il'], seisnc.dims['xl'], seisnc.dims['v']
+    with xr.open_dataset(ncfile, chunks={'i':il_chunks}) as seisnc:
+        ni, nj, nk = seisnc.dims['i'], seisnc.dims['j'], seisnc.dims['k']
         msys = _ISEGY_MEASUREMENT_SYSTEM[seisnc.measurement_system]
         spec = segyio.spec()
         # to create a file from nothing, we need to tell segyio about the structure of
@@ -365,31 +365,31 @@ def ncdf2segy(ncfile, segyfile, CMP=False, iline=189, xline=193, xl_chunks=10, s
         spec.ilines = range(ni)
         spec.xlines = range(nj)
 
-        xl_val = seisnc.coords['xline'].values
-        il_val = seisnc.coords['iline'].values
+        xl_val = seisnc['xline'].values
+        il_val = seisnc['iline'].values
 
-        xl_bags = _bag_slices(seisnc.coords['xline'].values, n=xl_chunks)
+        il_bags = _bag_slices(seisnc['iline'].values, n=il_chunks)
 
         with segyio.create(segyfile, spec) as segyf:
-            for xlb in tqdm(xl_bags, desc="WRITING CHUNK", disable=silent):
-                xlbl = range(xlb.start, xlb.stop, xlb.step)
-                data = seisnc.isel(xl=xlbl)
-                for x, xl in enumerate(xlbl):
-                    xl0, xln = xl*ni, (xl+1)*ni
-                    segyf.header[xl0:xln] = [
+            for ilb in tqdm(il_bags, desc="WRITING CHUNK", disable=silent):
+                ilbl = range(ilb.start, ilb.stop, ilb.step)
+                data = seisnc.isel(i=ilbl)
+                for i, il in enumerate(ilbl):
+                    il0, iln = il*nj, (il+1)*nj
+                    segyf.header[il0:iln] = [
                         {
                             segyio.su.offset: 1,
-                            iline: iln,
-                            xline: xl_val[xl],
+                            iline: il_val[il],
+                            xline: xln,
                             segyio.su.cdpx: cdpx,
                             segyio.su.cdpy: cdpy
                         }
-                        for iln, cdpx, cdpy in zip(il_val,
-                                                   data.CDP_X.values[:, x],
-                                                   data.CDP_Y.values[:, x]
+                        for xln, cdpx, cdpy in zip(xl_val,
+                                                   data.CDP_X.values[i, :],
+                                                   data.CDP_Y.values[i, :]
                                                    )
                         ]
-                    segyf.trace[xl*ni:(xl+1)*ni] = data.data[:, x, :].values
+                    segyf.trace[il*nj:(il+1)*nj] = data.data[i, :, :].values
             segyf.bin.update(
                 tsort=segyio.TraceSortingFormat.INLINE_SORTING,
                 hdt=int(seisnc.ds*1000),

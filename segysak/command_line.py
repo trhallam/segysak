@@ -146,7 +146,7 @@ def main():
             outfile = input_file.stem + '.segy'
         else:
             outfile = args.SEGY
-        ncdf2segy(input_file, outfile, iline=iline, xline=xline, crop=args.crop)
+        ncdf2segy(input_file, outfile, iline=iline, xline=xline)#, crop=args.crop)
         LOGGER.info(f"SEGY output written to {outfile}")
 
 if __name__ == "__main__":
