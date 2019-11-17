@@ -1,6 +1,7 @@
 [![Actions Status](https://github.com/trhallam/segysak/workflows/python_build/badge.svg)](https://github.com/trhallam/segysak/actions)
 
-![](https://github.com/trhallam/segysak/blob/master/docs/figures/logo.png | width=100)
+<img src="https://github.com/trhallam/segysak/blob/master/docs/figures/logo.png" alt="Logo"
+	title="Logo" width="150" height="100" />
 
 # SEGY-SAK
 SEGY Swiss Army Knife for Seismic Data
