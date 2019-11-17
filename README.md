@@ -1,9 +1,6 @@
 [![Actions Status](https://github.com/trhallam/segysak/workflows/python_build/badge.svg)](https://github.com/trhallam/segysak/actions)
 
-<img src="https://github.com/trhallam/segysak/blob/master/docs/figures/logo.png" alt="Logo"
-	title="Logo" width="150" height="100" />
-
-# SEGY-SAK
+# SEGY-SAK <img src="https://github.com/trhallam/segysak/blob/master/docs/figures/logo.png" alt="Logo" title="Logo" width="300" height="300" />
 SEGY Swiss Army Knife for Seismic Data
 
 SEGY-SAK is a took for manipulating SEGY format seismic data. It builds upon the work of `segyio` to provide a more
