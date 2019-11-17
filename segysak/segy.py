@@ -4,6 +4,7 @@
 
 import os
 import datetime
+from warnings import warn
 
 from collections import defaultdict
 
@@ -15,7 +16,7 @@ import xarray as xr
 
 from tqdm.autonotebook import tqdm
 from segysak.seisnc import create_empty_seisnc, set_seisnc_dims
-from segysak.tools import check_crop
+from segysak.tools import check_crop, check_zcrop
 
 _SEGY_MEASUREMENT_SYSTEM = defaultdict(lambda: 0)
 _SEGY_MEASUREMENT_SYSTEM[1] = 'm'
@@ -47,7 +48,7 @@ def _bag_slices(ind, n=10):
         bag.append(slice(prev, i+1, 1))
     return bag
 
-def segy_texthead(segyfile, ext_headers=False):
+def get_segy_texthead(segyfile, ext_headers=False):
     """Return the ebcidc
 
     Args:
@@ -68,6 +69,37 @@ def segy_texthead(segyfile, ext_headers=False):
         else:
             return text
 
+def put_segy_texthead(segyfile, ebcidc, ext_headers=False):
+
+    header = ""
+    if isinstance(ebcidc, dict):
+        for key in ebcidc:
+            if not isinstance(key, int):
+                warn("ebcidc dict contains not integer keys that will be ignored", UserWarning)
+        for line in range(1,41):
+            try:
+                test = ebcidc[line]
+                if len(test) > 75:
+                    warn(f"EBCIDC line {line} is too long - truncating", UserWarning)
+                header = header + f"C{line:02d} " + f"{ebcidc[line][:75]:<76}"
+            except KeyError:
+                # line not specified in dictionary
+                header = header + f"C{line:02d}" + " "*76
+        header = bytes(header, 'utf8')
+    elif isinstance(ebcidc, bytes):
+        if len(ebcidc) > 3200:
+            warn("Byte EBCIDC is too large - truncating", UserWarning)
+        header = ebcidc[:3200]
+    elif isinstance(ebcidc, str):
+        if len(ebcidc) > 3200:
+            warn("String EBCIDC is too large - truncating", UserWarning)
+        header = bytes(ebcidc[:3200], 'utf8')
+    else:
+        raise ValueError('Unknown ebcidc type')
+
+    with segyio.open(segyfile, "r+", ignore_geometry=True) as segyf:
+        segyf.text[0] = header
+
 def _get_datetime():
     """Return current date and time as formatted strings
 
@@ -78,7 +110,10 @@ def _get_datetime():
     return now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S")
 
 def _clean_texthead(text_dict):
-    """Reduce texthead dictionary to 80 characters
+    """Reduce texthead dictionary to 75 characters per line.
+
+    The first 4 Characters of a segy EBCIDC should have the form "C01 " which
+    is then follwed by 75 ascii characters.
 
     Input should have interger keys. Other keys will be ignored.
     Missing keys will be filled by blank lines.
@@ -93,8 +128,8 @@ def _clean_texthead(text_dict):
     for line in range(1, 41, 1):
         try:
             line_str = text_dict[line]
-            if len(line_str) > 80:
-                line_str = line_str[0:80]
+            if len(line_str) > 75:
+                line_str = line_str[0:75]
         except KeyError:
             line_str = ""
         output[line] = line_str
@@ -115,11 +150,11 @@ def create_default_texthead(override=None):
 
     Example:
         >>> create_default_texthead(override={7:'Hello', 8:'World!'})
-        {1: 'etlpy SEGY Output',
+        {1: 'segysak SEGY Output',
         2: 'Data created by: username ',
         3: '',
         4: 'DATA FORMAT: SEG-Y;  DATE: 2019-06-09 15:14:00',
-        5: 'DATA DESCRIPTION: SEGY format data output from etlpy',
+        5: 'DATA DESCRIPTION: SEGY format data output',
         6: '',
         7: 'Hello',
         8: 'World!',
@@ -152,7 +187,6 @@ def create_default_texthead(override=None):
             text_dict[key] = line
     return _clean_texthead(text_dict)
 
-
 def _active_tracefield_segyio():
     header_keys = segyio.tracefield.keys.copy()
     # removed unused byte locations
@@ -166,22 +200,25 @@ def _active_binfield_segyio():
     _ = bin_keys.pop('Unassigned2')
     return bin_keys
 
-def segy_header_scan(segyfile, max_traces_scan=1000):
+def segy_header_scan(segyfile, max_traces_scan=1000, silent=False):
     """Perform a scan of the segy file headers and return ranges.
 
     Args:
         segyfile (string): Segy File Path
-        max_traces_scan (int, optional): Number of traces to scan.
+        max_traces_scan (int/str, optional): Number of traces to scan.
             For all set to 0 or 'all'. Defaults to 1000.
+        silent (bool): Disable progress bar.
 
     Returns:
         dict: Contains keys from segyio.tracefield.keys with scanned values in
         a list [byte location, min, max]
+        int: Number of scanned traces
     """
-    if not isinstance(max_traces_scan, int):
-        raise Exception('max_traces_scan must be int')
-    elif max_traces_scan == 0 or max_traces_scan == 'all':
+    if max_traces_scan == 0 or max_traces_scan == 'all':
         max_traces_scan = None
+    else:
+        if not isinstance(max_traces_scan, int):
+            raise ValueError('max_traces_scan must be int')
 
     hi = 0
     with segyio.open(segyfile, 'r', ignore_geometry=True) as segyf:
@@ -189,17 +226,17 @@ def segy_header_scan(segyfile, max_traces_scan=1000):
         lh = len(header_keys.keys())
         hmin = np.full(lh, np.nan)
         hmax = np.full(lh, np.nan)
-        for hi, h in enumerate(tqdm(segyf.header, desc='Scanning Headers', total=max_traces_scan)):
+        for hi, h in enumerate(tqdm(segyf.header, desc='Scanning Headers', total=max_traces_scan, disable=silent)):
             val = np.array(list(h.values()))
             hmin = np.nanmin(np.vstack((hmin, val)), axis=0)
             hmax = np.nanmax(np.vstack((hmax, val)), axis=0)
-            if max_traces_scan is not None and hi >= max_traces_scan:
+            if max_traces_scan is not None and hi+1 >= max_traces_scan:
                 break # scan to max_traces_scan
 
     for i, (key, item) in enumerate(header_keys.items()):
         header_keys[key] = [item, hmin[i], hmax[i]]
 
-    return header_keys, hi+1
+    return header_keys, hi + 1
 
 def segy_bin_scrape(segyfile):
     """Scrape binary header
@@ -219,6 +256,7 @@ def segy_header_scrape(segyfile, silent=False):
 
     Args:
         segyfile (str): SEGY File path
+        silent (bool): Disable progress bar.
 
     Returns:
         (pandas.DataFrame): Header information
@@ -238,7 +276,7 @@ def segy_header_scrape(segyfile, silent=False):
     return head_df
 
 def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=185,
-              vert='TWT', units='AMP', crop=None, silent=False):
+              vert='TWT', units='AMP', crop=None, zcrop=None, silent=False):
     """Convert SEGY data to NetCDF4 File
 
     The output ncfile has the following structure
@@ -260,12 +298,18 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
             ds - Sample rate
 
     Args:
-        segyfile ([type]): [description]
-        ncfile
-        iline
-        xline
-        vert
-        units
+        segyfile (str): Input segy file path
+        ncfile (str): Output SEISNC file path.
+        iline (int): Inline byte location.
+        xline (int): Cross-line byte location.
+        vert (str): Vertical sampling domain.
+        units (str): Units of amplitude data.
+        crop (list): List of minimum and maximum inline and crossline to output.
+            Has the form '[min_il, max_il, min_xl, max_xl]'.
+        zcrop (list): List of minimum and maximum vertical samples to output.
+            Has the form '[min, max]'.
+        silent (bool): Disable progress bar.
+
     """
     head_df = segy_header_scrape(segyfile)
     head_bin = segy_bin_scrape(segyfile)
@@ -274,6 +318,7 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
     iln = head_df["INLINE_3D"].max()
     xl0 = head_df['CROSSLINE_3D'].min()
     xln = head_df['CROSSLINE_3D'].max()
+    n0 = 0
     nsamp = head_df.TRACE_SAMPLE_COUNT.min()
     ns0 = head_df.DelayRecordingTime.min()
 
@@ -297,6 +342,11 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
     ds = head_bin['Interval']
     msys = _SEGY_MEASUREMENT_SYSTEM[head_bin['MeasurementSystem']]
 
+    if zcrop is not None:
+        zcrop = check_zcrop(zcrop, [0, ns])
+        n0, ns = zcrop
+        ns0 = ds*n0
+        nsamp = ns - n0 + 1
 
     create_empty_seisnc(ncfile, (ni, nx, nsamp))
     set_seisnc_dims(ncfile, first_sample=ns0//1000, sample_rate=ds//1000,
@@ -304,7 +354,7 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
                     first_xline=xl0, xline_step=dxl, vert_domain=vert,
                     measurement_system=msys)
 
-    text = segy_texthead(segyfile)
+    text = get_segy_texthead(segyfile)
 
     with segyio.open(segyfile, 'r', ignore_geometry=True, iline=iline, xline=xline) as segyf, \
       netCDF4.Dataset(ncfile, "a", format="NETCDF4") as seisnc:
@@ -312,12 +362,14 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
 
         #assign CDPXY
         query = "INLINE_3D >= @il0 & INLINE_3D <= @iln & CROSSLINE_3D >= @xl0 and CROSSLINE_3D <= @xln"
-        seisnc['CDP_X'][:, :] = head_df.query(query)['CDP_X'].values.reshape((ni, nx))
-        seisnc['CDP_Y'][:, :] = head_df.query(query)['CDP_Y'].values.reshape((ni, nx))
+        cdpx = head_df.query(query)[['INLINE_3D', 'CROSSLINE_3D', 'CDP_X']].pivot('INLINE_3D', 'CROSSLINE_3D').values
+        cdpy = head_df.query(query)[['INLINE_3D', 'CROSSLINE_3D', 'CDP_Y']].pivot('INLINE_3D', 'CROSSLINE_3D').values
+        seisnc['CDP_X'][:, :] = cdpx
+        seisnc['CDP_Y'][:, :] = cdpy
 
         segyf.mmap()
         # load trace
-        temp_line = np.full((nx, ns), np.nan, float)
+        temp_line = np.full((nx, nsamp), np.nan, float)
         cur_iline = head_df['INLINE_3D'][0]
         pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
         for n, trc in enumerate(segyf.trace):
@@ -327,7 +379,7 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
                 pb.update()
                 continue
             cur_xline = (cxl - xl0)//dxl
-            temp_line[cur_xline, :] = trc
+            temp_line[cur_xline, :] = trc[n0:ns+1]
             if cil > cur_iline:
                 cur_iline = cil
                 seisnc['data'][(cur_iline-il0)/dil, :, :] = temp_line
@@ -382,7 +434,8 @@ def ncdf2segy(ncfile, segyfile, CMP=False, iline=189, xline=193, il_chunks=10, s
                             iline: il_val[il],
                             xline: xln,
                             segyio.su.cdpx: cdpx,
-                            segyio.su.cdpy: cdpy
+                            segyio.su.cdpy: cdpy,
+                            segyio.su.ns: nk
                         }
                         for xln, cdpx, cdpy in zip(xl_val,
                                                    data.CDP_X.values[i, :],

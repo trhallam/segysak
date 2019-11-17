@@ -1,30 +1,33 @@
 import pytest
 import pathlib
 
-from etlpy.seismic.seisnc import create_empty_seisnc, set_seisnc_dims, copy_seisnc_structure
+import xarray as xr
+import numpy as np
 
-TEST_DATA_DIR = pathlib.Path('working_test_data')
-TEST_SEISNC = TEST_DATA_DIR / 'test.seisnc'
-TESTC_SEISNC = TEST_DATA_DIR / 'test_copy.seisnc'
+from segysak.seisnc import create_empty_seisnc, set_seisnc_dims
 
-if not TEST_DATA_DIR.exists():
-    TEST_DATA_DIR.mkdir()
+from test_fixtures import temp_dir, TEMP_TEST_DATA_DIR
 
-def test_create_empty_seisnc():
-    create_empty_seisnc(TEST_SEISNC, (10,15,20))
-    # assert test.seisnc created by opening and checking dims
+TEST_SEISNC = 'test.SEISNC'
+TEST_DIMS = (10, 15, 20)
+TEST_IND = (3, 1, 5, 2, 10, 4)
 
-def test_set_seisnc_dims():
-    set_seisnc_dims(TEST_SEISNC, 3, 1, 5, 2, 10, 4)
-    # assert changed dims
+def test_create_empty_seisnc(temp_dir):
+    f = temp_dir/TEST_SEISNC
+    create_empty_seisnc(f, TEST_DIMS)
+    assert f.exists()
 
-def test_copy_seisnc_structure():
-    copy_seisnc_structure(TEST_SEISNC, TESTC_SEISNC)
+def test_set_seisnc_dims(temp_dir):
+    set_seisnc_dims(temp_dir/TEST_SEISNC, *TEST_IND)
+
+    ds = xr.open_dataset(temp_dir/TEST_SEISNC)
+    v_test = np.arange(TEST_IND[0], TEST_DIMS[2]*TEST_IND[1] + TEST_IND[0], TEST_IND[1])
+    i_test = np.arange(TEST_IND[2], TEST_DIMS[0]*TEST_IND[3] + TEST_IND[2], TEST_IND[3])
+    x_test = np.arange(TEST_IND[4], TEST_DIMS[1]*TEST_IND[5] + TEST_IND[4], TEST_IND[5])
+
+    assert np.array_equal(ds.vert.values, v_test)
+    assert np.array_equal(ds.iline.values, i_test)
+    assert np.array_equal(ds.xline.values, x_test)
 
 if __name__ == '__main__':
-    test_create_empty_seisnc()
-    test_set_seisnc_dims()
-    test_copy_seisnc_structure()
-    import xarray as xr
-    d = xr.open_dataset(TEST_SEISNC)
-    dc = xr.open_dataset(TESTC_SEISNC)
+    pass
