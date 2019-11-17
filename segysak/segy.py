@@ -2,8 +2,6 @@
 """Functions to interact with segy data
 """
 
-import os
-import datetime
 from warnings import warn
 
 from collections import defaultdict
@@ -16,7 +14,7 @@ import xarray as xr
 
 from tqdm.autonotebook import tqdm
 from segysak.seisnc import create_empty_seisnc, set_seisnc_dims
-from segysak.tools import check_crop, check_zcrop
+from segysak.tools import check_crop, check_zcrop, _get_userid, _get_datetime
 
 _SEGY_MEASUREMENT_SYSTEM = defaultdict(lambda: 0)
 _SEGY_MEASUREMENT_SYSTEM[1] = 'm'
@@ -100,15 +98,6 @@ def put_segy_texthead(segyfile, ebcidc, ext_headers=False):
     with segyio.open(segyfile, "r+", ignore_geometry=True) as segyf:
         segyf.text[0] = header
 
-def _get_datetime():
-    """Return current date and time as formatted strings
-
-    Returns:
-        str, str: Date "YYYY-MM-DD" Time "HH:MM:SS"
-    """
-    now = datetime.datetime.now()
-    return now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S")
-
 def _clean_texthead(text_dict):
     """Reduce texthead dictionary to 75 characters per line.
 
@@ -168,7 +157,7 @@ def create_default_texthead(override=None):
         39: '',
         40: 'END TEXTUAL HEADER'}
     """
-    user = os.getlogin()
+    user = _get_userid()
     today, time = _get_datetime()
     text_dict = {
         #      123456789012345678901234567890123456789012345678901234567890123456
