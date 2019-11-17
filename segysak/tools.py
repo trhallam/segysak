@@ -1,4 +1,7 @@
 
+import os
+import datetime
+
 def _check_crop(crop, limits):
     """Make sure a pair of limits is cropped correctly.
 
@@ -62,3 +65,25 @@ def check_zcrop(crop, limits):
     """
     _check_crop(crop, limits)
     return _crop(crop, limits)
+
+def _get_datetime():
+    """Return current date and time as formatted strings
+
+    Returns:
+        str, str: Date "YYYY-MM-DD" Time "HH:MM:SS"
+    """
+    now = datetime.datetime.now()
+    return now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S")
+
+def _get_userid():
+    """Try to get the user id for reporting.
+
+    Returns:
+        str: The current user login ID.
+    """
+    try:
+        return os.getlogin()
+    except OSError: # couldn't get it this way
+        pass
+    finally:
+        return "segysak_user"
