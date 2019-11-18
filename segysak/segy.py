@@ -115,11 +115,11 @@ def create_default_texthead(override=None):
 
     Example:
         >>> create_default_texthead(override={7:'Hello', 8:'World!'})
-        {1: 'etlpy SEGY Output',
+        {1: 'segysak SEGY Output',
         2: 'Data created by: username ',
         3: '',
         4: 'DATA FORMAT: SEG-Y;  DATE: 2019-06-09 15:14:00',
-        5: 'DATA DESCRIPTION: SEGY format data output from etlpy',
+        5: 'DATA DESCRIPTION: SEGY format data output from segysak',
         6: '',
         7: 'Hello',
         8: 'World!',
@@ -140,7 +140,7 @@ def create_default_texthead(override=None):
         1   : "segysak SEGY Output",
         2   :f"Data created by: {user} ",
         4   :f"DATA FORMAT: SEG-Y;  DATE: {today} {time}",
-        5   : "DATA DESCRIPTION: SEGY format data output",
+        5   : "DATA DESCRIPTION: SEGY format data output from segysak",
         6   : "",
         35  : "*** BYTE LOCATION OF KEY HEADERS ***",
         36  : "CMP UTM-X 181-184, ALL COORDS X100, CMP UTM-Y 185-188",
@@ -344,7 +344,7 @@ def ncdf2segy(ncfile, segyfile, CMP=False, iline=189, xline=193, il_chunks=10, s
         CMP (bool, optional): The data is 2D. Defaults to False.
         iline (int, optional): Inline byte location. Defaults to 189.
         xline (int, optional): Crossline byte location. Defaults to 193.
-        xl_chunks (int, optional): The size of data to work on - if you have memory
+        il_chunks (int, optional): The size of data to work on - if you have memory
             limitations. Defaults to 10.
         silent (bool, optional): Turn off progress reporting. Defaults to False.
     """
@@ -357,7 +357,7 @@ def ncdf2segy(ncfile, segyfile, CMP=False, iline=189, xline=193, il_chunks=10, s
         # the file, i.e. its inline numbers, crossline numbers, etc. You can also add
         # more structural information, but offsets etc. have sensible defautls. This is
         # the absolute minimal specification for a N-by-M volume
-        spec.sorting = 2
+        spec.sorting = 1
         spec.format = 1
         spec.iline = iline
         spec.xline = xline
@@ -393,6 +393,7 @@ def ncdf2segy(ncfile, segyfile, CMP=False, iline=189, xline=193, il_chunks=10, s
             segyf.bin.update(
                 tsort=segyio.TraceSortingFormat.INLINE_SORTING,
                 hdt=int(seisnc.ds*1000),
+                hns=nk,
                 mfeet=msys,
                 jobid=1,
                 lino=1,
