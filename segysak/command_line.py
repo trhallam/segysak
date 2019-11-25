@@ -11,7 +11,7 @@ import pathlib
 
 import segysak
 from segysak.version import version
-from segysak.segy import segy2ncdf, ncdf2segy, segy_header_scan, segy_texthead
+from segysak.segy import segy2ncdf, ncdf2segy, segy_header_scan, get_segy_texthead
 
 # configuration setup
 NAME = 'segysak'
