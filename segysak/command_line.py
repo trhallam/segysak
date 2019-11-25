@@ -118,7 +118,7 @@ def main():
     # Print EBCIDC header
     if args.ebcidc:
         try:
-            print(segy_texthead(input_file))
+            print(get_segy_texthead(input_file))
         except IOError:
             LOGGER.error("Input SEGY file was not found - check name and path")
 
