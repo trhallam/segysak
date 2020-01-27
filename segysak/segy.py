@@ -302,20 +302,27 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
     """
     head_df = segy_header_scrape(segyfile)
     head_bin = segy_bin_scrape(segyfile)
+
+    # get names of columns where stuff we want is
+    il_head_loc = str(segyio.TraceField(iline))
+    xl_head_loc = str(segyio.TraceField(xline))
+    x_head_loc = str(segyio.TraceField(cdpx))
+    y_head_loc = str(segyio.TraceField(cdpy))
+
     # calculate vert, inline and crossline ranges/meshgrids
-    il0 = head_df['INLINE_3D'].min()
-    iln = head_df["INLINE_3D"].max()
-    xl0 = head_df['CROSSLINE_3D'].min()
-    xln = head_df['CROSSLINE_3D'].max()
+    il0 = head_df[il_head_loc].min()
+    iln = head_df[il_head_loc].max()
+    xl0 = head_df[xl_head_loc].min()
+    xln = head_df[xl_head_loc].max()
     n0 = 0
     nsamp = head_df.TRACE_SAMPLE_COUNT.min()
     ns0 = head_df.DelayRecordingTime.min()
 
     dil = np.max(
-        head_df['INLINE_3D'].values[1:] - head_df['INLINE_3D'].values[:-1]
+        head_df[il_head_loc].values[1:] - head_df[il_head_loc].values[:-1]
     )
     dxl = np.max(
-        head_df['CROSSLINE_3D'].values[1:] - head_df['CROSSLINE_3D'].values[:-1]
+        head_df[xl_head_loc].values[1:] - head_df[xl_head_loc].values[:-1]
     )
 
     if crop is not None:
@@ -350,20 +357,20 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
         seisnc.text = text
 
         #assign CDPXY
-        query = "INLINE_3D >= @il0 & INLINE_3D <= @iln & CROSSLINE_3D >= @xl0 and CROSSLINE_3D <= @xln"
-        cdpx = head_df.query(query)[['INLINE_3D', 'CROSSLINE_3D', 'CDP_X']].pivot('INLINE_3D', 'CROSSLINE_3D').values
-        cdpy = head_df.query(query)[['INLINE_3D', 'CROSSLINE_3D', 'CDP_Y']].pivot('INLINE_3D', 'CROSSLINE_3D').values
+        query = f"{il_head_loc} >= @il0 & {il_head_loc} <= @iln & {xl_head_loc} >= @xl0 and {xl_head_loc} <= @xln"
+        cdpx = head_df.query(query)[[il_head_loc, xl_head_loc, x_head_loc]].pivot(il_head_loc, xl_head_loc).values
+        cdpy = head_df.query(query)[[il_head_loc, xl_head_loc, y_head_loc]].pivot(il_head_loc, xl_head_loc).values
         seisnc['CDP_X'][:, :] = cdpx
         seisnc['CDP_Y'][:, :] = cdpy
 
         segyf.mmap()
         # load trace
         temp_line = np.full((nx, nsamp), np.nan, float)
-        cur_iline = head_df['INLINE_3D'][0]
+        cur_iline = head_df[il_head_loc][0]
         pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
         for n, trc in enumerate(segyf.trace):
-            cxl = head_df['CROSSLINE_3D'][n]
-            cil = head_df['INLINE_3D'][n]
+            cxl = head_df[xl_head_loc][n]
+            cil = head_df[il_head_loc][n]
             if cxl < xl0 or cxl > xln or cil < il0 or cil > iln:
                 pb.update()
                 continue
