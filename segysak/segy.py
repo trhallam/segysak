@@ -317,6 +317,9 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
     n0 = 0
     nsamp = head_df.TRACE_SAMPLE_COUNT.min()
     ns0 = head_df.DelayRecordingTime.min()
+    coord_scalar = head_df.SourceGroupScalar.median()
+    coord_scalar_sign = coord_scalar/abs(coord_scalar)
+    coord_scalar_mult = np.power(abs(coord_scalar), coord_scalar_sign)
 
     dil = np.max(
         head_df[il_head_loc].values[1:] - head_df[il_head_loc].values[:-1]
@@ -345,7 +348,8 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
         nsamp = ns - n0 + 1
 
     create_empty_seisnc(ncfile, (ni, nx, nsamp))
-    set_seisnc_dims(ncfile, first_sample=ns0//1000, sample_rate=ds//1000,
+    set_seisnc_dims(ncfile,
+                    first_sample=ns0, sample_rate=ds//1000,
                     first_iline=il0, iline_step=dil,
                     first_xline=xl0, xline_step=dxl, vert_domain=vert,
                     measurement_system=msys)
@@ -360,8 +364,8 @@ def segy2ncdf(segyfile, ncfile, CMP=False, iline=189, xline=193, cdpx=181, cdpy=
         query = f"{il_head_loc} >= @il0 & {il_head_loc} <= @iln & {xl_head_loc} >= @xl0 and {xl_head_loc} <= @xln"
         cdpx = head_df.query(query)[[il_head_loc, xl_head_loc, x_head_loc]].pivot(il_head_loc, xl_head_loc).values
         cdpy = head_df.query(query)[[il_head_loc, xl_head_loc, y_head_loc]].pivot(il_head_loc, xl_head_loc).values
-        seisnc['CDP_X'][:, :] = cdpx
-        seisnc['CDP_Y'][:, :] = cdpy
+        seisnc['CDP_X'][:, :] = cdpx*coord_scalar_mult
+        seisnc['CDP_Y'][:, :] = cdpy*coord_scalar_mult
 
         segyf.mmap()
         # load trace
@@ -399,6 +403,7 @@ def ncdf2segy(ncfile, segyfile, CMP=False, iline=189, xline=193, il_chunks=10, s
 
     with xr.open_dataset(ncfile, chunks={'i':il_chunks}) as seisnc:
         ni, nj, nk = seisnc.dims['i'], seisnc.dims['j'], seisnc.dims['k']
+        z0 = int(seisnc.vert.values[0])
         msys = _ISEGY_MEASUREMENT_SYSTEM[seisnc.measurement_system]
         spec = segyio.spec()
         # to create a file from nothing, we need to tell segyio about the structure of
@@ -431,7 +436,8 @@ def ncdf2segy(ncfile, segyfile, CMP=False, iline=189, xline=193, il_chunks=10, s
                             xline: xln,
                             segyio.su.cdpx: cdpx,
                             segyio.su.cdpy: cdpy,
-                            segyio.su.ns: nk
+                            segyio.su.ns: nk,
+                            segyio.su.delrt: z0
                         }
                         for xln, cdpx, cdpy in zip(xl_val,
                                                    data.CDP_X.values[i, :],
