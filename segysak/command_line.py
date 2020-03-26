@@ -43,8 +43,7 @@ class segysakArgsParser():
         self.parser.add_argument("-L", help=f'output logging to file, if none specified will use {NAME}_date_time.log',
             nargs='?', const='DEFAULT', default=None)
         #self.parser.add_argument("--debugging", help='activate additional debugging messages', action='store_true', default=False)
-        self.parser.add_argument("-F", "--file", help="Input file location and name",
-            default=None)
+        self.parser.add_argument("files", metavar='file', type=str, nargs='+', help="Input file location and name")
         self.parser.add_argument("-e,", "--ebcidc", help='Print SEGY EBCIDC header',
             action='store_true', default=False)
         self.parser.add_argument("--scan", help="Scan trace headers and print value ranges.",
@@ -79,19 +78,32 @@ class segysakArgsParser():
 
         return args
 
-def check_file(input_file):
+def check_file(input_files):
 
-    if input_file is None:
-        LOGGER.error('Require input file with [-F inputfile.ext]')
+    if input_files is None:
+        LOGGER.error('Require input file/s')
         raise SystemExit
 
-    input_file = pathlib.Path(input_file)
-    if input_file.exists():
-        return input_file
-    else:
-        LOGGER.error('Cannot find input {segyfile}')
-        raise SystemExit
+    checked_files = list()
 
+    expanded_input = input_files.copy()
+
+    for ifile in input_files:
+        if '*' in ifile:
+            ifile_path = pathlib.Path(ifile)
+            parent = ifile_path.absolute().parent
+            expanded_input += list(parent.glob(ifile_path.name))
+            expanded_input.remove(ifile)
+
+    for ifile in expanded_input:
+        ifile = pathlib.Path(ifile)
+        if ifile.exists():
+            checked_files.append(ifile)
+        else:
+            LOGGER.error('Cannot find input {segyfile}')
+            raise SystemExit
+
+    return checked_files
 
 def main():
 
@@ -111,43 +123,45 @@ def main():
     LOGGER.info(f'segysak v{version}')
 
     # check inputs
-    input_file = check_file(args.file)
+    checked_files = check_file(args.files)
 
     # Generate or Load Configuration File
 
-    # Print EBCIDC header
-    if args.ebcidc:
-        try:
-            print(get_segy_texthead(input_file))
-        except IOError:
-            LOGGER.error("Input SEGY file was not found - check name and path")
+    for input_file in checked_files:
+        print(input_file.name)
+        # Print EBCIDC header
+        if args.ebcidc:
+            try:
+                print(get_segy_texthead(input_file))
+            except IOError:
+                LOGGER.error("Input SEGY file was not found - check name and path")
 
-    if args.scan > 0:
-        hscan, nscan = segy_header_scan(input_file, max_traces_scan=args.scan)
-        width = 10
-        print(f'Traces scanned: {nscan}')
-        print("{:>40s} {:>8s} {:>10s} {:>10s}".format('Item', 'Byte Loc', 'Min', 'Max'))
-        for key, item in hscan.items():
-            print("{:>40s} {:>8d} {:>10.0f} {:>10.0f}".format(key, item[0], item[1], item[2]))
+        if args.scan > 0:
+            hscan, nscan = segy_header_scan(input_file, max_traces_scan=args.scan)
+            width = 10
+            print(f'Traces scanned: {nscan}')
+            print("{:>40s} {:>8s} {:>10s} {:>10s}".format('Item', 'Byte Loc', 'Min', 'Max'))
+            for key, item in hscan.items():
+                print("{:>40s} {:>8d} {:>10.0f} {:>10.0f}".format(key, item[0], item[1], item[2]))
 
-    iline = args.iline
-    xline = args.xline
+        iline = args.iline
+        xline = args.xline
 
-    if args.netCDF is None or args.netCDF is not False:
-        if args.netCDF is None:
-            outfile = input_file.stem + '.SEISNC'
-        else:
-            outfile = args.netCDF
-        segy2ncdf(input_file, outfile, iline=iline, xline=xline, crop=args.crop)
-        LOGGER.info(f"NetCDF output written to {outfile}")
+        if args.netCDF is None or args.netCDF is not False:
+            if args.netCDF is None:
+                outfile = input_file.stem + '.SEISNC'
+            else:
+                outfile = args.netCDF
+            segy2ncdf(input_file, outfile, iline=iline, xline=xline, crop=args.crop)
+            LOGGER.info(f"NetCDF output written to {outfile}")
 
-    if args.SEGY is None or args.SEGY is not False:
-        if args.SEGY is None:
-            outfile = input_file.stem + '.segy'
-        else:
-            outfile = args.SEGY
-        ncdf2segy(input_file, outfile, iline=iline, xline=xline)#, crop=args.crop)
-        LOGGER.info(f"SEGY output written to {outfile}")
+        if args.SEGY is None or args.SEGY is not False:
+            if args.SEGY is None:
+                outfile = input_file.stem + '.segy'
+            else:
+                outfile = args.SEGY
+            ncdf2segy(input_file, outfile, iline=iline, xline=xline)#, crop=args.crop)
+            LOGGER.info(f"SEGY output written to {outfile}")
 
 if __name__ == "__main__":
     main()
