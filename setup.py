@@ -21,9 +21,11 @@ setup(name='segysak',
                         'pandas',
                         'segyio',
                         'xarray',
+                        'dask',
+                        'tqdm',
                         'netCDF4'],
       packages=find_packages(),
       #add command line scripts here
       entry_points = {
-            'console_scripts': ['segysak=segysak.command_line:main']
+            'console_scripts': ['segysak=segysak._cli:main']
       })

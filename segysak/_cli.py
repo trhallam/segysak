@@ -12,6 +12,7 @@ import pathlib
 import segysak
 from segysak.version import version
 from segysak.segy import segy2ncdf, ncdf2segy, segy_header_scan, get_segy_texthead
+from segysak.tools import fix_bad_chars
 
 # configuration setup
 NAME = 'segysak'
@@ -43,11 +44,13 @@ class segysakArgsParser():
         self.parser.add_argument("-L", help=f'output logging to file, if none specified will use {NAME}_date_time.log',
             nargs='?', const='DEFAULT', default=None)
         #self.parser.add_argument("--debugging", help='activate additional debugging messages', action='store_true', default=False)
+
         self.parser.add_argument("files", metavar='file', type=str, nargs='+', help="Input file location and name")
         self.parser.add_argument("-e,", "--ebcidc", help='Print SEGY EBCIDC header',
             action='store_true', default=False)
-        self.parser.add_argument("--scan", help="Scan trace headers and print value ranges.",
-            nargs='?', const=1000, default=False, type=int)
+        self.parser.add_argument("--scan", help="Scan trace headers and print value ranges.",)
+
+        # outputs
         self.output_format_group =  self.parser.add_mutually_exclusive_group()
         self.output_format_group.add_argument("-nc", "--netCDF",
             help="Convert SEGY to netCDF File (SEISNC)",
@@ -55,6 +58,7 @@ class segysakArgsParser():
         self.output_format_group.add_argument("-sgy", "--SEGY",
             help="Convert SEISNC to SEGY File",
             nargs='?', const=None, default=False, type=str)
+
         self.parser.add_argument('--iline', help="Inline byte location",
             default=189, type=int)
         self.parser.add_argument('--xline', help='Crossline byte location',
@@ -104,6 +108,24 @@ def check_file(input_files):
             raise SystemExit
 
     return checked_files
+
+def _action_ebcidc_out(arg, input_file):
+    try:
+        ebcidc = get_segy_texthead(input_file)
+    except IOError:
+        LOGGER.error("Input SEGY file was not found - check name and path")
+        raise SystemExit
+
+    if arg is None:
+        print(ebcidc)
+    else:
+        ebcidc = fix_bad_chars(ebcidc)
+        with open(arg, 'w') as f:
+            f.write(ebcidc)
+
+def _action_ebcidc_in(input_ebcidc_file, input_file):
+    pass
+
 
 def main():
 
