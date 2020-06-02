@@ -66,6 +66,24 @@ def check_zcrop(crop, limits):
     _check_crop(crop, limits)
     return _crop(crop, limits)
 
+def fix_bad_chars(text, sub='#'):
+    """Remove unencodeable characters. And replace them with sub.
+
+    Args:
+        text (str): Text string to fix.
+        sub (str): Sting to replace bad chars.
+
+    Returns:
+        (str): Cleaned text string.
+    """
+    good_text = ""
+    for i, char in enumerate(text):
+        if len(char.encode()) == 1:
+            good_text = good_text + char
+        else:
+            good_text = good_text + "#"
+    return good_text
+
 def _get_datetime():
     """Return current date and time as formatted strings
 

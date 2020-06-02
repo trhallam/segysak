@@ -4,16 +4,12 @@ import pathlib
 import numpy as np
 import pandas as pd
 import xarray as xr
-import segyio
+
 
 from segysak.segy import segy2ncdf, ncdf2segy, create_default_texthead, put_segy_texthead, get_segy_texthead, \
     segy_header_scan, segy_header_scrape, segy_bin_scrape
 
-from test_fixtures import temp_dir, TEMP_TEST_DATA_DIR
-
-TEST_SEGY_SIZE = 10
-TEST_SEGY_REG = 'test_reg.segy'
-TEST_SEGY_SKEW = 'test_skew.segy'
+from test_fixtures import *
 
 GOOD_HEADER = ('a'*3200, {n:'a'*65 for n in range(1, 41)}, bytes('a'*3200, 'utf8'))
 BAD_HEADER = ('b'*4000, {n:'b'*85 for n in range(1, 41)}, bytes('b'*4000, 'utf8'), {'not_a_num':'b'*65})
@@ -22,69 +18,6 @@ BAD_HEADER = ('b'*4000, {n:'b'*85 for n in range(1, 41)}, bytes('b'*4000, 'utf8'
 # def temp_dir(tmpdir_factory):
 #     tdir = tmpdir_factory.mktemp(TEMP_TEST_DATA_DIR)
 #     return pathlib.Path(str(tdir))
-
-def create_temp_segy(n, test_file, skew=False):
-    data = np.zeros((n, n, n))
-    spec = segyio.spec()
-    # to create a file from nothing, we need to tell segyio about the structure of
-    # the file, i.e. its inline numbers, crossline numbers, etc. You can also add
-    # more structural information, but offsets etc. have sensible defautls. This is
-    # the absolute minimal specification for a N-by-M volume
-    spec.sorting = 2
-    spec.format = 1
-    spec.iline = 189
-    spec.xline = 193
-    spec.samples = range(n)
-    if skew:
-        spec.ilines = range(n+n-1)
-    else:
-        spec.ilines = range(n)
-    spec.xlines = range(n)
-
-    xl_val = range(n+1, n+n+1, 1)
-    il_val = range(1, n+1, 1)
-
-    cdpx, cdpy = np.meshgrid(il_val, xl_val)
-
-    if skew:
-        for i, x in enumerate(cdpx):
-            cdpx[i, :] = x + i
-
-    with segyio.create(test_file, spec) as segyf:
-        for i, (t, il, xl) in enumerate(zip(data.reshape(-1, n), cdpx.ravel(), cdpy.ravel())):
-            segyf.header[i] = {
-                    segyio.su.offset: 1,
-                    189: il,
-                    193: xl,
-                    segyio.su.cdpx: il*1000,
-                    segyio.su.cdpy: xl*1000,
-                    segyio.su.ns: n
-                }
-            segyf.trace[i] = t
-        segyf.bin.update(
-            tsort=segyio.TraceSortingFormat.INLINE_SORTING,
-            hdt=1000,
-            mfeet=1,
-            jobid=1,
-            lino=1,
-            reno=1,
-            ntrpr=n*n,
-            nart=n*n,
-            fold=1
-        )
-
-    if not skew:
-        put_segy_texthead(test_file, create_default_texthead())
-    else:
-        put_segy_texthead(test_file, create_default_texthead(override={7:'Is Skewed Test'}))
-
-@pytest.fixture(scope="session", params=[(TEST_SEGY_SIZE, TEST_SEGY_REG, False),
-                                         (TEST_SEGY_SIZE, TEST_SEGY_SKEW, True)],
-                                 ids=['reg', 'skewed'])
-def temp_segy(temp_dir, request):
-    n, file, skew = request.param
-    create_temp_segy(n, str(temp_dir/file), skew)
-    return temp_dir/file
 
 def test_segy_fixtures(temp_dir, temp_segy):
     assert temp_segy.exists()
