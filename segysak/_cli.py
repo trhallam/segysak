@@ -48,7 +48,8 @@ class segysakArgsParser():
         self.parser.add_argument("files", metavar='file', type=str, nargs='+', help="Input file location and name")
         self.parser.add_argument("-e,", "--ebcidc", help='Print SEGY EBCIDC header',
             action='store_true', default=False)
-        self.parser.add_argument("--scan", help="Scan trace headers and print value ranges.",)
+        self.parser.add_argument("--scan", help="Scan trace headers and print value ranges.",
+            nargs='?', const=1000, default=False, type=int)
 
         # outputs
         self.output_format_group =  self.parser.add_mutually_exclusive_group()
