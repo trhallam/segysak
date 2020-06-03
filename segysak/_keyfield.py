@@ -1,0 +1,60 @@
+"""Enumerations of dataset keys.
+"""
+from enum import Enum
+
+
+class CoordKeyField(Enum):
+
+    cmp = "cmp"
+    iline = "iline"
+    xline = "xline"
+    offset = "offset"
+    depth = "depth"
+    twt = "twt"
+    cdp_x = "cdp_x"
+    cdp_y = "cdp_y"
+    lat = "lat"
+    long = "lon"
+
+
+class DimensionKeyField(Enum):
+
+    cdp_3d = ("d1", "d2")
+    cdp_2d = ("d1",)
+    threed = ("d1", "d2", "d3")
+    twod = ("d1", "d3")
+
+
+class VariableKeyField(Enum):
+    data = "data"
+
+
+class AttrKeyField(Enum):
+
+    ns = "ns"
+    ds = "ds"
+    text = "text"
+    d3_units = "d3_units"
+    d3_domain = "d3_domain"
+    epsg = "epsg"
+    corner_points = "corner_points"
+    corner_points_xy = "corner_points_xy"
+    source_file = "source_file"
+    srd = "srd"
+    datatype = "datatype"
+
+
+class VerticalKeyField(Enum):
+
+    twt = "TWT"
+    depth = "DEPTH"
+
+
+class VerticalUnits(Enum):
+
+    ms = "ms"  # milliseconds
+    s = "s"  # seconds
+    cm = "cm"  # centimetres
+    m = "m"  # metres
+    km = "km"  # kilometres
+    ft = "ft"  # feet
