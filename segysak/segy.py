@@ -599,7 +599,7 @@ def segy_loader(
     vert_domain="TWT",
     data_type="AMP",
     ix_crop=None,
-    cdp_crop=None,
+    cmp_crop=None,
     xy_crop=None,
     z_crop=None,
     return_geometry=False,
@@ -610,35 +610,44 @@ def segy_loader(
 
     The output ncfile has the following structure
         Dimensions:
-            vert - The vertical axis
-            iline - Inline axis
-            xline - Xline axis
-        Variables:
-            INLINE_3D - The inline numbering
-            CROSSLINE_3D - The xline numbering
-            CDP_X - Eastings
-            CDP_Y - Northings
-            CDP_TRACE - Trace Number
+            d1 - CMP or Inline axis
+            d2 - Xline axis
+            d3 - The vertical axis
+            d4 - Offset/Angle Axis
+        Coordinates:
+            iline - The inline numbering
+            xline - The xline numbering
+            cdp_x - Eastings
+            cdp_y - Northings
+            cmp - Trace Number for 2d
+        Variables
             data - The data volume
         Attributes:
-            vert.units
-            vert.data.units
-            ns - Number of samples in vert
-            ds - Sample rate
+            TBC
 
     Args:
         segyfile (str): Input segy file path
-        ncfile (str): Output SEISNC file path.
-        iline (int): Inline byte location.
-        xline (int): Cross-line byte location.
-        vert (str): Vertical sampling domain.
-        units (str): Units of amplitude data.
-        crop (list): List of minimum and maximum inline and crossline to output.
-            Has the form '[min_il, max_il, min_xl, max_xl]'.
-        zcrop (list): List of minimum and maximum vertical samples to output.
+        ncfile (str, optional): Output SEISNC file path. If none the loaded data will be
+            returned in memory as an xarray.Dataset.
+        iline (int): Inline byte location, usually 189
+        xline (int): Cross-line byte location, usally 193
+        vert (str): Vertical sampling domain. One of ['TWT', 'DEPTH']
+        data_type (str): Data type ['AMP', 'VEL']
+        cmp_crop (list, optional): List of minimum and maximum cmp values to output.
+            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
+        ix_crop (list, optional): List of minimum and maximum inline and crossline to output.
+            Has the form '[min_il, max_il, min_xl, max_xl]'. Ignored for 2D data.
+        xy_crop (list, optional): List of minimum and maximum cdp_x and cdp_y to output.
+            Has the form '[min_x, max_x, min_y, max_y]'. Ignored for 2D data.
+        z_crop (list, optional): List of minimum and maximum vertical samples to output.
             Has the form '[min, max]'.
+        return_geometry (bool, optional): If true returns an xarray.dataset which doesn't contain data but mirrors
+            the input volume header information.
         silent (bool): Disable progress bar.
 
+    Returns:
+        None: ncfile is specified.
+        xarray.Dataset: ncfile keyword argument is zero or return_geometry is True
     """
     # Input sanity checks
     if cmp is not None and (iline is not None or xline is not None):
@@ -670,10 +679,10 @@ def segy_loader(
     head_df[y_head_loc] = head_df[y_head_loc] * coord_scalar_mult * 1.0
 
     # Cropping
-    if cdp_crop and cmp is not None:  # 2d cdp cropping
+    if cnp_crop and cmp is not None:  # 2d cdp cropping
         cmp_head_loc = _get_tf(cmp)
         crop_min, crop_max = check_crop(
-            cdp_crop, [head_df[cmp_head_loc].min(), head_df[cmp_head_loc].max()]
+            cmp_crop, [head_df[cmp_head_loc].min(), head_df[cmp_head_loc].max()]
         )
 
         head_df = head_df.query(
