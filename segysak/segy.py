@@ -1,10 +1,11 @@
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, unused-variable
 """Functions to interact with segy data
 """
 
 from warnings import warn
 
 from collections import defaultdict
+import importlib
 
 import segyio
 import netCDF4
@@ -13,7 +14,12 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from tqdm.autonotebook import tqdm
+has_ipywidgets = importlib.find_loader("ipywidgets") is not None
+
+if has_ipywidgets:
+    from tqdm.autonotebook import tqdm
+else:
+    from tqdm import tqdm
 
 from ._keyfield import CoordKeyField, AttrKeyField, VariableKeyField, DimensionKeyField
 from ._seismic_dataset import create_seismic_dataset, create3d_dataset
@@ -24,6 +30,20 @@ _SEGY_MEASUREMENT_SYSTEM = defaultdict(lambda: 0)
 _SEGY_MEASUREMENT_SYSTEM[1] = "m"
 _SEGY_MEASUREMENT_SYSTEM[2] = "ft"
 _ISEGY_MEASUREMENT_SYSTEM = defaultdict(lambda: 0, m=1, ft=2)
+
+
+class SegyLoadError(Exception):
+    def __init__(self, message, errors):
+
+        # Call the base class constructor with the parameters it needs
+        super().__init__(message)
+
+        # Now for your custom code...
+        self.errors = errors
+
+
+def _get_tf(var):
+    return str(segyio.TraceField(var))
 
 
 def _bag_slices(ind, n=10):
@@ -52,7 +72,7 @@ def _bag_slices(ind, n=10):
     return bag
 
 
-def get_segy_texthead(segyfile, ext_headers=False):
+def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
     """Return the ebcidc
 
     Args:
@@ -63,7 +83,9 @@ def get_segy_texthead(segyfile, ext_headers=False):
     Returns:
         str: Returns the EBCIDC text as a formatted paragraph.
     """
-    with segyio.open(segyfile, "r", ignore_geometry=True) as segyf:
+
+    segyio_kwargs["ignore_geometry"] = True
+    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
         text = segyf.text[0].decode("ascii", "replace")
         text = text.replace("�Cro", "    ")  # petrel weird export
         text = segyio.tools.wrap(text)
@@ -74,7 +96,7 @@ def get_segy_texthead(segyfile, ext_headers=False):
             return text
 
 
-def put_segy_texthead(segyfile, ebcidc, ext_headers=False):
+def put_segy_texthead(segyfile, ebcidc, ext_headers=False, **segyio_kwargs):
 
     header = ""
     if isinstance(ebcidc, dict):
@@ -105,7 +127,8 @@ def put_segy_texthead(segyfile, ebcidc, ext_headers=False):
     else:
         raise ValueError("Unknown ebcidc type")
 
-    with segyio.open(segyfile, "r+", ignore_geometry=True) as segyf:
+    segyio_kwargs["ignore_geometry"] = True
+    with segyio.open(segyfile, "r+", **segyio_kwargs) as segyf:
         segyf.text[0] = header
 
 
@@ -204,7 +227,7 @@ def _active_binfield_segyio():
     return bin_keys
 
 
-def segy_header_scan(segyfile, max_traces_scan=1000, silent=False):
+def segy_header_scan(segyfile, max_traces_scan=1000, silent=False, **segyio_kwargs):
     """Perform a scan of the segy file headers and return ranges.
 
     Args:
@@ -225,7 +248,10 @@ def segy_header_scan(segyfile, max_traces_scan=1000, silent=False):
             raise ValueError("max_traces_scan must be int")
 
     hi = 0
-    with segyio.open(segyfile, "r", ignore_geometry=True) as segyf:
+
+    segyio_kwargs["ignore_geometry"] = True
+
+    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
         header_keys = _active_tracefield_segyio()
         lh = len(header_keys.keys())
         hmin = np.full(lh, np.nan)
@@ -250,7 +276,7 @@ def segy_header_scan(segyfile, max_traces_scan=1000, silent=False):
     return header_keys, hi + 1
 
 
-def segy_bin_scrape(segyfile):
+def segy_bin_scrape(segyfile, **segyio_kwargs):
     """Scrape binary header
 
     Args:
@@ -260,11 +286,12 @@ def segy_bin_scrape(segyfile):
         dict: Binary header
     """
     bk = _active_binfield_segyio()
-    with segyio.open(segyfile, "r", ignore_geometry=True) as segyf:
+    segyio_kwargs["ignore_geometry"] = True
+    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
         return {key: segyf.bin[item] for key, item in bk.items()}
 
 
-def segy_header_scrape(segyfile, silent=False):
+def segy_header_scrape(segyfile, silent=False, **segyio_kwargs):
     """Scape all data from segy trace headers
 
     Args:
@@ -277,7 +304,8 @@ def segy_header_scrape(segyfile, silent=False):
     header_keys = _active_tracefield_segyio()
     columns = header_keys.keys()
     lc = len(columns)
-    with segyio.open(segyfile, "r", ignore_geometry=True) as segyf:
+    segyio_kwargs["ignore_geometry"] = True
+    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
         ntraces = segyf.tracecount
         head_df = pd.DataFrame(
             data=np.full((ntraces, lc), np.nan, dtype=int), columns=columns
@@ -291,19 +319,116 @@ def segy_header_scrape(segyfile, silent=False):
     return head_df
 
 
-def segy2ncdf(
+def _segy3dncdf(
     segyfile,
     ncfile,
-    CMP=False,
+    segyio_kwargs,
+    n0,
+    ns,
+    head_df,
+    il_head_loc,
+    xl_head_loc,
+    silent=False,
+):
+
+    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf, h5netcdf.File(
+        ncfile, "a"
+    ) as seisnc:
+
+        segyf.mmap()
+
+        # create data variable
+        seisnc_data = seisnc.create_variable(
+            VariableKeyField.data.value, DimensionKeyField.threed.value, float
+        )
+
+        seisnc.flush()
+
+        # work out fast and slow dir
+        if head_df[xl_head_loc].diff().min() < 0:
+            contig_dir = il_head_loc
+            broken_dir = xl_head_loc
+            slicer = lambda x, y: slice(x, y, ...)
+        else:
+            contig_dir = xl_head_loc
+            broken_dir = il_head_loc
+            slicer = lambda x, y: slice(y, x, ...)
+
+        print(f"Fast direction is {broken_dir}")
+
+        pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
+
+        for contig, grp in head_df.groupby(contig_dir):
+            for trc, val in grp.iterrows():
+                seisnc_data[val.il_index, val.xl_index, :] = segyf.trace[trc][
+                    n0 : ns + 1
+                ]
+                pb.update()
+        pb.close()
+
+
+def _segy3dxr(
+    segyfile,
+    ds,
+    segyio_kwargs,
+    n0,
+    ns,
+    head_df,
+    il_head_loc,
+    xl_head_loc,
+    silent=False,
+):
+
+    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
+
+        segyf.mmap()
+
+        # work out fast and slow dir
+        if head_df[xl_head_loc].diff().min() < 0:
+            contig_dir = il_head_loc
+            broken_dir = xl_head_loc
+            slicer = lambda x, y: slice(x, y, ...)
+        else:
+            contig_dir = xl_head_loc
+            broken_dir = il_head_loc
+            slicer = lambda x, y: slice(y, x, ...)
+
+        print(f"Fast direction is {broken_dir}")
+
+        pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
+        shape = [ds.dims[d] for d in DimensionKeyField.threed.value]
+        volume = np.zeros(shape)
+
+        for contig, grp in head_df.groupby(contig_dir):
+            for trc, val in grp.iterrows():
+                volume[int(val.il_index), int(val.xl_index), :] = segyf.trace[trc][
+                    n0 : ns + 1
+                ]
+                pb.update()
+        pb.close()
+
+    ds[VariableKeyField.data.value] = (DimensionKeyField.threed.value, volume)
+
+    return ds
+
+
+def _3dsegy_loader(
+    segyfile,
+    head_df,
+    head_bin,
+    ncfile=None,
     iline=189,
     xline=193,
     cdpx=181,
     cdpy=185,
-    vert="TWT",
-    units="AMP",
+    offset=None,
+    vert_domain="TWT",
+    data_type="AMP",
     crop=None,
     zcrop=None,
     silent=False,
+    return_geometry=False,
+    **segyio_kwargs,
 ):
     """Convert SEGY data to NetCDF4 File
 
@@ -339,36 +464,31 @@ def segy2ncdf(
         silent (bool): Disable progress bar.
 
     """
-    head_df = segy_header_scrape(segyfile)
-    head_bin = segy_bin_scrape(segyfile)
 
     # get names of columns where stuff we want is
-    il_head_loc = str(segyio.TraceField(iline))
-    xl_head_loc = str(segyio.TraceField(xline))
-    x_head_loc = str(segyio.TraceField(cdpx))
-    y_head_loc = str(segyio.TraceField(cdpy))
+    il_head_loc = _get_tf(iline)
+    xl_head_loc = _get_tf(xline)
+    x_head_loc = _get_tf(cdpx)
+    y_head_loc = _get_tf(cdpy)
 
     # calculate vert, inline and crossline ranges/meshgrids
     il0 = head_df[il_head_loc].min()
     iln = head_df[il_head_loc].max()
     xl0 = head_df[xl_head_loc].min()
     xln = head_df[xl_head_loc].max()
-    n0 = 0
-    # nsamp = head_df.TRACE_SAMPLE_COUNT.min()
 
-    # double check because sample count might not be in trace headers
-    # if nsamp == 0 and nsamp < head_bin["Samples"]:
-    nsamp = head_bin["Samples"]
-
-    ns0 = head_df.DelayRecordingTime.min()
-    coord_scalar = head_df.SourceGroupScalar.median()
-    coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar))
+    # use diff to workout il/xl skips
     dil = np.max(head_df[il_head_loc].values[1:] - head_df[il_head_loc].values[:-1])
     dxl = np.max(head_df[xl_head_loc].values[1:] - head_df[xl_head_loc].values[:-1])
 
-    if crop is not None:
-        crop = check_crop(crop, [il0, iln, xl0, xln])
-        il0, iln, xl0, xln = crop
+    # calculate absolute index of ilines and crosslines e.g. counting from zero for indexing into segy
+    head_df["il_index"] = (head_df[il_head_loc] - il0) // dil
+    head_df["xl_index"] = (head_df[xl_head_loc] - xl0) // dxl
+
+    # get vertical sample ranges
+    n0 = 0
+    nsamp = head_bin["Samples"]
+    ns0 = head_df.DelayRecordingTime.min()
 
     # first and last values
     ni = 1 + (iln - il0) // dil
@@ -391,81 +511,236 @@ def segy2ncdf(
         first_sample=ns0,
         sample_rate=ds // 1000,
         first_iline=il0,
-        iline_step=dil,
+        iline_step=max(1, dil),
         first_xline=xl0,
-        xline_step=dxl,
-        vert_domain=vert,
+        xline_step=max(1, dxl),
+        vert_domain=vert_domain,
         vert_units=None,  # TODO: Fix this
     )
 
     # create_seismic_dataset(d1=ni, d2=nx, d3=nsamp)
-    text = get_segy_texthead(segyfile)
+    text = get_segy_texthead(segyfile, **segyio_kwargs)
     ds.attrs[AttrKeyField.text.value] = text
-    ds.seisio.to_netcdf(ncfile)
 
-    with segyio.open(
-        segyfile, "r", ignore_geometry=True, iline=iline, xline=xline
-    ) as segyf, h5netcdf.File(ncfile, "a") as seisnc:
-
-        # assign CDPXY
-        query = f"{il_head_loc} >= @il0 & {il_head_loc} <= @iln & {xl_head_loc} >= @xl0 and {xl_head_loc} <= @xln"
+    try:
         cdpx = (
-            head_df.query(query)[[il_head_loc, xl_head_loc, x_head_loc]]
+            head_df[[il_head_loc, xl_head_loc, x_head_loc]]
+            .drop_duplicates(subset=[il_head_loc, xl_head_loc])
             .pivot(il_head_loc, xl_head_loc)
             .values
         )
         cdpy = (
-            head_df.query(query)[[il_head_loc, xl_head_loc, y_head_loc]]
+            head_df[[il_head_loc, xl_head_loc, y_head_loc]]
+            .drop_duplicates(subset=[il_head_loc, xl_head_loc])
             .pivot(il_head_loc, xl_head_loc)
             .values
         )
+        ds[CoordKeyField.cdp_x.value] = (DimensionKeyField.cdp_3d.value, cdpx)
+        ds[CoordKeyField.cdp_y.value] = (DimensionKeyField.cdp_3d.value, cdpy)
 
-        seisnc_cdpx = seisnc.create_variable(
-            CoordKeyField.cdp_x.value,
-            DimensionKeyField.cdp_3d.value,
-            float,
-            data=cdpx * coord_scalar_mult,
-        )
-        seisnc_cdpy = seisnc.create_variable(
-            CoordKeyField.cdp_y.value,
-            DimensionKeyField.cdp_3d.value,
-            float,
-            data=cdpy * coord_scalar_mult,
+        ds = ds.set_coords([CoordKeyField.cdp_x.value, CoordKeyField.cdp_y.value])
+
+    except ValueError as err:
+        raise SegyLoadError(
+            "SEGY headers could not be transformed through a pivot. Likely the inline and xline "
+            "numbering is odd.",
+            err,
         )
 
-        segyf.mmap()
+    if ncfile is not None and return_geometry == False:
+        ds.seisio.to_netcdf(ncfile)
+    elif return_geometry:
+        # return geometry -> e.g. don't process segy traces
+        return ds
+    else:
+        ncfile = ds
 
-        # create data variable
-        seisnc_data = seisnc.create_variable(
-            VariableKeyField.data.value, DimensionKeyField.threed.value, float
+    segyio_kwargs.update(dict(ignore_geometry=True, iline=iline, xline=xline))
+
+    # filter head_df
+    if offset is None and not isinstance(ncfile, xr.Dataset):  # not prestack data
+        _segy3dncdf(
+            segyfile,
+            ncfile,
+            segyio_kwargs,
+            n0,
+            ns,
+            head_df,
+            il_head_loc,
+            xl_head_loc,
+            silent=silent,
         )
 
-        seisnc.flush()
+    # load into memory
+    if offset is None and isinstance(ncfile, xr.Dataset):  # not prestack data
+        ds = _segy3dxr(
+            segyfile,
+            ncfile,
+            segyio_kwargs,
+            n0,
+            ns,
+            head_df,
+            il_head_loc,
+            xl_head_loc,
+            silent=silent,
+        )
+        return ds
 
-        # work out fast and slow dir
-        if head_df[xl_head_loc].diff().min() < 0:
-            contig_dir = il_head_loc
-            broken_dir = xl_head_loc
-            slicer = lambda x, y: slice(x, y, ...)
-        else:
-            contig_dir = xl_head_loc
-            broken_dir = il_head_loc
-            slicer = lambda x, y: slice(y, x, ...)
 
-        print(f"Fast direction is {broken_dir}")
+def segy_loader(
+    segyfile,
+    ncfile=None,
+    cmp=None,
+    iline=None,
+    xline=None,
+    cdpx=None,
+    cdpy=None,
+    offset=None,
+    vert_domain="TWT",
+    data_type="AMP",
+    ix_crop=None,
+    cdp_crop=None,
+    xy_crop=None,
+    z_crop=None,
+    return_geometry=False,
+    silent=False,
+    **segyio_kwargs,
+):
+    """Convert SEGY data to NetCDF4 File
 
-        head_df["il_index"] = (head_df[il_head_loc] - il0) // dil
-        head_df["xl_index"] = (head_df[xl_head_loc] - xl0) // dxl
+    The output ncfile has the following structure
+        Dimensions:
+            vert - The vertical axis
+            iline - Inline axis
+            xline - Xline axis
+        Variables:
+            INLINE_3D - The inline numbering
+            CROSSLINE_3D - The xline numbering
+            CDP_X - Eastings
+            CDP_Y - Northings
+            CDP_TRACE - Trace Number
+            data - The data volume
+        Attributes:
+            vert.units
+            vert.data.units
+            ns - Number of samples in vert
+            ds - Sample rate
 
-        pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
+    Args:
+        segyfile (str): Input segy file path
+        ncfile (str): Output SEISNC file path.
+        iline (int): Inline byte location.
+        xline (int): Cross-line byte location.
+        vert (str): Vertical sampling domain.
+        units (str): Units of amplitude data.
+        crop (list): List of minimum and maximum inline and crossline to output.
+            Has the form '[min_il, max_il, min_xl, max_xl]'.
+        zcrop (list): List of minimum and maximum vertical samples to output.
+            Has the form '[min, max]'.
+        silent (bool): Disable progress bar.
 
-        for contig, grp in head_df.groupby(contig_dir):
-            for trc, val in grp.iterrows():
-                seisnc_data[val.il_index, val.xl_index, :] = segyf.trace[trc][
-                    n0 : ns + 1
-                ]
-                pb.update()
-        pb.close()
+    """
+    # Input sanity checks
+    if cmp is not None and (iline is not None or xline is not None):
+        raise ValueError("cmp cannot be defined with iline and xiline")
+
+    if iline is None and xline is not None:
+        raise ValueError("iline must be defined with xline")
+
+    if xline is None and iline is not None:
+        raise ValueError("xline must be defined with iline")
+
+    if cdpx is None:
+        cdpx = 181  # Assume standard location if misisng
+    x_head_loc = _get_tf(cdpx)
+    if cdpy is None:
+        cdpy = 185  # Assume standard location if missing
+    y_head_loc = _get_tf(cdpy)
+
+    # Start by scraping the headers.
+    head_df = segy_header_scrape(segyfile, silent=silent, **segyio_kwargs)
+    head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
+
+    # Scale Coordinates
+    coord_scalar = head_df.SourceGroupScalar.median()
+    coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar))
+    head_df[x_head_loc] = head_df[x_head_loc].astype(float)
+    head_df[y_head_loc] = head_df[y_head_loc].astype(float)
+    head_df[x_head_loc] = head_df[x_head_loc] * coord_scalar_mult * 1.0
+    head_df[y_head_loc] = head_df[y_head_loc] * coord_scalar_mult * 1.0
+
+    # Cropping
+    if cdp_crop and cmp is not None:  # 2d cdp cropping
+        cmp_head_loc = _get_tf(cmp)
+        crop_min, crop_max = check_crop(
+            cdp_crop, [head_df[cmp_head_loc].min(), head_df[cmp_head_loc].max()]
+        )
+
+        head_df = head_df.query(
+            "@cmp_head_loc >= @crop_min & @cmp_head_loc <= @crop_max"
+        )
+
+    if ix_crop is not None and cmp is None:  # 3d inline/xline cropping
+        il_head_loc = _get_tf(iline)
+        xl_head_loc = _get_tf(xline)
+        il_min, il_max, xl_min, xl_max = check_crop(
+            ix_crop,
+            [
+                head_df[il_head_loc].min(),
+                head_df[il_head_loc].max(),
+                head_df[xl_head_loc].min(),
+                head_df[xl_head_loc].max(),
+            ],
+        )
+        query = f"@il_head_loc >= @il_min & @il_head_loc <= @il_max & @xl_head_loc >= @xl_min and @xl_head_loc <= @xl_max"
+        head_df = head_df.query(query)
+
+    # TODO: -> Could implement some cropping with a polygon here
+    if xy_crop is not None and cmp is None:
+        x_min, x_max, y_min, y_max = check_crop(
+            xy_crop,
+            [
+                head_df[x_head_loc].min(),
+                head_df[x_head_loc].max(),
+                head_df[y_head_loc].min(),
+                head_df[y_head_loc].max(),
+            ],
+        )
+        query = "@x_head_loc >= @x_min & x_head_loc <= @x_max & @y_head_loc >= @y_min and @y_head_loc <= @y_max"
+        head_df = head_df.query(query)
+
+    if cmp is None:  # 3d data
+        ds = _3dsegy_loader(
+            segyfile,
+            head_df,
+            head_bin,
+            zcrop=z_crop,
+            ncfile=ncfile,
+            iline=iline,
+            xline=xline,
+            cdpx=cdpx,
+            cdpy=cdpy,
+            vert_domain=vert_domain,
+            data_type=data_type,
+            return_geometry=return_geometry,
+            silent=silent,
+            **segyio_kwargs,
+        )
+
+    if ncfile is None:
+        return ds
+
+    # if offset is not None and CMP == False:
+    #     pass
+    #     # prestack loader
+
+    # if CMP == True and offset is None:
+    #     pass
+    #     # post stack 2d data
+
+    # if CMP == True and offset is not None:
+    #     pass
+    #     # pre-stack 2d data
 
 
 def ncdf2segy(
