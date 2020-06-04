@@ -22,7 +22,13 @@ class DimensionKeyField(Enum):
     cdp_3d = ("d1", "d2")
     cdp_2d = ("d1",)
     threed = ("d1", "d2", "d3")
+    threed_head = ("d1", "d2")
+    threed_ps = ("d1", "d2", "d3", "d4")
+    threed_ps_head = ("d1", "d2", "d4")
     twod = ("d1", "d3")
+    twod_head = ("d1",)
+    twod_ps = ("d1", "d3", "d4")
+    twod_ps_head = ("d1", "d4")
 
 
 class VariableKeyField(Enum):
