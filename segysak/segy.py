@@ -683,19 +683,17 @@ def _segy2d_xr(
 
     with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
 
-        # segyf.mmap()
+        segyf.mmap()
 
-        # pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
-        # shape = [ds.dims[d] for d in DimensionKeyField.twod.value]
-        # volume = np.zeros(shape)
+        pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
+        shape = [ds.dims[d] for d in DimensionKeyField.twod.value]
+        volume = np.zeros(shape)
 
-        # # this can probably be done as a block - leaving for now just incase sorting becomes an issue
-        # for trc, val in head_df.iterrows():
-        #     volume[int(val.cdp_index), :] = segyf.trace[trc][n0 : ns + 1]
-        #     pb.update()
-        # pb.close()
-
-        volume = segyf.trace[:].copy()
+        # this can probably be done as a block - leaving for now just incase sorting becomes an issue
+        for trc, val in head_df.iterrows():
+            volume[int(val.cdp_index), :] = segyf.trace[trc][n0 : ns + 1]
+            pb.update()
+        pb.close()
 
     ds[VariableKeyField.data.value] = (
         DimensionKeyField.twod.value,
@@ -740,7 +738,7 @@ def _2dsegy_loader(
     head_df,
     head_bin,
     ncfile=None,
-    cdp=21,
+    cdp=None,
     offset=None,
     vert_domain="TWT",
     data_type="AMP",
@@ -758,7 +756,12 @@ def _2dsegy_loader(
     """
 
     # get names of columns where stuff we want is
-    cdp_head_loc = _get_tf(cdp)
+    if cdp is None:
+        cdp = 21
+        cdp_head_loc = _get_tf(cdp)
+        head_df[cdp_head_loc] = head_df.index.values
+    else:
+        cdp_head_loc = _get_tf(cdp)
 
     # get vertical sample ranges
     n0 = 0
@@ -836,7 +839,7 @@ def _2dsegy_loader(
         )
 
     if ncfile is not None:
-        ds.to_netcdf(ncfile)
+        ds.seisio.to_netcdf(ncfile)
 
     return ds
 
@@ -884,10 +887,10 @@ def segy_loader(
         segyfile (str): Input segy file path
         ncfile (str, optional): Output SEISNC file path. If none the loaded data will be
             returned in memory as an xarray.Dataset.
-        iline (int): Inline byte location, usually 189
-        xline (int): Cross-line byte location, usally 193
-        vert (str): Vertical sampling domain. One of ['TWT', 'DEPTH']
-        data_type (str): Data type ['AMP', 'VEL']
+        iline (int, optional): Inline byte location, usually 189
+        xline (int, optional): Cross-line byte location, usally 193
+        vert (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
+        data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
         cmp_crop (list, optional): List of minimum and maximum cmp values to output.
             Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
         ix_crop (list, optional): List of minimum and maximum inline and crossline to output.
@@ -1004,7 +1007,8 @@ def segy_loader(
         silent=silent,
     )
 
-    if cmp is None:  # 3d data
+    # 3d data needs iline and xline
+    if iline is not None and xline is not None:
         ds = _3dsegy_loader(
             segyfile,
             head_df,
@@ -1021,7 +1025,8 @@ def segy_loader(
             else DimensionKeyField.threed_ps_head.value
         )
 
-    if cmp is not None:
+    # 2d data
+    elif cmp is not None:
         ds = _2dsegy_loader(
             segyfile, head_df, head_bin, cdp=cmp, **common_kwargs, **segyio_kwargs
         )
@@ -1032,13 +1037,26 @@ def segy_loader(
             else DimensionKeyField.twod_ps_head.value
         )
 
+    # fallbak to just a 2d array of traces
+    else:
+        ds = _2dsegy_loader(
+            segyfile, head_df, head_bin, **common_kwargs, **segyio_kwargs
+        )
+        indexer = []
+        dims = DimensionKeyField.cdp_2d.value
+
     indexer = indexer + ["off_index"] if offset is not None else indexer
 
-    head_ds = head_df.set_index(indexer).to_xarray()
-    for key, field in extra_byte_fields.items():
-        ds[key] = (dims, head_ds[field].values)
-
-    ds = ds.set_coords([CoordKeyField.cdp_x.value, CoordKeyField.cdp_y.value])
+    # we have some some geometry to assign headers to
+    if cmp is not None or iline is not None:
+        head_ds = head_df.set_index(indexer).to_xarray()
+        for key, field in extra_byte_fields.items():
+            ds[key] = (dims, head_ds[field].values)
+        ds = ds.set_coords([CoordKeyField.cdp_x.value, CoordKeyField.cdp_y.value])
+    # geometry is not known
+    else:
+        for key, field in extra_byte_fields.items():
+            ds[key] = (dims, head_df[field].values)
 
     return ds
 
