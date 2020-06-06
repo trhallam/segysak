@@ -113,7 +113,6 @@ def _htmlify(self):
     lines = self.split('\n')
     for line in lines:
         html += f"{line}<br/>"
-    # print(lines)
     return html
 
 
@@ -137,9 +136,7 @@ def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
         text = data.decode("ascii")  # EBCDIC encoding
         text = _text_fixes(text)
         text = segyio.tools.wrap(text)
-        print("is ascii")
     else:
-        print("is weird")
         segyio_kwargs["ignore_geometry"] = True
         try:  # pray that the encoding is ebcidc
             with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
