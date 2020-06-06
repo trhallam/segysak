@@ -113,7 +113,6 @@ def _htmlify(self):
     lines = self.split('\n')
     for line in lines:
         html += f"{line}<br/>"
-    # print(lines)
     return html
 
 
@@ -137,9 +136,7 @@ def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
         text = data.decode("ascii")  # EBCDIC encoding
         text = _text_fixes(text)
         text = segyio.tools.wrap(text)
-        print("is ascii")
     else:
-        print("is weird")
         segyio_kwargs["ignore_geometry"] = True
         try:  # pray that the encoding is ebcidc
             with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
@@ -956,6 +953,30 @@ def _2dsegy_loader(
         ds.seisio.to_netcdf(ncfile)
 
     return ds
+
+def well_known_byte_locs(name):
+    """Convert SEGY data to NetCDF4 File
+
+        Returns a dict containing the byte locations for well known SEGY variants in the wild.
+
+        Caller should provide the name
+        e.g.
+            - standard_3d
+            - petrel_3d
+            - ...
+
+        The intention is that this can be used with segy_loader to easily setup the load:
+
+            seismic = segy_loader(filepath, **well_known_byte_locs('petrel_3d'))
+
+    """
+    if name == "standard_3d":
+        # todo maybe this should be a rev1.2 or something?
+        return dict(iline=181, xline=185, cdpx=189, cdpy=193)
+    elif  name == "petrel_3d":
+        return dict(iline=5, xline=21, cdpx=73, cdpy=77)
+    else:
+        raise ValueError(f"No byte locatons for {name}")
 
 
 def segy_loader(
