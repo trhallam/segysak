@@ -5,7 +5,7 @@ from enum import Enum
 
 class CoordKeyField(Enum):
 
-    cmp = "cmp"
+    cdp = "cdp"
     iline = "iline"
     xline = "xline"
     offset = "offset"
@@ -29,6 +29,20 @@ class DimensionKeyField(Enum):
     twod_head = ("d1",)
     twod_ps = ("d1", "d3", "d4")
     twod_ps_head = ("d1", "d4")
+    cdp = "cdp"
+    iline = "iline"
+    xline = "xline"
+    offset = "offset"
+    twt = "twt"
+    depth = "depth"
+
+
+class DimensionLabelKeyField(Enum):
+
+    threed = {"d1": "iline", "d2": "xline", "d3": "twt"}
+    threed_ps = {"d1": "iline", "d2": "xline", "d3": "twt", "d4": "offset"}
+    twod = {"d1": "cdp", "d3": "twt"}
+    twod_ps = {"d1": "cdp", "d3": "twt", "d4": "offset"}
 
 
 class VariableKeyField(Enum):
