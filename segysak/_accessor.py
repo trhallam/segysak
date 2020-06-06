@@ -8,6 +8,7 @@ import numpy as np
 from scipy.interpolate import griddata
 
 from ._keyfield import AttrKeyField
+from ._richstr import _upgrade_txt_richstr
 
 
 @xr.register_dataset_accessor("seisio")
@@ -29,6 +30,12 @@ class SeisIO:
                 remove_keys.append(key)
         for key in remove_keys:
             _ = self._obj.attrs.pop(key)
+
+        # Convert richstring back to normal string
+        try:
+            self._obj.attrs["text"] = str(self._obj.attrs["text"])
+        except:
+            self._obj.attrs["text"] = ""
 
         kwargs["engine"] = "h5netcdf"
 
@@ -54,6 +61,9 @@ def open_seisnc(seisnc, **kwargs):
     for attr in AttrKeyField._member_names_:
         if attr not in ds.attrs:
             ds.attrs[AttrKeyField[attr].value] = None
+
+    if ds.attrs["text"] is not None:
+        ds.attrs["text"] = _upgrade_txt_richstr(ds.attrs["text"])
 
     return ds
 
