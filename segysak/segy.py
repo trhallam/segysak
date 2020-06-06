@@ -15,11 +15,13 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-has_ipywidgets = importlib.find_loader("ipywidgets") is not None
-
-if has_ipywidgets:
-    from tqdm.notebook import tqdm
-else:
+try:
+    has_ipywidgets = importlib.find_loader("ipywidgets") is not None
+    if has_ipywidgets:
+        from tqdm.notebook import tqdm
+    else:
+        from tqdm import tqdm
+except ModuleNotFoundError:
     from tqdm import tqdm
 
 from ._keyfield import (
