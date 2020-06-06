@@ -4,6 +4,9 @@
 name: Upload Python Package
 
 on:
+  pull_request:
+    types: [closed]
+    branches: t20-master
   push:
     branches: t20-master
 
