@@ -18,7 +18,7 @@ import xarray as xr
 has_ipywidgets = importlib.find_loader("ipywidgets") is not None
 
 if has_ipywidgets:
-    from tqdm.autonotebook import tqdm
+    from tqdm.notebook import tqdm
 else:
     from tqdm import tqdm
 
@@ -85,6 +85,12 @@ def _header_to_index_mapping(series):
     return series.replace(mapper)
 
 
+def _text_fixes(text):
+    # hacky fixes for software
+    text = text.replace("�Cro", "    ")
+    return text
+
+
 def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
     """Return the ebcidc
 
@@ -92,21 +98,34 @@ def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
         segyfile (str): Segy File Path
         ext_headers (bool): Return EBCIDC and extended headers in list.
             Defaults to False
-
+        segyio_kwargs: Key word arguments to pass to segyio.open
     Returns:
         str: Returns the EBCIDC text as a formatted paragraph.
     """
 
-    segyio_kwargs["ignore_geometry"] = True
-    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
-        text = segyf.text[0].decode("ascii", "replace")
-        text = text.replace("�Cro", "    ")  # petrel weird export
+    with open(segyfile, mode="rb") as f:
+        f.seek(0, 0)  # Locate our position to first byte of file
+        data = f.read(3200)  # Read the first 3200 byte from our position
+
+    if data.isascii():
+        text = data.decode("ascii")  # EBCDIC encoding
+        text = _text_fixes(text)
         text = segyio.tools.wrap(text)
-        if segyf.ext_headers and ext_headers:
-            text2 = segyf.text[1].decode("ascii", "replace")
-            return [text, text2]
-        else:
-            return text
+    else:
+        segyio_kwargs["ignore_geometry"] = True
+        try:  # pray that the encoding is ebcidc
+            with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
+                text = segyf.text[0].decode("ascii", "replace")
+                text = _text_fixes(text)
+                text = segyio.tools.wrap(text)
+                if segyf.ext_headers and ext_headers:
+                    text2 = segyf.text[1].decode("ascii", "replace")
+                    text = [text, text2]
+        except UnicodeDecodeError as err:
+            print(err)
+            print("The segy text header could not be decoded.")
+
+    return text
 
 
 def put_segy_texthead(segyfile, ebcidc, ext_headers=False, **segyio_kwargs):
