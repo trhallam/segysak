@@ -4,6 +4,8 @@ data manipulation.
 
 """
 import xarray as xr
+import numpy as np
+from scipy.interpolate import griddata
 
 from ._keyfield import AttrKeyField
 
@@ -54,3 +56,41 @@ def open_seisnc(seisnc, **kwargs):
             ds.attrs[AttrKeyField[attr].value] = None
 
     return ds
+
+
+@xr.register_dataset_accessor("seis")
+class SeisGeom:
+    def __init__(self, xarray_obj):
+        self._obj = xarray_obj
+
+    def _coord_as_dimension(self, points):
+
+        keys = ("cdp_x", "cdp_y")
+        grid = np.vstack(
+            [
+                self._obj[key]
+                .transpose("iline", "xline", transpose_coords=True)
+                .values.ravel()
+                for key in keys
+            ]
+        ).transpose()
+        xlines_, ilines_ = np.meshgrid(self._obj["xline"], self._obj["iline"],)
+
+        # these must all be the same length
+        ils = griddata(grid, ilines_.ravel(), points)
+        xls = griddata(grid, xlines_.ravel(), points)
+
+        return ils, xls
+
+    def xysel(self, cdp_x, cdp_y):
+        """Select data at x and y coordinates
+
+        Args:
+            cdp_x (float/array-like)
+            cdp_y (float/array-like)
+
+        Returns:
+            xarray.Dataset: At selected coordinates.
+        """
+        il, xl = self._coord_as_dimension((cdp_x, cdp_y))
+        return self._obj.sel(iline=il, xline=xl)
