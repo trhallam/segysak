@@ -82,21 +82,21 @@ def create_seismic_dataset(
     dimensions = dict()
     # create dimension d1
     if cdp is not None:
-        dimensions[CoordKeyField.cdp.value] = ([DimensionKeyField.cdp.value], cdp)
+        dimensions[CoordKeyField.cdp.value] = ([CoordKeyField.cdp.value], cdp)
     elif iline is not None:  # 3d data
-        dimensions[CoordKeyField.iline.value] = ([DimensionKeyField.iline.value], iline)
-        dimensions[CoordKeyField.xline.value] = ([DimensionKeyField.xline.value], xline)
+        dimensions[CoordKeyField.iline.value] = ([CoordKeyField.iline.value], iline)
+        dimensions[CoordKeyField.xline.value] = ([CoordKeyField.xline.value], xline)
 
     # create dimension d3
     if twt is not None:
-        dimensions[CoordKeyField.twt.value] = ([DimensionKeyField.twt.value], twt)
+        dimensions[CoordKeyField.twt.value] = ([CoordKeyField.twt.value], twt)
     if depth is not None:
-        dimensions[CoordKeyField.depth.value] = ([DimensionKeyField.depth.value], depth)
+        dimensions[CoordKeyField.depth.value] = ([CoordKeyField.depth.value], depth)
 
     # create dimension d4
     if offset is not None:
         dimensions[CoordKeyField.offset.value] = (
-            [DimensionKeyField.offset.value],
+            [CoordKeyField.offset.value],
             offset,
         )
 
