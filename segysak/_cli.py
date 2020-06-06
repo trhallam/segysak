@@ -11,7 +11,7 @@ import pathlib
 
 import segysak
 from segysak.version import version
-from segysak.segy import segy2ncdf, ncdf2segy, segy_header_scan, get_segy_texthead
+from segysak.segy import segy_loader, ncdf2segy, segy_header_scan, get_segy_texthead
 from segysak.tools import fix_bad_chars
 
 # configuration setup
@@ -175,7 +175,7 @@ def main():
                 outfile = input_file.stem + '.SEISNC'
             else:
                 outfile = args.netCDF
-            segy2ncdf(input_file, outfile, iline=iline, xline=xline, crop=args.crop)
+            _ = segy_loader(input_file, ncfile=outfile, iline=iline, xline=xline, ix_crop=args.crop)
             LOGGER.info(f"NetCDF output written to {outfile}")
 
         if args.SEGY is None or args.SEGY is not False:
