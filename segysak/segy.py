@@ -22,7 +22,12 @@ if has_ipywidgets:
 else:
     from tqdm import tqdm
 
-from ._keyfield import CoordKeyField, AttrKeyField, VariableKeyField, DimensionKeyField
+from ._keyfield import (
+    CoordKeyField,
+    AttrKeyField,
+    VariableKeyField,
+    DimensionKeyField,
+)
 from ._seismic_dataset import (
     create_seismic_dataset,
     create3d_dataset,
@@ -360,11 +365,19 @@ def _segy3d_ncdf(
     head_df,
     il_head_loc,
     xl_head_loc,
+    vert_domain="TWT",
     silent=False,
 ):
     """Helper function to load 3d data into a netcdf4 file. This function should
     stream data to disk avoiding excessive memory usage.
     """
+
+    if vert_domain == "TWT":
+        dims = DimensionKeyField.threed_twt.value
+    elif vert_domain == "DEPTH":
+        dims = DimensionKeyField.threed_depth.value
+    else:
+        raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
     with segyio.open(segyfile, "r", **segyio_kwargs) as segyf, h5netcdf.File(
         ncfile, "a"
@@ -373,9 +386,7 @@ def _segy3d_ncdf(
         segyf.mmap()
 
         # create data variable
-        seisnc_data = seisnc.create_variable(
-            VariableKeyField.data.value, DimensionKeyField.threed.value, float
-        )
+        seisnc_data = seisnc.create_variable(VariableKeyField.data.value, dims, float)
 
         seisnc.flush()
 
@@ -413,11 +424,19 @@ def _segy3dps_ncdf(
     head_df,
     il_head_loc,
     xl_head_loc,
+    vert_domain="TWT",
     silent=False,
 ):
     """Helper function to load 3d pre-stack data into a netcdf4 file. This function should
     stream data to disk avoiding excessive memory usage.
     """
+
+    if vert_domain == "TWT":
+        dims = DimensionKeyField.threed_ps_twt.value
+    elif vert_domain == "DEPTH":
+        dims = DimensionKeyField.threed_ps_depth.value
+    else:
+        raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
     with segyio.open(segyfile, "r", **segyio_kwargs) as segyf, h5netcdf.File(
         ncfile, "a"
@@ -426,9 +445,7 @@ def _segy3dps_ncdf(
         segyf.mmap()
 
         # create data variable
-        seisnc_data = seisnc.create_variable(
-            VariableKeyField.data.value, DimensionKeyField.threed_ps.value, float
-        )
+        seisnc_data = seisnc.create_variable(VariableKeyField.data.value, dims, float)
 
         seisnc.flush()
 
@@ -466,10 +483,18 @@ def _segy3d_xr(
     head_df,
     il_head_loc,
     xl_head_loc,
+    vert_domain="TWT",
     silent=False,
 ):
     """Helper function to load 3d data into an xarray with the seisnc form.
     """
+
+    if vert_domain == "TWT":
+        dims = DimensionKeyField.threed_twt.value
+    elif vert_domain == "DEPTH":
+        dims = DimensionKeyField.threed_depth.value
+    else:
+        raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
     with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
 
@@ -488,7 +513,7 @@ def _segy3d_xr(
         print(f"Fast direction is {broken_dir}")
 
         pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
-        shape = [ds.dims[d] for d in DimensionKeyField.threed.value]
+        shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
 
         for contig, grp in head_df.groupby(contig_dir):
@@ -499,7 +524,7 @@ def _segy3d_xr(
                 pb.update()
         pb.close()
 
-    ds[VariableKeyField.data.value] = (DimensionKeyField.threed.value, volume)
+    ds[VariableKeyField.data.value] = (dims, volume)
 
     return ds
 
@@ -513,10 +538,18 @@ def _segy3dps_xr(
     head_df,
     il_head_loc,
     xl_head_loc,
+    vert_domain="TWT",
     silent=False,
 ):
     """Helper function to load 3d pre-stack data into an xarray with the seisnc form.
     """
+
+    if vert_domain == "TWT":
+        dims = DimensionKeyField.threed_ps_twt.value
+    elif vert_domain == "DEPTH":
+        dims = DimensionKeyField.threed_ps_depth.value
+    else:
+        raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
     with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
 
@@ -535,7 +568,7 @@ def _segy3dps_xr(
         print(f"Fast direction is {broken_dir}")
 
         pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
-        shape = [ds.dims[d] for d in DimensionKeyField.threed_ps.value]
+        shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
 
         for contig, grp in head_df.groupby(contig_dir):
@@ -546,7 +579,7 @@ def _segy3dps_xr(
                 pb.update()
         pb.close()
 
-    ds[VariableKeyField.data.value] = (DimensionKeyField.threed_ps.value, volume)
+    ds[VariableKeyField.data.value] = (dims, volume)
 
     return ds
 
@@ -646,6 +679,7 @@ def _3dsegy_loader(
             head_df,
             il_head_loc,
             xl_head_loc,
+            vert_domain=vert_domain,
             silent=silent,
         )
 
@@ -660,6 +694,7 @@ def _3dsegy_loader(
             head_df,
             il_head_loc,
             xl_head_loc,
+            vert_domain=vert_domain,
             silent=silent,
         )
 
@@ -674,6 +709,7 @@ def _3dsegy_loader(
             head_df,
             il_head_loc,
             xl_head_loc,
+            vert_domain=vert_domain,
             silent=silent,
         )
 
@@ -688,6 +724,7 @@ def _3dsegy_loader(
             head_df,
             il_head_loc,
             xl_head_loc,
+            vert_domain=vert_domain,
             silent=silent,
         )
 
@@ -695,17 +732,32 @@ def _3dsegy_loader(
 
 
 def _segy2d_xr(
-    segyfile, ds, segyio_kwargs, n0, ns, head_df, cdp_head_loc, silent=False,
+    segyfile,
+    ds,
+    segyio_kwargs,
+    n0,
+    ns,
+    head_df,
+    cdp_head_loc,
+    vert_domain="TWT",
+    silent=False,
 ):
     """Helper function to load 2d data into an xarray with the seisnc form.
     """
+
+    if vert_domain == "TWT":
+        dims = DimensionKeyField.twod_twt.value
+    elif vert_domain == "DEPTH":
+        dims = DimensionKeyField.twod_ps_depth.value
+    else:
+        raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
     with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
 
         segyf.mmap()
 
         pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
-        shape = [ds.dims[d] for d in DimensionKeyField.twod.value]
+        shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
 
         # this can probably be done as a block - leaving for now just incase sorting becomes an issue
@@ -715,7 +767,7 @@ def _segy2d_xr(
         pb.close()
 
     ds[VariableKeyField.data.value] = (
-        DimensionKeyField.twod.value,
+        dims,
         volume[:, n0 : ns + 1],
     )
 
@@ -723,17 +775,32 @@ def _segy2d_xr(
 
 
 def _segy2d_ps_xr(
-    segyfile, ds, segyio_kwargs, n0, ns, head_df, cdp_head_loc, silent=False,
+    segyfile,
+    ds,
+    segyio_kwargs,
+    n0,
+    ns,
+    head_df,
+    cdp_head_loc,
+    vert_domain="TWT",
+    silent=False,
 ):
     """Helper function to load 2d data into an xarray with the seisnc form.
     """
+
+    if vert_domain == "TWT":
+        dims = DimensionKeyField.twod_twt.value
+    elif vert_domain == "DEPTH":
+        dims = DimensionKeyField.twod_ps_depth.value
+    else:
+        raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
     with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
 
         segyf.mmap()
 
         pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
-        shape = [ds.dims[d] for d in DimensionKeyField.twod_ps.value]
+        shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
 
         # this can probably be done as a block - leaving for now just incase sorting becomes an issue
@@ -745,7 +812,7 @@ def _segy2d_ps_xr(
         pb.close()
 
     ds[VariableKeyField.data.value] = (
-        DimensionKeyField.twod_ps.value,
+        dims,
         volume,
     )
 
@@ -814,7 +881,7 @@ def _2dsegy_loader(
     vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate, dtype=int)
 
     builder, domain = _dataset_coordinate_helper(
-        vert_samples, vert_domain, cmp=cdps, offset=offsets
+        vert_samples, vert_domain, cdp=cdps, offset=offsets
     )
 
     ds = create_seismic_dataset(**builder)
@@ -841,6 +908,7 @@ def _2dsegy_loader(
             nsamp,
             head_df,
             cdp_head_loc,
+            vert_domain=vert_domain,
             silent=silent,
         )
 
@@ -854,6 +922,7 @@ def _2dsegy_loader(
             nsamp,
             head_df,
             cdp_head_loc,
+            vert_domain=vert_domain,
             silent=silent,
         )
 
@@ -866,7 +935,7 @@ def _2dsegy_loader(
 def segy_loader(
     segyfile,
     ncfile=None,
-    cmp=None,
+    cdp=None,
     iline=None,
     xline=None,
     cdpx=None,
@@ -875,7 +944,7 @@ def segy_loader(
     vert_domain="TWT",
     data_type="AMP",
     ix_crop=None,
-    cmp_crop=None,
+    cdp_crop=None,
     xy_crop=None,
     z_crop=None,
     return_geometry=False,
@@ -887,7 +956,7 @@ def segy_loader(
 
     The output ncfile has the following structure
         Dimensions:
-            d1 - CMP or Inline axis
+            d1 - CDP or Inline axis
             d2 - Xline axis
             d3 - The vertical axis
             d4 - Offset/Angle Axis
@@ -896,7 +965,7 @@ def segy_loader(
             xline - The xline numbering
             cdp_x - Eastings
             cdp_y - Northings
-            cmp - Trace Number for 2d
+            cdp - Trace Number for 2d
         Variables
             data - The data volume
         Attributes:
@@ -909,8 +978,9 @@ def segy_loader(
         iline (int, optional): Inline byte location, usually 189
         xline (int, optional): Cross-line byte location, usally 193
         vert (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
+        cdp (int, optional): The CDP byte location, usually 21.
         data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
-        cmp_crop (list, optional): List of minimum and maximum cmp values to output.
+        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
             Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
         ix_crop (list, optional): List of minimum and maximum inline and crossline to output.
             Has the form '[min_il, max_il, min_xl, max_xl]'. Ignored for 2D data.
@@ -930,8 +1000,8 @@ def segy_loader(
             returns headers in geometry.
     """
     # Input sanity checks
-    if cmp is not None and (iline is not None or xline is not None):
-        raise ValueError("cmp cannot be defined with iline and xiline")
+    if cdp is not None and (iline is not None or xline is not None):
+        raise ValueError("cdp cannot be defined with iline and xiline")
 
     if iline is None and xline is not None:
         raise ValueError("iline must be defined with xline")
@@ -977,10 +1047,10 @@ def segy_loader(
     # TODO: might need to scale offsets as well?
 
     # Cropping
-    if cmp_crop and cmp is not None:  # 2d cdp cropping
-        cmp_head_loc = _get_tf(cmp)
+    if cdp_crop and cdp is not None:  # 2d cdp cropping
+        cmp_head_loc = _get_tf(cdp)
         crop_min, crop_max = check_crop(
-            cmp_crop, [head_df[cmp_head_loc].min(), head_df[cmp_head_loc].max()]
+            cdp_crop, [head_df[cmp_head_loc].min(), head_df[cmp_head_loc].max()]
         )
 
         head_df = head_df.query(
@@ -1003,7 +1073,7 @@ def segy_loader(
         head_df = head_df.query(query)
 
     # TODO: -> Could implement some cropping with a polygon here
-    if xy_crop is not None and cmp is None:
+    if xy_crop is not None and cdp is None:
         x_min, x_max, y_min, y_max = check_crop(
             xy_crop,
             [
@@ -1045,9 +1115,9 @@ def segy_loader(
         )
 
     # 2d data
-    elif cmp is not None:
+    elif cdp is not None:
         ds = _2dsegy_loader(
-            segyfile, head_df, head_bin, cdp=cmp, **common_kwargs, **segyio_kwargs
+            segyfile, head_df, head_bin, cdp=cdp, **common_kwargs, **segyio_kwargs
         )
         indexer = ["cdp_index"]
         dims = (
@@ -1067,7 +1137,7 @@ def segy_loader(
     indexer = indexer + ["off_index"] if offset is not None else indexer
 
     # we have some some geometry to assign headers to
-    if cmp is not None or iline is not None:
+    if cdp is not None or iline is not None:
         head_ds = head_df.set_index(indexer).to_xarray()
         for key, field in extra_byte_fields.items():
             ds[key] = (dims, head_ds[field].values)

@@ -19,30 +19,20 @@ class CoordKeyField(Enum):
 
 class DimensionKeyField(Enum):
 
-    cdp_3d = ("d1", "d2")
-    cdp_2d = ("d1",)
-    threed = ("d1", "d2", "d3")
-    threed_head = ("d1", "d2")
-    threed_ps = ("d1", "d2", "d3", "d4")
-    threed_ps_head = ("d1", "d2", "d4")
-    twod = ("d1", "d3")
-    twod_head = ("d1",)
-    twod_ps = ("d1", "d3", "d4")
-    twod_ps_head = ("d1", "d4")
-    cdp = "cdp"
-    iline = "iline"
-    xline = "xline"
-    offset = "offset"
-    twt = "twt"
-    depth = "depth"
-
-
-class DimensionLabelKeyField(Enum):
-
-    threed = {"d1": "iline", "d2": "xline", "d3": "twt"}
-    threed_ps = {"d1": "iline", "d2": "xline", "d3": "twt", "d4": "offset"}
-    twod = {"d1": "cdp", "d3": "twt"}
-    twod_ps = {"d1": "cdp", "d3": "twt", "d4": "offset"}
+    cdp_3d = ("iline", "xline")
+    cdp_2d = ("cdp",)
+    threed_twt = ("iline", "xline", "twt")
+    threed_depth = ("iline", "xline", "depth")
+    threed_head = ("iline", "xline")
+    threed_ps_twt = ("iline", "xline", "twt", "offset")
+    threed_ps_depth = ("iline", "xline", "depth", "offset")
+    threed_ps_head = ("iline", "xline", "offset")
+    twod_twt = ("cdp", "twt")
+    twod_depth = ("cdp", "depth")
+    twod_head = ("cdp",)
+    twod_ps_twt = ("cdp", "twt", "offset")
+    twod_ps_depth = ("cdp", "depth", "offset")
+    twod_ps_head = ("cdp", "offset")
 
 
 class VariableKeyField(Enum):
