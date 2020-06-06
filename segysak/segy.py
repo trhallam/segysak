@@ -96,18 +96,18 @@ def _text_fixes(text):
     text = text.replace("�Cro", "    ")
     return text
 
-# def _prettify(self, p, cycle):
-#     if cycle:
-#         return p.text(self.__repr__())
-#     else:
-#         lines = self.__repr__().splitlines()
-#         p.text("Header")
-#         for line in lines:
-#             p.text("line")
-#         # return p.text("not in a cycle "+self.__repr__())
+def _prettify(self, p, cycle):
+    if cycle:
+        return p.text(self)
+    else:
+        lines = self.splitlines()
+        p.text("Text Header")
+        for line in lines:
+            p.text(line)
+            p.break_()
 
 def _htmlify(self):
-    html = f"<h3>textual header<h3/>"
+    html = f"<h3>Text Header<h3/>"
     lines = self.split('\n')
     for line in lines:
         html += f"{line}<br/>"
@@ -152,7 +152,7 @@ def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
             print("The segy text header could not be decoded.")
 
     return type("richstr", (str,), dict(
-        # _repr_pretty_=_prettify,
+        _repr_pretty_=_prettify,
         _repr_html_=_htmlify
                 ))(text)
 
