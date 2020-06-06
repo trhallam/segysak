@@ -38,6 +38,7 @@ from ._seismic_dataset import (
 )
 from segysak.seisnc import create_empty_seisnc, set_seisnc_dims
 from segysak.tools import check_crop, check_zcrop, _get_userid, _get_datetime
+from ._richstr import _upgrade_txt_richstr
 from ._accessor import open_seisnc
 
 _SEGY_MEASUREMENT_SYSTEM = defaultdict(lambda: 0)
@@ -98,23 +99,6 @@ def _text_fixes(text):
     text = text.replace("�Cro", "    ")
     return text
 
-def _prettify(self, p, cycle):
-    if cycle:
-        return p.text(self)
-    else:
-        lines = self.splitlines()
-        p.text("Text Header")
-        for line in lines:
-            p.text(line)
-            p.break_()
-
-def _htmlify(self):
-    html = f"<h3>Text Header<h3/>"
-    lines = self.split('\n')
-    for line in lines:
-        html += f"{line}<br/>"
-    return html
-
 
 def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
     """Return the ebcidc
@@ -150,10 +134,7 @@ def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
             print(err)
             print("The segy text header could not be decoded.")
 
-    return type("richstr", (str,), dict(
-        _repr_pretty_=_prettify,
-        _repr_html_=_htmlify
-                ))(text)
+    return _upgrade_txt_richstr(text)
 
 
 def put_segy_texthead(segyfile, ebcidc, ext_headers=False, **segyio_kwargs):
@@ -954,6 +935,7 @@ def _2dsegy_loader(
 
     return ds
 
+
 def well_known_byte_locs(name):
     """Convert SEGY data to NetCDF4 File
 
@@ -973,7 +955,7 @@ def well_known_byte_locs(name):
     if name == "standard_3d":
         # todo maybe this should be a rev1.2 or something?
         return dict(iline=181, xline=185, cdpx=189, cdpy=193)
-    elif  name == "petrel_3d":
+    elif name == "petrel_3d":
         return dict(iline=5, xline=21, cdpx=73, cdpy=77)
     else:
         raise ValueError(f"No byte locatons for {name}")
