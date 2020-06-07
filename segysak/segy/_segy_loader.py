@@ -19,7 +19,7 @@ from IPython.lib.pretty import pretty
 try:
     has_ipywidgets = importlib.find_loader("ipywidgets") is not None
     if has_ipywidgets:
-        from tqdm.notebook import tqdm
+        from tqdm.autonotebook import tqdm
     else:
         from tqdm import tqdm as tqdm
 except ModuleNotFoundError:
@@ -348,8 +348,8 @@ def _3dsegy_loader(
     xlines = np.sort(xlines)
     iline_index_map = {il: i for i, il in enumerate(ilines)}
     xline_index_map = {xl: i for i, xl in enumerate(xlines)}
-    head_df["il_index"] = head_df[il_head_loc].replace(iline_index_map)
-    head_df["xl_index"] = head_df[xl_head_loc].replace(xline_index_map)
+    head_df.loc[:, "il_index"] = head_df[il_head_loc].replace(iline_index_map)
+    head_df.loc[:, "xl_index"] = head_df[xl_head_loc].replace(xline_index_map)
 
     # binary header translation
     ns = head_bin["Samples"]
@@ -823,8 +823,15 @@ def segy_loader(
                 head_df[xl_head_loc].max(),
             ],
         )
-        query = f"@il_head_loc >= @il_min & @il_head_loc <= @il_max & @xl_head_loc >= @xl_min and @xl_head_loc <= @xl_max"
-        head_df = head_df.query(query)
+        query = " & ".join(
+            [
+                f"{il_head_loc} >= @il_min",
+                f"{il_head_loc} <= @il_max",
+                f"{xl_head_loc} >= @xl_min",
+                f"{xl_head_loc} <= @xl_max",
+            ]
+        )
+        head_df = head_df.query(query).copy(deep=True)
 
     # TODO: -> Could implement some cropping with a polygon here
     if xy_crop is not None and cdp is None:
@@ -837,8 +844,15 @@ def segy_loader(
                 head_df[y_head_loc].max(),
             ],
         )
-        query = "@x_head_loc >= @x_min & x_head_loc <= @x_max & @y_head_loc >= @y_min and @y_head_loc <= @y_max"
-        head_df = head_df.query(query)
+        query = " & ".join(
+            [
+                f"{x_head_loc} >= @x_min",
+                f"{x_head_loc} <= @x_max",
+                f"{y_head_loc} >= @y_min",
+                f"{y_head_loc} <= @y_max",
+            ]
+        )
+        head_df = head_df.query(query).copy(deep=True)
 
     common_kwargs = dict(
         zcrop=z_crop,
