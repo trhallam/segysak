@@ -8,4 +8,5 @@ segyio >= 1.8.6
 tqdm >= 4.3
 pytest >= 5.4.3
 scipy >= 1.4.1
+click >= 7.1
 pyvista
