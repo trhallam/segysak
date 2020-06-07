@@ -6,7 +6,7 @@ import segyio
 try:
     has_ipywidgets = importlib.find_loader("ipywidgets") is not None
     if has_ipywidgets:
-        from tqdm.notebook import tqdm
+        from tqdm.autonotebook import tqdm
     else:
         from tqdm import tqdm
 except ModuleNotFoundError:
