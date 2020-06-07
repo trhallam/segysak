@@ -26,6 +26,7 @@ setup(
         "dask",
         "tqdm",
         "scipy",
+        "click",
         "h5netcdf",
     ],
     extras_require={"docs": ["sphinx", "sphinx_rtd_theme"]},

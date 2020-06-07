@@ -6,6 +6,13 @@ basic functions for creating a valid blank seisnc spec Dataset and file.
 Author:
     Tony Hallam 2020
 """
+
+import warnings
+
+warnings.warn(
+    "the seisnc module is depreciated for seismic_dataset", DeprecationWarning
+)
+
 import netCDF4
 
 import numpy as np
