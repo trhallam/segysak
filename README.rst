@@ -31,7 +31,7 @@ of files we also offer utility functions to return to SEGY so you can export to
 other software.
 
 Current Capabilities
---------------------
+-----------------------
 
 - **CLI**:
 
@@ -54,7 +54,7 @@ Current Capabilities
   * Select traces by UTM X and Y coordinates.
 
 Installation
-_____________
+--------------
 
 *SEGY-SAK* can be installed by using pip or python setuptools.
 
@@ -78,7 +78,7 @@ Clone the SEGY-SAK Github repository and in the top level directory run setuptoo
 
 
 CLI Quick Start
-_________________
+-----------------
 
 The command line interface (CLI) provides an easy tool to convert or
 manipulate SEG-Y data. In your Python command-line environment it can be
@@ -104,7 +104,7 @@ Can be loaded into *Python* using ``xarray``.
 
 
 ``xarray`` seismic specification ``seisnc``
-___________________________________________
+---------------------------------------------
 
 The ``xarray`` seismic specification termed ``seisnc`` can be used by segysak to
 output NETCDF4 files is more performant for Python operations than standard SEG-Y.
@@ -180,7 +180,7 @@ following attributes are extracted or reserved for use by ``SEGY-SAK``.
  * ``datatype`` the data type e.g. amplitude, velocity, attribute
 
 Complete Documentation
-________________________
+----------------------
 
 The complete documentation for *SEGY-SAK* can be found at
 `readthedocs <https://segysak.readthedocs.io/en/latest/>`__
