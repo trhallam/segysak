@@ -7,8 +7,7 @@ segysak |latest-version|
 
 Access the full documentation for SEGY-SAK from `readthedocs <https://segysak.readthedocs.io/en/latest/>`__
 
-.. image:: https://github.com/trhallam/segysak/blob/master/docs/figures/logo.png
-  :height: 50px
+.. image:: https://github.com/trhallam/segysak/blob/master/docs/_static/logo_small.png
   :alt: LOGO
 
 *SEGY-SAK* aims to be your Python Swiss Army Knife for Seismic Data.
