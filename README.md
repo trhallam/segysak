@@ -35,7 +35,7 @@ environment it can be accessed by calling `segysak`.
 
 See `segysak --help` for options.
 
-SEG-Y files converted using `segysak -nc -F test.segy` for example can be loaded into Python using `xarray`.
+SEG-Y files converted using `segysak convert test.segy` for example can be loaded into Python using `xarray`.
 ```
 test = xarray.open_dataset('test.SEISNC')
 ```
