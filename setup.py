@@ -4,6 +4,8 @@
 from setuptools import setup
 from setuptools import find_packages
 
+from segysak import __version__
+
 long_description = """
 The SEG-Y File Swiss Army Knife (SEGY-SAK) is a package developed for
 manipulating and transform SEG-Y Seismic Data using Xarray.
@@ -11,7 +13,7 @@ manipulating and transform SEG-Y Seismic Data using Xarray.
 
 setup(
     name="segysak",
-    version="0.2",
+    version=__version__,
     description="SEG-Y Seismic Data Inspection and Manipulation Tools",
     long_description=long_description,
     author="Tony Hallam",
