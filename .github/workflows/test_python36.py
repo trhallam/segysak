@@ -1,4 +1,4 @@
-name: python_build
+name: python_36
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7]
+        python-version: [3.6]
         os: [ubuntu-latest, windows-latest]
 
     steps:

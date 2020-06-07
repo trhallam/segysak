@@ -1,4 +1,6 @@
-[![Actions Status](https://github.com/trhallam/segysak/workflows/python_build/badge.svg)](https://github.com/trhallam/segysak/actions)
+[![Actions Status](https://github.com/trhallam/segysak/workflows/python_38/badge.svg)](https://github.com/trhallam/segysak/actions)
+[![Actions Status](https://github.com/trhallam/segysak/workflows/python_37/badge.svg)](https://github.com/trhallam/segysak/actions)
+[![Actions Status](https://github.com/trhallam/segysak/workflows/python_36/badge.svg)](https://github.com/trhallam/segysak/actions)
 
 
 # Documentation
@@ -23,16 +25,16 @@ return to SEGY so you can export to other software.
 
 ## Current Capabilities
 
- * CLI
-    * Convert 2D, 3D and gathers type SEGY to NETCDF4 and back. The NETCDF4 files are one line open with `xarray.open_dataset`.
-    * Extract sub-volumes via cropping xline and inline.
-    * Read EBCIDC header.
-    * Perform a limited header scan.
+* CLI
+  * Convert 2D, 3D and gathers type SEGY to NETCDF4 and back. The NETCDF4 files are one line open with `xarray.open_dataset`.
+  * Extract sub-volumes via cropping xline and inline.
+  * Read EBCIDC header.
+  * Perform a limited header scan.
 
- * Xarray and Python API
-    * Load 2D, 3D and gathers type SEGY to Xarray.
-    * Access header information and text headers in Python with conveience functions.
-    * Select traces by X and Y coordinates.
+* Xarray and Python API
+  * Load 2D, 3D and gathers type SEGY to Xarray.
+  * Access header information and text headers in Python with conveience functions.
+  * Select traces by X and Y coordinates.
 
 ## Installation
 SEGY-SAK can be installed by using pip or python setuptools.
