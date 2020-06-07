@@ -86,7 +86,7 @@ def guess_file_type(file):
 def cli(version):
     LOGGER.info(f"segysak v{VERSION}")
     if version:
-        click.echo("{} {}".format(NAME, VERSION))
+        click.echo(f"{NAME} {VERSION}")
         pass
 
 
@@ -152,7 +152,7 @@ def convert(output_file, input_file, iline, xline, crop, output_type):
         )
         raise SystemExit
 
-    click.echo("Converting file {} to {}".format(input_file.name, output_type))
+    click.echo(f"Converting file {input_file.name} to {output_type}")
 
     if len(crop) == 0:
         crop = None
@@ -163,13 +163,17 @@ def convert(output_file, input_file, iline, xline, crop, output_type):
         _ = segy_loader(
             input_file, ncfile=output_file, iline=iline, xline=xline, ix_crop=crop
         )
+        click.echo(f"Converted file saved as {output_file}")
         LOGGER.info(f"NetCDF output written to {output_file}")
-
-    if output_type == "SEGY":
+    elif output_type == "SEGY":
         if output_file is None:
             output_file = input_file.stem + ".segy"
         ncdf2segy(input_file, output_file, iline=iline, xline=xline)
+        click.echo(f"Converted file saved as {output_file}")
         LOGGER.info(f"SEGY output written to {output_file}")
+    else:
+        click.echo(f"Conversion to output-type {output_type} is not implemented yet")
+        raise SystemExit
 
 
 if __name__ == "__main__":
