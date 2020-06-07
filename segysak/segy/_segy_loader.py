@@ -3,7 +3,7 @@
 """
 
 from warnings import warn
-
+from functools import partial
 from collections import defaultdict
 import importlib
 
@@ -21,9 +21,11 @@ try:
     if has_ipywidgets:
         from tqdm.notebook import tqdm
     else:
-        from tqdm import tqdm
+        from tqdm import tqdm as tqdm
 except ModuleNotFoundError:
-    from tqdm import tqdm
+    from tqdm import tqdm as tqdm
+
+TQDM_ARGS = dict(unit_scale=True, unit=" traces")
 
 from segysak._keyfield import (
     CoordKeyField,
@@ -117,7 +119,9 @@ def _segy3d_ncdf(
 
         print(f"Fast direction is {broken_dir}")
 
-        pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
+        pb = tqdm(
+            total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
+        )
 
         for contig, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
@@ -176,7 +180,9 @@ def _segy3dps_ncdf(
 
         print(f"Fast direction is {broken_dir}")
 
-        pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
+        pb = tqdm(
+            total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
+        )
 
         for contig, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
@@ -227,7 +233,9 @@ def _segy3d_xr(
 
         print(f"Fast direction is {broken_dir}")
 
-        pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
+        pb = tqdm(
+            total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
+        )
         shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
 
@@ -282,7 +290,9 @@ def _segy3dps_xr(
 
         print(f"Fast direction is {broken_dir}")
 
-        pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
+        pb = tqdm(
+            total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
+        )
         shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
 
@@ -471,7 +481,9 @@ def _segy2d_xr(
 
         segyf.mmap()
 
-        pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
+        pb = tqdm(
+            total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
+        )
         shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
 
@@ -514,7 +526,9 @@ def _segy2d_ps_xr(
 
         segyf.mmap()
 
-        pb = tqdm(total=segyf.tracecount, desc="Converting SEGY", disable=silent)
+        pb = tqdm(
+            total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
+        )
         shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
 
@@ -797,7 +811,7 @@ def segy_loader(
             "@cmp_head_loc >= @crop_min & @cmp_head_loc <= @crop_max"
         )
 
-    if ix_crop is not None and cmp is None:  # 3d inline/xline cropping
+    if ix_crop is not None and cdp is None:  # 3d inline/xline cropping
         il_head_loc = _get_tf(iline)
         xl_head_loc = _get_tf(xline)
         il_min, il_max, xl_min, xl_max = check_crop(
