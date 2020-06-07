@@ -2,7 +2,7 @@
 segysak |latest-version|
 ========================
 
-|build-status| |python-version| |code-style| |license| |slack|
+|build-status| |python-version| |code-style| |license| |docs| |slack|
 
 
 Access the full documentation for SEGY-SAK from `readthedocs <https://segysak.readthedocs.io/en/latest/>`__
@@ -184,23 +184,27 @@ Complete Documentation
 The complete documentation for *SEGY-SAK* can be found at
 `readthedocs <https://segysak.readthedocs.io/en/latest/>`__
 
-.. |latest-version| image:: https://img.shields.io?style=flat-square
+.. |latest-version| image:: https://img.shields.io/pypi/v/segysak?color=2d5016&label=pypi_version
    :alt: Latest version on PyPi
 
-.. |build-status| image:: https://github.com/trhallam/segysak/workflows/python_38/badge.svg
+.. |build-status| image:: https://github.com/trhallam/segysak/workflows/python_build_test/badge.svg
    :alt: Build status
 
-.. |python-version| image:: https://img.shields.io/pypi/pyversions/segysak?style=flat-square
+.. |python-version| image:: https://img.shields.io/pypi/pyversions/segysak
    :alt: Python versions
 
-.. |code-style| image:: https://img.shields.io/badge/code_style-black-000000.svg?style=flat-square
+.. |code-style| image:: https://img.shields.io/badge/code_style-black-000000.svg
    :alt: code style: black
    :target: https://github.com/psf/black
 
-.. |license| image:: https://img.shields.io/badge/license-GPLv3-brightgreen?style=flat-square
+.. |license| image:: https://img.shields.io/badge/license-GPLv3-brightgreen
    :alt: license
    :target: https://github.com/trhallam/segysak/blob/master/LICENSE
 
-.. |slack| image:: https://img.shields.io/badge/help-slack-blueviolet?style=flat-square
+.. |docs| image:: https://readthedocs.org/projects/segysak/badge/?version=latest
+   :target: https://segysak.readthedocs.io/en/latest/?badge=latest
+   :alt: Documentation Status
+
+.. |slack| image:: https://img.shields.io/badge/help-slack-blueviolet
    :alt: help
    :target: https://swung.slack.com/messages/t20-segysak/
