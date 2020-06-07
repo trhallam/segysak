@@ -13,7 +13,6 @@ import h5netcdf
 import numpy as np
 import pandas as pd
 import xarray as xr
-from IPython.lib.pretty import pretty
 
 try:
     has_ipywidgets = importlib.find_loader("ipywidgets") is not None
