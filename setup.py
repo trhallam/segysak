@@ -24,6 +24,7 @@ setup(
         "segyio",
         "xarray",
         "dask",
+        "distributed",
         "tqdm",
         "scipy",
         "click",
