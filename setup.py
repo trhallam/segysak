@@ -25,7 +25,7 @@ setup(
         "xarray",
         "dask",
         "tqdm",
-        "netCDF4",
+        "scipy",
         "h5netcdf",
     ],
     packages=find_packages(),
