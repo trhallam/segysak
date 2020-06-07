@@ -30,7 +30,7 @@ setup(
     ],
     packages=find_packages(),
     # add command line scripts here
-    entry_points={"console_scripts": ["segysak=segysak._cli:main"]},
+    entry_points={"console_scripts": ["segysak=segysak._cli:cli"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
