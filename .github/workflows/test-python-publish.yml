@@ -16,9 +16,7 @@ on:
       - master
 jobs:
   test-deploy:
-    runs-on:
-      - ubuntu-latest
-      - windows-latest
+    runs-on: [ubuntu-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v2
