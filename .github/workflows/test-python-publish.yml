@@ -1,18 +1,23 @@
 # This workflows will upload a Python Package using Twine when a release is created
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
-name: pypi_test_upload
+name: PyPi_Master_Head_Test
 
 on:
+  release:
+    types:
+      - created
+    branches: master
   pull_request:
-    types: [closed]
-    branches: t20-master
-  push:
-    branches: t20-master
-
+    types:
+      - closed
+    branches:
+      - master
 jobs:
   test-deploy:
-    runs-on: [ubuntu-latest, windows-latest]
+    runs-on:
+      - ubuntu-latest
+      - windows-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -26,7 +31,7 @@ jobs:
           pip install setuptools wheel twine
       - name: Build and publish
         env:
-          TWINE_USERNAME: ${{ __token__ }}
+          TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.TEST_PYPI_PASSWORD }}
         run: |
           python setup.py sdist bdist_wheel
