@@ -18,10 +18,11 @@ import time
 
 from pkg_resources import get_distribution
 
-release = get_distribution("myproject").version
+release = get_distribution("segysak").version
 # for example take major/minor
 version = ".".join(release.split(".")[:2])
 
+print(release, version)
 
 # -- Project information -----------------------------------------------------
 
@@ -34,8 +35,8 @@ copyright = u"2020-{}, The segysak Developers.".format(time.strftime("%Y"))
 author = "segysak developers"
 
 # The full version, including alpha/beta/rc tags
-version = __version__
-release = __version__
+version = version
+release = release
 today_fmt = "%d %B %Y"
 
 
