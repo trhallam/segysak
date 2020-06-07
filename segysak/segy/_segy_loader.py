@@ -4,7 +4,6 @@
 
 from warnings import warn
 from functools import partial
-from collections import defaultdict
 import importlib
 
 import segyio
@@ -45,11 +44,7 @@ from segysak._accessor import open_seisnc
 
 from ._segy_headers import segy_bin_scrape, segy_header_scrape
 from ._segy_text import get_segy_texthead
-
-_SEGY_MEASUREMENT_SYSTEM = defaultdict(lambda: 0)
-_SEGY_MEASUREMENT_SYSTEM[1] = "m"
-_SEGY_MEASUREMENT_SYSTEM[2] = "ft"
-_ISEGY_MEASUREMENT_SYSTEM = defaultdict(lambda: 0, m=1, ft=2)
+from ._segy_globals import _SEGY_MEASUREMENT_SYSTEM
 
 
 class SegyLoadError(Exception):
