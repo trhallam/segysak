@@ -24,13 +24,19 @@ setup(
         "segyio",
         "xarray",
         "dask",
+        "distributed",
         "tqdm",
         "scipy",
+        "click",
         "h5netcdf",
     ],
+    extras_require={
+        "docs": ["sphinx", "sphinx_rtd_theme"],
+        "test": ["pytest", "hypothesis"],
+    },
     packages=find_packages(),
     # add command line scripts here
-    entry_points={"console_scripts": ["segysak=segysak._cli:main"]},
+    entry_points={"console_scripts": ["segysak=segysak._cli:cli"]},
     classifiers=[
         "Development Status :: 2 - Pre-Alpha",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
