@@ -1,3 +1,6 @@
+
+__version__ = "0.2"
+
 from ._accessor import SeisIO, open_seisnc
 
 from ._seismic_dataset import (
