@@ -1,5 +1,5 @@
 
-__version__ = "0.2"
+__version__ = "0.2.1"
 
 from ._accessor import SeisIO, open_seisnc
 
