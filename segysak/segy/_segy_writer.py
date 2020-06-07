@@ -1,7 +1,7 @@
 
 import importlib
 import xarray as xr
-
+import segyio
 
 try:
     has_ipywidgets = importlib.find_loader("ipywidgets") is not None
@@ -11,6 +11,9 @@ try:
         from tqdm import tqdm
 except ModuleNotFoundError:
     from tqdm import tqdm
+
+
+from ._segy_globals import _ISEGY_MEASUREMENT_SYSTEM
 
 
 def _bag_slices(ind, n=10):

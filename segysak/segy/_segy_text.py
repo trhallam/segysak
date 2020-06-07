@@ -7,8 +7,17 @@ from segysak.tools import _get_userid, _get_datetime
 def _text_fixes(text):
     # hacky fixes for software
     text = text.replace("�Cro", "    ")
+    text = text.replace("\x00", " ")
     return text
 
+def _isascii(txt):
+    # really want to use b"".isascii() but this is Python 3.7+
+    try:
+        txt.decode('ascii')
+    except UnicodeDecodeError:
+        return False
+    else:
+        return True
 
 def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
     """Return the ebcidc
@@ -26,8 +35,12 @@ def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
         f.seek(0, 0)  # Locate our position to first byte of file
         data = f.read(3200)  # Read the first 3200 byte from our position
 
-    if data.isascii():
+    if _isascii(data) and ext_headers == False:
         text = data.decode("ascii")  # EBCDIC encoding
+        text = _text_fixes(text)
+        text = segyio.tools.wrap(text)
+    elif ext_headers == False:
+        text = data.decode('cp500') # text is ebcidc
         text = _text_fixes(text)
         text = segyio.tools.wrap(text)
     else:

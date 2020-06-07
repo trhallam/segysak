@@ -22,6 +22,7 @@ which is a lower level interface to SEGY. If you stick to our `xarray` format of
 return to SEGY so you can export to other software.
 
 ## Current Capabilities
+
  * CLI
     * Convert 2D, 3D and gathers type SEGY to NETCDF4 and back. The NETCDF4 files are one line open with `xarray.open_dataset`.
     * Extract sub-volumes via cropping xline and inline.
@@ -55,7 +56,7 @@ environment it can be accessed by calling `segysak`.
 
 See `segysak --help` for options.
 
-SEG-Y files converted using `segysak -nc -F test.segy` for example can be loaded into Python using `xarray`.
+SEG-Y files converted using `segysak convert test.segy` for example can be loaded into Python using `xarray`.
 ```
 test = xarray.open_dataset('test.SEISNC')
 ```
