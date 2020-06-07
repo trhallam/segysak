@@ -30,7 +30,10 @@ setup(
         "click",
         "h5netcdf",
     ],
-    extras_require={"docs": ["sphinx", "sphinx_rtd_theme"]},
+    extras_require={
+        "docs": ["sphinx", "sphinx_rtd_theme"],
+        "test": ["pytest", "hypothesis"],
+    },
     packages=find_packages(),
     # add command line scripts here
     entry_points={"console_scripts": ["segysak=segysak._cli:cli"]},
