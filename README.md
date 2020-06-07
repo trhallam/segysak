@@ -16,10 +16,12 @@ highly performant file formats designed for buffered and distributed processing,
 seismic data volumes.
 
 ## Current Capabilities
+
  * Convert 3D SEGY to NETCDF4 and back.
     * Extract sub-volumes via cropping.
 
 ## Installation
+
 SEGY-SAK can be installed by using python setuptools.
 
 Clone the SEGY-SAK Github repository and in the top level directory
