@@ -3,7 +3,7 @@ import pytest
 
 from segysak._cli import cli, NAME
 
-from tests.test_fixtures import temp_dir, temp_segy, TEMP_TEST_DATA_DIR
+from test_fixtures import temp_dir, temp_segy, TEMP_TEST_DATA_DIR
 
 
 @pytest.mark.parametrize("help_arg", ["-h", "--help"])
