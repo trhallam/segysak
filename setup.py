@@ -7,8 +7,7 @@ from setuptools import find_packages
 # from segysak import __version__
 
 # Get README and remove badges.
-readme = open("README.md").read()
-readme = re.sub("----.*marker", "----", readme, flags=re.DOTALL)
+readme = open("README.rst").read()
 
 setup(
     name="segysak",
