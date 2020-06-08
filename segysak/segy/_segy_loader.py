@@ -5,6 +5,7 @@
 from warnings import warn
 from functools import partial
 import importlib
+import pathlib
 
 import segyio
 
@@ -376,6 +377,7 @@ def _3dsegy_loader(
     # create_seismic_dataset(d1=ni, d2=nx, d3=nsamp)
     text = get_segy_texthead(segyfile, **segyio_kwargs)
     ds.attrs[AttrKeyField.text.value] = text
+    ds.attrs[AttrKeyField.source_file.value] = pathlib.Path(segyfile).name
 
     if ncfile is not None and return_geometry == False:
         ds.seisio.to_netcdf(ncfile)
@@ -612,6 +614,7 @@ def _2dsegy_loader(
     # create_seismic_dataset(d1=ni, d2=nx, d3=nsamp)
     text = get_segy_texthead(segyfile, **segyio_kwargs)
     ds.attrs[AttrKeyField.text.value] = text
+    ds.attrs[AttrKeyField.source_file.value] = pathlib.Path(segyfile).name
 
     if ncfile is not None and return_geometry == True:
         ds.seisio.to_netcdf(ncfile)
@@ -909,4 +912,5 @@ def segy_loader(
         for key, field in extra_byte_fields.items():
             ds[key] = (dims, head_df[field].values)
 
+    # ds.seis.get_corner_points()
     return ds
