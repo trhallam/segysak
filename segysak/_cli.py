@@ -75,7 +75,7 @@ def guess_file_type(file):
         return None
 
 
-@click.group(invoke_without_command=True)
+@click.group(invoke_without_command=True, no_args_is_help=True)
 @click.option(
     "--version",
     "-v",
@@ -92,6 +92,8 @@ def cli(version):
     if version:
         click.echo(f"{NAME} {VERSION}")
         raise SystemExit
+
+    print(locals())
 
 
 @cli.command(help="Print SEGY EBCIDC header")
