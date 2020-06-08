@@ -89,8 +89,6 @@ def cli(version):
         click.echo(f"{NAME} {VERSION}")
         pass
 
-    print(locals())
-
 
 @cli.command(help="Print SEGY EBCIDC header")
 @click.argument("filename", type=click.Path(exists=True))

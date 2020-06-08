@@ -661,17 +661,19 @@ def _2dsegy_loader(
 def well_known_byte_locs(name):
     """Convert SEGY data to NetCDF4 File
 
-        Returns a dict containing the byte locations for well known SEGY variants in the wild.
+    Returns a dict containing the byte locations for well known SEGY variants in the wild.
 
-        Caller should provide the name
-        e.g.
-            - standard_3d
-            - petrel_3d
-            - ...
+    Args:
+        name (str): One of [standard_3d, petrel_3d]
 
-        The intention is that this can be used with segy_loader to easily setup the load:
+    Returns:
+        dict: A dictionary of SEG-Y byte positions.
 
-            seismic = segy_loader(filepath, **well_known_byte_locs('petrel_3d'))
+    Example:
+
+    Use the output of this function to unpack arguments into ``segy_loader``
+
+    >>> seismic = segy_loader(filepath, **well_known_byte_locs('petrel_3d'))
 
     """
     if name == "standard_3d":

@@ -1,15 +1,15 @@
 segysak: A library for loading and manipulating SEG-Y data with Python using **xarray**
-=====================================================================================
+========================================================================================
 
 **segysak** is a ...
 
-**segysak** leverages Xarray_ and pandas_, to simplify handling of seismic data with
+**segysak** leverages Xarray_ and Pandas_, to simplify handling of seismic data with
 coordinates and meta data. It also offered a large number of utilities for common
 seismic operations. To handle large data files it uses netCDF_ files, which were 
 also the source of xarray's data model.
 
 .. _NumPy: http://www.numpy.org
-.. _pandas: http://pandas.pydata.org
+.. _Pandas: http://pandas.pydata.org
 .. _dask: http://dask.org
 .. _netCDF: http://www.unidata.ucar.edu/software/netcdf
 .. _Xarray: http://xarray.pydata.org/en/stable/
@@ -51,20 +51,26 @@ TODO:
   - terminology
   - common-tasks
 
-.. 
+* :doc:`seisnc-standard`
+* :doc:`command-line-tool`
 
 .. toctree::
    :maxdepth: 1
-   :caption: Contents:
+   :caption: Contents
    :hidden:
 
    seisnc-standard
+   command-line-tool
 ..    terminology
 ..    common-tasks
 
 **Help & Reference**
 
-* :doc: `api`
+TODO:
+  - contributing
+  - related-projects
+
+* :doc:`api`
 
 .. * :doc:`contributing`
 .. * :doc:`related-projects`
@@ -79,8 +85,10 @@ TODO:
 See also
 --------
 
-segyio
-xarray
+Fundamental Python libraries to segysak are segyio_ and xarray_.
+
+.. _segyio: https://segyio.readthedocs.io/en/latest/
+.. _xarray: http://xarray.pydata.org/en/stable/
 
 
 Get in touch
