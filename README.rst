@@ -1,5 +1,5 @@
 ========================
-segysak |latest-version|
+**SEGY-SAK** - |latest-version|
 ========================
 
 |build-status| |python-version| |code-style| |license| |docs| |slack|
@@ -184,11 +184,13 @@ Complete Documentation
 The complete documentation for *SEGY-SAK* can be found at
 `readthedocs <https://segysak.readthedocs.io/en/latest/>`__
 
-.. |latest-version| image:: https://img.shields.io/pypi/v/segysak?color=2d5016&label=pypi_version
+.. |latest-version| image:: https://img.shields.io/pypi/v/segysak?color=2d5016&label=pypi_version&logo=Python&logoColor=white
    :alt: Latest version on PyPi
+   :target: https://pypi.org/project/segysak/
 
 .. |build-status| image:: https://github.com/trhallam/segysak/workflows/python_build_test/badge.svg
    :alt: Build status
+   :target: https://github.com/trhallam/segysak/actions
 
 .. |python-version| image:: https://img.shields.io/pypi/pyversions/segysak
    :alt: Python versions
@@ -205,6 +207,6 @@ The complete documentation for *SEGY-SAK* can be found at
    :target: https://segysak.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-.. |slack| image:: https://img.shields.io/badge/help-slack-blueviolet
+.. |slack| image:: https://img.shields.io/badge/slack-help-blueviolet?logo=slack
    :alt: help
    :target: https://swung.slack.com/messages/t20-segysak/
