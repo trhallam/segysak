@@ -4,6 +4,7 @@
 
 |build-status| |python-version| |code-style| |license| |docs| |slack|
 
+.. image:: https://img.shields.io/badge/swung-slack-blueviolet?link=https://softwareunderground.org/&link=swung.slack.com/
 
 Access the full documentation for SEGY-SAK from `readthedocs <https://segysak.readthedocs.io/en/latest/>`__
 

@@ -50,6 +50,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx_rtd_theme",
+    "sphinx.ext.intersphinx",
 ]
 
 autosummary_generate = True
@@ -112,3 +113,11 @@ def setup(app):
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
+
+intersphinx_mapping = {
+    "https://docs.python.org/": None,
+    "https://docs.scipy.org/doc/numpy/": None,
+    "https://docs.scipy.org/doc/scipy/": None,
+    "http://xarray.pydata.org/en/stable/": None,
+    "https://pandas.pydata.org/docs/": None,
+}
