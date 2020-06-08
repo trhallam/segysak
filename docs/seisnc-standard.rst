@@ -1,2 +1,2 @@
-seisnc standard
+SEISNC Standard
 ===============

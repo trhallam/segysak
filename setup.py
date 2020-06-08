@@ -30,10 +30,7 @@ setup(
         "click",
         "h5netcdf",
     ],
-    extras_require={
-        "docs": ["sphinx", "sphinx_rtd_theme"],
-        "test": ["pytest", "hypothesis"],
-    },
+    tests_require=["pytest", "hypothesis", "flake8"],
     packages=find_packages(),
     # add command line scripts here
     entry_points={"console_scripts": ["segysak=segysak._cli:cli"]},
@@ -45,7 +42,13 @@ setup(
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Scientific/Engineering",
     ],
-    setup_requires=["setuptools_scm"],
+    setup_requires=[
+        "pytest-runner",
+        "setuptools_scm",
+        "sphinx",
+        "sphinx_rtd_theme",
+        "sphinxcontrib-programoutput",
+    ],
     use_scm_version={
         "root": ".",
         "relative_to": __file__,

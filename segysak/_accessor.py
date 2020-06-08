@@ -192,13 +192,13 @@ class SeisGeom:
             )
 
     def is_twt(self):
-        """Check if twt
+        """Check if seisnc volume is in twt
         """
         self._check_multi_z()
         return True if CoordKeyField.twt.value in self._obj.dims else False
 
     def is_depth(self):
-        """Check if twt
+        """Check if seisnc volume is in depth
         """
         self._check_multi_z()
         return True if CoordKeyField.depth.value in self._obj.dims else False
