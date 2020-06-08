@@ -50,7 +50,7 @@ setup(
         "root": ".",
         "relative_to": __file__,
         # "local_scheme": "node-and-timestamp",
-        "write_to": "version.py",
+        "write_to": "segysak/version.py",
     },
     python_requires=">=3.6",
 )
