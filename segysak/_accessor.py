@@ -7,7 +7,7 @@ import xarray as xr
 import numpy as np
 from scipy.interpolate import griddata
 
-from ._keyfield import AttrKeyField
+from ._keyfield import AttrKeyField, DimensionKeyField, CoordKeyField, VariableKeyField
 from ._richstr import _upgrade_txt_richstr
 
 
@@ -104,3 +104,121 @@ class SeisGeom:
         """
         il, xl = self._coord_as_dimension((cdp_x, cdp_y))
         return self._obj.sel(iline=il, xline=xl)
+
+    def _has_dims(self, dimension_options, invalid_dimension_options=None):
+        """Check dataset has one of dimension options.
+        """
+        current_dims = set(self._obj.dims)
+
+        # check for a match
+        result = False
+        for opt in dimension_options:
+            if set(opt).issubset(current_dims):
+                result = True
+                break
+
+        # check for things that would invalidate this e.g. this might be a subset
+        if invalid_dimension_options is not None:
+            for opt in invalid_dimension_options:
+                if set(opt).issubset(current_dims):
+                    result = False
+                    break
+
+        return result
+
+    def _is_known_geometry(self):
+        """Decide if known geometry this volume is and return the appropriate enum.
+        """
+        current_dims = set(self._obj.dims)
+        for enum in DimensionKeyField:
+            if set(enum.value).issubset(current_dims):
+                return True
+        return False
+
+    def is_2d(self):
+        """Returns True if the dataset is 2D peformant else False
+        """
+        dim_options = [
+            DimensionKeyField.twod_twt.value,
+            DimensionKeyField.twod_depth.value,
+        ]
+        invalid_dim_options = [
+            DimensionKeyField.twod_ps_twt.value,
+            DimensionKeyField.twod_ps_depth.value,
+        ]
+        return self._has_dims(dim_options, invalid_dim_options)
+
+    def is_3d(self):
+        """Returns True if the dataset is 3D peformant else False
+        """
+        dim_options = [
+            DimensionKeyField.threed_twt.value,
+            DimensionKeyField.threed_depth.value,
+        ]
+        invalid_dim_options = [
+            DimensionKeyField.threed_ps_twt.value,
+            DimensionKeyField.threed_ps_depth.value,
+        ]
+        return self._has_dims(dim_options, invalid_dim_options)
+
+    def is_2dgath(self):
+        """Returns True if the dataset is 2D peformant and has offset or angle else False
+        """
+        dim_options = [
+            DimensionKeyField.twod_ps_twt.value,
+            DimensionKeyField.twod_ps_depth.value,
+        ]
+        return self._has_dims(dim_options)
+
+    def is_3dgath(self):
+        """Returns True if the dataset is 3D peformant and has offset or angle else False
+        """
+        dim_options = [
+            DimensionKeyField.threed_ps_twt.value,
+            DimensionKeyField.threed_ps_depth.value,
+        ]
+        return self._has_dims(dim_options)
+
+    def _check_multi_z(self):
+        if (
+            CoordKeyField.depth.value in self._obj.dims
+            and CoordKeyField.twt.value in self._obj.dims
+        ):
+            raise ValueError(
+                "seisnc cannot determin domain both twt and depth dimensions found"
+            )
+
+    def is_twt(self):
+        """Check if twt
+        """
+        self._check_multi_z()
+        return True if CoordKeyField.twt.value in self._obj.dims else False
+
+    def is_depth(self):
+        """Check if twt
+        """
+        self._check_multi_z()
+        return True if CoordKeyField.depth.value in self._obj.dims else False
+
+    def is_empty(self):
+        """Check if empty
+        """
+        if VariableKeyField.data.value in self._obj.variables:
+            # This could be smartened up to check logic make sure dimensions of data
+            # are correct.
+            return False
+        else:
+            return True
+
+    def zeros_like(self):
+        """Create a new dataset with the same attributes and coordinates and
+        dimensions but with data filled by zeros.
+        """
+        current_dims = {dim: val for dim, val in self._obj.dims.items()}
+        dims = [dim for dim in current_dims.keys()]
+        shp = [val for val in current_dims.values()]
+        # TODO: Investigate copy options, might need to manually copy geometry
+        # also don't want to load into memory if large large file.
+        out = self._obj.copy()
+        out[VariableKeyField.data.value] = (dims, np.zeros(shp))
+        return out

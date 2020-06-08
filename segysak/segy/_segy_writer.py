@@ -4,7 +4,7 @@ import xarray as xr
 import segyio
 
 try:
-    has_ipywidgets = importlib.find_loader("ipywidgets") is not None
+    has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
     if has_ipywidgets:
         from tqdm.notebook import tqdm
     else:
