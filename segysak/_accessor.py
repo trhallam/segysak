@@ -3,8 +3,11 @@
 data manipulation.
 
 """
+from collections.abc import Iterable
+
 import xarray as xr
 import numpy as np
+import pandas as pd
 from scipy.interpolate import griddata
 
 from ._keyfield import AttrKeyField, DimensionKeyField, CoordKeyField, VariableKeyField
@@ -221,4 +224,103 @@ class SeisGeom:
         # also don't want to load into memory if large large file.
         out = self._obj.copy()
         out[VariableKeyField.data.value] = (dims, np.zeros(shp))
+        return out
+
+    def surface_from_points(
+        self,
+        points,
+        attr,
+        left=("cdp_x", "cdp_y"),
+        right=None,
+        key=None,
+        method="linear",
+    ):
+        """Sample a 2D point set with an attribute (like Z) to the seisnc
+        geometry using interpolation.
+
+        Args:
+            points (array-like): Nx2 array-like of points with coordinates
+                corresponding to coord1 and coord2.
+            attr (array-like, str): If str points should be a DataFrame where
+                attr is the column name of the attribute to be interpolated to
+                the seisnc geometry. Else attr is a 1D array of length N.
+            left (tuple): Length 2 tuple of coordinate dimensions to interpolate to.
+            right (tuple, optional): If points is DataFrame right is a length 2
+                tuple of column keys corresponding to coordinates in argument left.
+            method (str): The interpolation method to use for griddata from scipy.
+                Defaults to 'linear'
+
+        Returns:
+            xr.Dataset: Surface with geometry specified in left.
+
+        """
+
+        if len(left) != 2 and not isinstance(left, Iterable):
+            raise ValueError("left must be tuple of length 2")
+        for var in left:
+            if var not in self._obj.variables:
+                raise ValueError("left coordinate names not found in dataset")
+        for var in left:
+            if var in self._obj.dims:
+                raise ValueError(
+                    "surface_from_points is designed for coordinates that "
+                    "are not already Dataset Dimensions, use ... instead."
+                )
+
+        a, b = left
+        if self._obj[a].dims != self._obj[b].dims:
+            raise ValueError(
+                f"left keys {a} and {b} should exist on the same dimensions"
+            )
+
+        if isinstance(points, pd.DataFrame):
+            if len(right) != 2 and not isinstance(right, Iterable):
+                raise ValueError(
+                    "points is DataFrame, right must a tuple specified "
+                    "with coordinate keys from column names, e.g right=('cdpx', 'cdpy')"
+                )
+            names = [attr] + list(right)
+            if not set(names).issubset(points.columns):
+                raise ValueError("could not find specified keys in points DataFrame")
+
+            _points = points[list(right)].values
+            _attr = points[attr].values
+
+        else:
+            points = np.asarray(points)
+            attr = np.asarray(attr)
+            if points.shape[1] != 2:
+                raise ValueError("points must have shape Nx2")
+            if attr.size != points.shape[0]:
+                raise ValueError("First dimension of points must equal length of attr")
+            _points = points
+            _attr = attr
+
+        temp_ds = self._obj.copy()
+        org_dims = temp_ds[a].dims
+        org_shp = temp_ds[a].shape
+
+        var = griddata(
+            _points,
+            _attr,
+            np.dstack(
+                [
+                    temp_ds[a]
+                    .transpose(*org_dims, transpose_coords=True)
+                    .values.ravel(),
+                    temp_ds[b]
+                    .transpose(*org_dims, transpose_coords=True)
+                    .values.ravel(),
+                ]
+            ),
+            method=method,
+        )
+
+        out = temp_ds.drop_vars(temp_ds.var().keys())
+        temp_ds.attrs.clear()
+        if key is None and isinstance(attr, str):
+            key = attr
+        elif key is None:
+            key = "data"
+        out[key] = (org_dims, var.reshape(org_shp))
         return out
