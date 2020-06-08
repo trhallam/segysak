@@ -324,3 +324,61 @@ class SeisGeom:
             key = "data"
         out[key] = (org_dims, var.reshape(org_shp))
         return out
+
+    def calc_corner_points(self):
+        """Calculate the corner points of the geometry or end points of a 2D line.
+
+        This puts two properties in the seisnc attrs with the calculated il/xl and
+        cdp_x and cdp_y if available.
+
+        Attr:
+            ds.attrs['corner_points']
+            ds.attrs['corner_points_xy']
+        """
+        corner_points = False
+        corner_points_xy = False
+
+        if self.is_3d() or self.is_3dgath():
+            il, xl = DimensionKeyField.cdp_3d.value
+            ilines = self._obj[il].values
+            xlines = self._obj[xl].values
+            corner_points = (
+                (ilines[0], xlines[0]),
+                (ilines[0], xlines[-1]),
+                (ilines[-1], xlines[-1]),
+                (ilines[-1], xlines[0]),
+            )
+
+            cdpx, cdpy = CoordKeyField.cdp_x.value, CoordKeyField.cdp_y.value
+
+            if set((cdpx, cdpy)).issubset(self._obj.variables):
+                xs = self._obj[cdpx].values
+                ys = self._obj[cdpy].values
+                corner_points_xy = (
+                    (xs[0, 0], ys[0, 0]),
+                    (xs[0, -1], ys[0, -1]),
+                    (xs[-1, -1], ys[-1, -1]),
+                    (xs[-1, 0], ys[-1, 0]),
+                )
+
+        elif self.is_2d() or self.is_2dgath():
+            cdp = DimensionKeyField.cdp_2d.value
+            cdps = self._obj[cdp].values
+            corner_points = (cdps[0], cdps[-1])
+
+            cdpx, cdpy = CoordKeyField.cdp_x.value, CoordKeyField.cdp_y.value
+
+            if set((cdpx, cdpy)).issubset(self._obj.variables):
+                xs = self._obj[cdpx].values
+                ys = self._obj[cdpy].values
+                corner_points_xy = (
+                    (xs[0], ys[0]),
+                    (xs[0], ys[0]),
+                    (xs[-1], ys[1]),
+                    (xs[-1], ys[1]),
+                )
+
+        if corner_points:
+            self._obj.attrs[AttrKeyField.corner_points.value] = corner_points
+        if corner_points_xy:
+            self._obj.attrs[AttrKeyField.corner_points_xy.value] = corner_points_xy
