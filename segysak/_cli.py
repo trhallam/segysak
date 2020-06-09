@@ -6,13 +6,15 @@ import logging
 import pathlib
 import click
 
-from segysak.version import version as VERSION
+from setuptools_scm import get_version
+
 from segysak.segy import segy_loader, ncdf2segy, segy_header_scan, get_segy_texthead
 from segysak.tools import fix_bad_chars
 
 # configuration setup
 NAME = "segysak"
 LOGGER = logging.getLogger(NAME)
+VERSION = get_version(root='..', relative_to=__file__)
 
 
 def check_file(input_files):
@@ -84,10 +86,14 @@ def guess_file_type(file):
     default=False,
 )
 def cli(version):
+    """
+    The SEGY Swiss Army Knife (segysak) is a tool for managing segy data.
+    It can read and dump ebcidc headers, scan trace headers, convert SEGY to SEISNC and vice versa
+    """
     LOGGER.info(f"segysak v{VERSION}")
     if version:
         click.echo(f"{NAME} {VERSION}")
-        pass
+        raise SystemExit
 
 
 @cli.command(help="Print SEGY EBCIDC header")
@@ -99,7 +105,7 @@ def ebcidc(filename):
 
 @cli.command(help="Scan trace headers and print value ranges")
 @click.option(
-    "--max-traces", "-m", type=int, default=1000, help="Number of traces to scan"
+    "--max-traces", "-m", type=click.INT, default=1000, help="Number of traces to scan"
 )
 @click.argument("filename", type=click.Path(exists=True))
 def scan(max_traces, filename):
@@ -120,12 +126,18 @@ def scan(max_traces, filename):
     help="Convert file between SEGY and NETCDF (direction is guessed or can be made explicit with the --output-type option)"
 )
 @click.argument("input-file", type=click.Path(exists=True))
-@click.option("--output-file", "-o", type=str, help="Output file name", default=None)
-@click.option("--iline", "-il", type=int, default=189, help="Inline byte location")
-@click.option("--xline", "-xl", type=int, default=193, help="Crossline byte location")
+@click.option(
+    "--output-file", "-o", type=click.STRING, help="Output file name", default=None
+)
+@click.option(
+    "--iline", "-il", type=click.INT, default=189, help="Inline byte location"
+)
+@click.option(
+    "--xline", "-xl", type=click.INT, default=193, help="Crossline byte location"
+)
 @click.option(
     "--crop",
-    type=int,
+    type=click.INT,
     nargs=4,
     default=None,
     help="Crop the input volume providing 4 parameters: minil maxil minxl maxxl",
