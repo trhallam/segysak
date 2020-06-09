@@ -15,3 +15,6 @@ sphinxcontrib-programoutput
 sphinx-copybutton
 nbsphinx >= 0.7
 pandoc
+nbconvert!=5.4
+nbformat
+jupyter_client
