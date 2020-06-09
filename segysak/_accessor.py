@@ -67,6 +67,23 @@ def open_seisnc(seisnc, **kwargs):
 
     return ds
 
+def coord_as_dimension(obj, points):
+    keys = ("cdp_x", "cdp_y")
+    grid = np.vstack(
+        [
+            obj[key]
+                .transpose("iline", "xline", transpose_coords=True)
+                .values.ravel()
+            for key in keys
+        ]
+    ).transpose()
+    xlines_, ilines_ = np.meshgrid(obj["xline"], obj["iline"])
+
+    # these must all be the same length
+    ils = griddata(grid, ilines_.ravel(), points)
+    xls = griddata(grid, xlines_.ravel(), points)
+
+    return ils, xls
 
 @xr.register_dataset_accessor("seis")
 class SeisGeom:
@@ -74,23 +91,7 @@ class SeisGeom:
         self._obj = xarray_obj
 
     def _coord_as_dimension(self, points):
-
-        keys = ("cdp_x", "cdp_y")
-        grid = np.vstack(
-            [
-                self._obj[key]
-                .transpose("iline", "xline", transpose_coords=True)
-                .values.ravel()
-                for key in keys
-            ]
-        ).transpose()
-        xlines_, ilines_ = np.meshgrid(self._obj["xline"], self._obj["iline"],)
-
-        # these must all be the same length
-        ils = griddata(grid, ilines_.ravel(), points)
-        xls = griddata(grid, xlines_.ravel(), points)
-
-        return ils, xls
+        coord_as_dimension(self._obj, points)
 
     def xysel(self, cdp_x, cdp_y):
         """Select data at x and y coordinates
@@ -102,5 +103,26 @@ class SeisGeom:
         Returns:
             xarray.Dataset: At selected coordinates.
         """
-        il, xl = self._coord_as_dimension((cdp_x, cdp_y))
+        il, xl = self._coord_as_dimension(self._obj, (cdp_x, cdp_y))
         return self._obj.sel(iline=il, xline=xl)
+
+
+@xr.register_dataset_accessor("seis")
+class SeisArbLine:
+    def __init__(self, xarray_obj):
+        self._obj = xarray_obj
+
+    def line_interp(self, cdp_x, cdp_y, v_extent=None):
+        """Select data at x and y coordinates
+
+        Args:
+            cdp_x (float/array-like)
+            cdp_y (float/array-like)
+            v_extent (tuple floats)
+
+        Returns:
+            xarray.Dataset: At selected coordinates.
+        """
+        il, xl = coord_as_dimension(self._obj, (cdp_x, cdp_y))
+        return il,xl
+        # return self._obj.sel(iline=il, xline=xl)
