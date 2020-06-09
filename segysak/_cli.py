@@ -6,13 +6,15 @@ import logging
 import pathlib
 import click
 
-from segysak import __version__ as VERSION
+from setuptools_scm import get_version
+
 from segysak.segy import segy_loader, ncdf2segy, segy_header_scan, get_segy_texthead
 from segysak.tools import fix_bad_chars
 
 # configuration setup
 NAME = "segysak"
 LOGGER = logging.getLogger(NAME)
+VERSION = get_version(root='..', relative_to=__file__)
 
 
 def check_file(input_files):

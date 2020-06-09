@@ -3,7 +3,6 @@ import pytest
 from click.testing import CliRunner
 
 from segysak._cli import cli, NAME
-from segysak import __version__ as version
 
 from test_fixtures import temp_dir, temp_segy, TEMP_TEST_DATA_DIR
 
@@ -19,7 +18,7 @@ def test_version():
     runner = CliRunner()
     result = runner.invoke(cli, ["--version"])
     assert result.exit_code == 0
-    assert result.output == f"{NAME} {version}\n"
+    assert NAME in result.output
 
 
 def test_no_input_file():
