@@ -3,7 +3,7 @@ import pytest
 from click.testing import CliRunner
 
 from segysak._cli import cli, NAME
-from segysak.version import version
+from segysak import __version__ as version
 
 from test_fixtures import temp_dir, temp_segy, TEMP_TEST_DATA_DIR
 

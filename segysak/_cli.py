@@ -6,7 +6,7 @@ import logging
 import pathlib
 import click
 
-from segysak.version import version as VERSION
+from segysak import __version__ as VERSION
 from segysak.segy import segy_loader, ncdf2segy, segy_header_scan, get_segy_texthead
 from segysak.tools import fix_bad_chars
 
