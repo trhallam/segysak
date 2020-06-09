@@ -61,9 +61,9 @@ def open_seisnc(seisnc, **kwargs):
     ds = xr.open_dataset(seisnc, **kwargs)
 
     # Add back missing attr to remind people.
-    for attr in AttrKeyField._member_names_:
+    for attr in AttrKeyField:
         if attr not in ds.attrs:
-            ds.attrs[AttrKeyField[attr].value] = None
+            ds.attrs[AttrKeyField[attr]] = None
 
     if ds.attrs["text"] is not None:
         ds.attrs["text"] = _upgrade_txt_richstr(ds.attrs["text"])
@@ -151,8 +151,8 @@ class SeisGeom:
         """Decide if known geometry this volume is and return the appropriate enum.
         """
         current_dims = set(self._obj.dims)
-        for enum in DimensionKeyField:
-            if set(enum.value).issubset(current_dims):
+        for key in DimensionKeyField:
+            if set(key).issubset(current_dims):
                 return True
         return False
 
@@ -160,12 +160,12 @@ class SeisGeom:
         """Returns True if the dataset is 2D peformant else False
         """
         dim_options = [
-            DimensionKeyField.twod_twt.value,
-            DimensionKeyField.twod_depth.value,
+            DimensionKeyField.twod_twt,
+            DimensionKeyField.twod_depth,
         ]
         invalid_dim_options = [
-            DimensionKeyField.twod_ps_twt.value,
-            DimensionKeyField.twod_ps_depth.value,
+            DimensionKeyField.twod_ps_twt,
+            DimensionKeyField.twod_ps_depth,
         ]
         return self._has_dims(dim_options, invalid_dim_options)
 
@@ -173,12 +173,12 @@ class SeisGeom:
         """Returns True if the dataset is 3D peformant else False
         """
         dim_options = [
-            DimensionKeyField.threed_twt.value,
-            DimensionKeyField.threed_depth.value,
+            DimensionKeyField.threed_twt,
+            DimensionKeyField.threed_depth,
         ]
         invalid_dim_options = [
-            DimensionKeyField.threed_ps_twt.value,
-            DimensionKeyField.threed_ps_depth.value,
+            DimensionKeyField.threed_ps_twt,
+            DimensionKeyField.threed_ps_depth,
         ]
         return self._has_dims(dim_options, invalid_dim_options)
 
@@ -186,8 +186,8 @@ class SeisGeom:
         """Returns True if the dataset is 2D peformant and has offset or angle else False
         """
         dim_options = [
-            DimensionKeyField.twod_ps_twt.value,
-            DimensionKeyField.twod_ps_depth.value,
+            DimensionKeyField.twod_ps_twt,
+            DimensionKeyField.twod_ps_depth,
         ]
         return self._has_dims(dim_options)
 
@@ -195,15 +195,15 @@ class SeisGeom:
         """Returns True if the dataset is 3D peformant and has offset or angle else False
         """
         dim_options = [
-            DimensionKeyField.threed_ps_twt.value,
-            DimensionKeyField.threed_ps_depth.value,
+            DimensionKeyField.threed_ps_twt,
+            DimensionKeyField.threed_ps_depth,
         ]
         return self._has_dims(dim_options)
 
     def _check_multi_z(self):
         if (
-            CoordKeyField.depth.value in self._obj.dims
-            and CoordKeyField.twt.value in self._obj.dims
+            CoordKeyField.depth in self._obj.dims
+            and CoordKeyField.twt in self._obj.dims
         ):
             raise ValueError(
                 "seisnc cannot determin domain both twt and depth dimensions found"
@@ -213,18 +213,18 @@ class SeisGeom:
         """Check if seisnc volume is in twt
         """
         self._check_multi_z()
-        return True if CoordKeyField.twt.value in self._obj.dims else False
+        return True if CoordKeyField.twt in self._obj.dims else False
 
     def is_depth(self):
         """Check if seisnc volume is in depth
         """
         self._check_multi_z()
-        return True if CoordKeyField.depth.value in self._obj.dims else False
+        return True if CoordKeyField.depth in self._obj.dims else False
 
     def is_empty(self):
         """Check if empty
         """
-        if VariableKeyField.data.value in self._obj.variables:
+        if VariableKeyField.data in self._obj.variables:
             # This could be smartened up to check logic make sure dimensions of data
             # are correct.
             return False
@@ -241,7 +241,7 @@ class SeisGeom:
         # TODO: Investigate copy options, might need to manually copy geometry
         # also don't want to load into memory if large large file.
         out = self._obj.copy()
-        out[VariableKeyField.data.value] = (dims, np.zeros(shp))
+        out[VariableKeyField.data] = (dims, np.zeros(shp))
         return out
 
     def surface_from_points(
@@ -357,7 +357,7 @@ class SeisGeom:
         corner_points_xy = False
 
         if self.is_3d() or self.is_3dgath():
-            il, xl = DimensionKeyField.cdp_3d.value
+            il, xl = DimensionKeyField.cdp_3d
             ilines = self._obj[il].values
             xlines = self._obj[xl].values
             corner_points = (
@@ -367,7 +367,7 @@ class SeisGeom:
                 (ilines[-1], xlines[0]),
             )
 
-            cdpx, cdpy = CoordKeyField.cdp_x.value, CoordKeyField.cdp_y.value
+            cdpx, cdpy = CoordKeyField.cdp_x, CoordKeyField.cdp_y
 
             if set((cdpx, cdpy)).issubset(self._obj.variables):
                 xs = self._obj[cdpx].values
@@ -380,11 +380,11 @@ class SeisGeom:
                 )
 
         elif self.is_2d() or self.is_2dgath():
-            cdp = DimensionKeyField.cdp_2d.value
+            cdp = DimensionKeyField.cdp_2d
             cdps = self._obj[cdp].values
             corner_points = (cdps[0], cdps[-1])
 
-            cdpx, cdpy = CoordKeyField.cdp_x.value, CoordKeyField.cdp_y.value
+            cdpx, cdpy = CoordKeyField.cdp_x, CoordKeyField.cdp_y
 
             if set((cdpx, cdpy)).issubset(self._obj.variables):
                 xs = self._obj[cdpx].values
@@ -397,6 +397,6 @@ class SeisGeom:
                 )
 
         if corner_points:
-            self._obj.attrs[AttrKeyField.corner_points.value] = corner_points
+            self._obj.attrs[AttrKeyField.corner_points] = corner_points
         if corner_points_xy:
-            self._obj.attrs[AttrKeyField.corner_points_xy.value] = corner_points_xy
+            self._obj.attrs[AttrKeyField.corner_points_xy] = corner_points_xy
