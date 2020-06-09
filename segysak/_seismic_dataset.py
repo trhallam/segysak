@@ -56,7 +56,7 @@ def create_seismic_dataset(
     Returns:
         xarray.Dataset: A dataset with the defined dimensions of input setup to work with seisnc standards.
     """
-    # cmp not allowed with iline or xline
+    # cdp not allowed with iline or xline
     if cdp is not None and (iline is not None or xline is not None):
         raise ValueError(
             "cdp argument cannot be used with 3D dimensions (iline or xline)"
@@ -121,7 +121,7 @@ def _check_vert_units(units):
     if units is not None:
         try:
             units = VerticalUnits[units].value
-        except AttributeError:
+        except (AttributeError, KeyError):
             raise ValueError(
                 f"The vert_units is unknown, got {units}, expected one of {VerticalUnits._member_names_}"
             )
@@ -174,6 +174,8 @@ def create3d_dataset(
         vert_units(str, optional): Measurement system of of vertical coordinates.
             One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.
     """
+    vert_domain = vert_domain.upper()
+
     if first_offset is None:
         ni, nx, ns = dims
     else:
@@ -233,7 +235,7 @@ def create2d_dataset(
 
     Args:
         dims (tuple of int): The dimensions of the dataset to create (ncdp, vertical).
-            If first_offset is specified then (iline, xline, vertical, offset)
+            If first_offset is specified then (ncdp, vertical, offset)
         first_sample (int, optional): The first vertical sample. Defaults to 0.
         sample_rate (int, optional): The vertical sample rate. Defaults to 1.
         first_cdp (int, optional): First CDP number. Defaults to 1.
@@ -245,6 +247,8 @@ def create2d_dataset(
         vert_units(str, optional): Measurement system of of vertical coordinates.
             One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.
     """
+    vert_domain = vert_domain.upper()
+
     if first_offset is None:
         ncdp, ns = dims
     else:
