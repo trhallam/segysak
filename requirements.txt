@@ -12,3 +12,6 @@ scipy >= 1.4.1
 click >= 7.1
 pyvista
 sphinxcontrib-programoutput
+sphinx-copybutton
+nbsphinx >= 0.7
+pandoc

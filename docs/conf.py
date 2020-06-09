@@ -15,6 +15,8 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 import time
+import pathlib
+from distutils.dir_util import copy_tree
 
 from pkg_resources import get_distribution
 
@@ -31,7 +33,7 @@ description = """A swiss army knife for seismic data that provides tools for seg
 """
 
 project = "segysak"
-copyright = u"2020-{}, The segysak Developers.".format(time.strftime("%Y"))
+copyright = "2020-{}, The segysak Developers.".format(time.strftime("%Y"))
 author = "segysak developers"
 
 # The full version, including alpha/beta/rc tags
@@ -52,6 +54,9 @@ extensions = [
     "sphinx_rtd_theme",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.programoutput",
+    "sphinx.ext.mathjax",
+    "nbsphinx",
+    "sphinx_copybutton",
 ]
 
 autosummary_generate = True
@@ -97,6 +102,7 @@ html_theme_options = {
     "includehidden": True,
     "titles_only": False,
     "prev_next_buttons_location": "both",
+    "navigation_with_keys": True,
 }
 
 html_static_path = ["_static"]
@@ -105,6 +111,13 @@ html_logo = "figures/logo.png"
 github_url = "https://github.com/trhallam/segysak/"
 
 htmlhelp_basename = "segysakdoc"
+
+
+# need to copy notebooks into main tree
+print("Copy examples into docs/_examples")
+top_level_examples = pathlib.Path(".").absolute().parent / "examples"
+examples_dir = pathlib.Path("_examples")
+copy_tree(str(top_level_examples), str(examples_dir))
 
 
 def setup(app):
