@@ -30,8 +30,9 @@ TODO:
 * :doc:`why-segysak`
 .. * :doc:`faq`
 .. * :doc:`quick-overview`
-.. * :doc:`examples`
-.. * :doc:`installing`
+
+* :doc:`examples`
+* :doc:`installation`
 
 .. toctree::
    :maxdepth: 1
@@ -39,10 +40,11 @@ TODO:
    :caption: Getting Started
 
    why-segysak
+   installation
+   examples
+
 ..    faq
 ..    quick-overview
-..    examples
-..    installing
 
 **User Guide**
 
