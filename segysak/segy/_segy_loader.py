@@ -85,9 +85,9 @@ def _segy3d_ncdf(
     """
 
     if vert_domain == "TWT":
-        dims = DimensionKeyField.threed_twt.value
+        dims = DimensionKeyField.threed_twt
     elif vert_domain == "DEPTH":
-        dims = DimensionKeyField.threed_depth.value
+        dims = DimensionKeyField.threed_depth
     else:
         raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
@@ -98,7 +98,7 @@ def _segy3d_ncdf(
         segyf.mmap()
 
         # create data variable
-        seisnc_data = seisnc.create_variable(VariableKeyField.data.value, dims, float)
+        seisnc_data = seisnc.create_variable(VariableKeyField.data, dims, float)
 
         seisnc.flush()
 
@@ -146,9 +146,9 @@ def _segy3dps_ncdf(
     """
 
     if vert_domain == "TWT":
-        dims = DimensionKeyField.threed_ps_twt.value
+        dims = DimensionKeyField.threed_ps_twt
     elif vert_domain == "DEPTH":
-        dims = DimensionKeyField.threed_ps_depth.value
+        dims = DimensionKeyField.threed_ps_depth
     else:
         raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
@@ -159,7 +159,7 @@ def _segy3dps_ncdf(
         segyf.mmap()
 
         # create data variable
-        seisnc_data = seisnc.create_variable(VariableKeyField.data.value, dims, float)
+        seisnc_data = seisnc.create_variable(VariableKeyField.data, dims, float)
 
         seisnc.flush()
 
@@ -206,9 +206,9 @@ def _segy3d_xr(
     """
 
     if vert_domain == "TWT":
-        dims = DimensionKeyField.threed_twt.value
+        dims = DimensionKeyField.threed_twt
     elif vert_domain == "DEPTH":
-        dims = DimensionKeyField.threed_depth.value
+        dims = DimensionKeyField.threed_depth
     else:
         raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
@@ -242,7 +242,7 @@ def _segy3d_xr(
                 pb.update()
         pb.close()
 
-    ds[VariableKeyField.data.value] = (dims, volume)
+    ds[VariableKeyField.data] = (dims, volume)
 
     return ds
 
@@ -263,9 +263,9 @@ def _segy3dps_xr(
     """
 
     if vert_domain == "TWT":
-        dims = DimensionKeyField.threed_ps_twt.value
+        dims = DimensionKeyField.threed_ps_twt
     elif vert_domain == "DEPTH":
-        dims = DimensionKeyField.threed_ps_depth.value
+        dims = DimensionKeyField.threed_ps_depth
     else:
         raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
@@ -299,7 +299,7 @@ def _segy3dps_xr(
                 pb.update()
         pb.close()
 
-    ds[VariableKeyField.data.value] = (dims, volume)
+    ds[VariableKeyField.data] = (dims, volume)
 
     return ds
 
@@ -376,8 +376,8 @@ def _3dsegy_loader(
 
     # create_seismic_dataset(d1=ni, d2=nx, d3=nsamp)
     text = get_segy_texthead(segyfile, **segyio_kwargs)
-    ds.attrs[AttrKeyField.text.value] = text
-    ds.attrs[AttrKeyField.source_file.value] = pathlib.Path(segyfile).name
+    ds.attrs[AttrKeyField.text] = text
+    ds.attrs[AttrKeyField.source_file] = pathlib.Path(segyfile).name
 
     if ncfile is not None and return_geometry == False:
         ds.seisio.to_netcdf(ncfile)
@@ -467,9 +467,9 @@ def _segy2d_xr(
     """
 
     if vert_domain == "TWT":
-        dims = DimensionKeyField.twod_twt.value
+        dims = DimensionKeyField.twod_twt
     elif vert_domain == "DEPTH":
-        dims = DimensionKeyField.twod_ps_depth.value
+        dims = DimensionKeyField.twod_ps_depth
     else:
         raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
@@ -489,7 +489,7 @@ def _segy2d_xr(
             pb.update()
         pb.close()
 
-    ds[VariableKeyField.data.value] = (
+    ds[VariableKeyField.data] = (
         dims,
         volume[:, n0 : ns + 1],
     )
@@ -512,9 +512,9 @@ def _segy2d_ps_xr(
     """
 
     if vert_domain == "TWT":
-        dims = DimensionKeyField.twod_twt.value
+        dims = DimensionKeyField.twod_twt
     elif vert_domain == "DEPTH":
-        dims = DimensionKeyField.twod_ps_depth.value
+        dims = DimensionKeyField.twod_ps_depth
     else:
         raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
@@ -536,7 +536,7 @@ def _segy2d_ps_xr(
             pb.update()
         pb.close()
 
-    ds[VariableKeyField.data.value] = (
+    ds[VariableKeyField.data] = (
         dims,
         volume,
     )
@@ -613,8 +613,8 @@ def _2dsegy_loader(
 
     # create_seismic_dataset(d1=ni, d2=nx, d3=nsamp)
     text = get_segy_texthead(segyfile, **segyio_kwargs)
-    ds.attrs[AttrKeyField.text.value] = text
-    ds.attrs[AttrKeyField.source_file.value] = pathlib.Path(segyfile).name
+    ds.attrs[AttrKeyField.text] = text
+    ds.attrs[AttrKeyField.source_file] = pathlib.Path(segyfile).name
 
     if ncfile is not None and return_geometry == True:
         ds.seisio.to_netcdf(ncfile)
@@ -782,8 +782,8 @@ def segy_loader(
         cdpy = 185  # Assume standard location if missing
     y_head_loc = _get_tf(cdpy)
 
-    extra_byte_fields[CoordKeyField.cdp_x.value] = x_head_loc
-    extra_byte_fields[CoordKeyField.cdp_y.value] = y_head_loc
+    extra_byte_fields[CoordKeyField.cdp_x] = x_head_loc
+    extra_byte_fields[CoordKeyField.cdp_y] = y_head_loc
 
     # Start by scraping the headers.
     head_df = segy_header_scrape(segyfile, silent=silent, **segyio_kwargs)
@@ -876,9 +876,9 @@ def segy_loader(
         )
         indexer = ["il_index", "xl_index"]
         dims = (
-            DimensionKeyField.threed_head.value
+            DimensionKeyField.threed_head
             if offset is None
-            else DimensionKeyField.threed_ps_head.value
+            else DimensionKeyField.threed_ps_head
         )
 
     # 2d data
@@ -888,9 +888,9 @@ def segy_loader(
         )
         indexer = ["cdp_index"]
         dims = (
-            DimensionKeyField.twod_head.value
+            DimensionKeyField.twod_head
             if offset is None
-            else DimensionKeyField.twod_ps_head.value
+            else DimensionKeyField.twod_ps_head
         )
 
     # fallbak to just a 2d array of traces
@@ -899,7 +899,7 @@ def segy_loader(
             segyfile, head_df, head_bin, **common_kwargs, **segyio_kwargs
         )
         indexer = []
-        dims = DimensionKeyField.cdp_2d.value
+        dims = DimensionKeyField.cdp_2d
 
     indexer = indexer + ["off_index"] if offset is not None else indexer
 
@@ -908,7 +908,7 @@ def segy_loader(
         head_ds = head_df.set_index(indexer).to_xarray()
         for key, field in extra_byte_fields.items():
             ds[key] = (dims, head_ds[field].values)
-        ds = ds.set_coords([CoordKeyField.cdp_x.value, CoordKeyField.cdp_y.value])
+        ds = ds.set_coords([CoordKeyField.cdp_x, CoordKeyField.cdp_y])
     # geometry is not known
     else:
         for key, field in extra_byte_fields.items():
