@@ -5,6 +5,7 @@
 from warnings import warn
 from functools import partial
 import importlib
+import pathlib
 
 import segyio
 
@@ -376,6 +377,7 @@ def _3dsegy_loader(
     # create_seismic_dataset(d1=ni, d2=nx, d3=nsamp)
     text = get_segy_texthead(segyfile, **segyio_kwargs)
     ds.attrs[AttrKeyField.text.value] = text
+    ds.attrs[AttrKeyField.source_file.value] = pathlib.Path(segyfile).name
 
     if ncfile is not None and return_geometry == False:
         ds.seisio.to_netcdf(ncfile)
@@ -612,6 +614,7 @@ def _2dsegy_loader(
     # create_seismic_dataset(d1=ni, d2=nx, d3=nsamp)
     text = get_segy_texthead(segyfile, **segyio_kwargs)
     ds.attrs[AttrKeyField.text.value] = text
+    ds.attrs[AttrKeyField.source_file.value] = pathlib.Path(segyfile).name
 
     if ncfile is not None and return_geometry == True:
         ds.seisio.to_netcdf(ncfile)
@@ -658,17 +661,19 @@ def _2dsegy_loader(
 def well_known_byte_locs(name):
     """Convert SEGY data to NetCDF4 File
 
-        Returns a dict containing the byte locations for well known SEGY variants in the wild.
+    Returns a dict containing the byte locations for well known SEGY variants in the wild.
 
-        Caller should provide the name
-        e.g.
-            - standard_3d
-            - petrel_3d
-            - ...
+    Args:
+        name (str): One of [standard_3d, petrel_3d]
 
-        The intention is that this can be used with segy_loader to easily setup the load:
+    Returns:
+        dict: A dictionary of SEG-Y byte positions.
 
-            seismic = segy_loader(filepath, **well_known_byte_locs('petrel_3d'))
+    Example:
+
+    Use the output of this function to unpack arguments into ``segy_loader``
+
+    >>> seismic = segy_loader(filepath, **well_known_byte_locs('petrel_3d'))
 
     """
     if name == "standard_3d":
@@ -909,4 +914,5 @@ def segy_loader(
         for key, field in extra_byte_fields.items():
             ds[key] = (dims, head_df[field].values)
 
+    # ds.seis.get_corner_points()
     return ds
