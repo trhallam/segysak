@@ -76,6 +76,24 @@ class SeisGeom:
     def __init__(self, xarray_obj):
         self._obj = xarray_obj
 
+    @property
+    def humanbytes(self):
+        """Prints Human Friendly size of Dataset
+
+        Returns:
+            int: size in bytes
+
+        https://stackoverflow.com/a/14996816/11780197
+        """
+        nbytes = self._obj.nbytes
+        suffixes = ["B", "KB", "MB", "GB", "TB", "PB"]
+        i = 0
+        while nbytes >= 1024 and i < len(suffixes) - 1:
+            nbytes /= 1024.0
+            i += 1
+        f = f"{nbytes:.2f}".rstrip("0").rstrip(".")
+        return "{} {}".format(f, suffixes[i])
+
     def _coord_as_dimension(self, points):
 
         keys = ("cdp_x", "cdp_y")
