@@ -6,7 +6,18 @@ import logging
 import pathlib
 import click
 
-from setuptools_scm import get_version
+try:
+    from .version import version as VERSION
+except ImportError:
+    VERSION = None
+
+if VERSION is None:
+    try:
+        from setuptools_scm import get_version
+
+        VERSION = get_version(root="..", relative_to=__file__)
+    except LookupError:
+        VERSION = "¯\_(ツ)_/¯"
 
 from segysak.segy import segy_loader, ncdf2segy, segy_header_scan, get_segy_texthead
 from segysak.tools import fix_bad_chars
@@ -14,7 +25,6 @@ from segysak.tools import fix_bad_chars
 # configuration setup
 NAME = "segysak"
 LOGGER = logging.getLogger(NAME)
-VERSION = get_version(root='..', relative_to=__file__)
 
 
 def check_file(input_files):
