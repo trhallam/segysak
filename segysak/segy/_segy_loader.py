@@ -126,7 +126,7 @@ def _segy3d_ncdf(
                 pb.update()
         pb.close()
 
-    return open_seisnc(ncfile)
+    return ncfile
 
 
 def _segy3dps_ncdf(
@@ -187,7 +187,7 @@ def _segy3dps_ncdf(
                 pb.update()
         pb.close()
 
-    return open_seisnc(ncfile)
+    return ncfile
 
 
 def _segy3d_xr(
@@ -654,6 +654,8 @@ def _2dsegy_loader(
 
     if ncfile is not None:
         ds.seisio.to_netcdf(ncfile)
+        del ds
+        ds = ncfile
 
     return ds
 
@@ -685,73 +687,7 @@ def well_known_byte_locs(name):
         raise ValueError(f"No byte locatons for {name}")
 
 
-def segy_loader(
-    segyfile,
-    ncfile=None,
-    cdp=None,
-    iline=None,
-    xline=None,
-    cdpx=None,
-    cdpy=None,
-    offset=None,
-    vert_domain="TWT",
-    data_type="AMP",
-    ix_crop=None,
-    cdp_crop=None,
-    xy_crop=None,
-    z_crop=None,
-    return_geometry=False,
-    silent=False,
-    extra_byte_fields=None,
-    **segyio_kwargs,
-):
-    """Convert SEGY data to NetCDF4 File
-
-    The output ncfile has the following structure
-        Dimensions:
-            d1 - CDP or Inline axis
-            d2 - Xline axis
-            d3 - The vertical axis
-            d4 - Offset/Angle Axis
-        Coordinates:
-            iline - The inline numbering
-            xline - The xline numbering
-            cdp_x - Eastings
-            cdp_y - Northings
-            cdp - Trace Number for 2d
-        Variables
-            data - The data volume
-        Attributes:
-            TBC
-
-    Args:
-        segyfile (str): Input segy file path
-        ncfile (str, optional): Output SEISNC file path. If none the loaded data will be
-            returned in memory as an xarray.Dataset.
-        iline (int, optional): Inline byte location, usually 189
-        xline (int, optional): Cross-line byte location, usally 193
-        vert (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
-        cdp (int, optional): The CDP byte location, usually 21.
-        data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
-        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
-            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
-        ix_crop (list, optional): List of minimum and maximum inline and crossline to output.
-            Has the form '[min_il, max_il, min_xl, max_xl]'. Ignored for 2D data.
-        xy_crop (list, optional): List of minimum and maximum cdp_x and cdp_y to output.
-            Has the form '[min_x, max_x, min_y, max_y]'. Ignored for 2D data.
-        z_crop (list, optional): List of minimum and maximum vertical samples to output.
-            Has the form '[min, max]'.
-        return_geometry (bool, optional): If true returns an xarray.dataset which doesn't contain data but mirrors
-            the input volume header information.
-        extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.
-        silent (bool): Disable progress bar.
-        **segyio_kwargs: Extra keyword arguments for segyio.open
-
-    Returns:
-        xarray.Dataset: If ncfile keyword is specified returns open handle to disk netcdf4,
-            otherwise the data in memory. If return_geometry is True does not load trace data and
-            returns headers in geometry.
-    """
+def _loader_converter_checks(cdp, iline, xline, extra_byte_fields):
     # Input sanity checks
     if cdp is not None and (iline is not None or xline is not None):
         raise ValueError("cdp cannot be defined with iline and xiline")
@@ -774,6 +710,28 @@ def segy_loader(
         extra_byte_fields = dict()
     else:
         raise ValueError("Unknown type for extra_byte_fields")
+    return extra_byte_fields
+
+
+def _loader_converter_header_handling(
+    segyfile,
+    cdp=None,
+    iline=None,
+    xline=None,
+    cdpx=None,
+    cdpy=None,
+    offset=None,
+    vert_domain="TWT",
+    data_type="AMP",
+    ix_crop=None,
+    cdp_crop=None,
+    xy_crop=None,
+    z_crop=None,
+    return_geometry=False,
+    silent=False,
+    extra_byte_fields=None,
+    **segyio_kwargs,
+):
 
     if cdpx is None:
         cdpx = 181  # Assume standard location if misisng
@@ -853,6 +811,262 @@ def segy_loader(
         )
         head_df = head_df.query(query).copy(deep=True)
 
+    return head_df, head_bin
+
+
+def _loader_converter_write_headers(
+    ds, head_df, indexer, dims, extra_byte_fields, is3d2d=True
+):
+
+    if not isinstance(ds, xr.Dataset):
+        ds = open_seisnc(ds)
+
+    # we have some some geometry to assign headers to
+    if is3d2d:
+        head_ds = head_df.set_index(indexer).to_xarray()
+        for key, field in extra_byte_fields.items():
+            ds[key] = (dims, head_ds[field].values)
+        ds = ds.set_coords([CoordKeyField.cdp_x, CoordKeyField.cdp_y])
+    # geometry is not known
+    else:
+        for key, field in extra_byte_fields.items():
+            ds[key] = (dims, head_df[field].values)
+
+    return ds
+
+
+def segy_loader(
+    segyfile,
+    cdp=None,
+    iline=None,
+    xline=None,
+    cdpx=None,
+    cdpy=None,
+    offset=None,
+    vert_domain="TWT",
+    data_type="AMP",
+    ix_crop=None,
+    cdp_crop=None,
+    xy_crop=None,
+    z_crop=None,
+    return_geometry=False,
+    silent=False,
+    extra_byte_fields=None,
+    **segyio_kwargs,
+):
+    """Load SEGY file into xarray.Dataset
+
+    The output ncfile has the following structure
+        Dimensions:
+            d1 - CDP or Inline axis
+            d2 - Xline axis
+            d3 - The vertical axis
+            d4 - Offset/Angle Axis
+        Coordinates:
+            iline - The inline numbering
+            xline - The xline numbering
+            cdp_x - Eastings
+            cdp_y - Northings
+            cdp - Trace Number for 2d
+        Variables
+            data - The data volume
+        Attributes:
+            TBC
+
+    Args:
+        segyfile (str): Input segy file path
+        ncfile (str, optional): Output SEISNC file path. If none the loaded data will be
+            returned in memory as an xarray.Dataset.
+        iline (int, optional): Inline byte location, usually 189
+        xline (int, optional): Cross-line byte location, usally 193
+        vert (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
+        cdp (int, optional): The CDP byte location, usually 21.
+        data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
+        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
+            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
+        ix_crop (list, optional): List of minimum and maximum inline and crossline to output.
+            Has the form '[min_il, max_il, min_xl, max_xl]'. Ignored for 2D data.
+        xy_crop (list, optional): List of minimum and maximum cdp_x and cdp_y to output.
+            Has the form '[min_x, max_x, min_y, max_y]'. Ignored for 2D data.
+        z_crop (list, optional): List of minimum and maximum vertical samples to output.
+            Has the form '[min, max]'.
+        return_geometry (bool, optional): If true returns an xarray.dataset which doesn't contain data but mirrors
+            the input volume header information.
+        extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.
+        silent (bool): Disable progress bar.
+        **segyio_kwargs: Extra keyword arguments for segyio.open
+
+    Returns:
+        xarray.Dataset: If ncfile keyword is specified returns open handle to disk netcdf4,
+            otherwise the data in memory. If return_geometry is True does not load trace data and
+            returns headers in geometry.
+    """
+    extra_byte_fields = _loader_converter_checks(cdp, iline, xline, extra_byte_fields)
+
+    head_df, head_bin = _loader_converter_header_handling(
+        segyfile,
+        cdp=cdp,
+        iline=iline,
+        xline=xline,
+        cdpx=cdpx,
+        cdpy=cdpy,
+        offset=offset,
+        vert_domain=vert_domain,
+        data_type=data_type,
+        ix_crop=ix_crop,
+        cdp_crop=cdp_crop,
+        xy_crop=xy_crop,
+        z_crop=z_crop,
+        return_geometry=return_geometry,
+        silent=silent,
+        extra_byte_fields=extra_byte_fields,
+        **segyio_kwargs,
+    )
+
+    common_kwargs = dict(
+        zcrop=z_crop,
+        offset=offset,
+        vert_domain=vert_domain,
+        data_type=data_type,
+        return_geometry=return_geometry,
+        silent=silent,
+    )
+
+    # 3d data needs iline and xline
+    if iline is not None and xline is not None:
+        ds = _3dsegy_loader(
+            segyfile,
+            head_df,
+            head_bin,
+            iline=iline,
+            xline=xline,
+            **common_kwargs,
+            **segyio_kwargs,
+        )
+        indexer = ["il_index", "xl_index"]
+        dims = (
+            DimensionKeyField.threed_head
+            if offset is None
+            else DimensionKeyField.threed_ps_head
+        )
+
+    # 2d data
+    elif cdp is not None:
+        ds = _2dsegy_loader(
+            segyfile, head_df, head_bin, cdp=cdp, **common_kwargs, **segyio_kwargs
+        )
+        indexer = ["cdp_index"]
+        dims = (
+            DimensionKeyField.twod_head
+            if offset is None
+            else DimensionKeyField.twod_ps_head
+        )
+
+    # fallbak to just a 2d array of traces
+    else:
+        ds = _2dsegy_loader(
+            segyfile, head_df, head_bin, **common_kwargs, **segyio_kwargs
+        )
+        indexer = []
+        dims = DimensionKeyField.cdp_2d
+
+    indexer = indexer + ["off_index"] if offset is not None else indexer
+
+    is3d2d = True if (cdp is not None or iline is not None) else False
+    ds = _loader_converter_write_headers(
+        ds, head_df, indexer, dims, extra_byte_fields, is3d2d=is3d2d
+    )
+
+    # ds.seis.get_corner_points()
+    return ds
+
+
+def segy_converter(
+    segyfile,
+    ncfile,
+    cdp=None,
+    iline=None,
+    xline=None,
+    cdpx=None,
+    cdpy=None,
+    offset=None,
+    vert_domain="TWT",
+    data_type="AMP",
+    ix_crop=None,
+    cdp_crop=None,
+    xy_crop=None,
+    z_crop=None,
+    return_geometry=False,
+    silent=False,
+    extra_byte_fields=None,
+    **segyio_kwargs,
+):
+    """Convert SEGY data to NetCDF4 File
+
+    The output ncfile has the following structure
+        Dimensions:
+            d1 - CDP or Inline axis
+            d2 - Xline axis
+            d3 - The vertical axis
+            d4 - Offset/Angle Axis
+        Coordinates:
+            iline - The inline numbering
+            xline - The xline numbering
+            cdp_x - Eastings
+            cdp_y - Northings
+            cdp - Trace Number for 2d
+        Variables
+            data - The data volume
+        Attributes:
+            TBC
+
+    Args:
+        segyfile (str): Input segy file path
+        ncfile (str): Output SEISNC file path. If none the loaded data will be
+            returned in memory as an xarray.Dataset.
+        iline (int, optional): Inline byte location, usually 189
+        xline (int, optional): Cross-line byte location, usally 193
+        vert (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
+        cdp (int, optional): The CDP byte location, usually 21.
+        data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
+        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
+            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
+        ix_crop (list, optional): List of minimum and maximum inline and crossline to output.
+            Has the form '[min_il, max_il, min_xl, max_xl]'. Ignored for 2D data.
+        xy_crop (list, optional): List of minimum and maximum cdp_x and cdp_y to output.
+            Has the form '[min_x, max_x, min_y, max_y]'. Ignored for 2D data.
+        z_crop (list, optional): List of minimum and maximum vertical samples to output.
+            Has the form '[min, max]'.
+        return_geometry (bool, optional): If true returns an xarray.dataset which doesn't contain data but mirrors
+            the input volume header information.
+        extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.
+        silent (bool): Disable progress bar.
+        **segyio_kwargs: Extra keyword arguments for segyio.open
+
+    """
+    # Input sanity checks
+    extra_byte_fields = _loader_converter_checks(cdp, iline, xline, extra_byte_fields)
+
+    head_df, head_bin = _loader_converter_header_handling(
+        segyfile,
+        cdp=cdp,
+        iline=iline,
+        xline=xline,
+        cdpx=cdpx,
+        cdpy=cdpy,
+        offset=offset,
+        vert_domain=vert_domain,
+        data_type=data_type,
+        ix_crop=ix_crop,
+        cdp_crop=cdp_crop,
+        xy_crop=xy_crop,
+        z_crop=z_crop,
+        return_geometry=return_geometry,
+        silent=silent,
+        extra_byte_fields=extra_byte_fields,
+        **segyio_kwargs,
+    )
+
     common_kwargs = dict(
         zcrop=z_crop,
         ncfile=ncfile,
@@ -903,16 +1117,18 @@ def segy_loader(
 
     indexer = indexer + ["off_index"] if offset is not None else indexer
 
-    # we have some some geometry to assign headers to
-    if cdp is not None or iline is not None:
-        head_ds = head_df.set_index(indexer).to_xarray()
-        for key, field in extra_byte_fields.items():
-            ds[key] = (dims, head_ds[field].values)
-        ds = ds.set_coords([CoordKeyField.cdp_x, CoordKeyField.cdp_y])
-    # geometry is not known
-    else:
-        for key, field in extra_byte_fields.items():
-            ds[key] = (dims, head_df[field].values)
+    is3d2d = True if (cdp is not None or iline is not None) else False
+    ds = _loader_converter_write_headers(
+        ds, head_df, indexer, dims, extra_byte_fields, is3d2d=is3d2d
+    )
+    new_vars = {key: ds[key] for key in extra_byte_fields}
+    ds.close()
+    del ds
 
-    # ds.seis.get_corner_points()
-    return ds
+    with h5netcdf.File(ncfile, "a") as seisnc:
+        for var, darray in new_vars.items():
+            seisnc_var = seisnc.create_variable(var, darray.dims, darray.dtype)
+            seisnc_var[...] = darray[...]
+            seisnc.flush()
+
+    return None
