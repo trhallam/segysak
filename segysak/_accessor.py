@@ -68,6 +68,11 @@ def open_seisnc(seisnc, **kwargs):
     if ds.attrs["text"] is not None:
         ds.attrs["text"] = _upgrade_txt_richstr(ds.attrs["text"])
 
+    promote_to_coord = [
+        var for var in [CoordKeyField.cdp_x, CoordKeyField.cdp_y] if var in ds
+    ]
+    ds = ds.set_coords(promote_to_coord)
+
     return ds
 
 

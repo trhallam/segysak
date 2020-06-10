@@ -8,6 +8,7 @@ import xarray as xr
 
 from segysak.segy import (
     segy_loader,
+    segy_converter,
     ncdf2segy,
     create_default_texthead,
     put_segy_texthead,
@@ -16,6 +17,8 @@ from segysak.segy import (
     segy_header_scrape,
     segy_bin_scrape,
 )
+
+from segysak import open_seisnc
 
 from test_fixtures import *
 
@@ -153,7 +156,8 @@ def test_segy_header_scrape(temp_dir, temp_segy):
 def test_segyiotests_2ncdf(temp_dir, segyio3d_test_files):
     file, segyio_kwargs = segyio3d_test_files
     seisnc = temp_dir / file.with_suffix(".siesnc").name
-    ds = segy_loader(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    segy_converter(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    ds = open_seisnc(seisnc)
     assert isinstance(ds, xr.Dataset)
 
 
@@ -166,7 +170,8 @@ def test_segyiotests_2ds(segyio3d_test_files):
 def test_segyiotests_ps_2ncdf(temp_dir, segyio3dps_test_files):
     file, segyio_kwargs = segyio3dps_test_files
     seisnc = temp_dir / file.with_suffix(".siesnc").name
-    ds = segy_loader(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    segy_converter(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    ds = open_seisnc(seisnc)
     assert isinstance(ds, xr.Dataset)
 
 
@@ -179,7 +184,8 @@ def test_segyiotests_ps_2ds(segyio3dps_test_files):
 def test_segyiotests_nohead_2ncdf(temp_dir, segyio_nohead_test_files):
     file, segyio_kwargs = segyio_nohead_test_files
     seisnc = temp_dir / file.with_suffix(".siesnc").name
-    ds = segy_loader(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    segy_converter(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    ds = open_seisnc(seisnc)
     assert isinstance(ds, xr.Dataset)
 
 
