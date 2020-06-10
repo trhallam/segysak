@@ -21,14 +21,11 @@ Documentation
 **Getting Started**
 
 TODO:
- - why-segysak
- - faq
  - quick-overview
- - examples
- - installing
 
 * :doc:`why-segysak`
-.. * :doc:`faq`
+* :doc:`faq`
+
 .. * :doc:`quick-overview`
 
 * :doc:`examples`
@@ -42,8 +39,8 @@ TODO:
    why-segysak
    installation
    examples
+   faq
 
-..    faq
 ..    quick-overview
 
 **User Guide**

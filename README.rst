@@ -1,6 +1,6 @@
-========================
+================================
 **SEGY-SAK** - |latest-version|
-========================
+================================
 
 |build-status| |python-version| |code-style| |license| |docs| |slack|
 
