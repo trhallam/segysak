@@ -661,7 +661,7 @@ def _2dsegy_loader(
 
 
 def well_known_byte_locs(name):
-    """Convert SEGY data to NetCDF4 File
+    """Return common bytes position kwargs_dict for segy_loader and segy_converter.
 
     Returns a dict containing the byte locations for well known SEGY variants in the wild.
 

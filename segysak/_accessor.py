@@ -102,6 +102,10 @@ class SeisGeom:
     def _coord_as_dimension(self, points, drop):
 
         keys = ("cdp_x", "cdp_y")
+
+        # check drop keys actually on dims, might not be
+        drop = set(drop).intersection(*[set(self._obj[key].dims) for key in keys])
+
         grid = np.vstack(
             [
                 self._obj[key]
@@ -181,8 +185,8 @@ class SeisGeom:
             for i, (point, xloc, yloc) in enumerate(zip(cdp_ds, cdp_x, cdp_y)):
                 if point is None:
                     point = none_replace
-                point.cdp_x[:] = np.full_like(point.cdp_x, xloc)
-                point.cdp_y[:] = np.full_like(point.cdp_y, yloc)
+                point[CoordKeyField.cdp_x] = point[CoordKeyField.cdp_x] * 0 + xloc
+                point[CoordKeyField.cdp_y] = point[CoordKeyField.cdp_y] * 0 + yloc
                 point[CoordKeyField.cdp] = i + 1
                 point.attrs = dict()
                 cdp_ds[i] = point.copy()
