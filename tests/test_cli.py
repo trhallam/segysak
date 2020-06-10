@@ -1,5 +1,6 @@
 import sys
 import pytest
+from click.testing import CliRunner
 
 from segysak._cli import cli, NAME
 
@@ -14,9 +15,10 @@ def test_help(help_arg):
 
 
 def test_version():
-    sys.argv = ["", "-v"]
-    with pytest.raises(SystemExit):
-        cli()
+    runner = CliRunner()
+    result = runner.invoke(cli, ["--version"])
+    assert result.exit_code == 0
+    assert NAME in result.output
 
 
 def test_no_input_file():
@@ -25,9 +27,8 @@ def test_no_input_file():
         cli()
 
 
-@pytest.mark.parametrize("ebc", ["ebcidc"])
-def test_dump_ebcidc(temp_dir, temp_segy, ebc):
-    # test_file = temp_dir / "ebcidc_dump.txt"
-    sys.argv = ["", ebc, str(temp_segy)]
-    with pytest.raises(SystemExit):
-        cli()
+@pytest.mark.parametrize("cmd", ["scan", "ebcidc", "convert"])
+def test_all_subcommands(temp_segy, cmd):
+    runner = CliRunner()
+    result = runner.invoke(cli, [cmd, str(temp_segy)])
+    assert result.exit_code == 0
