@@ -78,12 +78,12 @@ class SeisGeom:
 
     @property
     def humanbytes(self):
-        """Prints Human Friendly size of Dataset
+        """Prints Human Friendly size of Dataset to return the bytes as an
+        int use ``xarray.Dataset.nbytes``
 
         Returns:
-            int: size in bytes
+            str: Human readable size of dataset.
 
-        https://stackoverflow.com/a/14996816/11780197
         """
         nbytes = self._obj.nbytes
         suffixes = ["B", "KB", "MB", "GB", "TB", "PB"]
@@ -94,12 +94,13 @@ class SeisGeom:
         f = f"{nbytes:.2f}".rstrip("0").rstrip(".")
         return "{} {}".format(f, suffixes[i])
 
-    def _coord_as_dimension(self, points):
+    def _coord_as_dimension(self, points, drop):
 
         keys = ("cdp_x", "cdp_y")
         grid = np.vstack(
             [
                 self._obj[key]
+                .mean(dim=drop, skipna=True)
                 .transpose("iline", "xline", transpose_coords=True)
                 .values.ravel()
                 for key in keys
@@ -108,23 +109,90 @@ class SeisGeom:
         xlines_, ilines_ = np.meshgrid(self._obj["xline"], self._obj["iline"],)
 
         # these must all be the same length
-        ils = griddata(grid, ilines_.ravel(), points)
-        xls = griddata(grid, xlines_.ravel(), points)
+        ils = np.atleast_1d(griddata(grid, ilines_.ravel(), points))
+        xls = np.atleast_1d(griddata(grid, xlines_.ravel(), points))
 
         return ils, xls
 
-    def xysel(self, cdp_x, cdp_y):
+    def xysel(self, cdp_x, cdp_y, method="nearest"):
         """Select data at x and y coordinates
 
         Args:
             cdp_x (float/array-like)
             cdp_y (float/array-like)
+            method (str): Same a methods for xarray.Dataset.interp
 
         Returns:
             xarray.Dataset: At selected coordinates.
         """
-        il, xl = self._coord_as_dimension((cdp_x, cdp_y))
-        return self._obj.sel(iline=il, xline=xl)
+
+        cdp_x = np.atleast_1d(cdp_x)
+        cdp_y = np.atleast_1d(cdp_y)
+
+        builder = dict()
+        if self.is_twt():
+            builder["twt"] = self._obj[CoordKeyField.twt].values
+            core_dims = DimensionKeyField.threed_twt
+            ns = self._obj[CoordKeyField.twt].size
+        elif self.is_depth():
+            builder["depth"] = self._obj[CoordKeyField.depth].values
+            core_dims = DimensionKeyField.threed_depth
+            ns = self._obj[CoordKeyField.twt].size
+        else:
+            raise AttributeError("Dataset required twt or depth coordinates.")
+
+        dims = set(self._obj.dims.keys())
+
+        if self.is_3d() or self.is_3dgath():
+            # get other dims
+            other_dims = dims.difference(core_dims)
+            il, xl = self._coord_as_dimension((cdp_x, cdp_y), other_dims)
+            builder["cdp"] = np.arange(1, il.size + 1, 1)
+
+            # add other dims
+            for dim in other_dims:
+                builder[dim] = self._obj[dim].values
+
+            # populate back to 2d
+            cdp_ds = [
+                None
+                if np.isnan(np.sum([i, x]))
+                else self._obj.interp(iline=i, xline=x, method=method)
+                for i, x in zip(il, xl)
+            ]
+
+            if all(map(lambda x: x is None, cdp_ds)):
+                raise ValueError("No points intersected the dataset")
+
+            for ds in cdp_ds:
+                if ds is not None:
+                    none_replace = ds.copy(deep=True)
+                    break
+
+            none_replace[VariableKeyField.data][:] = np.nan
+            none_replace[CoordKeyField.iline] = np.nan
+            none_replace[CoordKeyField.xline] = np.nan
+
+            for i, (point, xloc, yloc) in enumerate(zip(cdp_ds, cdp_x, cdp_y)):
+                if point is None:
+                    point = none_replace
+                point.cdp_x[:] = np.full_like(point.cdp_x, xloc)
+                point.cdp_y[:] = np.full_like(point.cdp_y, yloc)
+                point[CoordKeyField.cdp] = i + 1
+                point.attrs = dict()
+                cdp_ds[i] = point.copy()
+
+        elif self.is_2d() or self.is_2dgath():
+            raise NotImplementedError("Not yet implemented for 2D")
+        else:
+            raise AttributeError(
+                "xysel not support for this volume, must be 3d, 3dgath, 2d or 2dgath"
+            )
+
+        cdp_ds = xr.concat(cdp_ds, "cdp")
+        cdp_ds.attrs = self._obj.attrs.copy()
+
+        return cdp_ds
 
     def _has_dims(self, dimension_options, invalid_dimension_options=None):
         """Check dataset has one of dimension options.
