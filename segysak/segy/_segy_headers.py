@@ -6,11 +6,14 @@ import segyio
 try:
     has_ipywidgets = importlib.find_loader("ipywidgets") is not None
     if has_ipywidgets:
-        from tqdm.notebook import tqdm
+        from tqdm.autonotebook import tqdm
     else:
         from tqdm import tqdm
 except ModuleNotFoundError:
     from tqdm import tqdm
+
+
+TQDM_ARGS = dict(unit_scale=True, unit=" traces")
 
 
 def _active_tracefield_segyio():
@@ -63,6 +66,7 @@ def segy_header_scan(segyfile, max_traces_scan=1000, silent=False, **segyio_kwar
                 desc="Scanning Headers",
                 total=max_traces_scan,
                 disable=silent,
+                **TQDM_ARGS
             )
         ):
             val = np.array(list(h.values()))
@@ -111,7 +115,9 @@ def segy_header_scrape(segyfile, silent=False, **segyio_kwargs):
         head_df = pd.DataFrame(
             data=np.full((ntraces, lc), np.nan, dtype=int), columns=columns
         )
-        pb = tqdm(total=segyf.tracecount, desc="Scraping Headers", disable=silent)
+        pb = tqdm(
+            total=segyf.tracecount, desc="Scraping Headers", disable=silent, **TQDM_ARGS
+        )
         for hi, h in enumerate(segyf.header):
             head_df.iloc[hi, :] = np.array(list(h.values()))
             pb.update()

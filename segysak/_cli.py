@@ -1,92 +1,24 @@
-
 """Command line script for interacting with SEGY data.
 """
 
 import os
-import sys
-import time
 import logging
-import argparse
 import pathlib
+import click
 
-import segysak
-from segysak.version import version
+from segysak.version import version as VERSION
 from segysak.segy import segy_loader, ncdf2segy, segy_header_scan, get_segy_texthead
 from segysak.tools import fix_bad_chars
 
 # configuration setup
-NAME = 'segysak'
+NAME = "segysak"
 LOGGER = logging.getLogger(NAME)
 
-class segysakArgsParser():
-    """Passable arguments to segysak
-
-    """
-    console_description = """
-    The SEGY Swiss Army Knife (segysak) is a tool for managing segy data.
-    It can:
-      read and dump ebcidc headers
-      scan trace headers
-      convert segy to SEISNC
-      convert SEISNC to segy
-    """
-
-    def __init__(self):
-        """SEGY-SAK ArgParse Constructor"""
-        self.app_name = NAME
-        self.version = version
-        self.parser = argparse.ArgumentParser(description = self.console_description,
-                                     formatter_class = argparse.RawDescriptionHelpFormatter)
-        self.parser.add_argument("-V", help=f"print application version name", action='store_true', default=False)
-        #self.parser.add_argument("-S", "--silent", help='silence info and warning messages, errors will still be raised',
-        #    action='store_true', default=False)
-        # logging will output to
-        self.parser.add_argument("-L", help=f'output logging to file, if none specified will use {NAME}_date_time.log',
-            nargs='?', const='DEFAULT', default=None)
-        #self.parser.add_argument("--debugging", help='activate additional debugging messages', action='store_true', default=False)
-
-        self.parser.add_argument("files", metavar='file', type=str, nargs='+', help="Input file location and name")
-        self.parser.add_argument("-e,", "--ebcidc", help='Print SEGY EBCIDC header',
-            action='store_true', default=False)
-        self.parser.add_argument("--scan", help="Scan trace headers and print value ranges.",
-            nargs='?', const=1000, default=False, type=int)
-
-        # outputs
-        self.output_format_group =  self.parser.add_mutually_exclusive_group()
-        self.output_format_group.add_argument("-nc", "--netCDF",
-            help="Convert SEGY to netCDF File (SEISNC)",
-            nargs='?', const=None, default=False, type=str)
-        self.output_format_group.add_argument("-sgy", "--SEGY",
-            help="Convert SEISNC to SEGY File",
-            nargs='?', const=None, default=False, type=str)
-
-        self.parser.add_argument('--iline', help="Inline byte location",
-            default=189, type=int)
-        self.parser.add_argument('--xline', help='Crossline byte location',
-            default=193, type=int)
-        self.parser.add_argument('--crop', help='Crop the input volume using a list [minil, maxil, minxl, maxxl]',
-            default=None, nargs='+')
-
-    def parse_args(self):
-        args = self.parser.parse_args()
-        # process default args
-        if args.V:
-            print(self.app_name, self.version)
-            raise SystemExit
-
-        if args.L == 'DEFAULT':
-             t = time.localtime(time.time())
-             args.L = f"{self.app_name}_{t.tm_year}{t.tm_mon:02d}{t.tm_mday:02d}_{t.tm_hour:02d}{t.tm_min:02d}{t.tm_sec:02d}.log"
-
-        if args.crop:
-            args.crop = [int(i) for i in args.crop]
-
-        return args
 
 def check_file(input_files):
 
     if input_files is None:
-        LOGGER.error('Require input file/s')
+        LOGGER.error("Require input file/s")
         raise SystemExit
 
     checked_files = list()
@@ -94,7 +26,7 @@ def check_file(input_files):
     expanded_input = input_files.copy()
 
     for ifile in input_files:
-        if '*' in ifile:
+        if "*" in ifile:
             ifile_path = pathlib.Path(ifile)
             parent = ifile_path.absolute().parent
             expanded_input += list(parent.glob(ifile_path.name))
@@ -105,10 +37,11 @@ def check_file(input_files):
         if ifile.exists():
             checked_files.append(ifile)
         else:
-            LOGGER.error('Cannot find input {segyfile}')
+            LOGGER.error("Cannot find input {segyfile}")
             raise SystemExit
 
     return checked_files
+
 
 def _action_ebcidc_out(arg, input_file):
     try:
@@ -121,70 +54,129 @@ def _action_ebcidc_out(arg, input_file):
         print(ebcidc)
     else:
         ebcidc = fix_bad_chars(ebcidc)
-        with open(arg, 'w') as f:
+        with open(arg, "w") as f:
             f.write(ebcidc)
+
 
 def _action_ebcidc_in(input_ebcidc_file, input_file):
     pass
 
 
-def main():
+def guess_file_type(file):
+    """
+    Guess the file type. Currently guessing is only based on file extension.
+    """
+    _, file_extension = os.path.splitext(file)
+    if any([ext in file_extension.upper() for ext in ["SEGY", "SGY"]]):
+        return "SEGY"
+    elif "SEISNC" in file_extension.upper():
+        return "NETCDF"
+    else:
+        return None
 
-    # how to track down warnings
-    #import warnings
-    #warnings.filterwarnings('error', category=UnicodeWarning)
-    #warnings.filterwarnings('error', category=DeprecationWarning, module='numpy')
 
-    #parse args
-    sys_parser = segysakArgsParser()
-    args = sys_parser.parse_args()
+@click.group(invoke_without_command=True, no_args_is_help=True)
+@click.option(
+    "--version",
+    "-v",
+    is_flag=True,
+    help="Print application version name",
+    default=False,
+)
+def cli(version):
+    LOGGER.info(f"segysak v{VERSION}")
+    if version:
+        click.echo(f"{NAME} {VERSION}")
+        pass
 
-    # gaffe
-    print(f'SEGY-SAK - v{version}')
+    print(locals())
 
-    # initialise logging
-    LOGGER.info(f'segysak v{version}')
 
-    # check inputs
-    checked_files = check_file(args.files)
+@cli.command(help="Print SEGY EBCIDC header")
+@click.argument("filename", type=click.Path(exists=True))
+def ebcidc(filename):
+    input_file = pathlib.Path(filename)
+    click.echo(get_segy_texthead(input_file))
 
-    # Generate or Load Configuration File
 
-    for input_file in checked_files:
-        print(input_file.name)
-        # Print EBCIDC header
-        if args.ebcidc:
-            try:
-                print(get_segy_texthead(input_file))
-            except IOError:
-                LOGGER.error("Input SEGY file was not found - check name and path")
+@cli.command(help="Scan trace headers and print value ranges")
+@click.option(
+    "--max-traces", "-m", type=int, default=1000, help="Number of traces to scan"
+)
+@click.argument("filename", type=click.Path(exists=True))
+def scan(max_traces, filename):
+    input_file = pathlib.Path(filename)
+    hscan, nscan = segy_header_scan(input_file, max_traces_scan=max_traces)
 
-        if args.scan > 0:
-            hscan, nscan = segy_header_scan(input_file, max_traces_scan=args.scan)
-            width = 10
-            print(f'Traces scanned: {nscan}')
-            print("{:>40s} {:>8s} {:>10s} {:>10s}".format('Item', 'Byte Loc', 'Min', 'Max'))
-            for key, item in hscan.items():
-                print("{:>40s} {:>8d} {:>10.0f} {:>10.0f}".format(key, item[0], item[1], item[2]))
+    click.echo(f"Traces scanned: {nscan}")
+    click.echo(
+        "{:>40s} {:>8s} {:>10s} {:>10s}".format("Item", "Byte Loc", "Min", "Max")
+    )
+    for key, item in hscan.items():
+        click.echo(
+            "{:>40s} {:>8d} {:>10.0f} {:>10.0f}".format(key, item[0], item[1], item[2])
+        )
 
-        iline = args.iline
-        xline = args.xline
 
-        if args.netCDF is None or args.netCDF is not False:
-            if args.netCDF is None:
-                outfile = input_file.stem + '.SEISNC'
-            else:
-                outfile = args.netCDF
-            _ = segy_loader(input_file, ncfile=outfile, iline=iline, xline=xline, ix_crop=args.crop)
-            LOGGER.info(f"NetCDF output written to {outfile}")
+@cli.command(
+    help="Convert file between SEGY and NETCDF (direction is guessed or can be made explicit with the --output-type option)"
+)
+@click.argument("input-file", type=click.Path(exists=True))
+@click.option("--output-file", "-o", type=str, help="Output file name", default=None)
+@click.option("--iline", "-il", type=int, default=189, help="Inline byte location")
+@click.option("--xline", "-xl", type=int, default=193, help="Crossline byte location")
+@click.option(
+    "--crop",
+    type=int,
+    nargs=4,
+    default=None,
+    help="Crop the input volume providing 4 parameters: minil maxil minxl maxxl",
+)
+@click.option(
+    "--output-type",
+    type=click.Choice(["SEGY", "NETCDF"], case_sensitive=False),
+    help="Explicitly state the desired output file type by chosing one of the options",
+    default=None,
+)
+def convert(output_file, input_file, iline, xline, crop, output_type):
+    input_file = pathlib.Path(input_file)
+    if output_type is None and output_file is not None:
+        output_type = guess_file_type(output_file)
+    elif output_type is None and output_file is None:
+        """Because currently only one conversion exists we can guess the output from the input"""
+        input_type = guess_file_type(input_file)
+        if input_type:
+            output_type = "SEGY" if input_type == "NETCDF" else "NETCDF"
 
-        if args.SEGY is None or args.SEGY is not False:
-            if args.SEGY is None:
-                outfile = input_file.stem + '.segy'
-            else:
-                outfile = args.SEGY
-            ncdf2segy(input_file, outfile, iline=iline, xline=xline)#, crop=args.crop)
-            LOGGER.info(f"SEGY output written to {outfile}")
+    if output_type is None:
+        click.echo(
+            "Output type not recognised! Please provide the desired output file type explicitly using the --output-type option"
+        )
+        raise SystemExit
+
+    click.echo(f"Converting file {input_file.name} to {output_type}")
+
+    if len(crop) == 0:
+        crop = None
+
+    if output_type == "NETCDF":
+        if output_file is None:
+            output_file = input_file.stem + ".SEISNC"
+        _ = segy_loader(
+            input_file, ncfile=output_file, iline=iline, xline=xline, ix_crop=crop
+        )
+        click.echo(f"Converted file saved as {output_file}")
+        LOGGER.info(f"NetCDF output written to {output_file}")
+    elif output_type == "SEGY":
+        if output_file is None:
+            output_file = input_file.stem + ".segy"
+        ncdf2segy(input_file, output_file, iline=iline, xline=xline)
+        click.echo(f"Converted file saved as {output_file}")
+        LOGGER.info(f"SEGY output written to {output_file}")
+    else:
+        click.echo(f"Conversion to output-type {output_type} is not implemented yet")
+        raise SystemExit
+
 
 if __name__ == "__main__":
-    main()
+    cli()
