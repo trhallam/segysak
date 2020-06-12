@@ -141,7 +141,7 @@ for file in nbs:
 
 
 def setup(app):
-    app.add_stylesheet("style.css")
+    app.add_css_file("style.css")
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
