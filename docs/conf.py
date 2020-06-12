@@ -124,8 +124,12 @@ nb_dir = examples_dir / "notebooks"
 data_dir.mkdir(exist_ok=True)
 nb_dir.mkdir(exist_ok=True)
 
-data = ["volve10r12-full-twt-sub3d.sgy"]
-nbs = ["example_segysak_basics.ipynb", "example_segysak_dask.ipynb"]
+data = ["volve10r12-full-twt-sub3d.sgy", "hor_twt_hugin_fm_top.dat"]
+nbs = [
+    "example_segysak_basics.ipynb",
+    "example_segysak_dask.ipynb",
+    "example_extract_data_on_a_horizon.ipynb",
+]
 
 # copy data
 for file in data:
