@@ -89,6 +89,11 @@ Fundamental Python libraries to segysak are segyio_ and xarray_.
 .. _segyio: https://segyio.readthedocs.io/en/latest/
 .. _xarray: http://xarray.pydata.org/en/stable/
 
+The full Volve dataset was published by Equinor and you can read_ about it 
+or get a copy of it here_.
+
+.. _read: https://www.equinor.com/en/news/14jun2018-disclosing-volve-data.html
+.. _here: https://data.equinor.com/authenticate
 
 Get in touch
 ------------
