@@ -25,6 +25,7 @@ except ModuleNotFoundError:
     from tqdm import tqdm as tqdm
 
 TQDM_ARGS = dict(unit_scale=True, unit=" traces")
+PERCENTILES = [0, 0.1, 10, 50, 90, 99.9, 100]
 
 from segysak._keyfield import (
     CoordKeyField,
@@ -118,13 +119,22 @@ def _segy3d_ncdf(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
 
+        percentiles = np.zeros_like(PERCENTILES)
+
         for contig, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
                 seisnc_data[val.il_index, val.xl_index, :] = segyf.trace[trc][
                     n0 : ns + 1
                 ]
+                percentiles = (
+                    np.percentile(segyf.trace[trc][n0 : ns + 1], PERCENTILES)
+                    + percentiles
+                ) / 2.0
+
                 pb.update()
         pb.close()
+        seisnc.attrs[AttrKeyField.percentiles] = list(percentiles)
+        seisnc.flush()
 
     return ncfile
 
@@ -179,13 +189,24 @@ def _segy3dps_ncdf(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
 
+        percentiles = np.zeros_like(PERCENTILES)
+
         for contig, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
                 seisnc_data[val.il_index, val.xl_index, :, val.off_index] = segyf.trace[
                     trc
                 ][n0 : ns + 1]
+
+                percentiles = (
+                    np.percentile(segyf.trace[trc][n0 : ns + 1], PERCENTILES)
+                    + percentiles
+                ) / 2.0
+
                 pb.update()
         pb.close()
+
+        seisnc.attrs[AttrKeyField.percentiles] = list(percentiles)
+        seisnc.flush()
 
     return ncfile
 
@@ -233,16 +254,22 @@ def _segy3d_xr(
         )
         shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
+        percentiles = np.zeros_like(PERCENTILES)
 
         for contig, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
                 volume[int(val.il_index), int(val.xl_index), :] = segyf.trace[trc][
                     n0 : ns + 1
                 ]
+                percentiles = (
+                    np.percentile(segyf.trace[trc][n0 : ns + 1], PERCENTILES)
+                    + percentiles
+                ) / 2.0
                 pb.update()
         pb.close()
 
     ds[VariableKeyField.data] = (dims, volume)
+    ds.attrs[AttrKeyField.percentiles] = list(percentiles)
 
     return ds
 
@@ -290,16 +317,22 @@ def _segy3dps_xr(
         )
         shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
+        percentiles = np.zeros_like(PERCENTILES)
 
         for contig, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
                 volume[
                     int(val.il_index), int(val.xl_index), :, int(val.off_index)
                 ] = segyf.trace[trc][n0 : ns + 1]
+                percentiles = (
+                    np.percentile(segyf.trace[trc][n0 : ns + 1], PERCENTILES)
+                    + percentiles
+                ) / 2.0
                 pb.update()
         pb.close()
 
     ds[VariableKeyField.data] = (dims, volume)
+    ds.attrs[AttrKeyField.percentiles] = list(percentiles)
 
     return ds
 
@@ -482,17 +515,22 @@ def _segy2d_xr(
         )
         shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
+        percentiles = np.zeros_like(PERCENTILES)
 
         # this can probably be done as a block - leaving for now just incase sorting becomes an issue
         for trc, val in head_df.iterrows():
             volume[int(val.cdp_index), :] = segyf.trace[trc][n0 : ns + 1]
             pb.update()
+            percentiles = (
+                np.percentile(segyf.trace[trc][n0 : ns + 1], PERCENTILES) + percentiles
+            ) / 2.0
         pb.close()
 
     ds[VariableKeyField.data] = (
         dims,
         volume[:, n0 : ns + 1],
     )
+    ds.attrs[AttrKeyField.percentiles] = list(percentiles)
 
     return ds
 
@@ -527,12 +565,16 @@ def _segy2d_ps_xr(
         )
         shape = [ds.dims[d] for d in dims]
         volume = np.zeros(shape)
+        percentiles = np.zeros_like(PERCENTILES)
 
         # this can probably be done as a block - leaving for now just incase sorting becomes an issue
         for trc, val in head_df.iterrows():
             volume[int(val.cdp_index), :, int(val.off_index)] = segyf.trace[trc][
                 n0 : ns + 1
             ]
+            percentiles = (
+                np.percentile(segyf.trace[trc][n0 : ns + 1], PERCENTILES) + percentiles
+            ) / 2.0
             pb.update()
         pb.close()
 
@@ -540,6 +582,7 @@ def _segy2d_ps_xr(
         dims,
         volume,
     )
+    ds.attrs[AttrKeyField.percentiles] = list(percentiles)
 
     return ds
 
