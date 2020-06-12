@@ -115,12 +115,10 @@ def segy_header_scrape(segyfile, silent=False, **segyio_kwargs):
         head_df = pd.DataFrame(
             data=np.full((ntraces, lc), np.nan, dtype=int), columns=columns
         )
-        pb = tqdm(
-            total=segyf.tracecount, desc="Scraping Headers", disable=silent, **TQDM_ARGS
+        hv = map(
+            lambda x: np.array(list(x.values())),
+            tqdm(segyf.header[:], total=ntraces, disable=silent, **TQDM_ARGS),
         )
-        for hi, h in enumerate(segyf.header):
-            head_df.iloc[hi, :] = np.array(list(h.values()))
-            pb.update()
-        pb.close()
+        head_df.iloc[:, :] = np.vstack(list(hv))
         head_df.replace(to_replace=-2147483648, value=np.nan, inplace=True)
     return head_df
