@@ -53,7 +53,7 @@ extras_require = {
 
 setup(
     name="segysak",
-    # version=__version__,
+    # version="0.2.3a",
     description="SEG-Y Seismic Data Inspection and Manipulation Tools using Xarray",
     long_description=readme,
     author="SEGY-SAK Developers",
@@ -75,10 +75,11 @@ setup(
         "Topic :: Scientific/Engineering",
     ],
     setup_requires=["pytest-runner", "setuptools_scm",],
+    exclude=["tests*"],
     use_scm_version={
         "root": ".",
         "relative_to": __file__,
-        # "local_scheme": "node-and-timestamp",
+        "local_scheme": "no-local-version",
         "write_to": "segysak/version.py",
     },
     python_requires=">=3.6",
