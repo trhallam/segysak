@@ -5,6 +5,7 @@ import os
 import logging
 import pathlib
 import click
+from tqdm import tqdm
 
 try:
     from .version import version as VERSION
@@ -19,7 +20,13 @@ if VERSION is None:
     except LookupError:
         VERSION = "¯\_(ツ)_/¯"
 
-from segysak.segy import segy_converter, ncdf2segy, segy_header_scan, get_segy_texthead
+from segysak.segy import (
+    segy_converter,
+    ncdf2segy,
+    segy_header_scan,
+    segy_header_scrape,
+    get_segy_texthead,
+)
 from segysak.tools import fix_bad_chars
 
 # configuration setup
@@ -126,6 +133,47 @@ def scan(max_traces, filename):
 
     pd.set_option("display.max_rows", hscan.shape[0])
     click.echo(hscan[["byte_loc", "min", "max", "mean"]])
+
+
+@cli.command()
+@click.option(
+    "--ebcidc", "-e", is_flag=True, default=False, help="Output the text header"
+)
+@click.option(
+    "--trace-headers",
+    "-h",
+    is_flag=True,
+    default=False,
+    help="Output the trace headers to csv",
+)
+@click.argument("filename", nargs=-1, type=click.Path(exists=True))
+def scrape(filename, ebcidc=False, trace_headers=False):
+    """Scrape the file meta information and output it to text file.
+
+    If no options are specified both will be output. The output file will be
+    <filename>.txt for the EBCIDC and <filename>.csv for
+    trace headers.
+
+    The trace headers can be read back into Python using
+    pandas.read_csv(<filename>.csv, index_col=0)
+    """
+    for file in tqdm(filename, desc="File"):
+        file = pathlib.Path(file)
+        ebcidc_name = file.with_suffix(".txt")
+        header_name = file.with_suffix(".csv")
+
+        if ebcidc == False and trace_headers == False:
+            ebcidc = True
+            trace_headers = True
+
+        if ebcidc:
+            txt = get_segy_texthead(file)
+            with open(ebcidc_name, "w") as txtfile:
+                txtfile.writelines(txt)
+
+        if trace_headers:
+            head_df = segy_header_scrape(file)
+            head_df.to_csv(header_name)
 
 
 @cli.command(
