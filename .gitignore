@@ -24,6 +24,8 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+# don't commit auto-generated version.py
+segysak/version.py
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -65,6 +67,8 @@ instance/
 
 # Sphinx documentation
 docs/_build/
+docs/_examples
+docs/generated
 
 # PyBuilder
 target/

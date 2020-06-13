@@ -2,7 +2,7 @@
 
 /* Sidebar header background */
 .wy-side-nav-search, .wy-nav-top {
-    background: #ededed;
+    background: #eee;
   }
   
   /* Sidebar header text */
@@ -17,7 +17,7 @@
 
   /* Navigation headings */
   .wy-menu .caption-text {
-    color: #cc3333;
+    color: #068c2a;
     font-weight: bold;
   }
 
@@ -29,3 +29,13 @@
   span.eqno a {
     display: none;
   }
+
+table.colwidths-given {
+    table-layout: fixed;
+    width: 100%;
+}
+
+table.docutils td {
+    white-space: unset;
+    word-wrap: break-word;
+}

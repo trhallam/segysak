@@ -1,0 +1,35 @@
+name: segysak
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.7
+  - dask
+  - dask-core
+  - distributed
+  - numpy
+  - pandas
+  - xarray
+  - toolz
+  - tqdm
+  - scipy
+  - pyvista
+  - ipython
+  - ipykernel
+  - jupyter
+  - ipywidgets
+  - nbconvert
+  - segyio
+  - matplotlib
+  - pip
+  - click
+  - attrdict
+  - seaborn
+  - pip:
+      - sphinxcontrib-programoutput
+      - sphinx-copybutton
+      - nbsphinx >= 0.7
+      - pandoc
+      - h5netcdf>=0.8
