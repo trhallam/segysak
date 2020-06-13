@@ -54,6 +54,7 @@ AttrKeyField = FrozenDict(
         srd="srd",
         datatype="datatype",
         percentiles="percentiles",
+        coord_scalar="coord_scalar",
     )
 )
 

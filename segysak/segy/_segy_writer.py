@@ -2,6 +2,7 @@
 import importlib
 import xarray as xr
 import segyio
+import numpy as np
 
 try:
     has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
