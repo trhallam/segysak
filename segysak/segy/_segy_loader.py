@@ -134,6 +134,7 @@ def _segy3d_ncdf(
                 pb.update()
         pb.close()
         seisnc.attrs[AttrKeyField.percentiles] = list(percentiles)
+        seisnc.attrs[AttrKeyField.coord_scalar] = head_df.SourceGroupScalar.median()
         seisnc.flush()
 
     return ncfile
