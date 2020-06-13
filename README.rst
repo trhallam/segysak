@@ -53,8 +53,6 @@ Current Capabilities
 
   * Select traces by UTM X and Y coordinates.
 
-.. include:: docs/installation.rst
-
 CLI Quick Start
 -----------------
 
