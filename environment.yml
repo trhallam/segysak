@@ -27,6 +27,7 @@ dependencies:
   - click
   - attrdict
   - seaborn
+  - pyshp
   - pip:
       - sphinxcontrib-programoutput
       - sphinx-copybutton
