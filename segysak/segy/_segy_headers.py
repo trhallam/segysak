@@ -51,34 +51,14 @@ def segy_header_scan(segyfile, max_traces_scan=1000, silent=False, **segyio_kwar
         if not isinstance(max_traces_scan, int):
             raise ValueError("max_traces_scan must be int")
 
-    hi = 0
+    head_df = segy_header_scrape(
+        segyfile, max_traces_scan, silent=silent, **segyio_kwargs
+    )
 
-    segyio_kwargs["ignore_geometry"] = True
-
-    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
-        header_keys = _active_tracefield_segyio()
-        lh = len(header_keys.keys())
-        hmin = np.full(lh, np.nan)
-        hmax = np.full(lh, np.nan)
-        for hi, h in enumerate(
-            tqdm(
-                segyf.header,
-                desc="Scanning Headers",
-                total=max_traces_scan,
-                disable=silent,
-                **TQDM_ARGS
-            )
-        ):
-            val = np.array(list(h.values()))
-            hmin = np.nanmin(np.vstack((hmin, val)), axis=0)
-            hmax = np.nanmax(np.vstack((hmax, val)), axis=0)
-            if max_traces_scan is not None and hi + 1 >= max_traces_scan:
-                break  # scan to max_traces_scan
-
-    for i, (key, item) in enumerate(header_keys.items()):
-        header_keys[key] = [item, hmin[i], hmax[i]]
-
-    return header_keys, hi + 1
+    header_keys = head_df.describe().T
+    header_keys["byte_loc"] = list(_active_tracefield_segyio().values())
+    header_keys.nscan = head_df.shape[0]
+    return header_keys
 
 
 def segy_bin_scrape(segyfile, **segyio_kwargs):
@@ -96,11 +76,13 @@ def segy_bin_scrape(segyfile, **segyio_kwargs):
         return {key: segyf.bin[item] for key, item in bk.items()}
 
 
-def segy_header_scrape(segyfile, silent=False, **segyio_kwargs):
+def segy_header_scrape(segyfile, partial_scan=None, silent=False, **segyio_kwargs):
     """Scape all data from segy trace headers
 
     Args:
         segyfile (str): SEGY File path
+        partial_scan (int): Setting partial scan to a positive int will scan only
+            that many traces. Defaults to None.
         silent (bool): Disable progress bar.
 
     Returns:
@@ -108,17 +90,17 @@ def segy_header_scrape(segyfile, silent=False, **segyio_kwargs):
     """
     header_keys = _active_tracefield_segyio()
     columns = header_keys.keys()
-    lc = len(columns)
     segyio_kwargs["ignore_geometry"] = True
     with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
         ntraces = segyf.tracecount
-        head_df = pd.DataFrame(
-            data=np.full((ntraces, lc), np.nan, dtype=int), columns=columns
-        )
+        if partial_scan is not None:
+            ntraces = int(partial_scan)
+        slc = slice(0, ntraces, 1)
+        # take headers returned from segyio and create lists for a dataframe
         hv = map(
             lambda x: np.array(list(x.values())),
-            tqdm(segyf.header[:], total=ntraces, disable=silent, **TQDM_ARGS),
+            tqdm(segyf.header[slc], total=ntraces, disable=silent, **TQDM_ARGS),
         )
-        head_df.iloc[:, :] = np.vstack(list(hv))
+        head_df = pd.DataFrame(np.vstack(list(hv)), columns=columns)
         head_df.replace(to_replace=-2147483648, value=np.nan, inplace=True)
     return head_df

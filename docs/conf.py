@@ -129,6 +129,7 @@ nbs = [
     "example_segysak_basics.ipynb",
     "example_segysak_dask.ipynb",
     "example_extract_data_on_a_horizon.ipynb",
+    "example_segy_headers.ipynb",
 ]
 
 # copy data
