@@ -134,6 +134,7 @@ def _segy3d_ncdf(
                 pb.update()
         pb.close()
         seisnc.attrs[AttrKeyField.percentiles] = list(percentiles)
+        seisnc.attrs[AttrKeyField.coord_scalar] = head_df.SourceGroupScalar.median()
         seisnc.flush()
 
     return ncfile
@@ -372,7 +373,7 @@ def _3dsegy_loader(
 
     # binary header translation
     ns = head_bin["Samples"]
-    ds = head_bin["Interval"] / 1000.0
+    sample_rate = head_bin["Interval"] / 1000.0
     msys = _SEGY_MEASUREMENT_SYSTEM[head_bin["MeasurementSystem"]]
 
     # for offset
@@ -387,9 +388,9 @@ def _3dsegy_loader(
     if zcrop is not None:
         zcrop = check_zcrop(zcrop, [0, ns])
         n0, ns = zcrop
-        ns0 = ds * n0
+        ns0 = sample_rate * n0
         nsamp = ns - n0 + 1
-    vert_samples = np.arange(ns0, ns0 + ds * nsamp, ds, dtype=int)
+    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate, dtype=int)
 
     builder, domain = _dataset_coordinate_helper(
         vert_samples, vert_domain, iline=ilines, xline=xlines, offset=offsets
@@ -401,6 +402,8 @@ def _3dsegy_loader(
     text = get_segy_texthead(segyfile, **segyio_kwargs)
     ds.attrs[AttrKeyField.text] = text
     ds.attrs[AttrKeyField.source_file] = pathlib.Path(segyfile).name
+    ds.attrs[AttrKeyField.measurement_system] = msys
+    ds.attrs[AttrKeyField.sample_rate] = sample_rate
 
     if ncfile is not None and return_geometry == False:
         ds.seisio.to_netcdf(ncfile)
@@ -642,6 +645,8 @@ def _2dsegy_loader(
     text = get_segy_texthead(segyfile, **segyio_kwargs)
     ds.attrs[AttrKeyField.text] = text
     ds.attrs[AttrKeyField.source_file] = pathlib.Path(segyfile).name
+    ds.attrs[AttrKeyField.measurement_system] = msys
+    ds.attrs[AttrKeyField.sample_rate] = sample_rate
 
     if ncfile is not None and return_geometry == True:
         ds.seisio.to_netcdf(ncfile)
