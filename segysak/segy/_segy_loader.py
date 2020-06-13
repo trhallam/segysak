@@ -411,6 +411,7 @@ def _3dsegy_loader(
     text = get_segy_texthead(segyfile, **segyio_kwargs)
     ds.attrs[AttrKeyField.text] = text
     ds.attrs[AttrKeyField.source_file] = pathlib.Path(segyfile).name
+    ds.attrs[AttrKeyField.measurement_system] = msys
 
     if ncfile is not None and return_geometry == False:
         ds.seisio.to_netcdf(ncfile)
@@ -658,6 +659,7 @@ def _2dsegy_loader(
     text = get_segy_texthead(segyfile, **segyio_kwargs)
     ds.attrs[AttrKeyField.text] = text
     ds.attrs[AttrKeyField.source_file] = pathlib.Path(segyfile).name
+    ds.attrs[AttrKeyField.measurement_system] = msys
 
     if ncfile is not None and return_geometry == True:
         ds.seisio.to_netcdf(ncfile)
