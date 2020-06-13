@@ -43,7 +43,7 @@ VariableKeyField = FrozenDict(dict(data="data"))
 AttrKeyField = FrozenDict(
     dict(
         ns="ns",
-        ds="ds",
+        sample_rate="sample_rate",
         text="text",
         measurement_system="measurement_system",
         d3_domain="d3_domain",

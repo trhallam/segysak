@@ -212,7 +212,7 @@ def create3d_dataset(
     ds = create_seismic_dataset(**builder)
     ds.attrs[AttrKeyField.measurement_system] = units
     ds.attrs[AttrKeyField.d3_domain] = domain
-    ds.attrs[AttrKeyField.ds] = sample_rate
+    ds.attrs[AttrKeyField.sample_rate] = sample_rate
     ds.attrs[AttrKeyField.text] = "SEGY-SAK Create 3D Dataset"
     ds.attrs[AttrKeyField.corner_points] = [
         (ilines[0], xlines[0]),
@@ -281,7 +281,7 @@ def create2d_dataset(
     ds = create_seismic_dataset(**builder)
     ds.attrs[AttrKeyField.measurement_system] = units
     ds.attrs[AttrKeyField.d3_domain] = domain
-    ds.attrs[AttrKeyField.ds] = sample_rate
+    ds.attrs[AttrKeyField.sample_rate] = sample_rate
     ds.attrs[AttrKeyField.text] = "SEGY-SAK Create 2D Dataset"
 
     return ds
