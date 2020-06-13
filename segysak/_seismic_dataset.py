@@ -56,7 +56,7 @@ def create_seismic_dataset(
     Returns:
         xarray.Dataset: A dataset with the defined dimensions of input setup to work with seisnc standards.
     """
-    # cmp not allowed with iline or xline
+    # cdp not allowed with iline or xline
     if cdp is not None and (iline is not None or xline is not None):
         raise ValueError(
             "cdp argument cannot be used with 3D dimensions (iline or xline)"
@@ -82,21 +82,21 @@ def create_seismic_dataset(
     dimensions = dict()
     # create dimension d1
     if cdp is not None:
-        dimensions[CoordKeyField.cdp.value] = ([CoordKeyField.cdp.value], cdp)
+        dimensions[CoordKeyField.cdp] = ([CoordKeyField.cdp], cdp)
     elif iline is not None:  # 3d data
-        dimensions[CoordKeyField.iline.value] = ([CoordKeyField.iline.value], iline)
-        dimensions[CoordKeyField.xline.value] = ([CoordKeyField.xline.value], xline)
+        dimensions[CoordKeyField.iline] = ([CoordKeyField.iline], iline)
+        dimensions[CoordKeyField.xline] = ([CoordKeyField.xline], xline)
 
     # create dimension d3
     if twt is not None:
-        dimensions[CoordKeyField.twt.value] = ([CoordKeyField.twt.value], twt)
+        dimensions[CoordKeyField.twt] = ([CoordKeyField.twt], twt)
     if depth is not None:
-        dimensions[CoordKeyField.depth.value] = ([CoordKeyField.depth.value], depth)
+        dimensions[CoordKeyField.depth] = ([CoordKeyField.depth], depth)
 
     # create dimension d4
     if offset is not None:
-        dimensions[CoordKeyField.offset.value] = (
-            [CoordKeyField.offset.value],
+        dimensions[CoordKeyField.offset] = (
+            [CoordKeyField.offset],
             offset,
         )
 
@@ -107,11 +107,11 @@ def create_seismic_dataset(
     ds = xr.Dataset(coords=dimensions)
 
     if twt is not None:
-        ds.attrs[AttrKeyField.ns.value] = twt.size
+        ds.attrs[AttrKeyField.ns] = twt.size
     elif depth is not None:
-        ds.attrs[AttrKeyField.ns.value] = depth.size
+        ds.attrs[AttrKeyField.ns] = depth.size
 
-    ds.attrs.update({name: None for name in AttrKeyField._member_names_})
+    ds.attrs.update({name: None for name in AttrKeyField})
 
     return ds
 
@@ -120,10 +120,10 @@ def _check_vert_units(units):
     # check units
     if units is not None:
         try:
-            units = VerticalUnits[units].value
-        except AttributeError:
+            units = VerticalUnits[units]
+        except (AttributeError, KeyError):
             raise ValueError(
-                f"The vert_units is unknown, got {units}, expected one of {VerticalUnits._member_names_}"
+                f"The vert_units is unknown, got {units}, expected one of {VerticalUnits.keys()}"
             )
     return units
 
@@ -131,10 +131,10 @@ def _check_vert_units(units):
 def _dataset_coordinate_helper(vert, vert_domain, **kwargs):
     if vert_domain == "TWT":
         kwargs["twt"] = vert
-        domain = VerticalKeyField.twt.value
+        domain = VerticalKeyField.twt
     elif vert_domain == "DEPTH":
         kwargs["depth"] = vert
-        domain = VerticalKeyField.depth.value
+        domain = VerticalKeyField.depth
     else:
         raise ValueError(
             f"Unknown vert_domain {vert_domain}, expected one of TWT or DEPTH"
@@ -174,6 +174,8 @@ def create3d_dataset(
         vert_units(str, optional): Measurement system of of vertical coordinates.
             One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.
     """
+    vert_domain = vert_domain.upper()
+
     if first_offset is None:
         ni, nx, ns = dims
     else:
@@ -181,21 +183,26 @@ def create3d_dataset(
 
     units = _check_vert_units(vert_units)
 
+    # 1e-10 to stabilise range on rounding errors for weird floats from hypothesis
+
     vert = np.arange(
-        first_sample, first_sample + sample_rate * ns, sample_rate, dtype=int
+        first_sample, first_sample + sample_rate * ns - 1e-10, sample_rate, dtype=int,
     )
     ilines = np.arange(
-        first_iline, first_iline + iline_step * ni, iline_step, dtype=int
+        first_iline, first_iline + iline_step * ni - 1e-10, iline_step, dtype=int,
     )
     xlines = np.arange(
-        first_xline, first_xline + xline_step * nx, xline_step, dtype=int
+        first_xline, first_xline + xline_step * nx - 1e-10, xline_step, dtype=int,
     )
 
     if first_offset is None:
         offset = None
     else:
         offset = np.arange(
-            first_offset, first_offset + offset_step * no, offset_step, dtype=float
+            first_offset,
+            first_offset + offset_step * no - 1e-10,
+            offset_step,
+            dtype=float,
         )
 
     builder, domain = _dataset_coordinate_helper(
@@ -203,11 +210,11 @@ def create3d_dataset(
     )
 
     ds = create_seismic_dataset(**builder)
-    ds.attrs[AttrKeyField.d3_units.value] = units
-    ds.attrs[AttrKeyField.d3_domain.value] = domain
-    ds.attrs[AttrKeyField.ds.value] = sample_rate
-    ds.attrs[AttrKeyField.text.value] = "SEGY-SAK Create 3D Dataset"
-    ds.attrs[AttrKeyField.corner_points.value] = [
+    ds.attrs[AttrKeyField.d3_units] = units
+    ds.attrs[AttrKeyField.d3_domain] = domain
+    ds.attrs[AttrKeyField.ds] = sample_rate
+    ds.attrs[AttrKeyField.text] = "SEGY-SAK Create 3D Dataset"
+    ds.attrs[AttrKeyField.corner_points] = [
         (ilines[0], xlines[0]),
         (ilines[-1], xlines[0]),
         (ilines[-1], xlines[-1]),
@@ -233,7 +240,7 @@ def create2d_dataset(
 
     Args:
         dims (tuple of int): The dimensions of the dataset to create (ncdp, vertical).
-            If first_offset is specified then (iline, xline, vertical, offset)
+            If first_offset is specified then (ncdp, vertical, offset)
         first_sample (int, optional): The first vertical sample. Defaults to 0.
         sample_rate (int, optional): The vertical sample rate. Defaults to 1.
         first_cdp (int, optional): First CDP number. Defaults to 1.
@@ -245,6 +252,8 @@ def create2d_dataset(
         vert_units(str, optional): Measurement system of of vertical coordinates.
             One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.
     """
+    vert_domain = vert_domain.upper()
+
     if first_offset is None:
         ncdp, ns = dims
     else:
@@ -270,9 +279,9 @@ def create2d_dataset(
     )
 
     ds = create_seismic_dataset(**builder)
-    ds.attrs[AttrKeyField.d3_units.value] = units
-    ds.attrs[AttrKeyField.d3_domain.value] = domain
-    ds.attrs[AttrKeyField.ds.value] = sample_rate
-    ds.attrs[AttrKeyField.text.value] = "SEGY-SAK Create 2D Dataset"
+    ds.attrs[AttrKeyField.d3_units] = units
+    ds.attrs[AttrKeyField.d3_domain] = domain
+    ds.attrs[AttrKeyField.ds] = sample_rate
+    ds.attrs[AttrKeyField.text] = "SEGY-SAK Create 2D Dataset"
 
     return ds
