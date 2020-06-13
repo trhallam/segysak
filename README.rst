@@ -8,7 +8,7 @@
 
 Access the full documentation for SEGY-SAK from `readthedocs <https://segysak.readthedocs.io/en/latest/>`__
 
-.. image:: https://raw.githubusercontent.com/trhallam/segysak/master/docs/_static/logo_small.png
+.. image:: https://github.com/trhallam/segysak/raw/master/docs/_static/logo_small.png
   :alt: LOGO
 
 *SEGY-SAK* aims to be your Python Swiss Army Knife for Seismic Data.
@@ -53,6 +53,7 @@ Current Capabilities
 
   * Select traces by UTM X and Y coordinates.
 
+.. include:: docs/installation.rst
 
 CLI Quick Start
 -----------------
