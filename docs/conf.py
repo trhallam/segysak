@@ -16,7 +16,7 @@
 
 import time
 import pathlib
-from distutils.dir_util import copy_tree
+from shutil import copy
 
 from pkg_resources import get_distribution
 
@@ -117,11 +117,32 @@ htmlhelp_basename = "segysakdoc"
 print("Copy examples into docs/_examples")
 top_level_examples = pathlib.Path(".").absolute().parent / "examples"
 examples_dir = pathlib.Path("_examples")
-copy_tree(str(top_level_examples), str(examples_dir))
+
+examples_dir.mkdir(exist_ok=True)
+data_dir = examples_dir / "data"
+nb_dir = examples_dir / "notebooks"
+data_dir.mkdir(exist_ok=True)
+nb_dir.mkdir(exist_ok=True)
+
+data = ["volve10r12-full-twt-sub3d.sgy", "hor_twt_hugin_fm_top.dat"]
+nbs = [
+    "example_segysak_basics.ipynb",
+    "example_segysak_dask.ipynb",
+    "example_extract_data_on_a_horizon.ipynb",
+    "example_segy_headers.ipynb",
+]
+
+# copy data
+for file in data:
+    copy(top_level_examples / "data" / file, data_dir / file)
+
+# copy notebooks
+for file in nbs:
+    copy(top_level_examples / "notebooks" / file, nb_dir / file)
 
 
 def setup(app):
-    app.add_stylesheet("style.css")
+    app.add_css_file("style.css")
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -129,9 +150,9 @@ def setup(app):
 # so a file named "default.css" will overwrite the builtin "default.css".
 
 intersphinx_mapping = {
-    "https://docs.python.org/": None,
-    "https://docs.scipy.org/doc/numpy/": None,
-    "https://docs.scipy.org/doc/scipy/": None,
+    "https://docs.python.org/3/": None,
+    "https://numpy.org/doc/stable/": None,
+    "https://docs.scipy.org/doc/scipy/reference/": None,
     "http://xarray.pydata.org/en/stable/": None,
     "https://pandas.pydata.org/docs/": None,
 }

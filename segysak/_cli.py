@@ -19,7 +19,7 @@ if VERSION is None:
     except LookupError:
         VERSION = "¯\_(ツ)_/¯"
 
-from segysak.segy import segy_loader, ncdf2segy, segy_header_scan, get_segy_texthead
+from segysak.segy import segy_converter, ncdf2segy, segy_header_scan, get_segy_texthead
 from segysak.tools import fix_bad_chars
 
 # configuration setup
@@ -120,16 +120,12 @@ def ebcidc(filename):
 @click.argument("filename", type=click.Path(exists=True))
 def scan(max_traces, filename):
     input_file = pathlib.Path(filename)
-    hscan, nscan = segy_header_scan(input_file, max_traces_scan=max_traces)
+    hscan = segy_header_scan(input_file, max_traces_scan=max_traces)
+    click.echo(f"Traces scanned: {hscan.nscan}")
+    import pandas as pd
 
-    click.echo(f"Traces scanned: {nscan}")
-    click.echo(
-        "{:>40s} {:>8s} {:>10s} {:>10s}".format("Item", "Byte Loc", "Min", "Max")
-    )
-    for key, item in hscan.items():
-        click.echo(
-            "{:>40s} {:>8d} {:>10.0f} {:>10.0f}".format(key, item[0], item[1], item[2])
-        )
+    pd.set_option("display.max_rows", hscan.shape[0])
+    click.echo(hscan[["byte_loc", "min", "max", "mean"]])
 
 
 @cli.command(
@@ -182,7 +178,7 @@ def convert(output_file, input_file, iline, xline, crop, output_type):
     if output_type == "NETCDF":
         if output_file is None:
             output_file = input_file.stem + ".SEISNC"
-        _ = segy_loader(
+        segy_converter(
             input_file, ncfile=output_file, iline=iline, xline=xline, ix_crop=crop
         )
         click.echo(f"Converted file saved as {output_file}")

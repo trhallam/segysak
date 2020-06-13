@@ -53,6 +53,7 @@ AttrKeyField = FrozenDict(
         source_file="source_file",
         srd="srd",
         datatype="datatype",
+        percentiles="percentiles",
     )
 )
 

@@ -24,13 +24,14 @@ Inspecting SEG-Y data files
    get_segy_texthead
 
 
-Loading SEG-Y data files
-------------------------
+Loading & Converting SEG-Y data files
+-------------------------------------
 
 .. autosummary::
    :toctree: generated/
 
    segy_loader
+   segy_converter
    well_known_byte_locs
 
 

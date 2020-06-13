@@ -21,6 +21,7 @@ install_requires = [
     "click",
     "h5netcdf",
     "setuptools_scm",
+    "attrdict",
 ]
 
 notebook_deps = [
@@ -32,7 +33,7 @@ notebook_deps = [
     "pyvista",
 ]
 
-testing_deps = ["flake8", "pytest", "hypothesis"]
+testing_deps = ["flake8", "pytest", "hypothesis", "affine"]
 
 extras_require = {
     "notebook": notebook_deps,
@@ -44,6 +45,7 @@ extras_require = {
         "nbsphinx >= 0.7",
         "pandoc",
         "nbconvert!=5.4" "nbformat",
+        "sphinx-copybutton",
     ]
     + notebook_deps,
 }

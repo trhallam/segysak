@@ -183,21 +183,26 @@ def create3d_dataset(
 
     units = _check_vert_units(vert_units)
 
+    # 1e-10 to stabilise range on rounding errors for weird floats from hypothesis
+
     vert = np.arange(
-        first_sample, first_sample + sample_rate * ns, sample_rate, dtype=int
+        first_sample, first_sample + sample_rate * ns - 1e-10, sample_rate, dtype=int,
     )
     ilines = np.arange(
-        first_iline, first_iline + iline_step * ni, iline_step, dtype=int
+        first_iline, first_iline + iline_step * ni - 1e-10, iline_step, dtype=int,
     )
     xlines = np.arange(
-        first_xline, first_xline + xline_step * nx, xline_step, dtype=int
+        first_xline, first_xline + xline_step * nx - 1e-10, xline_step, dtype=int,
     )
 
     if first_offset is None:
         offset = None
     else:
         offset = np.arange(
-            first_offset, first_offset + offset_step * no, offset_step, dtype=float
+            first_offset,
+            first_offset + offset_step * no - 1e-10,
+            offset_step,
+            dtype=float,
         )
 
     builder, domain = _dataset_coordinate_helper(
