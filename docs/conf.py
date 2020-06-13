@@ -15,6 +15,8 @@
 # sys.path.insert(0, os.path.abspath('.'))
 
 import time
+import pathlib
+from shutil import copy
 
 from pkg_resources import get_distribution
 
@@ -31,7 +33,7 @@ description = """A swiss army knife for seismic data that provides tools for seg
 """
 
 project = "segysak"
-copyright = u"2020-{}, The segysak Developers.".format(time.strftime("%Y"))
+copyright = "2020-{}, The segysak Developers.".format(time.strftime("%Y"))
 author = "segysak developers"
 
 # The full version, including alpha/beta/rc tags
@@ -50,6 +52,11 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "sphinx_rtd_theme",
+    "sphinx.ext.intersphinx",
+    "sphinxcontrib.programoutput",
+    "sphinx.ext.mathjax",
+    "nbsphinx",
+    "sphinx_copybutton",
 ]
 
 autosummary_generate = True
@@ -95,6 +102,7 @@ html_theme_options = {
     "includehidden": True,
     "titles_only": False,
     "prev_next_buttons_location": "both",
+    "navigation_with_keys": True,
 }
 
 html_static_path = ["_static"]
@@ -105,10 +113,46 @@ github_url = "https://github.com/trhallam/segysak/"
 htmlhelp_basename = "segysakdoc"
 
 
+# need to copy notebooks into main tree
+print("Copy examples into docs/_examples")
+top_level_examples = pathlib.Path(".").absolute().parent / "examples"
+examples_dir = pathlib.Path("_examples")
+
+examples_dir.mkdir(exist_ok=True)
+data_dir = examples_dir / "data"
+nb_dir = examples_dir / "notebooks"
+data_dir.mkdir(exist_ok=True)
+nb_dir.mkdir(exist_ok=True)
+
+data = ["volve10r12-full-twt-sub3d.sgy", "hor_twt_hugin_fm_top.dat"]
+nbs = [
+    "example_segysak_basics.ipynb",
+    "example_segysak_dask.ipynb",
+    "example_extract_data_on_a_horizon.ipynb",
+    "example_segy_headers.ipynb",
+]
+
+# copy data
+for file in data:
+    copy(top_level_examples / "data" / file, data_dir / file)
+
+# copy notebooks
+for file in nbs:
+    copy(top_level_examples / "notebooks" / file, nb_dir / file)
+
+
 def setup(app):
-    app.add_stylesheet("style.css")
+    app.add_css_file("style.css")
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
+
+intersphinx_mapping = {
+    "https://docs.python.org/3/": None,
+    "https://numpy.org/doc/stable/": None,
+    "https://docs.scipy.org/doc/scipy/reference/": None,
+    "http://xarray.pydata.org/en/stable/": None,
+    "https://pandas.pydata.org/docs/": None,
+}
