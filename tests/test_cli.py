@@ -27,7 +27,7 @@ def test_no_input_file():
         cli()
 
 
-@pytest.mark.parametrize("cmd", ["scan", "ebcidc", "convert"])
+@pytest.mark.parametrize("cmd", ["scan", "ebcidc", "convert", "scrape"])
 def test_all_subcommands(temp_segy, cmd):
     runner = CliRunner()
     result = runner.invoke(cli, [cmd, str(temp_segy)])

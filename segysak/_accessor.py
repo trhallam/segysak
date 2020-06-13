@@ -283,7 +283,7 @@ class SeisGeom:
             and CoordKeyField.twt in self._obj.dims
         ):
             raise ValueError(
-                "seisnc cannot determin domain both twt and depth dimensions found"
+                "seisnc cannot determine domain both twt and depth dimensions found"
             )
 
     def is_twt(self):
@@ -307,6 +307,14 @@ class SeisGeom:
             return False
         else:
             return True
+
+    def get_measurement_system(self):
+        """Return measurement_system if present, else None
+        """
+        if hasattr(self._obj, 'measurement_system'):
+            return self._obj.measurement_system
+        else:
+            return None
 
     def zeros_like(self):
         """Create a new dataset with the same attributes and coordinates and
