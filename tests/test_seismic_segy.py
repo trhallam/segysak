@@ -77,20 +77,22 @@ def test_put_segy_texthead_notok(temp_dir, temp_segy, header):
 
 
 def test_segy_header_scan(temp_dir, temp_segy):
-    head, scanned = segy_header_scan(temp_segy)
+    head = segy_header_scan(temp_segy)
+    scanned = head.nscan
     assert scanned == TEST_SEGY_SIZE ** 2
-    assert isinstance(head, dict)
-    head, scanned = segy_header_scan(
-        temp_segy, max_traces_scan=TEST_SEGY_SIZE, silent=True
-    )
+    # assert isinstance(head, dict) now a dataframe
+    head = segy_header_scan(temp_segy, max_traces_scan=TEST_SEGY_SIZE, silent=True)
+    scanned = head.nscan
     assert scanned == TEST_SEGY_SIZE
-    assert isinstance(head, dict)
+    # assert isinstance(head, dict) now a dataframe
 
 
 def test_segy_header_scan_all(temp_dir, temp_segy):
-    _, scanned = segy_header_scan(temp_segy, max_traces_scan=0, silent=True)
+    _ = segy_header_scan(temp_segy, max_traces_scan=0, silent=True)
+    scanned = _.nscan
     assert scanned == TEST_SEGY_SIZE ** 2
-    _, scanned = segy_header_scan(temp_segy, max_traces_scan="all", silent=True)
+    _ = segy_header_scan(temp_segy, max_traces_scan="all", silent=True)
+    scanned = _.nscan
     assert scanned == TEST_SEGY_SIZE ** 2
 
 
