@@ -11,10 +11,12 @@ def _prettify(self, p, cycle):
 
 
 def _htmlify(self):
-    html = f"<h3>Text Header<h3/>"
+    html = f"<h3 style='font-size: medium;'>Text Header</h3>"
     lines = self.split("\n")
+    html += "<h3 style='font-size: small;'>"
     for line in lines:
         html += f"{line}<br/>"
+    html += "</h3>"
     return html
 
 

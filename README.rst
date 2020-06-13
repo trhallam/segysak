@@ -1,13 +1,14 @@
-========================
-segysak |latest-version|
-========================
+================================
+**SEGY-SAK** - |latest-version|
+================================
 
 |build-status| |python-version| |code-style| |license| |docs| |slack|
 
+.. image:: https://img.shields.io/badge/swung-slack-blueviolet?link=https://softwareunderground.org/&link=swung.slack.com/
 
 Access the full documentation for SEGY-SAK from `readthedocs <https://segysak.readthedocs.io/en/latest/>`__
 
-.. image:: https://github.com/trhallam/segysak/blob/master/docs/_static/logo_small.png
+.. image:: https://raw.githubusercontent.com/trhallam/segysak/master/docs/_static/logo_small.png
   :alt: LOGO
 
 *SEGY-SAK* aims to be your Python Swiss Army Knife for Seismic Data.
@@ -52,29 +53,7 @@ Current Capabilities
 
   * Select traces by UTM X and Y coordinates.
 
-Installation
---------------
-
-*SEGY-SAK* can be installed by using pip or python setuptools.
-
-Python Package Index via ``pip``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-From the command line run the ``pip`` package manager
-
-.. code-block:: shell
-
-   pip install segysak
-
-Install from source
-^^^^^^^^^^^^^^^^^^^
-
-Clone the SEGY-SAK Github repository and in the top level directory run setuptools via
-
-.. code-block:: shell
-
-   python setup.py install
-
+.. include:: docs/installation.rst
 
 CLI Quick Start
 -----------------
@@ -184,11 +163,13 @@ Complete Documentation
 The complete documentation for *SEGY-SAK* can be found at
 `readthedocs <https://segysak.readthedocs.io/en/latest/>`__
 
-.. |latest-version| image:: https://img.shields.io/pypi/v/segysak?color=2d5016&label=pypi_version
+.. |latest-version| image:: https://img.shields.io/pypi/v/segysak?color=2d5016&label=pypi_version&logo=Python&logoColor=white
    :alt: Latest version on PyPi
+   :target: https://pypi.org/project/segysak/
 
 .. |build-status| image:: https://github.com/trhallam/segysak/workflows/python_build_test/badge.svg
    :alt: Build status
+   :target: https://github.com/trhallam/segysak/actions
 
 .. |python-version| image:: https://img.shields.io/pypi/pyversions/segysak
    :alt: Python versions
@@ -205,6 +186,6 @@ The complete documentation for *SEGY-SAK* can be found at
    :target: https://segysak.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-.. |slack| image:: https://img.shields.io/badge/help-slack-blueviolet
+.. |slack| image:: https://img.shields.io/badge/slack-help-blueviolet?logo=slack
    :alt: help
    :target: https://swung.slack.com/messages/t20-segysak/
