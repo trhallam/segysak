@@ -12,6 +12,7 @@ from scipy.interpolate import griddata
 
 from ._keyfield import AttrKeyField, DimensionKeyField, CoordKeyField, VariableKeyField
 from ._richstr import _upgrade_txt_richstr
+from .tools import get_uniform_spacing
 
 
 @xr.register_dataset_accessor("seisio")
@@ -75,24 +76,6 @@ def open_seisnc(seisnc, **kwargs):
 
     return ds
 
-def coord_as_dimension(obj, points):
-    keys = ("cdp_x", "cdp_y")
-    grid = np.vstack(
-        [
-            obj[key]
-                .transpose("iline", "xline", transpose_coords=True)
-                .values.ravel()
-            for key in keys
-        ]
-    ).transpose()
-    xlines_, ilines_ = np.meshgrid(obj["xline"], obj["iline"])
-
-    # these must all be the same length
-    ils = griddata(grid, ilines_.ravel(), points)
-    xls = griddata(grid, xlines_.ravel(), points)
-
-    return ils, xls
-
 @xr.register_dataset_accessor("seis")
 class SeisGeom:
     def __init__(self, xarray_obj):
@@ -117,6 +100,16 @@ class SeisGeom:
         return "{} {}".format(f, suffixes[i])
 
     def _coord_as_dimension(self, points, drop):
+        """Select data at x and y coordinates
+
+        Args:
+            cdp_x (float/array-like)
+            cdp_y (float/array-like)
+            method (str): Same a methods for xarray.Dataset.interp
+
+        Returns:
+            xarray.Dataset: At selected coordinates.
+        """
 
         keys = ("cdp_x", "cdp_y")
 
@@ -138,6 +131,7 @@ class SeisGeom:
         ils = np.atleast_1d(griddata(grid, ilines_.ravel(), points))
         xls = np.atleast_1d(griddata(grid, xlines_.ravel(), points))
 
+        return ils, xls
 
     def xysel(self, cdp_x, cdp_y, method="nearest"):
         """Select data at x and y coordinates
@@ -145,7 +139,7 @@ class SeisGeom:
         Args:
             cdp_x (float/array-like)
             cdp_y (float/array-like)
-            method (str): Same a methods for xarray.Dataset.interp
+            method (str): Same as methods for xarray.Dataset.interp
 
         Returns:
             xarray.Dataset: At selected coordinates.
@@ -493,3 +487,18 @@ class SeisGeom:
             self._obj.attrs[AttrKeyField.corner_points] = corner_points
         if corner_points_xy:
             self._obj.attrs[AttrKeyField.corner_points_xy] = corner_points_xy
+
+    def interp_line(self, cdpx, cdpy, bin_spacing_hint=10, method='linear'):
+        """Select data at x and y coordinates
+
+        Args:
+            cdp_x (float/array-like)
+            cdp_y (float/array-like)
+            bin_spacing_hint (number): a bin spacing to stay close to, in cdp world units. Default: 10
+
+        Returns:
+            xarray.Dataset: Interpolated traces along the arbitrary line
+        """
+        cdp_x_i, cdp_y_i, _ = get_uniform_spacing(cdpx, cdpy, bin_spacing_hint)
+        return self._obj.seis.xysel(cdp_x_i, cdp_y_i, method=method)
+
