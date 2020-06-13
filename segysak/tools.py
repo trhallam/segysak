@@ -1,6 +1,8 @@
 
 import os
 import datetime
+from scipy.interpolate import interp1d
+import numpy as np
 
 def _check_crop(crop, limits):
     """Make sure a pair of limits is cropped correctly.
@@ -105,3 +107,28 @@ def _get_userid():
         pass
     finally:
         return "segysak_user"
+
+def get_uniform_spacing(cdpx, cdpy, bin_spacing_hint=10):
+    """Interpolate the cdp_x, cdp_y arrays uniformly while staying close to the
+    requested bin spacing
+
+    Args:
+        cdp_x (array-like)
+        cdp_y (array-like)
+        bin_spacing_hint (number): a bin spacing to stay close to, in cdp world units. Default: 10
+
+    Returns:
+        ndarray, ndarray, number: interpolated cdp_x, cdp_y and the actual bin spacing
+    """
+    # calculate normalised path length
+    norm_line = (cdpx - cdpx[0], cdpy - cdpy[0])
+    norm_path = [(x ** 2 + y ** 2) ** 0.5 for x, y in zip(*norm_line)]
+
+    num_pts = int(norm_path[-1] / bin_spacing_hint)
+
+    new_path, spacing = np.linspace(0, norm_path[-1], num_pts, retstep=True)
+
+    cdp_x_i = interp1d(norm_path, cdpx)(new_path)
+    cdp_y_i = interp1d(norm_path, cdpy)(new_path)
+
+    return cdp_x_i, cdp_y_i, spacing
