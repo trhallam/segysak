@@ -16,6 +16,10 @@ convert between data formats.
 
 .. program-output:: segysak scan --help
 
+**segysak scan**
+
+.. program-output:: segysak scrape --help
+
 **segysak convert**
 
 .. program-output:: segysak convert --help

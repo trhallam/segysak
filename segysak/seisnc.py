@@ -23,7 +23,7 @@ SEISNC_COORDS = ["iline", "xline", "z"]
 SEISNC_NONDATA_VAR = ["CDP_X", "CDP_Y", "CDP_TRACE"]
 SEISNC_ATTR = [
     "ns",
-    "ds",
+    "sample_rate",
     "text",
 ]
 
@@ -31,9 +31,9 @@ DS_VALID_COORDS = ["iline", "xline", "depth", "twt", "cdp_x", "cdp_y", "lat", "l
 
 DS_DEFAULT_ATTR = dict(
     ns=None,
-    ds=None,
+    sample_rate=None,
     text=None,
-    d3_units=None,
+    measurement_system=None,
     epsg=None,
     corner_points=None,
     corner_points_xy=None,
@@ -129,7 +129,7 @@ def set_seisnc_dims(
         seisnc["xline"][:] = xlines
         seisnc["vert"][:] = vert
         seisnc.ns = ns
-        seisnc.ds = sample_rate
+        seisnc.sample_rate = sample_rate
         seisnc.measurement_system = measurement_system
 
         seisnc.text = "Blank seisnc"
