@@ -56,6 +56,7 @@ setup(
     # version="0.2.3a",
     description="SEG-Y Seismic Data Inspection and Manipulation Tools using Xarray",
     long_description=readme,
+    long_description_content_type="text/x-rst",
     author="SEGY-SAK Developers",
     author_email="segysak@gamil.com",
     url="https://github.com/trhallam/segysak",
@@ -75,7 +76,6 @@ setup(
         "Topic :: Scientific/Engineering",
     ],
     setup_requires=["pytest-runner", "setuptools_scm",],
-    exclude=["tests*"],
     use_scm_version={
         "root": ".",
         "relative_to": __file__,

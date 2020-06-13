@@ -1,0 +1,6 @@
+prune examples
+prune tests
+prune docs
+prune .*
+prune .egg-info
+exclude .*
