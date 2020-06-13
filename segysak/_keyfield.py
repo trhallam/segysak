@@ -43,9 +43,9 @@ VariableKeyField = FrozenDict(dict(data="data"))
 AttrKeyField = FrozenDict(
     dict(
         ns="ns",
-        ds="ds",
+        sample_rate="sample_rate",
         text="text",
-        d3_units="d3_units",
+        measurement_system="measurement_system",
         d3_domain="d3_domain",
         epsg="epsg",
         corner_points="corner_points",
@@ -54,6 +54,7 @@ AttrKeyField = FrozenDict(
         srd="srd",
         datatype="datatype",
         percentiles="percentiles",
+        coord_scalar="coord_scalar",
     )
 )
 

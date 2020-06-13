@@ -141,7 +141,7 @@ class TestCreate3DDataset:
     def test_create_full_stack_dataset(self, d, u):
         dataset = create3d_dataset(dims=d, vert_units=u)
         assert dataset.d3_domain == "TWT"
-        assert dataset.d3_units == u
+        assert dataset.measurement_system == u
 
     @given(
         integers(15, 60),
