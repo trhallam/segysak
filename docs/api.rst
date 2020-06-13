@@ -123,4 +123,5 @@ segysak xarray accessor modules
   :toctree: generated/
 
   SeisGeom.xysel
+  SeisGeom.interp_line
   SeisGeom.surface_from_points

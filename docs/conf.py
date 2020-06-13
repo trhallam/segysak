@@ -128,8 +128,9 @@ data = ["volve10r12-full-twt-sub3d.sgy", "hor_twt_hugin_fm_top.dat"]
 nbs = [
     "example_segysak_basics.ipynb",
     "example_segysak_dask.ipynb",
-    "example_extract_data_on_a_horizon.ipynb",
+    "example_amplitude_extraction_displays.ipynb",
     "example_segy_headers.ipynb",
+    "QuickOverview.ipynb",
 ]
 
 # copy data

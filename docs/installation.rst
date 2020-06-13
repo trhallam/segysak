@@ -1,7 +1,11 @@
 Installation
 -------------
 
-*SEGY-SAK* can be installed by using pip or python setuptools.
+*SEGY-SAK* can be installed by using pip or python setuptools, we also provide an ``environment.yml`` for use
+with conda and is available through Github_.
+
+.. _Github: https://github.com/trhallam/segysak
+
 
 Python Package Index via ``pip``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -20,3 +24,9 @@ Clone the SEGY-SAK Github repository and in the top level directory run setuptoo
 .. code-block:: shell
 
    python setup.py install
+
+And to run the tests
+
+.. code-block:: shell
+
+   python setup.py test
