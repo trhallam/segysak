@@ -35,6 +35,10 @@ LOGGER = logging.getLogger(NAME)
 
 
 def check_file(input_files):
+    """
+    Function expands a list of files if * wildcards are present. It also verifies the presence of each file.
+    Depreciated since version 0.1.2: The CLI only accepts a single input file and Click performs the verification.
+    """
 
     if input_files is None:
         LOGGER.error("Require input file/s")
@@ -199,10 +203,14 @@ def scrape(filename, ebcidc=False, trace_headers=False):
 @click.option(
     "--output-type",
     type=click.Choice(["SEGY", "NETCDF"], case_sensitive=False),
-    help="Explicitly state the desired output file type by chosing one of the options",
     default=None,
+    help="Explicitly state the desired output file type by chosing one of the options",
 )
-def convert(output_file, input_file, iline, xline, crop, output_type):
+@click.option(
+    "--dimension", "-d",
+    type=click.STRING, default=None, help="Data dimension (domain) to write out, will default to TWT or DEPTH. Only used for writing to SEGY."
+)
+def convert(output_file, input_file, iline, xline, crop, output_type, dimension):
     input_file = pathlib.Path(input_file)
     if output_type is None and output_file is not None:
         output_type = guess_file_type(output_file)
@@ -234,7 +242,7 @@ def convert(output_file, input_file, iline, xline, crop, output_type):
     elif output_type == "SEGY":
         if output_file is None:
             output_file = input_file.stem + ".segy"
-        ncdf2segy(input_file, output_file, iline=iline, xline=xline)
+        ncdf2segy(input_file, output_file, iline=iline, xline=xline, dimension=dimension)
         click.echo(f"Converted file saved as {output_file}")
         LOGGER.info(f"SEGY output written to {output_file}")
     else:
