@@ -2,7 +2,6 @@ from IPython import get_ipython
 import xarray as xr
 import segyio
 import numpy as np
-import warnings
 
 try:
     """Solution is taken from https://stackoverflow.com/a/47428575 """
@@ -10,11 +9,9 @@ try:
     if 'zmqshell' in ipy_str:
         """Called from jupyter"""
         from tqdm.notebook import tqdm
-    if 'terminal' in ipy_str:
-        """Called from iPython"""
+    else:
         from tqdm import tqdm
 except:
-    """Called from terminal"""
     from tqdm import tqdm
 
 from ._segy_globals import _ISEGY_MEASUREMENT_SYSTEM
