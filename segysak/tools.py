@@ -108,7 +108,7 @@ def _get_userid():
     finally:
         return "segysak_user"
 
-def get_uniform_spacing(cdp_x, cdp_y, bin_spacing_hint=10, method='linear'):
+def get_uniform_spacing(cdp_x, cdp_y, extra=None, bin_spacing_hint=10, method='linear'):
     """Interpolate the cdp_x, cdp_y arrays uniformly while staying close to the
     requested bin spacing
 
@@ -133,5 +133,8 @@ def get_uniform_spacing(cdp_x, cdp_y, bin_spacing_hint=10, method='linear'):
     cdp_x_i = interp1d(segments, cdp_x, kind='linear')(uniform_sampled_path)
     cdp_y_i = interp1d(segments, cdp_y, kind='linear')(uniform_sampled_path)
 
+    extras_i = {key:
+        interp1d(segments, ex, kind='linear')(uniform_sampled_path) for key, ex in extra.items()
+    }
 
-    return cdp_x_i, cdp_y_i, uniform_sampled_path
+    return cdp_x_i, cdp_y_i, uniform_sampled_path, extras_i

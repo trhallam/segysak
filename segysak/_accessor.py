@@ -77,6 +77,7 @@ def open_seisnc(seisnc, **kwargs):
 
     return ds
 
+
 @xr.register_dataset_accessor("seis")
 class SeisGeom:
     def __init__(self, xarray_obj):
@@ -322,7 +323,7 @@ class SeisGeom:
     def get_measurement_system(self):
         """Return measurement_system if present, else None
         """
-        if hasattr(self._obj, 'measurement_system'):
+        if hasattr(self._obj, "measurement_system"):
             return self._obj.measurement_system
         else:
             return None
@@ -446,7 +447,6 @@ class SeisGeom:
     #         xline=(seismic_3d.coords["xline"].min().item(), seismic_3d.coords["xline"].max().item())
     #     )
 
-
     def calc_corner_points(self):
         """Calculate the corner points of the geometry or end points of a 2D line.
 
@@ -505,7 +505,15 @@ class SeisGeom:
         if corner_points_xy:
             self._obj.attrs[AttrKeyField.corner_points_xy] = corner_points_xy
 
-    def interp_line(self, cdpx, cdpy, bin_spacing_hint=10, line_method='slinear', xysel_method='linear'):
+    def interp_line(
+        self,
+        cdpx,
+        cdpy,
+        extra=None,
+        bin_spacing_hint=10,
+        line_method="slinear",
+        xysel_method="linear",
+    ):
         """Select data at x and y coordinates
 
         Args:
@@ -518,8 +526,21 @@ class SeisGeom:
         Returns:
             xarray.Dataset: Interpolated traces along the arbitrary line
         """
-        cdp_x_i, cdp_y_i, _ = get_uniform_spacing(cdpx, cdpy, bin_spacing_hint, method=line_method)
-        return self._obj.seis.xysel(cdp_x_i, cdp_y_i, method=xysel_method)
+        extra = dict() if extra is None else extra
+
+        cdp_x_i, cdp_y_i, _, extra_i = get_uniform_spacing(
+            cdpx,
+            cdpy,
+            bin_spacing_hint=bin_spacing_hint,
+            extra=extra,
+            method=line_method,
+        )
+        ds = self._obj.seis.xysel(cdp_x_i, cdp_y_i, method=xysel_method)
+
+        for key in extra:
+            ds[key] = (("cdp"), extra_i[key])
+
+        return ds
 
     def plot_bounds(self, ax=None):
         """Plot survey bbounding box to a new or existing axis
@@ -531,11 +552,11 @@ class SeisGeom:
             matplotlib axis used
 
         """
-        xy = self._obj.attrs['corner_points_xy']
+        xy = self._obj.attrs["corner_points_xy"]
 
         if xy is None:
             self._obj.seis.calc_corner_points()
-            xy = self._obj.attrs['corner_points_xy']
+            xy = self._obj.attrs["corner_points_xy"]
 
         if not ax:
             fig, ax = plt.subplots(1, 1)
@@ -543,10 +564,9 @@ class SeisGeom:
         x = [x for x, _ in xy]
         y = [y for _, y in xy]
         ax.scatter(x, y)
-        ax.plot(x + [x[0]], y + [y[0]], 'k:')
+        ax.plot(x + [x[0]], y + [y[0]], "k:")
 
-        ax.set_xlabel('cdp x')
-        ax.set_ylabel('cdp y')
+        ax.set_xlabel("cdp x")
+        ax.set_ylabel("cdp y")
 
         return ax
-
