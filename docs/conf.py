@@ -131,6 +131,7 @@ nbs = [
     "example_amplitude_extraction_displays.ipynb",
     "example_segy_headers.ipynb",
     "QuickOverview.ipynb",
+    "example_extract_arbitrary_line.ipynb",
 ]
 
 # copy data
