@@ -47,8 +47,6 @@ Documentation
 **Getting Started**
 
 * :doc:`why-segysak`
-* :doc:`faq`
-* :doc:`examples`
 * :doc:`installation`
 
 .. toctree::
@@ -59,13 +57,13 @@ Documentation
    why-segysak
    installation
    _examples/notebooks/QuickOverview
-   examples
-   faq
 
 **User Guide**
 
 * :doc:`seisnc-standard`
+* :doc:`examples`
 * :doc:`command-line-tool`
+* :doc:`faq`
 
 .. toctree::
    :maxdepth: 1
@@ -73,7 +71,9 @@ Documentation
    :hidden:
 
    seisnc-standard
+   examples
    command-line-tool
+   faq
 
 **Help & Reference**
 
@@ -118,7 +118,7 @@ in Python. The ground work was layed by Tony Hallam but development really began
 during the Transform 2020 Software Underground Hackathon held online across
 the world due to the cancellation of of the EAGE Annual in June of that year.
 Significant contributions during the hackathon
-were made by Steve Purves, Gijs Straathof, Fabio and Alessandro Amato del Monte.
+were made by Steve Purves, Gijs Straathof, Fabio Contreras and Alessandro Amato del Monte.
 
 License
 -------
