@@ -138,3 +138,21 @@ def get_uniform_spacing(cdp_x, cdp_y, extra=None, bin_spacing_hint=10, method='l
     }
 
     return cdp_x_i, cdp_y_i, uniform_sampled_path, extras_i
+
+def halfsample(arr):
+    """Sample an array at exactly half spacing.
+
+    Uses the diff betweem consecutive samples to work out the
+    inbetween samples.
+
+    Args:
+        arr (array-like): The sequence to resample.
+
+    Returns:
+        ndarray: The halfsampled array with (N*2 - 1) samples.
+    """
+    arr = np.atleast_1d(arr).astype(float)
+    arr_halved = np.zeros(arr.size*2-1)
+    arr_halved[0::2] = arr
+    arr_halved[1::2] = (np.diff(arr)/2.0 + arr[:-1])
+    return arr_halved

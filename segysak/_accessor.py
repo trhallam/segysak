@@ -150,15 +150,10 @@ class SeisGeom:
         cdp_x = np.atleast_1d(cdp_x)
         cdp_y = np.atleast_1d(cdp_y)
 
-        builder = dict()
         if self.is_twt():
-            builder["twt"] = self._obj[CoordKeyField.twt].values
             core_dims = DimensionKeyField.threed_twt
-            ns = self._obj[CoordKeyField.twt].size
         elif self.is_depth():
-            builder["depth"] = self._obj[CoordKeyField.depth].values
             core_dims = DimensionKeyField.threed_depth
-            ns = self._obj[CoordKeyField.twt].size
         else:
             raise AttributeError("Dataset required twt or depth coordinates.")
 
@@ -168,11 +163,6 @@ class SeisGeom:
             # get other dims
             other_dims = dims.difference(core_dims)
             il, xl = self._coord_as_dimension((cdp_x, cdp_y), other_dims)
-            builder["cdp"] = np.arange(1, il.size + 1, 1)
-
-            # add other dims
-            for dim in other_dims:
-                builder[dim] = self._obj[dim].values
 
             # populate back to 2d
             cdp_ds = [
