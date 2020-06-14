@@ -1,17 +1,21 @@
-import importlib
+from IPython import get_ipython
 import xarray as xr
 import segyio
 import numpy as np
+import warnings
 
 try:
-    has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
-    if has_ipywidgets:
+    """Solution is taken from https://stackoverflow.com/a/47428575 """
+    ipy_str = str(type(get_ipython()))
+    if 'zmqshell' in ipy_str:
+        """Called from jupyter"""
         from tqdm.notebook import tqdm
-    else:
+    if 'terminal' in ipy_str:
+        """Called from iPython"""
         from tqdm import tqdm
-except ModuleNotFoundError:
+except:
+    """Called from terminal"""
     from tqdm import tqdm
-
 
 from ._segy_globals import _ISEGY_MEASUREMENT_SYSTEM
 
