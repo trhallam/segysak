@@ -4,9 +4,9 @@ import segyio
 import numpy as np
 
 try:
-    """Solution is taken from https://stackoverflow.com/a/47428575 """
+    """Solution taken from https://stackoverflow.com/a/47428575 """
     ipy_str = str(type(get_ipython()))
-    if 'zmqshell' in ipy_str:
+    if "zmqshell" in ipy_str:
         """Called from jupyter"""
         from tqdm.notebook import tqdm
     else:
@@ -78,7 +78,9 @@ def ncdf2segy(
                     f"twt and depth dimensions missing, please specify a dimension to convert: {seisnc.dims}"
                 )
         elif dimension not in seisnc.dims:
-            raise RuntimeError(f"Requested output dimension not found in the dataset: {seisnc.dims}")
+            raise RuntimeError(
+                f"Requested output dimension not found in the dataset: {seisnc.dims}"
+            )
 
         z0 = int(seisnc[dimension].values[0])
         ni, nj, nk = seisnc.dims["iline"], seisnc.dims["xline"], seisnc.dims[dimension]
@@ -106,7 +108,7 @@ def ncdf2segy(
         il_bags = _bag_slices(seisnc["iline"].values, n=il_chunks)
 
         with segyio.create(segyfile, spec) as segyf:
-            for ilb in tqdm(il_bags, desc="WRITING CHUNK", disable=silent):
+            for ilb in tqdm(il_bags, desc="Writing to SEGY", disable=silent):
                 ilbl = range(ilb.start, ilb.stop, ilb.step)
                 data = seisnc.isel(iline=ilbl)
                 for i, il in enumerate(ilbl):
@@ -120,12 +122,15 @@ def ncdf2segy(
                             segyio.su.cdpy: int(cdpy * coord_scalar_mult),
                             segyio.su.ns: nk,
                             segyio.su.delrt: z0,
+                            segyio.su.scalco: int(coord_scalar),
                         }
                         for xln, cdpx, cdpy in zip(
                             xl_val, data.cdp_x.values[i, :], data.cdp_y.values[i, :]
                         )
                     ]
-                    segyf.trace[il * nj : (il + 1) * nj] = data.data[i, :, :].values
+                    segyf.trace[il * nj : (il + 1) * nj] = data.data[
+                        i, :, :
+                    ].values.astype("float32")
             segyf.bin.update(
                 tsort=segyio.TraceSortingFormat.INLINE_SORTING,
                 hdt=int(seisnc.sample_rate * 1000),
