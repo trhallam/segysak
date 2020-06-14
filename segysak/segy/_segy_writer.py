@@ -76,6 +76,8 @@ def ncdf2segy(
                 raise RuntimeError(
                     f"twt and depth dimensions missing, please specify a dimension to convert: {seisnc.dims}"
                 )
+        elif dimension not in seisnc.dims:
+            raise RuntimeError(f"Requested output dimension not found in the dataset: {seisnc.dims}")
 
         z0 = int(seisnc[dimension].values[0])
         ni, nj, nk = seisnc.dims["iline"], seisnc.dims["xline"], seisnc.dims[dimension]
