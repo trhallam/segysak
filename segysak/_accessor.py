@@ -9,6 +9,7 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
+import matplotlib.pyplot as plt
 
 from ._keyfield import AttrKeyField, DimensionKeyField, CoordKeyField, VariableKeyField
 from ._richstr import _upgrade_txt_richstr
@@ -430,6 +431,14 @@ class SeisGeom:
         out[key] = (org_dims, var.reshape(org_shp))
         return out
 
+    # DRAFT
+    # def get_survey_extents(seismic_3d):
+    #     return SimpleNamespace(
+    #         iline=(seismic_3d.coords["iline"].min().item(), seismic_3d.coords["iline"].max().item()),
+    #         xline=(seismic_3d.coords["xline"].min().item(), seismic_3d.coords["xline"].max().item())
+    #     )
+
+
     def calc_corner_points(self):
         """Calculate the corner points of the geometry or end points of a 2D line.
 
@@ -488,17 +497,48 @@ class SeisGeom:
         if corner_points_xy:
             self._obj.attrs[AttrKeyField.corner_points_xy] = corner_points_xy
 
-    def interp_line(self, cdpx, cdpy, bin_spacing_hint=10, method='linear'):
+    def interp_line(self, cdpx, cdpy, bin_spacing_hint=10, line_method='slinear', xysel_method='linear'):
         """Select data at x and y coordinates
 
         Args:
             cdp_x (float/array-like)
             cdp_y (float/array-like)
             bin_spacing_hint (number): a bin spacing to stay close to, in cdp world units. Default: 10
+            line_method (string): valid values for the *kind* argument in scipy.interpolate.interp1d
+            xysel_method (string): valid values for DataArray.interp
 
         Returns:
             xarray.Dataset: Interpolated traces along the arbitrary line
         """
-        cdp_x_i, cdp_y_i, _ = get_uniform_spacing(cdpx, cdpy, bin_spacing_hint)
-        return self._obj.seis.xysel(cdp_x_i, cdp_y_i, method=method)
+        cdp_x_i, cdp_y_i, _ = get_uniform_spacing(cdpx, cdpy, bin_spacing_hint, method=line_method)
+        return self._obj.seis.xysel(cdp_x_i, cdp_y_i, method=xysel_method)
+
+    def plot_bounds(self, ax=None):
+        """Plot survey bbounding box to a new or existing axis
+
+        Args:
+            ax: (optional) axis to plot to
+
+        Returns:
+            matplotlib axis used
+
+        """
+        xy = self._obj.attrs['corner_points_xy']
+
+        if xy is None:
+            self._obj.seis.calc_corner_points()
+            xy = self._obj.attrs['corner_points_xy']
+
+        if not ax:
+            fig, ax = plt.subplots(1, 1)
+
+        x = [x for x, _ in xy]
+        y = [y for _, y in xy]
+        ax.scatter(x, y)
+        ax.plot(x + [x[0]], y + [y[0]], 'k:')
+
+        ax.set_xlabel('cdp x')
+        ax.set_ylabel('cdp y')
+
+        return ax
 
