@@ -124,7 +124,12 @@ nb_dir = examples_dir / "notebooks"
 data_dir.mkdir(exist_ok=True)
 nb_dir.mkdir(exist_ok=True)
 
-data = ["volve10r12-full-twt-sub3d.sgy", "hor_twt_hugin_fm_top.dat"]
+data = [
+    "volve10r12-full-twt-sub3d.sgy",
+    "hor_twt_hugin_fm_top.dat",
+    "volve10r12-full-twt-arb.sgy",
+    "arbitrary_line.shp",
+]
 nbs = [
     "example_segysak_basics.ipynb",
     "example_segysak_dask.ipynb",
