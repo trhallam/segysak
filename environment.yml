@@ -26,7 +26,6 @@ dependencies:
   - pip
   - click
   - attrdict
-  - seaborn
   - pyshp
   - pip:
       - sphinxcontrib-programoutput

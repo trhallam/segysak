@@ -108,6 +108,7 @@ segysak xarray accessor modules
   SeisGeom.is_depth
   SeisGeom.is_empty
   SeisGeom.zeros_like
+  SeisGeom.get_measurement_system
 
 ``seisnc`` data tools
 
@@ -123,4 +124,10 @@ segysak xarray accessor modules
   :toctree: generated/
 
   SeisGeom.xysel
+  SeisGeom.interp_line
   SeisGeom.surface_from_points
+
+``seisnc`` plotting functions
+  :toctree: generated/
+
+  SeisGeom.plot_bounds
