@@ -9,10 +9,11 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
+import matplotlib.pyplot as plt
 
 from ._keyfield import AttrKeyField, DimensionKeyField, CoordKeyField, VariableKeyField
 from ._richstr import _upgrade_txt_richstr
-from .tools import get_uniform_spacing
+from .tools import get_uniform_spacing, halfsample
 
 
 @xr.register_dataset_accessor("seisio")
@@ -75,6 +76,7 @@ def open_seisnc(seisnc, **kwargs):
     ds = ds.set_coords(promote_to_coord)
 
     return ds
+
 
 @xr.register_dataset_accessor("seis")
 class SeisGeom:
@@ -148,15 +150,10 @@ class SeisGeom:
         cdp_x = np.atleast_1d(cdp_x)
         cdp_y = np.atleast_1d(cdp_y)
 
-        builder = dict()
         if self.is_twt():
-            builder["twt"] = self._obj[CoordKeyField.twt].values
             core_dims = DimensionKeyField.threed_twt
-            ns = self._obj[CoordKeyField.twt].size
         elif self.is_depth():
-            builder["depth"] = self._obj[CoordKeyField.depth].values
             core_dims = DimensionKeyField.threed_depth
-            ns = self._obj[CoordKeyField.twt].size
         else:
             raise AttributeError("Dataset required twt or depth coordinates.")
 
@@ -166,11 +163,6 @@ class SeisGeom:
             # get other dims
             other_dims = dims.difference(core_dims)
             il, xl = self._coord_as_dimension((cdp_x, cdp_y), other_dims)
-            builder["cdp"] = np.arange(1, il.size + 1, 1)
-
-            # add other dims
-            for dim in other_dims:
-                builder[dim] = self._obj[dim].values
 
             # populate back to 2d
             cdp_ds = [
@@ -321,7 +313,7 @@ class SeisGeom:
     def get_measurement_system(self):
         """Return measurement_system if present, else None
         """
-        if hasattr(self._obj, 'measurement_system'):
+        if hasattr(self._obj, "measurement_system"):
             return self._obj.measurement_system
         else:
             return None
@@ -438,6 +430,13 @@ class SeisGeom:
         out[key] = (org_dims, var.reshape(org_shp))
         return out
 
+    # DRAFT
+    # def get_survey_extents(seismic_3d):
+    #     return SimpleNamespace(
+    #         iline=(seismic_3d.coords["iline"].min().item(), seismic_3d.coords["iline"].max().item()),
+    #         xline=(seismic_3d.coords["xline"].min().item(), seismic_3d.coords["xline"].max().item())
+    #     )
+
     def calc_corner_points(self):
         """Calculate the corner points of the geometry or end points of a 2D line.
 
@@ -496,17 +495,86 @@ class SeisGeom:
         if corner_points_xy:
             self._obj.attrs[AttrKeyField.corner_points_xy] = corner_points_xy
 
-    def interp_line(self, cdpx, cdpy, bin_spacing_hint=10, method='linear'):
+    def interp_line(
+        self,
+        cdpx,
+        cdpy,
+        extra=None,
+        bin_spacing_hint=10,
+        line_method="slinear",
+        xysel_method="linear",
+    ):
         """Select data at x and y coordinates
 
         Args:
             cdp_x (float/array-like)
             cdp_y (float/array-like)
             bin_spacing_hint (number): a bin spacing to stay close to, in cdp world units. Default: 10
+            line_method (string): valid values for the *kind* argument in scipy.interpolate.interp1d
+            xysel_method (string): valid values for DataArray.interp
 
         Returns:
             xarray.Dataset: Interpolated traces along the arbitrary line
         """
-        cdp_x_i, cdp_y_i, _ = get_uniform_spacing(cdpx, cdpy, bin_spacing_hint)
-        return self._obj.seis.xysel(cdp_x_i, cdp_y_i, method=method)
+        extra = dict() if extra is None else extra
 
+        cdp_x_i, cdp_y_i, _, extra_i = get_uniform_spacing(
+            cdpx,
+            cdpy,
+            bin_spacing_hint=bin_spacing_hint,
+            extra=extra,
+            method=line_method,
+        )
+        ds = self._obj.seis.xysel(cdp_x_i, cdp_y_i, method=xysel_method)
+
+        for key in extra:
+            ds[key] = (("cdp"), extra_i[key])
+
+        return ds
+
+    def plot_bounds(self, ax=None):
+        """Plot survey bbounding box to a new or existing axis
+
+        Args:
+            ax: (optional) axis to plot to
+
+        Returns:
+            matplotlib axis used
+
+        """
+        xy = self._obj.attrs["corner_points_xy"]
+
+        if xy is None:
+            self._obj.seis.calc_corner_points()
+            xy = self._obj.attrs["corner_points_xy"]
+
+        if not ax:
+            fig, ax = plt.subplots(1, 1)
+
+        x = [x for x, _ in xy]
+        y = [y for _, y in xy]
+        ax.scatter(x, y)
+        ax.plot(x + [x[0]], y + [y[0]], "k:")
+
+        ax.set_xlabel("cdp x")
+        ax.set_ylabel("cdp y")
+
+        return ax
+
+    def subsample_dims(self, **dim_kwargs):
+        """Return a dictionary of subsampled dims suitable for xarra.interp.
+
+        This tool halves
+
+        Args:
+            dim_kwargs: dimension names as keyword arguments with values of how
+                many times we should divide the dimension by 2.
+        """
+        output = dict()
+        for dim in dim_kwargs:
+            ar = self._obj[dim].values
+            while dim_kwargs[dim] > 0:  # only for 3.8
+                ar = halfsample(ar)
+                dim_kwargs[dim] = dim_kwargs[dim] - 1
+            output[dim] = ar
+        return output

@@ -108,7 +108,7 @@ def _get_userid():
     finally:
         return "segysak_user"
 
-def get_uniform_spacing(cdpx, cdpy, bin_spacing_hint=10):
+def get_uniform_spacing(cdp_x, cdp_y, extra=None, bin_spacing_hint=10, method='linear'):
     """Interpolate the cdp_x, cdp_y arrays uniformly while staying close to the
     requested bin spacing
 
@@ -120,15 +120,39 @@ def get_uniform_spacing(cdpx, cdpy, bin_spacing_hint=10):
     Returns:
         ndarray, ndarray, number: interpolated cdp_x, cdp_y and the actual bin spacing
     """
-    # calculate normalised path length
-    norm_line = (cdpx - cdpx[0], cdpy - cdpy[0])
-    norm_path = [(x ** 2 + y ** 2) ** 0.5 for x, y in zip(*norm_line)]
+    xy = np.array([cdp_x, cdp_y])
 
-    num_pts = int(norm_path[-1] / bin_spacing_hint)
+    path_pos = np.insert(np.linalg.norm(np.diff(xy, axis=1), axis=0), 0, 0.0)
 
-    new_path, spacing = np.linspace(0, norm_path[-1], num_pts, retstep=True)
+    path_length = path_pos.sum()
+    segments = np.cumsum(path_pos)
 
-    cdp_x_i = interp1d(norm_path, cdpx)(new_path)
-    cdp_y_i = interp1d(norm_path, cdpy)(new_path)
+    num_pts = int(path_length / bin_spacing_hint)
+    uniform_sampled_path = np.linspace(0, segments[-1], num_pts)
 
-    return cdp_x_i, cdp_y_i, spacing
+    cdp_x_i = interp1d(segments, cdp_x, kind='linear')(uniform_sampled_path)
+    cdp_y_i = interp1d(segments, cdp_y, kind='linear')(uniform_sampled_path)
+
+    extras_i = {key:
+        interp1d(segments, ex, kind='linear')(uniform_sampled_path) for key, ex in extra.items()
+    }
+
+    return cdp_x_i, cdp_y_i, uniform_sampled_path, extras_i
+
+def halfsample(arr):
+    """Sample an array at exactly half spacing.
+
+    Uses the diff betweem consecutive samples to work out the
+    inbetween samples.
+
+    Args:
+        arr (array-like): The sequence to resample.
+
+    Returns:
+        ndarray: The halfsampled array with (N*2 - 1) samples.
+    """
+    arr = np.atleast_1d(arr).astype(float)
+    arr_halved = np.zeros(arr.size*2-1)
+    arr_halved[0::2] = arr
+    arr_halved[1::2] = (np.diff(arr)/2.0 + arr[:-1])
+    return arr_halved
