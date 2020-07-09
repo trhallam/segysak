@@ -193,6 +193,8 @@ def scrape(filename, ebcidc=False, trace_headers=False):
 @click.option(
     "--xline", "-xl", type=click.INT, default=193, help="Crossline byte location"
 )
+@click.option("--cdpx", "-x", type=click.INT, default=181, help="CDP X byte location")
+@click.option("--cdpy", "-y", type=click.INT, default=185, help="CDP Y byte location")
 @click.option(
     "--crop",
     type=click.INT,
@@ -207,10 +209,15 @@ def scrape(filename, ebcidc=False, trace_headers=False):
     help="Explicitly state the desired output file type by chosing one of the options",
 )
 @click.option(
-    "--dimension", "-d",
-    type=click.STRING, default=None, help="Data dimension (domain) to write out, will default to TWT or DEPTH. Only used for writing to SEGY."
+    "--dimension",
+    "-d",
+    type=click.STRING,
+    default=None,
+    help="Data dimension (domain) to write out, will default to TWT or DEPTH. Only used for writing to SEGY.",
 )
-def convert(output_file, input_file, iline, xline, crop, output_type, dimension):
+def convert(
+    output_file, input_file, iline, xline, cdpx, cdpy, crop, output_type, dimension
+):
     input_file = pathlib.Path(input_file)
     if output_type is None and output_file is not None:
         output_type = guess_file_type(output_file)
@@ -235,14 +242,22 @@ def convert(output_file, input_file, iline, xline, crop, output_type, dimension)
         if output_file is None:
             output_file = input_file.stem + ".SEISNC"
         segy_converter(
-            input_file, ncfile=output_file, iline=iline, xline=xline, ix_crop=crop
+            input_file,
+            ncfile=output_file,
+            iline=iline,
+            xline=xline,
+            ix_crop=crop,
+            cdpx=cdpx,
+            cdpy=cdpy,
         )
         click.echo(f"Converted file saved as {output_file}")
         LOGGER.info(f"NetCDF output written to {output_file}")
     elif output_type == "SEGY":
         if output_file is None:
             output_file = input_file.stem + ".segy"
-        ncdf2segy(input_file, output_file, iline=iline, xline=xline, dimension=dimension)
+        ncdf2segy(
+            input_file, output_file, iline=iline, xline=xline, dimension=dimension
+        )
         click.echo(f"Converted file saved as {output_file}")
         LOGGER.info(f"SEGY output written to {output_file}")
     else:
