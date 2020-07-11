@@ -14,6 +14,8 @@ try:
 except:
     from tqdm import tqdm
 
+from .._accessor import open_seisnc
+
 from ._segy_globals import _ISEGY_MEASUREMENT_SYSTEM
 
 
@@ -67,7 +69,7 @@ def ncdf2segy(
         silent (bool, optional): Turn off progress reporting. Defaults to False.
     """
 
-    with xr.open_dataset(ncfile, chunks={"iline": il_chunks}) as seisnc:
+    with open_seisnc(ncfile, chunks={"iline": il_chunks}) as seisnc:
         if dimension is None:
             if seisnc.seis.is_twt():
                 dimension = "twt"
@@ -103,6 +105,8 @@ def ncdf2segy(
         il_val = seisnc["iline"].values
 
         coord_scalar = seisnc.coord_scalar
+        if coord_scalar is None:
+            coord_scalar = 0
         coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar) * -1)
 
         il_bags = _bag_slices(seisnc["iline"].values, n=il_chunks)
@@ -128,9 +132,7 @@ def ncdf2segy(
                             xl_val, data.cdp_x.values[i, :], data.cdp_y.values[i, :]
                         )
                     ]
-                    segyf.trace[il * nj : (il + 1) * nj] = data.data[
-                        i, :, :
-                    ].values.astype("float32")
+                    segyf.trace[il * nj : (il + 1) * nj] = data.data[i, :, :].values.astype(np.float32)
             segyf.bin.update(
                 tsort=segyio.TraceSortingFormat.INLINE_SORTING,
                 hdt=int(seisnc.sample_rate * 1000),
