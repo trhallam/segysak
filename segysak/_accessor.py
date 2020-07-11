@@ -9,11 +9,12 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
+from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
 
 from ._keyfield import AttrKeyField, DimensionKeyField, CoordKeyField, VariableKeyField
 from ._richstr import _upgrade_txt_richstr
-from .tools import get_uniform_spacing, halfsample
+from .tools import get_uniform_spacing, halfsample, plane
 
 
 @xr.register_dataset_accessor("seisio")
@@ -76,6 +77,69 @@ def open_seisnc(seisnc, **kwargs):
     ds = ds.set_coords(promote_to_coord)
 
     return ds
+
+
+def coordinate_df(seisnc, coord=True, extras=None, linear_fillna=True):
+    """From an xarray seisnc quickly create iline and xline df. If coords is True
+    also return cdp_x and cdp_y.
+
+    Filling blank cdp_x and cdp_y spaces is particularly useful for using the
+    xarray.plot option with x=cdp_x and y=cdp_y for geographic plotting.
+
+    Args:
+        seisnc (xarray.Dataset): The seisnc file.
+        coord (bool, optional): Include cdp_x and cdp_y in putput.
+        extras (list, optional): Any extra keywords to include in the dataframe
+            from the seisnc variables.
+        linear_fillna (bool, optional): Defaults to True. This will use a planar
+            fitting function to fill blank cdp_x and cdp_y spaces.
+
+    Returns:
+        pandas.DataFrame
+
+    """
+    if coord:
+        req_atr = ["iline", "xline", "cdp_x", "cdp_y"]
+    else:
+        req_atr = ["iline", "xline"]
+
+    if extras is not None:
+        req_atr += extras
+
+    seisnc_coord = seisnc[req_atr].to_dataframe().reset_index()
+    seisnc_coord_nona = seisnc_coord.dropna()
+
+    if not linear_fillna:
+        return seisnc_coord_nona
+
+    # create fits to surface for target x from il/xl
+    fitx = curve_fit(
+        plane,
+        (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
+        seisnc_coord_nona.cdp_x,
+        p0=(0, 0, 0),
+    )
+    x_from_ix = lambda xy: plane(xy, *fitx[0])
+    # create fits to surface for target y from il/xl
+    fity = curve_fit(
+        plane,
+        (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
+        seisnc_coord_nona.cdp_y,
+        p0=(0, 0, 0),
+    )
+    y_from_ix = lambda xy: plane(xy, *fity[0])
+
+    filled_x = x_from_ix((seisnc_coord.iline, seisnc_coord.xline))
+    filled_y = y_from_ix((seisnc_coord.iline, seisnc_coord.xline))
+
+    seisnc_coord.loc[seisnc_coord.cdp_x.isna(), "cdp_x"] = filled_x[
+        seisnc_coord.cdp_x.isna()
+    ]
+    seisnc_coord.loc[seisnc_coord.cdp_y.isna(), "cdp_y"] = filled_y[
+        seisnc_coord.cdp_y.isna()
+    ]
+
+    return seisnc_coord
 
 
 @xr.register_dataset_accessor("seis")
@@ -578,3 +642,18 @@ class SeisGeom:
                 dim_kwargs[dim] = dim_kwargs[dim] - 1
             output[dim] = ar
         return output
+
+    def fill_cdpna(self):
+        """Fills NaN cdp locations by fitting known cdp x and y values to the
+        local grid using a planar surface relationshipt.
+        """
+        coord_df = coordinate_df(self._obj)
+        self._obj["cdp_x"] = (
+            ("iline", "xline"),
+            coord_df.cdp_x.values.reshape(self._obj.cdp_x.shape),
+        )
+        self._obj["cdp_y"] = (
+            ("iline", "xline"),
+            coord_df.cdp_y.values.reshape(self._obj.cdp_y.shape),
+        )
+
