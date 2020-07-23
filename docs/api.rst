@@ -62,8 +62,15 @@ Opening and Saving seisnc Files
 
    open_seisnc
 
+Functions which operate on seisnc objects
+-----------------------------------------
 
-Creating emptry seisnc volumes
+.. autosummary::
+   :toctree: generated/
+
+   coordinate_df
+
+Creating empty seisnc volumes
 ------------------------------
 
 .. autosummary::
@@ -109,6 +116,7 @@ segysak xarray accessor modules
   SeisGeom.is_empty
   SeisGeom.zeros_like
   SeisGeom.get_measurement_system
+  SeisGeom.fill_cdpna
 
 ``seisnc`` data tools
 

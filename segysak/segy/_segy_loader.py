@@ -99,7 +99,7 @@ def _segy3d_ncdf(
         segyf.mmap()
 
         # create data variable
-        seisnc_data = seisnc.create_variable(VariableKeyField.data, dims, float)
+        seisnc_data = seisnc.create_variable(VariableKeyField.data, dims, np.float32)
 
         seisnc.flush()
 
@@ -169,7 +169,7 @@ def _segy3dps_ncdf(
         segyf.mmap()
 
         # create data variable
-        seisnc_data = seisnc.create_variable(VariableKeyField.data, dims, float)
+        seisnc_data = seisnc.create_variable(VariableKeyField.data, dims, np.float32)
 
         seisnc.flush()
 
@@ -252,7 +252,7 @@ def _segy3d_xr(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
         shape = [ds.dims[d] for d in dims]
-        volume = np.zeros(shape)
+        volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
         for contig, grp in head_df.groupby(contig_dir):
@@ -314,7 +314,7 @@ def _segy3dps_xr(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
         shape = [ds.dims[d] for d in dims]
-        volume = np.zeros(shape)
+        volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
         for contig, grp in head_df.groupby(contig_dir):
@@ -505,7 +505,7 @@ def _segy2d_xr(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
         shape = [ds.dims[d] for d in dims]
-        volume = np.zeros(shape)
+        volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
         # this can probably be done as a block - leaving for now just incase sorting becomes an issue
@@ -555,7 +555,7 @@ def _segy2d_ps_xr(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
         shape = [ds.dims[d] for d in dims]
-        volume = np.zeros(shape)
+        volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
         # this can probably be done as a block - leaving for now just incase sorting becomes an issue
@@ -795,8 +795,8 @@ def _loader_converter_header_handling(
         # Scale Coordinates
         coord_scalar = head_df.SourceGroupScalar.median()
         coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar))
-        head_df[head_loc.cdpx] = head_df[head_loc.cdpx].astype(float)
-        head_df[head_loc.cdpy] = head_df[head_loc.cdpy].astype(float)
+        head_df[head_loc.cdpx] = head_df[head_loc.cdpx].astype(np.float32)
+        head_df[head_loc.cdpy] = head_df[head_loc.cdpy].astype(np.float32)
         head_df[head_loc.cdpx] = head_df[head_loc.cdpx] * coord_scalar_mult * 1.0
         head_df[head_loc.cdpy] = head_df[head_loc.cdpy] * coord_scalar_mult * 1.0
 
