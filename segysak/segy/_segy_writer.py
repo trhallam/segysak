@@ -3,6 +3,8 @@ from numpy.lib.arraysetops import isin
 import xarray as xr
 import segyio
 import numpy as np
+import pandas as pd
+import warnings
 
 try:
     """Solution taken from https://stackoverflow.com/a/47428575 """
