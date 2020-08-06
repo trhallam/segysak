@@ -18,7 +18,8 @@ except:
     from tqdm import tqdm
 
 from .._accessor import open_seisnc
-
+from .._keyfield import CoordKeyField
+from ._segy_text import create_default_texthead, put_segy_texthead, _clean_texthead
 from ._segy_globals import _ISEGY_MEASUREMENT_SYSTEM
 
 
@@ -58,7 +59,7 @@ def ncdf2segy(
     dimension=None,
     silent=False,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ncfile (string): The input SEISNC file
@@ -227,6 +228,7 @@ def _ncdf2segy_3d(
     cdp_y=None,
     il_chunks=10,
     dimension=None,
+    text=None,
     silent=False,
     **thm_args,
 ):
@@ -241,19 +243,24 @@ def _ncdf2segy_3d(
         il_chunks (int, optional): The size of data to work on - if you have memory
             limitations. Defaults to 10.
         dimension (str): Data dimension to output, defaults to 'twt' or 'depth' whichever is present
+        text (dict, optional): A dictionary of strings to write out to the text header.
         silent (bool, optional): Turn off progress reporting. Defaults to False.
         thm_args (int): Byte locations to write trace header variables defined by key word arguments.
             keys for thm_args must be variables or coordinates or dimensions in seisnc.
     """
 
-    thm_args["iline"] = iline
-    thm_args["xline"] = xline
-    thm_args["cdp_x"] = cdp_x
-    thm_args["cdp_y"] = cdp_y
+    thm_args[CoordKeyField.iline] = iline
+    thm_args[CoordKeyField.xline] = xline
+    thm_args[CoordKeyField.cdp_x] = cdp_x
+    thm_args[CoordKeyField.cdp_y] = cdp_y
 
     z0 = int(ds[dimension].values[0])
-    ni, nj, nk = ds.dims["iline"], ds.dims["xline"], ds.dims[dimension]
-    order = ("iline", "xline")
+    ni, nj, nk = (
+        ds.dims[CoordKeyField.iline],
+        ds.dims[CoordKeyField.xline],
+        ds.dims[dimension],
+    )
+    order = (CoordKeyField.iline, CoordKeyField.xline)
     msys = _ISEGY_MEASUREMENT_SYSTEM[ds.seis.get_measurement_system()]
     spec = segyio.spec()
 
@@ -307,7 +314,7 @@ def _ncdf2segy_3d(
     # to records
     trace_headers = trace_headers.to_dict(orient="records")
 
-    il_bags = _bag_slices(ds["iline"].values, n=il_chunks)
+    il_bags = _bag_slices(ds[CoordKeyField.iline].values, n=il_chunks)
     with segyio.create(segyfile, spec) as segyf:
         for ilb in tqdm(il_bags, desc="Writing to SEGY", disable=silent):
             ilbl = range(ilb.start, ilb.stop, ilb.step)
@@ -331,6 +338,23 @@ def _ncdf2segy_3d(
             nart=ni * nj,
             fold=1,
         )
+
+    if not text:
+        # create text header
+        overrides = {
+            #     123456789012345678901234567890123456789012345678901234567890123456
+            7: f"Original File: {ds.source_file}",
+            35: "*** BYTE LOCATION OF KEY HEADERS ***",
+            36: f"CMP UTM-X: {cdp_x}, ALL COORDS SCALED BY: {ds.coord_scalar_mult},"
+            f" CMP UTM-Y: {cdp_y}",
+            37: f"INLINE: {iline}, XLINE: {xline}, ",
+            40: "END TEXTUAL HEADER",
+        }
+        put_segy_texthead(
+            segyfile, create_default_texthead(overrides),
+        )
+    else:
+        put_segy_texthead(segyfile, text, line_counter=False)
 
 
 def output_byte_loc(name):
@@ -360,7 +384,7 @@ def output_byte_loc(name):
 
 
 def _segy_writer_input_handler(
-    ds, segyfile, trace_header_map, dimension, silent, il_chunks
+    ds, segyfile, trace_header_map, dimension, silent, il_chunks, text
 ):
     """Handler for open seisnc dataset
     """
@@ -385,6 +409,11 @@ def _segy_writer_input_handler(
             except KeyError:
                 raise ValueError("keys of trace_header_map must be in seisnc")
 
+    # transfrom text if requested
+    if text:
+        text = {i + 1: line for i, line in enumerate(ds.text.split("\n"))}
+        text = _clean_texthead(text, 80)
+
     if ds.seis.is_2d():
         raise NotImplementedError()
     elif ds.seis.is_2dgath():
@@ -393,7 +422,13 @@ def _segy_writer_input_handler(
         thm = output_byte_loc("standard_3d")
         thm.update(trace_header_map)
         _ncdf2segy_3d(
-            ds, segyfile, dimension=dimension, silent=silent, il_chunks=il_chunks, **thm
+            ds,
+            segyfile,
+            dimension=dimension,
+            silent=silent,
+            il_chunks=il_chunks,
+            text=text,
+            **thm,
         )
     elif ds.seis.is_3dgath():
         thm = output_byte_loc("standard_3dgath")
@@ -405,9 +440,15 @@ def _segy_writer_input_handler(
 
 
 def segy_writer(
-    seisnc, segyfile, trace_header_map=None, il_chunks=10, dimension=None, silent=False,
+    seisnc,
+    segyfile,
+    trace_header_map=None,
+    il_chunks=10,
+    dimension=None,
+    silent=False,
+    use_text=False,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         seisnc (xarray.Dataset, string): The input SEISNC file either a path or the in memory xarray.Dataset
@@ -417,18 +458,27 @@ def segy_writer(
             assigned byte location. By default CMP=23, cdp_x=181, cdp_y=185, iline=189,
             xline=193.
         il_chunks (int, optional): The size of data to work on - if you have memory
-            limitations. Defaults to 10.
+            limitations. Defaults to 10. This is primarily used for large 3D and ignored for 2D data.
         dimension (str): Data dimension to output, defaults to 'twt' or 'depth' whichever is present
         silent (bool, optional): Turn off progress reporting. Defaults to False.
+        use_text (book, optional): Use the seisnc text for the EBCIDC output. This text usally comes from
+            the loaded SEG-Y file and may not match the segysak SEG-Y output. Defaults to False and writes
+            the default segysak EBCIDC
     """
     if isinstance(seisnc, xr.Dataset):
         _segy_writer_input_handler(
-            seisnc, segyfile, trace_header_map, dimension, silent, il_chunks
+            seisnc, segyfile, trace_header_map, dimension, silent, il_chunks, use_text
         )
     else:
-        ncfile = seisnc.copy()
+        ncfile = seisnc
         with open_seisnc(ncfile, chunks={"iline": il_chunks}) as seisnc:
             _segy_writer_input_handler(
-                seisnc, segyfile, trace_header_map, dimension, silent, il_chunks
+                seisnc,
+                segyfile,
+                trace_header_map,
+                dimension,
+                silent,
+                il_chunks,
+                use_text,
             )
 

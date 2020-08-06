@@ -48,6 +48,10 @@ Modifying and Creating Text Headers
 Writing SEG-Y files
 -------------------
 
+.. autosummary::
+   :toctree: generated/
+
+   segy_writer
 
 .. currentmodule:: segysak
 
