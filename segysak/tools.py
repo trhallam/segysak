@@ -115,8 +115,7 @@ def _get_userid():
         return os.getlogin()
     except OSError:  # couldn't get it this way
         pass
-    finally:
-        return "segysak_user"
+    return "segysak_user"
 
 
 def get_uniform_spacing(cdp_x, cdp_y, extra=None, bin_spacing_hint=10, method="linear"):

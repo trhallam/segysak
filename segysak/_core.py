@@ -26,7 +26,12 @@ class FrozenDict(AttrDict):
         return dict.__getattribute__(self, attribute)
 
     def __hash__(self):
-        return hash(tuple(sorted(self.iteritems())))
+        return hash(tuple(sorted(self.items())))
+
+    def __repr__(self):
+        return "FrozenDict({contents})".format(
+            contents=super(AttrDict, self).__repr__()
+        )
 
     def fromkeys(self, S, v):
         return type(self)(dict(self).fromkeys(S, v))

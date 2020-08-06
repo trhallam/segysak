@@ -1,3 +1,6 @@
+"""Fucntions to help with pretty printing in IPython
+"""
+
 
 def _prettify(self, p, cycle):
     if cycle:
@@ -21,6 +24,7 @@ def _htmlify(self):
 
 
 def _upgrade_txt_richstr(text):
-    return type("richstr", (str,), dict(_repr_pretty_=_prettify, _repr_html_=_htmlify))(
-        text
-    )
+    return type(
+        "rich_texthead", (str,), dict(_repr_pretty_=_prettify, _repr_html_=_htmlify)
+    )(text)
+

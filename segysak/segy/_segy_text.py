@@ -21,13 +21,15 @@ def _isascii(txt):
         return True
 
 
-def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
+def get_segy_texthead(segyfile, ext_headers=False, no_richstr=False, **segyio_kwargs):
     """Return the ebcidc
 
     Args:
         segyfile (str): Segy File Path
         ext_headers (bool): Return EBCIDC and extended headers in list.
             Defaults to False
+        no_richstr (bool, optional): Defaults to False. If true the returned string
+            will not be updated for pretty HTML printing.
         segyio_kwargs: Key word arguments to pass to segyio.open
     Returns:
         str: Returns the EBCIDC text as a formatted paragraph.
@@ -59,7 +61,10 @@ def get_segy_texthead(segyfile, ext_headers=False, **segyio_kwargs):
             print(err)
             print("The segy text header could not be decoded.")
 
-    return _upgrade_txt_richstr(text)
+    if no_richstr:
+        return text
+    else:
+        return _upgrade_txt_richstr(text)
 
 
 def put_segy_texthead(
