@@ -34,11 +34,6 @@ BAD_HEADER = (
     {"not_a_num": "b" * 65},
 )
 
-# @pytest.fixture(scope="session")
-# def temp_dir(tmpdir_factory):
-#     tdir = tmpdir_factory.mktemp(TEMP_TEST_DATA_DIR)
-#     return pathlib.Path(str(tdir))
-
 
 def test_segy_fixtures(temp_dir, temp_segy):
     assert temp_segy.exists()
@@ -166,6 +161,13 @@ def test_segyiotests_2ncdf(temp_dir, segyio3d_test_files):
 def test_segyiotests_2ds(segyio3d_test_files):
     file, segyio_kwargs = segyio3d_test_files
     ds = segy_loader(str(file), silent=True, **segyio_kwargs)
+    assert isinstance(ds, xr.Dataset)
+
+
+def test_segyiotests_2ds_wheaderscrap(segyio3d_test_files):
+    file, segyio_kwargs = segyio3d_test_files
+    header = segy_header_scrape(str(file), silent=True)
+    ds = segy_loader(str(file), silent=True, **segyio_kwargs, head_df=header)
     assert isinstance(ds, xr.Dataset)
 
 

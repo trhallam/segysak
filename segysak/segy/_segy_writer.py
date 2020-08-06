@@ -1,4 +1,5 @@
 from IPython import get_ipython
+from numpy.lib.arraysetops import isin
 import xarray as xr
 import segyio
 import numpy as np
@@ -132,7 +133,9 @@ def ncdf2segy(
                             xl_val, data.cdp_x.values[i, :], data.cdp_y.values[i, :]
                         )
                     ]
-                    segyf.trace[il * nj : (il + 1) * nj] = data.data[i, :, :].values.astype(np.float32)
+                    segyf.trace[il * nj : (il + 1) * nj] = data.data[
+                        i, :, :
+                    ].values.astype(np.float32)
             segyf.bin.update(
                 tsort=segyio.TraceSortingFormat.INLINE_SORTING,
                 hdt=int(seisnc.sample_rate * 1000),
@@ -145,3 +148,285 @@ def ncdf2segy(
                 nart=ni * nj,
                 fold=1,
             )
+
+
+def output_byte_loc(name):
+    """Return common bytes position variable_dict for segy_writer.
+
+    Args:
+        name (str): One of [standard_3d, petrel_3d]
+
+    Returns:
+        dict: A dictionary of SEG-Y byte positions and default seisnc variable
+            pairs.
+
+    Example:
+        >>> segywriter(ncfile, 'segyfile.sgy', trace_header_map=output_byte_loc('petrel'))
+        >>>
+    """
+    if name == "standard_3d":
+        # todo maybe this should be a rev1.2 or something?
+        return dict(iline=181, xline=185, cdp_x=189, cdp_y=193)
+    elif name == "petrel_3d":
+        return dict(iline=5, xline=21, cdp_x=73, cdp_y=77)
+    else:
+        raise ValueError(f"No byte locatons for {name}")
+
+
+def _bag_slices(ind, n=10):
+    """Take a list of indices and create a list of bagged indices. Each bag
+    will contain n indices except for the last bag which will contain the
+    remainder.
+
+    This function is designed to support bagging/chunking of data to support
+    memory management or distributed processing.
+
+    Args:
+        ind (list/array-like): The input list to create bags from.
+        n (int, optional): The number of indices per bag. Defaults to 10.
+
+    Returns:
+        [type]: [description]
+    """
+    bag = list()
+    prev = 0
+    for i in range(len(ind)):
+        if (i + 1) % n == 0:
+            bag.append(slice(prev, i + 1, 1))
+            prev = i + 1
+    if prev != i + 1:
+        bag.append(slice(prev, i + 1, 1))
+    return bag
+
+
+def _check_dimension(seisnc, dimension):
+    if dimension is None:
+        if seisnc.seis.is_twt():
+            dimension = "twt"
+        elif seisnc.seis.is_depth():
+            dimension = "depth"
+        else:
+            raise RuntimeError(
+                f"twt and depth dimensions missing, please specify a dimension to convert: {seisnc.dims}"
+            )
+    elif dimension not in seisnc.dims:
+        raise RuntimeError(
+            f"Requested output dimension not found in the dataset: {seisnc.dims}"
+        )
+    return dimension
+
+
+def _ncdf2segy_3d(
+    ds,
+    segyfile,
+    iline=None,
+    xline=None,
+    cdp_x=None,
+    cdp_y=None,
+    il_chunks=10,
+    dimension=None,
+    silent=False,
+    **thm_args,
+):
+    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+
+    Args:
+        ds (xarray.Dataset): The input SEISNC dataset
+        segyfile (string): The output SEGY file
+        CMP (bool, optional): The data is 2D. Defaults to False.
+        iline (int, optional): Inline byte location. Defaults to 189.
+        xline (int, optional): Crossline byte location. Defaults to 193.
+        il_chunks (int, optional): The size of data to work on - if you have memory
+            limitations. Defaults to 10.
+        dimension (str): Data dimension to output, defaults to 'twt' or 'depth' whichever is present
+        silent (bool, optional): Turn off progress reporting. Defaults to False.
+        thm_args (int): Byte locations to write trace header variables defined by key word arguments.
+            keys for thm_args must be variables or coordinates or dimensions in seisnc.
+    """
+
+    thm_args["iline"] = iline
+    thm_args["xline"] = xline
+    thm_args["cdp_x"] = cdp_x
+    thm_args["cdp_y"] = cdp_y
+
+    z0 = int(ds[dimension].values[0])
+    ni, nj, nk = ds.dims["iline"], ds.dims["xline"], ds.dims[dimension]
+    order = ("iline", "xline")
+    msys = _ISEGY_MEASUREMENT_SYSTEM[ds.seis.get_measurement_system()]
+    spec = segyio.spec()
+
+    # to create a file from nothing, we need to tell segyio about the structure of
+    # the file, i.e. its inline numbers, crossline numbers, etc. You can also add
+    # more structural information, but offsets etc. have sensible defautls. This is
+    # the absolute minimal specification for a N-by-M volume
+    spec.sorting = 1
+    spec.format = 1
+    spec.iline = iline
+    spec.xline = xline
+    spec.samples = range(nk)
+    spec.ilines = range(ni)
+    spec.xlines = range(nj)
+
+    # build trace headers for iteration and output
+    trace_layout = ds.data.isel(**{dimension: 0})
+    trace_headers = pd.DataFrame()
+    for var in thm_args:
+        try:
+            trace_headers[thm_args[var]] = (
+                ds[var]
+                .broadcast_like(trace_layout)
+                .transpose(*order, transpose_coords=True)
+                .values.ravel()
+            )
+        except KeyError:  # The requested variable isn't in the list, write zeros
+            warnings.warn(
+                f"The variable {var} was not found in the input data, writing zeros to header instead"
+            )
+            trace_headers[thm_args[var]] = (
+                ds.iline.broadcast_like(trace_layout)
+                .transpose(*order, transpose_coords=True)
+                .values.ravel()
+                * 0.0
+            )
+    # scale coords
+    trace_headers[cdp_x] = trace_headers[cdp_x] * ds.coord_scalar_mult
+    trace_headers[cdp_y] = trace_headers[cdp_y] * ds.coord_scalar_mult
+    trace_headers[cdp_x] = trace_headers[cdp_x].astype(int)
+    trace_headers[cdp_y] = trace_headers[cdp_y].astype(int)
+
+    # header constants
+    for byte, val in zip(
+        [segyio.su.offset, segyio.su.ns, segyio.su.delrt, segyio.su.scalco],
+        [1, nk, z0, int(ds.coord_scalar)],
+    ):
+        if byte not in trace_headers.columns:  # don't override user values
+            trace_headers[byte] = val
+
+    # to records
+    trace_headers = trace_headers.to_dict(orient="records")
+
+    il_bags = _bag_slices(ds["iline"].values, n=il_chunks)
+    with segyio.create(segyfile, spec) as segyf:
+        for ilb in tqdm(il_bags, desc="Writing to SEGY", disable=silent):
+            ilbl = range(ilb.start, ilb.stop, ilb.step)
+            data = ds.isel(iline=ilbl)
+            for i, il in enumerate(ilbl):
+                il0, iln = il * nj, (il + 1) * nj
+                segyf.header[il0:iln] = trace_headers[il0:iln]
+                segyf.trace[il * nj : (il + 1) * nj] = data.data[i, :, :].values.astype(
+                    np.float32
+                )
+
+        segyf.bin.update(
+            tsort=segyio.TraceSortingFormat.INLINE_SORTING,
+            hdt=int(ds.sample_rate * 1000),
+            hns=nk,
+            mfeet=msys,
+            jobid=1,
+            lino=1,
+            reno=1,
+            ntrpr=ni * nj,
+            nart=ni * nj,
+            fold=1,
+        )
+
+
+def output_byte_loc(name):
+    """Return common bytes position variable_dict for segy_writer.
+
+    Args:
+        name (str): One of [standard_3d, petrel_3d]
+
+    Returns:
+        dict: A dictionary of SEG-Y byte positions and default seisnc variable
+            pairs.
+
+    Example:
+        >>> segywriter(ncfile, 'segyfile.sgy', trace_header_map=output_byte_loc('petrel'))
+        >>>
+    """
+    if name == "standard_3d":
+        # todo maybe this should be a rev1.2 or something?
+        return dict(iline=189, xline=193, cdp_x=181, cdp_y=185)
+    elif name == "standard_3dgath":
+        # todo maybe this should be a rev1.2 or something?
+        return dict(iline=189, xline=193, cdp_x=181, cdp_y=185, offset=37)
+    elif name == "petrel_3d":
+        return dict(iline=5, xline=21, cdp_x=73, cdp_y=77)
+    else:
+        raise ValueError(f"No byte locatons for {name}")
+
+
+def _segy_writer_input_handler(
+    ds, segyfile, trace_header_map, dimension, silent, il_chunks
+):
+    """Handler for open seisnc dataset
+    """
+
+    dimension = _check_dimension(ds, dimension)
+
+    # ensure there is a coord_scalar
+    coord_scalar = ds.coord_scalar
+    if coord_scalar is None:
+        coord_scalar = 0
+        ds.attrs["coord_scalar"] = coord_scalar
+    coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar) * -1)
+    ds.attrs["coord_scalar_mult"] = coord_scalar_mult
+
+    # create empty trace header map if necessary
+    if trace_header_map is None:
+        trace_header_map = dict()
+    else:  # check that values of thm in ds
+        for key in trace_header_map:
+            try:
+                _ = ds[key]
+            except KeyError:
+                raise ValueError("keys of trace_header_map must be in seisnc")
+
+    if ds.seis.is_2d():
+        raise NotImplementedError()
+    elif ds.seis.is_2dgath():
+        raise NotImplementedError()
+    elif ds.seis.is_3d():
+        thm = output_byte_loc("standard_3d")
+        thm.update(trace_header_map)
+        _ncdf2segy_3d(
+            ds, segyfile, dimension=dimension, silent=silent, il_chunks=il_chunks, **thm
+        )
+    elif ds.seis.is_3dgath():
+        thm = output_byte_loc("standard_3dgath")
+        thm.update(trace_header_map)
+        raise NotImplementedError()
+    else:
+        # cannot determine type of data writing a continuous traces
+        raise NotImplementedError()
+
+
+def segy_writer(
+    seisnc, segyfile, trace_header_map=None, il_chunks=10, dimension=None, silent=False,
+):
+    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+
+    Args:
+        seisnc (xarray.Dataset, string): The input SEISNC file either a path or the in memory xarray.Dataset
+        segyfile (string): The output SEGY file
+        trace_header_map (dict, optional): Defaults to None. A dictionary of seisnc variables
+            and byte locations. The variable will be written to the trace headers in the
+            assigned byte location. By default CMP=23, cdp_x=181, cdp_y=185, iline=189,
+            xline=193.
+        il_chunks (int, optional): The size of data to work on - if you have memory
+            limitations. Defaults to 10.
+        dimension (str): Data dimension to output, defaults to 'twt' or 'depth' whichever is present
+        silent (bool, optional): Turn off progress reporting. Defaults to False.
+    """
+    if isinstance(seisnc, xr.Dataset):
+        _segy_writer_input_handler(
+            seisnc, segyfile, trace_header_map, dimension, silent, il_chunks
+        )
+    else:
+        ncfile = seisnc.copy()
+        with open_seisnc(ncfile, chunks={"iline": il_chunks}) as seisnc:
+            _segy_writer_input_handler(
+                seisnc, segyfile, trace_header_map, dimension, silent, il_chunks
+            )
+

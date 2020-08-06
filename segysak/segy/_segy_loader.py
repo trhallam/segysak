@@ -762,16 +762,18 @@ def _loader_converter_header_handling(
     return_geometry=False,
     silent=False,
     extra_byte_fields=None,
+    head_df=None,
     **segyio_kwargs,
 ):
 
+    if head_df is None:
+        # Start by scraping the headers.
+        head_df = segy_header_scrape(segyfile, silent=silent, **segyio_kwargs)
+
+    head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
     head_loc = AttrDict(
         dict(cdp=cdp, offset=offset, iline=iline, xline=xline, cdpx=cdpx, cdpy=cdpy)
     )
-
-    # Start by scraping the headers.
-    head_df = segy_header_scrape(segyfile, silent=silent, **segyio_kwargs)
-    head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
 
     if all(map(lambda x: x is None, (cdp, iline, xline, offset))):
         # lets try and guess the data types if no hints given
@@ -897,6 +899,7 @@ def segy_loader(
     return_geometry=False,
     silent=False,
     extra_byte_fields=None,
+    head_df=None,
     **segyio_kwargs,
 ):
     """Load SEGY file into xarray.Dataset
@@ -937,8 +940,10 @@ def segy_loader(
             Has the form '[min, max]'.
         return_geometry (bool, optional): If true returns an xarray.dataset which doesn't contain data but mirrors
             the input volume header information.
-        extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.
         silent (bool): Disable progress bar.
+        extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.
+        head_df (pandas.DataFrame): The DataFrame output from `segy_header_scrape`. This DataFrame can be filtered by the user
+            to load select trace sets. Trace loading is based upon the DataFrame index.
         **segyio_kwargs: Extra keyword arguments for segyio.open
 
     Returns:
@@ -965,6 +970,7 @@ def segy_loader(
         return_geometry=return_geometry,
         silent=silent,
         extra_byte_fields=extra_byte_fields,
+        head_df=head_df,
         **segyio_kwargs,
     )
 
