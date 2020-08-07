@@ -60,6 +60,10 @@ TEST_FILES_SEGYIO_BLANKHEAD = [
     ("shot-gather.sgy", {}),
 ]
 
+TEST_FILES_SEGYIO_ALL = (
+    TEST_FILES_SEGYIO_BLANKHEAD + TEST_FILES_SEGYIO_3D + TEST_FILES_SEGYIO_3DG
+)
+
 
 @pytest.fixture(scope="session")
 def temp_dir(tmpdir_factory):
@@ -160,6 +164,19 @@ def temp_segy(temp_dir, request):
     n, file, skew = request.param
     create_temp_segy(n, str(temp_dir / file), skew)
     return temp_dir / file
+
+
+@pytest.fixture(
+    scope="session",
+    params=[
+        (TEST_DATA_SEGYIO / file, segyio_kwargs)
+        for file, segyio_kwargs in TEST_FILES_SEGYIO_ALL
+    ],
+    ids=[file for file, _ in TEST_FILES_SEGYIO_ALL],
+)
+def segyio_all_test_files(request):
+    file, segyio_kwargs = request.param
+    return (file, segyio_kwargs)
 
 
 @pytest.fixture(

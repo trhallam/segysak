@@ -1,10 +1,12 @@
 import pytest
 import pathlib
 
+from hypothesis import given, settings
+from hypothesis.strategies import integers
+
 import numpy as np
 import pandas as pd
 import xarray as xr
-
 
 from segysak.segy import (
     segy_loader,
@@ -16,6 +18,9 @@ from segysak.segy import (
     segy_header_scan,
     segy_header_scrape,
     segy_bin_scrape,
+    segy_writer,
+    well_known_byte_locs,
+    output_byte_locs,
 )
 
 from segysak import open_seisnc
@@ -33,11 +38,6 @@ BAD_HEADER = (
     bytes("b" * 4000, "utf8"),
     {"not_a_num": "b" * 65},
 )
-
-# @pytest.fixture(scope="session")
-# def temp_dir(tmpdir_factory):
-#     tdir = tmpdir_factory.mktemp(TEMP_TEST_DATA_DIR)
-#     return pathlib.Path(str(tdir))
 
 
 def test_segy_fixtures(temp_dir, temp_segy):
@@ -63,6 +63,11 @@ def test_get_segy_texthead(temp_dir, temp_segy):
     assert isinstance(ebcidc, str)
     assert len(ebcidc) < 3200
     assert ebcidc[:3] == "C01"
+
+
+def test_well_known_byte_locs_fail():
+    with pytest.raises(ValueError):
+        well_known_byte_locs("gibberish")
 
 
 @pytest.mark.parametrize("header", GOOD_HEADER, ids=["str", "dict", "bytes"])
@@ -169,6 +174,18 @@ def test_segyiotests_2ds(segyio3d_test_files):
     assert isinstance(ds, xr.Dataset)
 
 
+def test_segyiotests_2ds_wheaderscrap(segyio3d_test_files):
+    file, segyio_kwargs = segyio3d_test_files
+    scrape_args = dict()
+    try:
+        scrape_args["endian"] = segyio_kwargs["endian"]
+    except KeyError:
+        pass
+    header = segy_header_scrape(str(file), silent=True, **scrape_args)
+    ds = segy_loader(str(file), silent=True, **segyio_kwargs, head_df=header)
+    assert isinstance(ds, xr.Dataset)
+
+
 def test_segyiotests_ps_2ncdf(temp_dir, segyio3dps_test_files):
     file, segyio_kwargs = segyio3dps_test_files
     seisnc = temp_dir / file.with_suffix(".siesnc").name
@@ -188,6 +205,60 @@ def test_segyiotests_nohead_2ncdf(temp_dir, segyio_nohead_test_files):
     seisnc = temp_dir / file.with_suffix(".siesnc").name
     segy_converter(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
     ds = open_seisnc(seisnc)
+    assert isinstance(ds, xr.Dataset)
+
+
+### segy_writer tests
+
+
+def test_output_byte_locs_fail():
+    with pytest.raises(ValueError):
+        output_byte_locs("gibberish")
+
+
+@given(il_chunks=integers(1, 10),)
+@settings(max_examples=1, deadline=None)
+def test_segyiotests_writer_from_ds(temp_dir, segyio3d_test_files, il_chunks):
+    file, segyio_kwargs = segyio3d_test_files
+    ds = segy_loader(str(file), silent=True, **segyio_kwargs)
+    outfile = temp_dir / file.name
+    segy_writer(ds, outfile, il_chunks=il_chunks)
+    del ds
+    ds = segy_loader(str(outfile), silent=True, **well_known_byte_locs("standard_3d"))
+    assert isinstance(ds, xr.Dataset)
+
+
+def test_segyiotests_writer_from_seisnc(temp_dir, segyio3d_test_files):
+    file, segyio_kwargs = segyio3d_test_files
+    seisnc = temp_dir / file.with_suffix(".siesnc").name
+    segy_converter(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    outfile = temp_dir / file.name
+    segy_writer(seisnc, outfile)
+    ds = segy_loader(str(outfile), silent=True, **well_known_byte_locs("standard_3d"))
+    assert isinstance(ds, xr.Dataset)
+
+
+def test_segyiotests_ps_writer_from_ds(temp_dir, segyio3dps_test_files):
+    file, segyio_kwargs = segyio3dps_test_files
+    ds = segy_loader(str(file), silent=True, **segyio_kwargs)
+    outfile = temp_dir / file.name
+    segy_writer(ds, outfile, use_text=True)
+    del ds
+    ds = segy_loader(
+        str(outfile), silent=True, **well_known_byte_locs("standard_3d_gath")
+    )
+    assert isinstance(ds, xr.Dataset)
+
+
+def test_segyiotests_ps_writer_from_ds(temp_dir, segyio3dps_test_files):
+    file, segyio_kwargs = segyio3dps_test_files
+    seisnc = temp_dir / file.with_suffix(".siesnc").name
+    segy_converter(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    outfile = temp_dir / file.name
+    segy_writer(seisnc, outfile, use_text=True)
+    ds = segy_loader(
+        str(outfile), silent=True, **well_known_byte_locs("standard_3d_gath")
+    )
     assert isinstance(ds, xr.Dataset)
 
 

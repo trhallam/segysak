@@ -28,6 +28,15 @@ except ModuleNotFoundError:
 TQDM_ARGS = dict(unit_scale=True, unit=" traces")
 PERCENTILES = [0, 0.1, 10, 50, 90, 99.9, 100]
 
+KNOWN_BYTES = dict(
+    standard_3d=dict(iline=181, xline=185, cdpx=189, cdpy=193),
+    standard_3d_gath=dict(iline=181, xline=185, cdpx=189, cdpy=193, offset=37),
+    standard_2d=dict(cdp=21, cdpx=189, cdpy=193),
+    standard_2d_gath=dict(cdp=21, cdpx=189, cdpy=193, offset=37),
+    petrel_3d=dict(iline=5, xline=21, cdpx=73, cdpy=77),
+    petrel_2d=dict(cdp=21, cdpx=73, cdpy=77),
+)
+
 from segysak._keyfield import (
     CoordKeyField,
     AttrKeyField,
@@ -43,6 +52,9 @@ from segysak._seismic_dataset import (
 # from segysak.seisnc import create_empty_seisnc, set_seisnc_dims
 from segysak.tools import check_crop, check_zcrop
 from segysak._accessor import open_seisnc
+from segysak._core import FrozenDict
+
+KNOWN_BYTES = FrozenDict(KNOWN_BYTES)
 
 from ._segy_headers import segy_bin_scrape, segy_header_scrape, what_geometry_am_i
 from ._segy_text import get_segy_texthead
@@ -99,7 +111,7 @@ def _segy3d_ncdf(
         segyf.mmap()
 
         # create data variable
-        seisnc_data = seisnc.create_variable(VariableKeyField.data, dims, float)
+        seisnc_data = seisnc.create_variable(VariableKeyField.data, dims, np.float32)
 
         seisnc.flush()
 
@@ -169,7 +181,7 @@ def _segy3dps_ncdf(
         segyf.mmap()
 
         # create data variable
-        seisnc_data = seisnc.create_variable(VariableKeyField.data, dims, float)
+        seisnc_data = seisnc.create_variable(VariableKeyField.data, dims, np.float32)
 
         seisnc.flush()
 
@@ -252,7 +264,7 @@ def _segy3d_xr(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
         shape = [ds.dims[d] for d in dims]
-        volume = np.zeros(shape)
+        volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
         for contig, grp in head_df.groupby(contig_dir):
@@ -314,7 +326,7 @@ def _segy3dps_xr(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
         shape = [ds.dims[d] for d in dims]
-        volume = np.zeros(shape)
+        volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
         for contig, grp in head_df.groupby(contig_dir):
@@ -505,7 +517,7 @@ def _segy2d_xr(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
         shape = [ds.dims[d] for d in dims]
-        volume = np.zeros(shape)
+        volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
         # this can probably be done as a block - leaving for now just incase sorting becomes an issue
@@ -555,7 +567,7 @@ def _segy2d_ps_xr(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
         shape = [ds.dims[d] for d in dims]
-        volume = np.zeros(shape)
+        volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
         # this can probably be done as a block - leaving for now just incase sorting becomes an issue
@@ -698,7 +710,7 @@ def well_known_byte_locs(name):
     Returns a dict containing the byte locations for well known SEGY variants in the wild.
 
     Args:
-        name (str): One of [standard_3d, petrel_3d]
+        name (str): Takes one of keys from KNOWN_BYTES
 
     Returns:
         dict: A dictionary of SEG-Y byte positions.
@@ -710,13 +722,12 @@ def well_known_byte_locs(name):
     >>> seismic = segy_loader(filepath, **well_known_byte_locs('petrel_3d'))
 
     """
-    if name == "standard_3d":
-        # todo maybe this should be a rev1.2 or something?
-        return dict(iline=181, xline=185, cdpx=189, cdpy=193)
-    elif name == "petrel_3d":
-        return dict(iline=5, xline=21, cdpx=73, cdpy=77)
-    else:
-        raise ValueError(f"No byte locatons for {name}")
+    try:
+        return KNOWN_BYTES[name]
+    except KeyError:
+        raise ValueError(
+            f"No byte locatons for {name}, select from {list(KNOWN_BYTES.keys())}"
+        )
 
 
 def _loader_converter_checks(cdp, iline, xline, extra_byte_fields):
@@ -762,16 +773,18 @@ def _loader_converter_header_handling(
     return_geometry=False,
     silent=False,
     extra_byte_fields=None,
+    head_df=None,
     **segyio_kwargs,
 ):
 
+    if head_df is None:
+        # Start by scraping the headers.
+        head_df = segy_header_scrape(segyfile, silent=silent, **segyio_kwargs)
+
+    head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
     head_loc = AttrDict(
         dict(cdp=cdp, offset=offset, iline=iline, xline=xline, cdpx=cdpx, cdpy=cdpy)
     )
-
-    # Start by scraping the headers.
-    head_df = segy_header_scrape(segyfile, silent=silent, **segyio_kwargs)
-    head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
 
     if all(map(lambda x: x is None, (cdp, iline, xline, offset))):
         # lets try and guess the data types if no hints given
@@ -795,8 +808,8 @@ def _loader_converter_header_handling(
         # Scale Coordinates
         coord_scalar = head_df.SourceGroupScalar.median()
         coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar))
-        head_df[head_loc.cdpx] = head_df[head_loc.cdpx].astype(float)
-        head_df[head_loc.cdpy] = head_df[head_loc.cdpy].astype(float)
+        head_df[head_loc.cdpx] = head_df[head_loc.cdpx].astype(np.float32)
+        head_df[head_loc.cdpy] = head_df[head_loc.cdpy].astype(np.float32)
         head_df[head_loc.cdpx] = head_df[head_loc.cdpx] * coord_scalar_mult * 1.0
         head_df[head_loc.cdpy] = head_df[head_loc.cdpy] * coord_scalar_mult * 1.0
 
@@ -897,6 +910,7 @@ def segy_loader(
     return_geometry=False,
     silent=False,
     extra_byte_fields=None,
+    head_df=None,
     **segyio_kwargs,
 ):
     """Load SEGY file into xarray.Dataset
@@ -937,8 +951,10 @@ def segy_loader(
             Has the form '[min, max]'.
         return_geometry (bool, optional): If true returns an xarray.dataset which doesn't contain data but mirrors
             the input volume header information.
-        extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.
         silent (bool): Disable progress bar.
+        extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.
+        head_df (pandas.DataFrame): The DataFrame output from `segy_header_scrape`. This DataFrame can be filtered by the user
+            to load select trace sets. Trace loading is based upon the DataFrame index.
         **segyio_kwargs: Extra keyword arguments for segyio.open
 
     Returns:
@@ -965,6 +981,7 @@ def segy_loader(
         return_geometry=return_geometry,
         silent=silent,
         extra_byte_fields=extra_byte_fields,
+        head_df=head_df,
         **segyio_kwargs,
     )
 

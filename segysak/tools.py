@@ -1,8 +1,8 @@
-
 import os
 import datetime
 from scipy.interpolate import interp1d
 import numpy as np
+
 
 def _check_crop(crop, limits):
     """Make sure a pair of limits is cropped correctly.
@@ -14,9 +14,12 @@ def _check_crop(crop, limits):
     if crop[0] > crop[1]:
         raise ValueError(f"Crop min: '{crop[0]}' is greater than crop max: '{crop[1]}'")
     if limits[0] > limits[1]:
-        raise ValueError(f"Limits min: '{limits[0]}' is greater than limits max: '{limits[1]}'")
+        raise ValueError(
+            f"Limits min: '{limits[0]}' is greater than limits max: '{limits[1]}'"
+        )
     if limits[0] > crop[1] or limits[1] < crop[0]:
         raise ValueError(f"Crop range is outside data limits")
+
 
 def _crop(crop, limits):
     """Perform cropping operation.
@@ -29,9 +32,12 @@ def _crop(crop, limits):
         list: Cropped limits [min, max]
     """
     checked = limits.copy()
-    if limits[0] < crop[0] < limits[1]: checked[0] = crop[0]
-    if limits[0] < crop[1] < limits[1]: checked[1] = crop[1]
+    if limits[0] < crop[0] < limits[1]:
+        checked[0] = crop[0]
+    if limits[0] < crop[1] < limits[1]:
+        checked[1] = crop[1]
     return checked
+
 
 def check_crop(crop, limits):
     """Make sure mins and maxs or horizontal cropping box are good.
@@ -55,6 +61,7 @@ def check_crop(crop, limits):
 
     return checked
 
+
 def check_zcrop(crop, limits):
     """Make sure mins and maxs of vertical cropping box are good.
 
@@ -68,7 +75,8 @@ def check_zcrop(crop, limits):
     _check_crop(crop, limits)
     return _crop(crop, limits)
 
-def fix_bad_chars(text, sub='#'):
+
+def fix_bad_chars(text, sub="#"):
     """Remove unencodeable characters. And replace them with sub.
 
     Args:
@@ -86,6 +94,7 @@ def fix_bad_chars(text, sub='#'):
             good_text = good_text + "#"
     return good_text
 
+
 def _get_datetime():
     """Return current date and time as formatted strings
 
@@ -95,6 +104,7 @@ def _get_datetime():
     now = datetime.datetime.now()
     return now.strftime("%Y-%m-%d"), now.strftime("%H:%M:%S")
 
+
 def _get_userid():
     """Try to get the user id for reporting.
 
@@ -103,12 +113,12 @@ def _get_userid():
     """
     try:
         return os.getlogin()
-    except OSError: # couldn't get it this way
+    except OSError:  # couldn't get it this way
         pass
-    finally:
-        return "segysak_user"
+    return "segysak_user"
 
-def get_uniform_spacing(cdp_x, cdp_y, extra=None, bin_spacing_hint=10, method='linear'):
+
+def get_uniform_spacing(cdp_x, cdp_y, extra=None, bin_spacing_hint=10, method="linear"):
     """Interpolate the cdp_x, cdp_y arrays uniformly while staying close to the
     requested bin spacing
 
@@ -130,14 +140,16 @@ def get_uniform_spacing(cdp_x, cdp_y, extra=None, bin_spacing_hint=10, method='l
     num_pts = int(path_length / bin_spacing_hint)
     uniform_sampled_path = np.linspace(0, segments[-1], num_pts)
 
-    cdp_x_i = interp1d(segments, cdp_x, kind='linear')(uniform_sampled_path)
-    cdp_y_i = interp1d(segments, cdp_y, kind='linear')(uniform_sampled_path)
+    cdp_x_i = interp1d(segments, cdp_x, kind="linear")(uniform_sampled_path)
+    cdp_y_i = interp1d(segments, cdp_y, kind="linear")(uniform_sampled_path)
 
-    extras_i = {key:
-        interp1d(segments, ex, kind='linear')(uniform_sampled_path) for key, ex in extra.items()
+    extras_i = {
+        key: interp1d(segments, ex, kind="linear")(uniform_sampled_path)
+        for key, ex in extra.items()
     }
 
     return cdp_x_i, cdp_y_i, uniform_sampled_path, extras_i
+
 
 def halfsample(arr):
     """Sample an array at exactly half spacing.
@@ -152,7 +164,13 @@ def halfsample(arr):
         ndarray: The halfsampled array with (N*2 - 1) samples.
     """
     arr = np.atleast_1d(arr).astype(float)
-    arr_halved = np.zeros(arr.size*2-1)
+    arr_halved = np.zeros(arr.size * 2 - 1)
     arr_halved[0::2] = arr
-    arr_halved[1::2] = (np.diff(arr)/2.0 + arr[:-1])
+    arr_halved[1::2] = np.diff(arr) / 2.0 + arr[:-1]
     return arr_halved
+
+
+def plane(xy, a, b, c):
+    x, y = xy
+    return a * x + b * y + c
+

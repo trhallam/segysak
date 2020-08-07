@@ -1,7 +1,5 @@
-
-__version__ = "0.2.1"
-
-from ._accessor import SeisIO, SeisGeom, open_seisnc
+from .version import version as __version__
+from ._accessor import SeisIO, SeisGeom, open_seisnc, coordinate_df
 
 from ._seismic_dataset import (
     create_seismic_dataset,
