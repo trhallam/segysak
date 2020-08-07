@@ -141,6 +141,8 @@ segysak xarray accessor modules
   SeisGeom.surface_from_points
 
 ``seisnc`` plotting functions
+
+.. autosummary::
   :toctree: generated/
 
   SeisGeom.plot_bounds

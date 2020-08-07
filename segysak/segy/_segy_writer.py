@@ -39,32 +39,6 @@ OUTPUT_BYTES = FrozenDict(
 )
 
 
-def _bag_slices(ind, n=10):
-    """Take a list of indices and create a list of bagged indices. Each bag
-    will contain n indices except for the last bag which will contain the
-    remainder.
-
-    This function is designed to support bagging/chunking of data to support
-    memory management or distributed processing.
-
-    Args:
-        ind (list/array-like): The input list to create bags from.
-        n (int, optional): The number of indices per bag. Defaults to 10.
-
-    Returns:
-        [type]: [description]
-    """
-    bag = list()
-    prev = 0
-    for i in range(len(ind)):
-        if (i + 1) % n == 0:
-            bag.append(slice(prev, i + 1, 1))
-            prev = i + 1
-    if prev != i + 1:
-        bag.append(slice(prev, i + 1, 1))
-    return bag
-
-
 def ncdf2segy(
     ncfile,
     segyfile,

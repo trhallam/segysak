@@ -22,7 +22,7 @@ if VERSION is None:
 
 from segysak.segy import (
     segy_converter,
-    ncdf2segy,
+    segy_writer,
     segy_header_scan,
     segy_header_scrape,
     get_segy_texthead,
@@ -255,7 +255,7 @@ def convert(
     elif output_type == "SEGY":
         if output_file is None:
             output_file = input_file.stem + ".segy"
-        ncdf2segy(
+        segy_writer(
             input_file, output_file, iline=iline, xline=xline, dimension=dimension
         )
         click.echo(f"Converted file saved as {output_file}")
