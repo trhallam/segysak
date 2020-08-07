@@ -63,18 +63,8 @@ read it carefully.
 
 Discussion often happens in the issues and pull requests.
 In addition, there is a
-[Slack chat room](https://swung.slack.com/messages/t20-segysak/) for the
-Fatiando a Terra project where you can ask questions.
-
-
-## Getting credit for contributions
-
-We appreciate the effort that goes into making a contribution to our
-open-source projects. To say "thank you" and provide an extra incentive, we
-have established some criteria for giving credit to contributors in different
-ways: from having your name in the changelog, to authorship on academic
-publications. Please read the [Authorship Guidelines](AUTHORSHIP.md) for more
-information.
+[Slack chat room](https://swung.slack.com/messages/segysak/) for the
+project where you can ask questions.
 
 
 ## Reporting a Bug
@@ -98,7 +88,7 @@ submitting a fix (even better).
 You can submit fixes to the documentation pages completely online without having to
 download and install anything:
 
-* On each documentation page, there should be an "Improve This Page" link at the very
+* On each documentation page, there should be an "edit on Github" link at the very
   top.
 * Click on that link to open the respective source file (usually an `.rst` file in the
   `doc` folder) on Github for editing online (you'll need a Github account).
@@ -184,20 +174,11 @@ You'll need to do this every time you start a new terminal.
 See the [`environment.yml`](environment.yml) file for the list of dependencies and the
 environment name.
 
-We have a [`Makefile`](Makefile) that provides commands for installing, running the
-tests and coverage analysis, running linters, etc.
-If you don't want to use `make`, open the `Makefile` and copy the commands you want to
-run.
-
-To install the current source code into your testing environment, run:
-
+Tests are run using the `pytest` pacakge. To run tests go to the respository root
+directory and run
 ```bash
-make install
+pytests tests
 ```
-
-This installs your project in *editable* mode, meaning that changes made to the source
-code will be available when you import the package (even if you're on a different
-directory).
 
 ### Code style
 
@@ -205,11 +186,6 @@ We use [Black](https://github.com/ambv/black) to format the code so we don't hav
 think about it.
 Black loosely follows the [PEP8](http://pep8.org) guide but with a few differences.
 Regardless, you won't have to worry about formatting the code yourself.
-Before committing, run it to automatically format your code:
-
-```bash
-make format
-```
 
 Don't worry if you forget to do it.
 Our continuous integration systems will warn us and you can make a new commit with the
@@ -218,17 +194,12 @@ formatted code.
 We also use [flake8](http://flake8.pycqa.org/en/latest/) and
 [pylint](https://www.pylint.org/) to check the quality of the code and quickly catch
 common errors.
-The [`Makefile`](Makefile) contains rules for running both checks:
 
-```bash
-make check   # Runs flake8 and black (in check mode)
-make lint    # Runs pylint, which is a bit slower
-```
 
 #### Docstrings
 
 **All docstrings** should follow the
-[numpy style guide](https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt).
+[Google Style Guide](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings).
 All functions/classes/methods should have docstrings with a full description of all
 arguments and return values.
 
@@ -257,7 +228,15 @@ We will help you create the tests and sort out any kind of problem during code r
 
 Run the tests and calculate test coverage using:
 
-    make test
+```bash
+pytest tests
+```
+
+A coverage report can be generated with
+
+```bash
+pytest -v --cov-report term-missing --cov=segysak tests
+```
 
 The coverage report will let you know which lines of code are touched by the tests.
 **Strive to get 100% coverage for the lines you changed.**
@@ -266,19 +245,19 @@ Leave a comment in the PR and we'll help you out.
 
 ### Documentation
 
-Most documentation sources are in the `doc` folder.
+Most documentation sources are in the `docs` folder.
 We use [sphinx](http://www.sphinx-doc.org/) to build the web pages from these sources.
 To build the HTML files:
 
 ```bash
-cd doc
-make all
+cd docs
+make html
 ```
 
-This will build the HTML files in `doc/_build/html`.
-Open `doc/_build/html/index.html` in your browser to view the pages.
+This will build the HTML files in `docs/_build/html`.
+Open `docs/_build/html/index.html` in your browser to view the pages.
 
-The API reference is manually assembled in `doc/api/index.rst`.
+The API reference is manually assembled in `docs/api.rst`.
 The *autodoc* sphinx extension will automatically create pages for each
 function/class/module listed there.
 
@@ -304,12 +283,16 @@ Some things that will increase the chance that your pull request is accepted qui
   *reason* behind non-obvious things.
 * Include an example of new features in the gallery or tutorials.
 * Follow the [PEP8](http://pep8.org) style guide for code and the
-  [numpy guide](https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt)
+  [Google Docstring Guide](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)
   for documentation.
 
-Pull requests will automatically have tests run by TravisCI and AppVeyor.
+Pull requests will automatically have tests run by Github Actions.
 This includes running both the unit tests as well as code linters.
 Github will show the status of these checks on the pull request.
 Try to get them all passing (green).
 If you have any trouble, leave a comment in the PR or
 [get in touch](#how-can-i-talk-to-you).
+
+### Atribution
+
+This contributing document is largely based upon the work by the Fatiando a Terra project.
