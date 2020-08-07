@@ -332,7 +332,7 @@ def _ncdf2segy_3d(
         pbar = tqdm(total=ni * nj, disable=silent, **TQDM_ARGS)
         for ilb in il_bags:
             ilbl = range(ilb.start, ilb.stop, ilb.step)
-            data = ds.isel(iline=ilbl)
+            data = ds.isel(iline=ilbl).transpose(*order, dimension)
             for i, il in enumerate(ilbl):
                 il0, iln = il * nj, (il + 1) * nj
                 segyf.header[il0:iln] = trace_headers[il0:iln]
