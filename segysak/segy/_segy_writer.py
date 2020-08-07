@@ -1,5 +1,4 @@
-from os import set_inheritable
-from IPython import get_ipython
+import importlib
 from numpy.core.fromnumeric import trace
 from numpy.lib.arraysetops import isin
 import xarray as xr
@@ -9,15 +8,13 @@ import pandas as pd
 import warnings
 
 try:
-    """Solution taken from https://stackoverflow.com/a/47428575 """
-    ipy_str = str(type(get_ipython()))
-    if "zmqshell" in ipy_str:
-        """Called from jupyter"""
-        from tqdm.notebook import tqdm
+    has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
+    if has_ipywidgets:
+        from tqdm.autonotebook import tqdm
     else:
-        from tqdm import tqdm
-except:
-    from tqdm import tqdm
+        from tqdm import tqdm as tqdm
+except ModuleNotFoundError:
+    from tqdm import tqdm as tqdm
 
 from .._accessor import open_seisnc
 from .._core import FrozenDict
