@@ -52,6 +52,7 @@ Writing SEG-Y files
    :toctree: generated/
 
    segy_writer
+   output_byte_locs
 
 .. currentmodule:: segysak
 
