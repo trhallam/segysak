@@ -214,4 +214,4 @@ The complete documentation for *SEGY-SAK* can be found at
 
 .. |slack| image:: https://img.shields.io/badge/slack-help-blueviolet?logo=slack
    :alt: help
-   :target: https://swung.slack.com/messages/t20-segysak/
+   :target: https://swung.slack.com/messages/segysak/

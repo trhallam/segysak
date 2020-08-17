@@ -60,6 +60,7 @@ AttrKeyField = FrozenDict(
 
 
 VerticalKeyField = FrozenDict(dict(twt="TWT", depth="DEPTH"))
+VerticalKeyDim = FrozenDict(dict(TWT="twt", DEPTH="depth"))
 
 
 VerticalUnits = FrozenDict(
