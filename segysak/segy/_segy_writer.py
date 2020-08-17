@@ -296,7 +296,7 @@ def _ncdf2segy_3d(
     # the file, i.e. its inline numbers, crossline numbers, etc. You can also add
     # more structural information, but offsets etc. have sensible defautls. This is
     # the absolute minimal specification for a N-by-M volume
-    spec.sorting = 1
+    spec.sorting = 2
     spec.format = 1
     spec.iline = iline
     spec.xline = xline
@@ -415,7 +415,7 @@ def _ncdf2segy_3dgath(
     # the file, i.e. its inline numbers, crossline numbers, etc. You can also add
     # more structural information, but offsets etc. have sensible defautls. This is
     # the absolute minimal specification for a N-by-M volume
-    spec.format = 1
+    spec.format = 2
     spec.iline = iline
     spec.xline = xline
     spec.samples = ds[dimension].astype(int).values

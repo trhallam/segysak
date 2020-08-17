@@ -255,8 +255,11 @@ def convert(
     elif output_type == "SEGY":
         if output_file is None:
             output_file = input_file.stem + ".segy"
+        thm = dict()
+# iline=iline, xline=xline, 
+#         )
         segy_writer(
-            input_file, output_file, iline=iline, xline=xline, dimension=dimension
+            input_file, output_file, trace_header_map=thm, dimension=dimension
         )
         click.echo(f"Converted file saved as {output_file}")
         LOGGER.info(f"SEGY output written to {output_file}")
