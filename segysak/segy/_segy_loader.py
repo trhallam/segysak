@@ -908,7 +908,8 @@ def segy_freeloader(
 ):
     """Freeform loader for SEG-Y data. This loader allows you to load SEG-Y into
     an xarray.Dataset using an arbitrary number of header locations to create
-    othogonal dimensions.
+    othogonal dimensions. This is an eager loader and will transfer the entire
+    SEG-Y and requested header information to memory.
 
     From the dimension header locations specified the freeloader will try to
     create a Dataset where each trace is assigned to a dimension.
@@ -1014,7 +1015,7 @@ def segy_freeloader(
 
         # this can probably be done as a block - leaving for now just incase sorting becomes an issue
         indexes = tuple([head_df[idx].values for idx in dim_index_names])
-        volume[indexes] = segyf.trace.raw[:]
+        volume[indexes] = segyf.trace.raw[:][head_df.index.values]
 
     percentiles = np.percentile(volume, PERCENTILES)
     ds[VariableKeyField.data] = (
