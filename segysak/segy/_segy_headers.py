@@ -99,11 +99,15 @@ def segy_header_scrape(segyfile, partial_scan=None, silent=False, **segyio_kwarg
             ntraces = int(partial_scan)
         slc = slice(0, ntraces, 1)
         # take headers returned from segyio and create lists for a dataframe
-        hv = map(
-            lambda x: np.array(list(x.values())),
-            tqdm(segyf.header[slc], total=ntraces, disable=silent, **TQDM_ARGS),
+        hv = np.vstack(
+            [
+                tuple(x.values())
+                for x in tqdm(
+                    segyf.header[slc], total=ntraces, disable=silent, **TQDM_ARGS
+                )
+            ]
         )
-        head_df = pd.DataFrame(np.vstack(list(hv)), columns=columns)
+        head_df = pd.DataFrame(hv, columns=columns)
         head_df.replace(to_replace=-2147483648, value=np.nan, inplace=True)
     return head_df
 
