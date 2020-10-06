@@ -81,7 +81,7 @@ def _header_to_index_mapping(series):
     as_unique = series.unique()
     sorted_unique = np.sort(as_unique)
     mapper = {val: i for i, val in enumerate(sorted_unique)}
-    return series.replace(mapper)
+    return series.map(mapper.get)
 
 
 def _segy3d_ncdf(
@@ -382,8 +382,8 @@ def _3dsegy_loader(
     xlines = np.sort(xlines)
     iline_index_map = {il: i for i, il in enumerate(ilines)}
     xline_index_map = {xl: i for i, xl in enumerate(xlines)}
-    head_df.loc[:, "il_index"] = head_df[head_loc.iline].replace(iline_index_map)
-    head_df.loc[:, "xl_index"] = head_df[head_loc.xline].replace(xline_index_map)
+    head_df.loc[:, "il_index"] = head_df[head_loc.iline].map(iline_index_map.get)
+    head_df.loc[:, "xl_index"] = head_df[head_loc.xline].map(xline_index_map.get)
 
     # binary header translation
     ns = head_bin["Samples"]
@@ -395,7 +395,7 @@ def _3dsegy_loader(
         offsets = head_df[head_loc.offset].unique()
         offsets = np.sort(offsets)
         offset_index_map = {off: i for i, off in enumerate(offsets)}
-        head_df["off_index"] = head_df[head_loc.offset].replace(offset_index_map)
+        head_df["off_index"] = head_df[head_loc.offset].map(offset_index_map.get)
     else:
         offsets = None
 
