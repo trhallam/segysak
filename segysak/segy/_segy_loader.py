@@ -963,7 +963,7 @@ def segy_freeloader(
         d_map = {dval: i for i, dval in enumerate(as_unique)}
         index_name = f"{dim}_index"
         dim_index_names.append(index_name)
-        head_df.loc[:, index_name] = head_df[trace_field].replace(d_map)
+        head_df.loc[:, index_name] = head_df[trace_field].map(d_map)
 
     if (
         head_df[dim_index_names].shape
