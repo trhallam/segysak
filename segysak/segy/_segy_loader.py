@@ -132,12 +132,10 @@ def _segy3d_ncdf(
         )
 
         percentiles = np.zeros_like(PERCENTILES)
-
         for contig, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
-                seisnc_data[val.il_index, val.xl_index, :] = segyf.trace[trc][
-                    n0 : ns + 1
-                ]
+                i1, i2 = val[["il_index", "xl_index"]].values.astype(int)
+                seisnc_data[i1, i2, :] = segyf.trace[trc][n0 : ns + 1]
                 percentiles = (
                     np.percentile(segyf.trace[trc][n0 : ns + 1], PERCENTILES)
                     + percentiles
@@ -234,8 +232,7 @@ def _segy3d_xr(
     vert_domain="TWT",
     silent=False,
 ):
-    """Helper function to load 3d data into an xarray with the seisnc form.
-    """
+    """Helper function to load 3d data into an xarray with the seisnc form."""
 
     if vert_domain == "TWT":
         dims = DimensionKeyField.threed_twt
@@ -296,8 +293,7 @@ def _segy3dps_xr(
     vert_domain="TWT",
     silent=False,
 ):
-    """Helper function to load 3d pre-stack data into an xarray with the seisnc form.
-    """
+    """Helper function to load 3d pre-stack data into an xarray with the seisnc form."""
 
     if vert_domain == "TWT":
         dims = DimensionKeyField.threed_ps_twt
@@ -376,7 +372,7 @@ def _3dsegy_loader(
     # short way to get inlines/xlines
     ilines = head_df[head_loc.iline].unique()
     xlines = head_df[head_loc.xline].unique()
-    inlines = np.sort(ilines)
+    ilines = np.sort(ilines)
     xlines = np.sort(xlines)
     iline_index_map = {il: i for i, il in enumerate(ilines)}
     xline_index_map = {xl: i for i, xl in enumerate(xlines)}
@@ -499,8 +495,7 @@ def _segy2d_xr(
     vert_domain="TWT",
     silent=False,
 ):
-    """Helper function to load 2d data into an xarray with the seisnc form.
-    """
+    """Helper function to load 2d data into an xarray with the seisnc form."""
 
     if vert_domain == "TWT":
         dims = DimensionKeyField.twod_twt
@@ -549,8 +544,7 @@ def _segy2d_ps_xr(
     vert_domain="TWT",
     silent=False,
 ):
-    """Helper function to load 2d data into an xarray with the seisnc form.
-    """
+    """Helper function to load 2d data into an xarray with the seisnc form."""
 
     if vert_domain == "TWT":
         dims = DimensionKeyField.twod_twt
@@ -998,7 +992,11 @@ def segy_loader(
     # 3d data needs iline and xline
     if all(v is not None for v in (head_loc.iline, head_loc.xline)):
         print("Loading as 3D")
-        ds = _3dsegy_loader(*common_args, **common_kwargs, **segyio_kwargs,)
+        ds = _3dsegy_loader(
+            *common_args,
+            **common_kwargs,
+            **segyio_kwargs,
+        )
         indexer = ["il_index", "xl_index"]
         dims = (
             DimensionKeyField.threed_head
@@ -1135,7 +1133,11 @@ def segy_converter(
 
     # 3d data needs iline and xline
     if iline is not None and xline is not None:
-        ds = _3dsegy_loader(*common_args, **common_kwargs, **segyio_kwargs,)
+        ds = _3dsegy_loader(
+            *common_args,
+            **common_kwargs,
+            **segyio_kwargs,
+        )
         indexer = ["il_index", "xl_index"]
         dims = (
             DimensionKeyField.threed_head
