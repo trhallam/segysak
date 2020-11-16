@@ -1,6 +1,6 @@
 import pytest
 
-from test_fixtures import segyio_all_test_files
+# from test_fixtures import segyio_all_test_files
 
 from segysak.segy import get_segy_texthead
 from segysak._richstr import _upgrade_txt_richstr

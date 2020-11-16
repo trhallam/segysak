@@ -25,7 +25,8 @@ from segysak.segy import (
 
 from segysak import open_seisnc
 
-from test_fixtures import *
+# from test_fixtures import *
+from .fixtures_segy import TEST_SEGY_SIZE
 
 GOOD_HEADER = (
     "a" * 3200,
@@ -216,7 +217,9 @@ def test_output_byte_locs_fail():
         output_byte_locs("gibberish")
 
 
-@given(il_chunks=integers(1, 10),)
+@given(
+    il_chunks=integers(1, 10),
+)
 @settings(max_examples=1, deadline=None)
 def test_segyiotests_writer_from_ds(temp_dir, segyio3d_test_files, il_chunks):
     file, segyio_kwargs = segyio3d_test_files

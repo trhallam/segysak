@@ -8,16 +8,14 @@ import numpy as np
 
 import segyio
 
-from segysak.segy import put_segy_texthead, get_segy_texthead, create_default_texthead
-from segysak import create2d_dataset, create3d_dataset, create_seismic_dataset
-
-TEMP_TEST_DATA_DIR = "test_data_temp"
+from segysak.segy import put_segy_texthead, create_default_texthead
+from segysak import create2d_dataset, create3d_dataset
 
 TEST_SEGY_SIZE = 10
 TEST_SEGY_REG = "test_reg.segy"
 TEST_SEGY_SKEW = "test_skew.segy"
 
-TEST_DATA_SEGYIO = "tests/test-data-segyio"
+TEST_DATA_SEGYIO = pathlib.Path(__file__).parent.absolute() / "test-data-segyio"
 TEST_DATA_SEGYIO = pathlib.Path(TEST_DATA_SEGYIO)
 
 TEST_FILES_SEGYIO_3D = [
@@ -63,33 +61,6 @@ TEST_FILES_SEGYIO_BLANKHEAD = [
 TEST_FILES_SEGYIO_ALL = (
     TEST_FILES_SEGYIO_BLANKHEAD + TEST_FILES_SEGYIO_3D + TEST_FILES_SEGYIO_3DG
 )
-
-
-@pytest.fixture(scope="session")
-def temp_dir(tmpdir_factory):
-    tdir = tmpdir_factory.mktemp(TEMP_TEST_DATA_DIR)
-    return pathlib.Path(str(tdir))
-
-
-# def copy_segyio_tests(segyio_zip=SEGYIO_ZIP):
-#     # download a copy of segyio as zip to tempdir and extract tests
-#     segyio_tests = pathlib.Path("test-data-segyio")
-#     segyio_tests.mkdir(exist_ok=True)
-#     segyio_zip = segyio_tests / "segyio.zip"
-#     if segyio_zip.exists():
-#         print("Using cached segyio data")
-#     else:
-#         print("Downloading segyio test data")
-#         r = requests.get(segyio_zip, allow_redirects=True)
-#         open(segyio_zip, "wb").write(r.content)
-
-#     try:
-#         segyio_Zip = zipfile.ZipFile(segyio_zip)
-#         files = [sgy for sgy in segyio_Zip.namelist() if sgy[-4:] == ".sgy"]
-#         for file in files:
-#             segyio_Zip.extract(file, segyio_tests / file)
-#     except IOError:
-#         print("Error with segyio zip file.")
 
 
 def create_temp_segy(n, test_file, skew=False):
