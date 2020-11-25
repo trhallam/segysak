@@ -1,6 +1,4 @@
 import importlib
-from numpy.core.fromnumeric import trace
-from numpy.lib.arraysetops import isin
 import xarray as xr
 import segyio
 import numpy as np
@@ -182,6 +180,7 @@ def _bag_slices(ind, n=10):
     else:
         bag = list()
         prev = 0
+        i = 0
         for i in range(len(ind)):
             if (i + 1) % n == 0:
                 bag.append(slice(prev, i + 1, 1))

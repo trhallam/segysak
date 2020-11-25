@@ -1,4 +1,5 @@
 import pytest
+import pathlib
 
 from .fixtures_segy import *
 from .fixtures_zgy import *

@@ -10,7 +10,7 @@ except ImportError:
 
 import numpy as np
 from .._seismic_dataset import create3d_dataset
-from .._keyfield import CoordKeyField, VariableKeyField, AttrKeyField, VerticalKeyField
+from .._keyfield import CoordKeyField, VariableKeyField, AttrKeyField
 from ..segy._segy_writer import _check_dimension
 
 
@@ -29,7 +29,7 @@ def zgy_loader(filename):
     data_shape = header["size"]
     zstart = header["zstart"]
     zinc = header["zinc"]
-    zunit_fact = header["zunitfactor"]
+    # zunit_fact = header["zunitfactor"] may need this later
     ilstep, xlstep = header["annotinc"]
     ilstart, xlstart = header["annotstart"]
 
@@ -94,10 +94,9 @@ def zgy_writer(seisnc_dataset, filename, dimension=None):
     assert seisnc_dataset.seis.is_3d()
 
     dimension = _check_dimension(seisnc_dataset, dimension)
-    if dimension is "twt":
+    if dimension == "twt":
         zunitdim = UnitDimension(2001)
-        vdim = "TWT"
-    elif dimension is "depth":
+    elif dimension == "depth":
         zunitdim = UnitDimension(2002)
     else:
         zunitdim = UnitDimension(2000)
