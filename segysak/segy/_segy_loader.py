@@ -2,8 +2,6 @@
 """Functions to interact with segy data
 """
 
-from warnings import warn
-from functools import partial
 import importlib
 import pathlib
 
@@ -13,7 +11,6 @@ import segyio
 import h5netcdf
 from attrdict import AttrDict
 import numpy as np
-import pandas as pd
 import xarray as xr
 
 try:
@@ -45,7 +42,6 @@ from segysak._keyfield import (
 )
 from segysak._seismic_dataset import (
     create_seismic_dataset,
-    create3d_dataset,
     _dataset_coordinate_helper,
 )
 
@@ -119,11 +115,11 @@ def _segy3d_ncdf(
         if head_df[head_loc.xline].diff().min() < 0:
             contig_dir = head_loc.iline
             broken_dir = head_loc.xline
-            slicer = lambda x, y: slice(x, y, ...)
+            # slicer = lambda x, y: slice(x, y, ...)
         else:
             contig_dir = head_loc.xline
             broken_dir = head_loc.iline
-            slicer = lambda x, y: slice(y, x, ...)
+            # slicer = lambda x, y: slice(y, x, ...)
 
         print(f"Fast direction is {broken_dir}")
 
@@ -132,7 +128,7 @@ def _segy3d_ncdf(
         )
 
         percentiles = np.zeros_like(PERCENTILES)
-        for contig, grp in head_df.groupby(contig_dir):
+        for _, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
                 i1, i2 = val[["il_index", "xl_index"]].values.astype(int)
                 seisnc_data[i1, i2, :] = segyf.trace[trc][n0 : ns + 1]
@@ -249,11 +245,11 @@ def _segy3d_xr(
         if head_df[head_loc.xline].diff().min() < 0:
             contig_dir = head_loc.iline
             broken_dir = head_loc.xline
-            slicer = lambda x, y: slice(x, y, ...)
+            # slicer = lambda x, y: slice(x, y, ...)
         else:
             contig_dir = head_loc.xline
             broken_dir = head_loc.iline
-            slicer = lambda x, y: slice(y, x, ...)
+            # slicer = lambda x, y: slice(y, x, ...)
 
         print(f"Fast direction is {broken_dir}")
 
