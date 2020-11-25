@@ -1,15 +1,16 @@
 import pytest
+from pytest_cases import fixture
 
 from segysak import create2d_dataset, create3d_dataset, create_seismic_dataset
 
 
-@pytest.fixture(params=[(10, 11, "TWT"), (10, 11, "DEPTH")])
+@fixture(params=[(10, 11, "TWT"), (10, 11, "DEPTH")], scope="session")
 def empty2d(request):
     cdpn, n, dom = request.param
     return create2d_dataset((cdpn, n), sample_rate=1, first_cdp=1, vert_domain=dom)
 
 
-@pytest.fixture(params=[(10, 11, 5, "TWT"), (10, 11, 5, "DEPTH")])
+@fixture(params=[(10, 11, 5, "TWT"), (10, 11, 5, "DEPTH")], scope="session")
 def empty2d_gath(request):
     cdpn, n, off, dom = request.param
     return create2d_dataset(
@@ -22,7 +23,7 @@ def empty2d_gath(request):
     )
 
 
-@pytest.fixture(params=[(10, 11, 12, "TWT"), (10, 11, 12, "DEPTH")])
+@fixture(params=[(10, 11, 12, "TWT"), (10, 11, 12, "DEPTH")], scope="session")
 def empty3d(request):
     iln, xln, n, dom = request.param
     return create3d_dataset(
@@ -30,7 +31,7 @@ def empty3d(request):
     )
 
 
-@pytest.fixture(params=[(10, 11, 12, 5, "TWT"), (10, 11, 12, 5, "DEPTH")])
+@fixture(params=[(10, 11, 12, 5, "TWT"), (10, 11, 12, 5, "DEPTH")], scope="session")
 def empty3d_gath(request):
     iln, xln, n, off, dom = request.param
     return create3d_dataset(
@@ -44,7 +45,7 @@ def empty3d_gath(request):
     )
 
 
-@pytest.fixture(params=[(10, 11, 12, "DEPTH"), (12, 5, 15, "DEPTH")])
+@fixture(params=[(10, 11, 12, "DEPTH"), (12, 5, 15, "DEPTH")], scope="session")
 def empty3d_depth(request):
     iln, xln, n, dom = request.param
     return create3d_dataset(
@@ -52,7 +53,7 @@ def empty3d_depth(request):
     )
 
 
-@pytest.fixture(params=[(10, 11, 12, "TWT"), (12, 5, 15, "TWT")])
+@fixture(params=[(10, 11, 12, "TWT"), (12, 5, 15, "TWT")], scope="session")
 def empty3d_twt(request):
     iln, xln, n, dom = request.param
     return create3d_dataset(
@@ -60,7 +61,7 @@ def empty3d_twt(request):
     )
 
 
-@pytest.fixture(params=[(10, 11, 12, "DEPTH"), (12, 5, 15, "TWT")])
+@fixture(params=[(10, 11, 12, "DEPTH"), (12, 5, 15, "TWT")], scope="session")
 def zeros3d(request):
     iln, xln, n, dom = request.param
     seisnc = create3d_dataset(

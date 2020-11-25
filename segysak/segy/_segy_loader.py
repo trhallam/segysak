@@ -398,7 +398,7 @@ def _3dsegy_loader(
         n0, ns = zcrop
         ns0 = sample_rate * n0
         nsamp = ns - n0 + 1
-    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate, dtype=int)
+    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate)
 
     builder, domain = _dataset_coordinate_helper(
         vert_samples, vert_domain, iline=ilines, xline=xlines, offset=offsets
@@ -500,7 +500,7 @@ def _segy2d_xr(
     if vert_domain == "TWT":
         dims = DimensionKeyField.twod_twt
     elif vert_domain == "DEPTH":
-        dims = DimensionKeyField.twod_ps_depth
+        dims = DimensionKeyField.twod_depth
     else:
         raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
@@ -547,7 +547,7 @@ def _segy2d_ps_xr(
     """Helper function to load 2d data into an xarray with the seisnc form."""
 
     if vert_domain == "TWT":
-        dims = DimensionKeyField.twod_twt
+        dims = DimensionKeyField.twod_ps_twt
     elif vert_domain == "DEPTH":
         dims = DimensionKeyField.twod_ps_depth
     else:
@@ -639,7 +639,7 @@ def _2dsegy_loader(
         n0, nsamp = zcrop
         ns0 = sample_rate * n0
         nsamp = nsamp - n0 + 1
-    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate, dtype=int)
+    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate)
 
     builder, domain = _dataset_coordinate_helper(
         vert_samples, vert_domain, cdp=cdps, offset=offsets
@@ -807,7 +807,7 @@ def _loader_converter_header_handling(
         head_df[head_loc.cdpx] = head_df[head_loc.cdpx] * coord_scalar_mult * 1.0
         head_df[head_loc.cdpy] = head_df[head_loc.cdpy] * coord_scalar_mult * 1.0
 
-    # TODO: might need to scale offsets as well?
+    # TODO: might need to scale offsets as well? This isn't available in segy standard
 
     # Cropping
     if cdp_crop and cdp is not None:  # 2d cdp cropping
