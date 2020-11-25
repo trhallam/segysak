@@ -1,4 +1,8 @@
 import pytest
+from pytest_cases import fixture_ref, parametrize
+
+from .fixtures_seisnc import *
+
 import pathlib
 
 from hypothesis import given, settings
@@ -271,5 +275,44 @@ def test_segyiotests_ps_writer_from_ds(temp_dir, segyio3dps_test_files):
 #     assert isinstance(ds, xr.Dataset)
 
 
+# seisnc to segy to seisnc tests - go full circle
+
+
+@parametrize(
+    "empty",
+    (
+        fixture_ref(empty2d),
+        fixture_ref(empty2d_gath),
+        fixture_ref(empty3d),
+        fixture_ref(empty3d_depth),
+        fixture_ref(empty3d_gath),
+        fixture_ref(empty3d_twt),
+    ),
+    ids=["2d", "2dgath", "3d", "3d_depth", "3d_gath", "3d_twt"],
+)
+def test_seisnc_return(temp_dir, empty):
+    dims = list(empty.dims)
+    shp = [empty.dims[d] for d in dims]
+    domain = empty.d3_domain
+    empty["data"] = (dims, np.zeros(shp))
+
+    if "offset" in empty:
+        empty["offset"] = empty["offset"].astype(np.int32)
+
+    segy_writer(empty, temp_dir / "temp_empty.segy")
+    back = segy_loader(temp_dir / "temp_empty.segy", vert_domain=domain)
+    assert empty == back
+
+
 if __name__ == "__main__":
-    pass
+    iln, xln, n, off, dom = (10, 11, 12, 5, "TWT")
+    seisnc = create3d_dataset(
+        (iln, xln, n, off),
+        sample_rate=1,
+        first_iline=1,
+        first_xline=1,
+        vert_domain=dom,
+        first_offset=2,
+        offset_step=2,
+    )
+    segy_writer(seisnc, "temp.segy")

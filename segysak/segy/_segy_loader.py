@@ -2,8 +2,6 @@
 """Functions to interact with segy data
 """
 
-from warnings import warn
-from functools import partial
 import importlib
 import pathlib
 
@@ -13,7 +11,6 @@ import segyio
 import h5netcdf
 from attrdict import AttrDict
 import numpy as np
-import pandas as pd
 import xarray as xr
 
 try:
@@ -45,7 +42,6 @@ from segysak._keyfield import (
 )
 from segysak._seismic_dataset import (
     create_seismic_dataset,
-    create3d_dataset,
     _dataset_coordinate_helper,
 )
 
@@ -119,11 +115,11 @@ def _segy3d_ncdf(
         if head_df[head_loc.xline].diff().min() < 0:
             contig_dir = head_loc.iline
             broken_dir = head_loc.xline
-            slicer = lambda x, y: slice(x, y, ...)
+            # slicer = lambda x, y: slice(x, y, ...)
         else:
             contig_dir = head_loc.xline
             broken_dir = head_loc.iline
-            slicer = lambda x, y: slice(y, x, ...)
+            # slicer = lambda x, y: slice(y, x, ...)
 
         print(f"Fast direction is {broken_dir}")
 
@@ -132,7 +128,7 @@ def _segy3d_ncdf(
         )
 
         percentiles = np.zeros_like(PERCENTILES)
-        for contig, grp in head_df.groupby(contig_dir):
+        for _, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
                 i1, i2 = val[["il_index", "xl_index"]].values.astype(int)
                 seisnc_data[i1, i2, :] = segyf.trace[trc][n0 : ns + 1]
@@ -249,11 +245,11 @@ def _segy3d_xr(
         if head_df[head_loc.xline].diff().min() < 0:
             contig_dir = head_loc.iline
             broken_dir = head_loc.xline
-            slicer = lambda x, y: slice(x, y, ...)
+            # slicer = lambda x, y: slice(x, y, ...)
         else:
             contig_dir = head_loc.xline
             broken_dir = head_loc.iline
-            slicer = lambda x, y: slice(y, x, ...)
+            # slicer = lambda x, y: slice(y, x, ...)
 
         print(f"Fast direction is {broken_dir}")
 
@@ -398,7 +394,7 @@ def _3dsegy_loader(
         n0, ns = zcrop
         ns0 = sample_rate * n0
         nsamp = ns - n0 + 1
-    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate, dtype=int)
+    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate)
 
     builder, domain = _dataset_coordinate_helper(
         vert_samples, vert_domain, iline=ilines, xline=xlines, offset=offsets
@@ -500,7 +496,7 @@ def _segy2d_xr(
     if vert_domain == "TWT":
         dims = DimensionKeyField.twod_twt
     elif vert_domain == "DEPTH":
-        dims = DimensionKeyField.twod_ps_depth
+        dims = DimensionKeyField.twod_depth
     else:
         raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
@@ -547,7 +543,7 @@ def _segy2d_ps_xr(
     """Helper function to load 2d data into an xarray with the seisnc form."""
 
     if vert_domain == "TWT":
-        dims = DimensionKeyField.twod_twt
+        dims = DimensionKeyField.twod_ps_twt
     elif vert_domain == "DEPTH":
         dims = DimensionKeyField.twod_ps_depth
     else:
@@ -639,7 +635,7 @@ def _2dsegy_loader(
         n0, nsamp = zcrop
         ns0 = sample_rate * n0
         nsamp = nsamp - n0 + 1
-    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate, dtype=int)
+    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate)
 
     builder, domain = _dataset_coordinate_helper(
         vert_samples, vert_domain, cdp=cdps, offset=offsets
@@ -807,7 +803,7 @@ def _loader_converter_header_handling(
         head_df[head_loc.cdpx] = head_df[head_loc.cdpx] * coord_scalar_mult * 1.0
         head_df[head_loc.cdpy] = head_df[head_loc.cdpy] * coord_scalar_mult * 1.0
 
-    # TODO: might need to scale offsets as well?
+    # TODO: might need to scale offsets as well? This isn't available in segy standard
 
     # Cropping
     if cdp_crop and cdp is not None:  # 2d cdp cropping
