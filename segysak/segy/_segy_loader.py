@@ -236,8 +236,7 @@ def _segy3d_xr(
     vert_domain="TWT",
     silent=False,
 ):
-    """Helper function to load 3d data into an xarray with the seisnc form.
-    """
+    """Helper function to load 3d data into an xarray with the seisnc form."""
 
     if vert_domain == "TWT":
         dims = DimensionKeyField.threed_twt
@@ -298,8 +297,7 @@ def _segy3dps_xr(
     vert_domain="TWT",
     silent=False,
 ):
-    """Helper function to load 3d pre-stack data into an xarray with the seisnc form.
-    """
+    """Helper function to load 3d pre-stack data into an xarray with the seisnc form."""
 
     if vert_domain == "TWT":
         dims = DimensionKeyField.threed_ps_twt
@@ -501,8 +499,7 @@ def _segy2d_xr(
     vert_domain="TWT",
     silent=False,
 ):
-    """Helper function to load 2d data into an xarray with the seisnc form.
-    """
+    """Helper function to load 2d data into an xarray with the seisnc form."""
 
     if vert_domain == "TWT":
         dims = DimensionKeyField.twod_twt
@@ -551,8 +548,7 @@ def _segy2d_ps_xr(
     vert_domain="TWT",
     silent=False,
 ):
-    """Helper function to load 2d data into an xarray with the seisnc form.
-    """
+    """Helper function to load 2d data into an xarray with the seisnc form."""
 
     if vert_domain == "TWT":
         dims = DimensionKeyField.twod_twt
@@ -1049,7 +1045,7 @@ def segy_loader(
 ):
     """Load SEGY file into xarray.Dataset
 
-    The output ncfile has the following structure
+    The returned Dataset has the following structure
         Dimensions:
             d1 - CDP or Inline axis
             d2 - Xline axis
@@ -1068,11 +1064,9 @@ def segy_loader(
 
     Args:
         segyfile (str): Input segy file path
-        ncfile (str, optional): Output SEISNC file path. If none the loaded data will be
-            returned in memory as an xarray.Dataset.
         iline (int, optional): Inline byte location, usually 189
         xline (int, optional): Cross-line byte location, usally 193
-        vert (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
+        vert_domain (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
         cdp (int, optional): The CDP byte location, usually 21.
         data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
         cdp_crop (list, optional): List of minimum and maximum cmp values to output.
@@ -1132,7 +1126,11 @@ def segy_loader(
     # 3d data needs iline and xline
     if all(v is not None for v in (head_loc.iline, head_loc.xline)):
         print("Loading as 3D")
-        ds = _3dsegy_loader(*common_args, **common_kwargs, **segyio_kwargs,)
+        ds = _3dsegy_loader(
+            *common_args,
+            **common_kwargs,
+            **segyio_kwargs,
+        )
         indexer = ["il_index", "xl_index"]
         dims = (
             DimensionKeyField.threed_head
@@ -1215,7 +1213,7 @@ def segy_converter(
             returned in memory as an xarray.Dataset.
         iline (int, optional): Inline byte location, usually 189
         xline (int, optional): Cross-line byte location, usally 193
-        vert (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
+        vert_domain (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
         cdp (int, optional): The CDP byte location, usually 21.
         data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
         cdp_crop (list, optional): List of minimum and maximum cmp values to output.
@@ -1269,7 +1267,11 @@ def segy_converter(
 
     # 3d data needs iline and xline
     if iline is not None and xline is not None:
-        ds = _3dsegy_loader(*common_args, **common_kwargs, **segyio_kwargs,)
+        ds = _3dsegy_loader(
+            *common_args,
+            **common_kwargs,
+            **segyio_kwargs,
+        )
         indexer = ["il_index", "xl_index"]
         dims = (
             DimensionKeyField.threed_head
