@@ -83,6 +83,8 @@ setup(
         "root": ".",
         "relative_to": __file__,
         "local_scheme": "no-local-version",
+        "version_scheme": "post-release",
+        "write_to_template": "__version__ = '{version}'",
         "write_to": "segysak/version.py",
     },
     python_requires=">=3.6",
