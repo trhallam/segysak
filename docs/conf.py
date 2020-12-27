@@ -137,6 +137,7 @@ nbs = [
     "example_segy_headers.ipynb",
     "QuickOverview.ipynb",
     "example_extract_arbitrary_line.ipynb",
+    "example_segysak_segy_vectorisation.ipynb",
 ]
 
 # copy data
