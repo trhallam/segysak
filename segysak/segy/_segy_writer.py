@@ -1,6 +1,4 @@
 import importlib
-from numpy.core.fromnumeric import trace
-from numpy.lib.arraysetops import isin
 import xarray as xr
 import segyio
 import numpy as np
@@ -182,6 +180,7 @@ def _bag_slices(ind, n=10):
     else:
         bag = list()
         prev = 0
+        i = 0
         for i in range(len(ind)):
             if (i + 1) % n == 0:
                 bag.append(slice(prev, i + 1, 1))
@@ -205,6 +204,7 @@ def _check_dimension(seisnc, dimension):
         raise RuntimeError(
             f"Requested output dimension not found in the dataset: {seisnc.dims}"
         )
+
     return dimension
 
 
@@ -355,7 +355,8 @@ def _ncdf2segy_3d(
             40: "END TEXTUAL HEADER",
         }
         put_segy_texthead(
-            segyfile, create_default_texthead(overrides),
+            segyfile,
+            create_default_texthead(overrides),
         )
     else:
         put_segy_texthead(segyfile, text, line_counter=False)
@@ -573,7 +574,8 @@ def _ncdf2segy_2d(
             40: "END TEXTUAL HEADER",
         }
         put_segy_texthead(
-            segyfile, create_default_texthead(overrides),
+            segyfile,
+            create_default_texthead(overrides),
         )
     else:
         put_segy_texthead(segyfile, text, line_counter=False)
@@ -675,7 +677,8 @@ def _ncdf2segy_2d_gath(
             40: "END TEXTUAL HEADER",
         }
         put_segy_texthead(
-            segyfile, create_default_texthead(overrides),
+            segyfile,
+            create_default_texthead(overrides),
         )
     else:
         put_segy_texthead(segyfile, text, line_counter=False)
@@ -684,8 +687,7 @@ def _ncdf2segy_2d_gath(
 def _segy_writer_input_handler(
     ds, segyfile, trace_header_map, dimension, silent, il_chunks, text
 ):
-    """Handler for open seisnc dataset
-    """
+    """Handler for open seisnc dataset"""
 
     dimension = _check_dimension(ds, dimension)
 
@@ -725,13 +727,21 @@ def _segy_writer_input_handler(
         thm = output_byte_locs("standard_3d")
         thm.update(trace_header_map)
         _ncdf2segy_3d(
-            ds, segyfile, **common_kwargs, il_chunks=il_chunks, **thm,
+            ds,
+            segyfile,
+            **common_kwargs,
+            il_chunks=il_chunks,
+            **thm,
         )
     elif ds.seis.is_3dgath():
         thm = output_byte_locs("standard_3d_gath")
         thm.update(trace_header_map)
         _ncdf2segy_3dgath(
-            ds, segyfile, **common_kwargs, il_chunks=il_chunks, **thm,
+            ds,
+            segyfile,
+            **common_kwargs,
+            il_chunks=il_chunks,
+            **thm,
         )
     else:
         # cannot determine type of data writing a continuous traces
@@ -784,4 +794,3 @@ def segy_writer(
                 il_chunks,
                 use_text,
             )
-
