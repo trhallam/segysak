@@ -240,8 +240,10 @@ def _build_trace_headers(ds, vert_dimension, other_dim_order, thm_args, cdp_x, c
     # scale coords
     trace_headers[cdp_x] = trace_headers[cdp_x] * ds.coord_scalar_mult
     trace_headers[cdp_y] = trace_headers[cdp_y] * ds.coord_scalar_mult
-    trace_headers[cdp_x] = trace_headers[cdp_x].astype(int)
-    trace_headers[cdp_y] = trace_headers[cdp_y].astype(int)
+    trace_headers[cdp_x] = trace_headers[cdp_x]
+    trace_headers[cdp_y] = trace_headers[cdp_y]
+
+    trace_headers = trace_headers.astype(np.int32)
 
     return trace_headers
 
