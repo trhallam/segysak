@@ -33,4 +33,4 @@ dependencies:
       - nbsphinx >= 0.7
       - pandoc
       - h5netcdf>=0.8
-      - parso >=0.8,<0.9
+      - parso<0.8.0,>=0.7.0
