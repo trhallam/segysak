@@ -10,7 +10,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
+import os
+import shutil
+
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
@@ -113,40 +115,41 @@ github_url = "https://github.com/trhallam/segysak/"
 htmlhelp_basename = "segysakdoc"
 
 
-# need to copy notebooks into main tree
-print("Copy examples into docs/_examples")
-top_level_examples = pathlib.Path(".").absolute().parent / "examples"
-examples_dir = pathlib.Path("_examples")
+# build examples - comment this out if you have pre-built examples and don't want
+# to rebuild for all docs
+build_examples = True
 
-examples_dir.mkdir(exist_ok=True)
-data_dir = examples_dir / "data"
-nb_dir = examples_dir / "notebooks"
-data_dir.mkdir(exist_ok=True)
-nb_dir.mkdir(exist_ok=True)
+if build_examples:
+    # need to copy notebooks into main tree
+    print("Copy examples into docs/_examples")
+    top_level_examples = pathlib.Path(".").absolute().parent / "examples"
+    examples_dir = pathlib.Path("_examples")
+    shutil.rmtree(examples_dir, ignore_errors=True)
+    examples_dir.mkdir(exist_ok=True)
 
-data = [
-    "volve10r12-full-twt-sub3d.sgy",
-    "hor_twt_hugin_fm_top.dat",
-    "volve10r12-full-twt-arb.sgy",
-    "arbitrary_line.shp",
-]
-nbs = [
-    "example_segysak_basics.ipynb",
-    "example_segysak_dask.ipynb",
-    "example_amplitude_extraction_displays.ipynb",
-    "example_segy_headers.ipynb",
-    "QuickOverview.ipynb",
-    "example_extract_arbitrary_line.ipynb",
-    "example_segysak_segy_vectorisation.ipynb",
-]
+    # rtds option
+    rtds_action_github_repo = "trhallam/segysak"
+    rtds_action_artifact_prefix = "example-notebooks-"
+    rtds_action_path = str(examples_dir)
 
-# copy data
-for file in data:
-    copy(top_level_examples / "data" / file, data_dir / file)
+    try:
+        rtds_action_github_token = os.environ["GITHUB_TOKEN"]
+        nbsphinx_execute = "never"
+        extensions.append("rtds_action")
+        print("RDTS_ACTION found using remote pre-built examples.")
+    except KeyError:
+        print("RTDS_ACTION token missing building notebooks locally")
+        import jupytext
 
-# copy notebooks
-for file in nbs:
-    copy(top_level_examples / "notebooks" / file, nb_dir / file)
+        for example in top_level_examples.glob("*.py"):
+            output = examples_dir / example.with_suffix(".ipynb").name
+            ntbk = jupytext.read(example, fmt="py")
+            jupytext.write(ntbk, output)
+
+        shutil.copytree(
+            top_level_examples / "data",
+            examples_dir / "data",
+        )
 
 
 def setup(app):
