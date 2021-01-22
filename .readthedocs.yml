@@ -19,16 +19,16 @@ sphinx:
 #   - pdf
 
 # Optionally set the version of Python and requirements required to build your docs
-# conda:
-#   environment: environment.yml
+conda:
+  environment: environment.yml
 
 # install segysak
 python:
   version: 3.8
   install:
-    - method: pip
-      path: .
-      extra_requirements:
-        - docs
+    # - method: pip
+    #   path: .
+    #   extra_requirements:
+    #     - docs
     - method: setuptools
       path: .
