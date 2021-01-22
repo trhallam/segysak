@@ -1,3 +1,4 @@
+wheel
 numpy >= 1.10
 pandas >= 0.25
 xarray >= 0.12
@@ -17,6 +18,7 @@ nbsphinx >= 0.7
 pandoc
 nbconvert!=5.4
 nbformat
+jupyter
 jupyter_client
 jupytext
 pyshp
