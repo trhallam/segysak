@@ -25,6 +25,12 @@ jobs:
           python -m pip install -U pip
           python -m pip install -r requirements.txt
 
+      - name: What is my env spec?
+        run: pip list
+
+      - name: What are my kernels?
+        run: jupyter kernelspec list
+
       - name: Execute the notebooks
         run: |
           jupytext --to ipynb --execute examples/*.py
