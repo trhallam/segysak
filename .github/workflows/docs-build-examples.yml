@@ -1,4 +1,4 @@
-name: Docs Example Build
+name: Docs Build Publish
 
 on:
   release:
@@ -7,11 +7,6 @@ on:
       - edited
     branches: master
   workflow_dispatch:
-    inputs:
-      branch:
-        description: "Branch to checkout for action"
-        required: true
-        default: "master"
 
 jobs:
   notebooks:
