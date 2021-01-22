@@ -4,12 +4,12 @@
 .wy-side-nav-search, .wy-nav-top {
     background: #eee;
   }
-  
+
   /* Sidebar header text */
   .wy-side-nav-search > div.version {
     color: #131413
   }
-  
+
  /* segysak name */
   .wy-side-nav-search > a {
       color: #131413
@@ -38,4 +38,9 @@ table.colwidths-given {
 table.docutils td {
     white-space: unset;
     word-wrap: break-word;
+}
+
+/* set max width of content to 1400px */
+.wy-nav-content {
+  max-width: 1400px !important;
 }

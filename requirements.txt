@@ -18,5 +18,6 @@ pandoc
 nbconvert!=5.4
 nbformat
 jupyter_client
+jupytext
 pyshp
 matplotlib

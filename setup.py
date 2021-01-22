@@ -46,6 +46,7 @@ extras_require = {
         "pandoc",
         "nbconvert!=5.4" "nbformat",
         "sphinx-copybutton",
+        "jupytext",
     ]
     + notebook_deps,
 }
