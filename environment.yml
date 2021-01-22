@@ -21,6 +21,7 @@ dependencies:
   - jupyter
   - ipywidgets
   - nbconvert
+  - jupytext
   - segyio
   - matplotlib
   - pip
