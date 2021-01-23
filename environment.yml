@@ -35,3 +35,4 @@ dependencies:
       - pandoc
       - h5netcdf>=0.8
       - parso<0.8.0,>=0.7.0
+      - rtds-action
