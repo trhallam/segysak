@@ -23,7 +23,17 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install -U pip
+          python -m pip install wheel
           python -m pip install -r requirements.txt
+
+      - name: Install package
+        run: python setup.py install
+
+      - name: What is my env spec?
+        run: pip list
+
+      - name: What are my kernels?
+        run: jupyter kernelspec list
 
       - name: Execute the notebooks
         run: |
@@ -34,9 +44,10 @@ jobs:
         with:
           name: example-notebooks-${{ github.sha }}
           path: examples/notebooks
-      # - name: Trigger RTDs build
-      #   uses: dfm/rtds-action@v1
-      #   with:
-      #     webhook_url: ${{ secrets.RTDS_WEBHOOK_URL }}
-      #     webhook_token: ${{ secrets.RTDS_WEBHOOK_TOKEN }}
-      #     commit_ref: ${{ github.ref }}
+
+      - name: Trigger RTDs build
+        uses: dfm/rtds-action@v1
+        with:
+          webhook_url: ${{ secrets.RTDS_WEBHOOK_URL }}
+          webhook_token: ${{ secrets.RTDS_WEBHOOK_TOKEN }}
+          commit_ref: ${{ github.ref }}

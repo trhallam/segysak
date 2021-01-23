@@ -408,6 +408,7 @@ def _3dsegy_loader(
     ds.attrs[AttrKeyField.source_file] = pathlib.Path(segyfile).name
     ds.attrs[AttrKeyField.measurement_system] = msys
     ds.attrs[AttrKeyField.sample_rate] = sample_rate
+    ds.attrs[AttrKeyField.coord_scalar] = head_df.SourceGroupScalar.median()
 
     if ncfile is not None and return_geometry == False:
         ds.seisio.to_netcdf(ncfile)
@@ -649,6 +650,7 @@ def _2dsegy_loader(
     ds.attrs[AttrKeyField.source_file] = pathlib.Path(segyfile).name
     ds.attrs[AttrKeyField.measurement_system] = msys
     ds.attrs[AttrKeyField.sample_rate] = sample_rate
+    ds.attrs[AttrKeyField.coord_scalar] = head_df.SourceGroupScalar.median()
 
     if ncfile is not None and return_geometry == True:
         ds.seisio.to_netcdf(ncfile)

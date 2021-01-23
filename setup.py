@@ -44,8 +44,11 @@ extras_require = {
         "sphinxcontrib-programoutput",
         "nbsphinx >= 0.7",
         "pandoc",
-        "nbconvert!=5.4" "nbformat",
+        "nbconvert!=5.4",
+        "nbformat",
         "sphinx-copybutton",
+        "rtds-action",
+        "jupytext",
     ]
     + notebook_deps,
 }
