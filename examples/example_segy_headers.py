@@ -25,12 +25,14 @@
 
 # %% nbsphinx="hidden"
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 # %%
 from segysak.segy import segy_header_scan
+
 # default just needs the file name
-scan = segy_header_scan('data/volve10r12-full-twt-sub3d.sgy')
+scan = segy_header_scan("data/volve10r12-full-twt-sub3d.sgy")
 scan
 
 # %% [markdown]
@@ -39,7 +41,9 @@ scan
 
 # %%
 import pandas as pd
-with pd.option_context('display.max_rows', 89):
+from IPython import display
+
+with pd.option_context("display.max_rows", 89):
     display(scan)
 
 # %% [markdown]
@@ -47,7 +51,7 @@ with pd.option_context('display.max_rows', 89):
 
 # %%
 # NIIIICCCEEEE...
-scan[scan['std'] > 0]
+scan[scan["std"] > 0]
 
 # %% [markdown]
 # ## Scraping Headers
@@ -56,14 +60,15 @@ scan[scan['std'] > 0]
 
 # %%
 from segysak.segy import segy_header_scrape
-scrape = segy_header_scrape('data/volve10r12-full-twt-sub3d.sgy', partial_scan=10000)
+
+scrape = segy_header_scrape("data/volve10r12-full-twt-sub3d.sgy", partial_scan=10000)
 scrape
 
 # %% [markdown]
 # We know from the scan that many of these fields were empty so lets go ahead and filter our *scrape* by using the standard deviation again and passing the index which is the same as our column names.
 
 # %%
-scrape = scrape[scan[scan['std'] > 0].index]
+scrape = scrape[scan[scan["std"] > 0].index]
 scrape
 
 # %% [markdown]
@@ -71,6 +76,7 @@ scrape
 
 # %%
 import matplotlib.pyplot as plt
+
 # %matplotlib inline
 
 
@@ -83,7 +89,11 @@ plot = scrape.hist(bins=25, figsize=(20, 10))
 # %%
 fig, axs = plt.subplots(nrows=2, figsize=(12, 10), sharex=True, sharey=True)
 
-scrape.plot(kind='scatter', x='CDP_X', y='CDP_Y', c='INLINE_3D', ax=axs[0], cmap='gist_ncar')
-scrape.plot(kind='scatter', x='CDP_X', y='CDP_Y', c='CROSSLINE_3D', ax=axs[1], cmap='gist_ncar')
+scrape.plot(
+    kind="scatter", x="CDP_X", y="CDP_Y", c="INLINE_3D", ax=axs[0], cmap="gist_ncar"
+)
+scrape.plot(
+    kind="scatter", x="CDP_X", y="CDP_Y", c="CROSSLINE_3D", ax=axs[1], cmap="gist_ncar"
+)
 for aa in axs:
-    aa.set_aspect('equal', 'box')
+    aa.set_aspect("equal", "box")

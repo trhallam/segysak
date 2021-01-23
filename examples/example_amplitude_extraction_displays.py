@@ -22,20 +22,27 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 # %%
-from segysak.segy import segy_loader, get_segy_texthead, segy_header_scan, segy_header_scrape, well_known_byte_locs
+from segysak.segy import (
+    segy_loader,
+    get_segy_texthead,
+    segy_header_scan,
+    segy_header_scrape,
+    well_known_byte_locs,
+)
 
 # %%
-segy_file = pathlib.Path('data/volve10r12-full-twt-sub3d.sgy')
+segy_file = pathlib.Path("data/volve10r12-full-twt-sub3d.sgy")
 cube = segy_loader(segy_file.absolute(), **well_known_byte_locs("petrel_3d"))
 
 # %%
-print('Loaded cube size: {}'.format(cube.seis.humanbytes))
+print("Loaded cube size: {}".format(cube.seis.humanbytes))
 
 # %%
-print('Is it two-way-time? {}'.format(cube.seis.is_twt()))
+print("Is it two-way-time? {}".format(cube.seis.is_twt()))
 
 # %% [markdown]
 # ## Load horizon data
@@ -43,8 +50,8 @@ print('Is it two-way-time? {}'.format(cube.seis.is_twt()))
 # First we load the horizon data to a Pandas DataFrame and take a look at the first few lines:
 
 # %%
-hrz_file = pathlib.Path('data/hor_twt_hugin_fm_top.dat')
-hrz = pd.read_csv(hrz_file, names=["cdp_x","cdp_y","twt"], sep='\s+')
+hrz_file = pathlib.Path("data/hor_twt_hugin_fm_top.dat")
+hrz = pd.read_csv(hrz_file, names=["cdp_x", "cdp_y", "twt"], sep="\s+")
 hrz.head()
 
 # %% [markdown]
@@ -56,7 +63,7 @@ hrz.head()
 
 # %%
 cube.seis.calc_corner_points()
-corners = np.array(cube.attrs['corner_points_xy'])
+corners = np.array(cube.attrs["corner_points_xy"])
 
 # %% [markdown]
 # To display the horizon we need to grid the raw data first:
@@ -67,23 +74,25 @@ from scipy.interpolate import griddata
 xi = np.linspace(hrz.cdp_x.min(), hrz.cdp_x.max(), 250)
 yi = np.linspace(hrz.cdp_y.min(), hrz.cdp_y.max(), 2500)
 X, Y = np.meshgrid(xi, yi)
-Z = griddata((hrz.cdp_x, hrz.cdp_y), hrz.twt, (X,Y))
+Z = griddata((hrz.cdp_x, hrz.cdp_y), hrz.twt, (X, Y))
 
 # %% [markdown]
 # And this is the resulting plot with the extent of the loaded cube displayed as a thick red outline:
 
 # %%
 from matplotlib.patches import Polygon
-survey_limits = Polygon(corners, fill=False, edgecolor='r',
-                        linewidth=2, label='3D survey extent')
 
-f, ax = plt.subplots(figsize=(8,6))
-pp = ax.pcolormesh(X, Y, Z, cmap='terrain_r')
-f.colorbar(pp, orientation='horizontal', label='TWT [ms]')
+survey_limits = Polygon(
+    corners, fill=False, edgecolor="r", linewidth=2, label="3D survey extent"
+)
+
+f, ax = plt.subplots(figsize=(8, 6))
+pp = ax.pcolormesh(X, Y, Z, cmap="terrain_r")
+f.colorbar(pp, orientation="horizontal", label="TWT [ms]")
 ax.add_patch(survey_limits)
-ax.axis('equal')
+ax.axis("equal")
 ax.legend()
-ax.set_title('Top Hugin fm.');
+ax.set_title("Top Hugin fm.")
 
 # %% [markdown]
 # ## Extracting amplitudes along the horizon
@@ -91,77 +100,84 @@ ax.set_title('Top Hugin fm.');
 # This is where the magic of segysak comes in. We use `surface_from_points` to map the loaded horizon imported in tabular format to each seismic bin. The input horizon in this case is defined in geographical coordinates but it would also have worked if it was defined in inlines and crosslines:
 
 # %%
-hrz_mapped = cube.seis.surface_from_points(hrz, 'twt', right=('cdp_x', 'cdp_y'))
+hrz_mapped = cube.seis.surface_from_points(hrz, "twt", right=("cdp_x", "cdp_y"))
 
 # %% [markdown]
 # And to extract seismic amplitudes along this horizon we use the magic of `xarray`:
 
 # %%
-amp = cube.data.interp({'iline':hrz_mapped.iline,
-                        'xline':hrz_mapped.xline,
-                        'twt':hrz_mapped.twt})
+amp = cube.data.interp(
+    {"iline": hrz_mapped.iline, "xline": hrz_mapped.xline, "twt": hrz_mapped.twt}
+)
 
 # %% [markdown]
 # For the next plot we use another attribute automatically calculated by **segysak** during loading to squeeze the colormap used when displaying amplitudes:
 
 # %%
-minamp, maxamp = cube.attrs['percentiles'][1], cube.attrs['percentiles'][-2]
+minamp, maxamp = cube.attrs["percentiles"][1], cube.attrs["percentiles"][-2]
 
 # %% [markdown]
 # ...and we calculate the minimum and maximum X and Y coordinates using the `corners` array described above to set the figure extent and zoom in the area covered by the seismic cube:
 
 # %%
-xmin, xmax = corners[:,0].min(), corners[:,0].max()
-ymin, ymax = corners[:,1].min(), corners[:,1].max()
+xmin, xmax = corners[:, 0].min(), corners[:, 0].max()
+ymin, ymax = corners[:, 1].min(), corners[:, 1].max()
 
 # %% [markdown]
 # We can plot `amp` now on top of the same twt grid we did above:
 
 # %%
-survey_limits = Polygon(corners, fill=False, edgecolor='r',
-                        linewidth=2, label='3D survey extent')
+survey_limits = Polygon(
+    corners, fill=False, edgecolor="r", linewidth=2, label="3D survey extent"
+)
 
-f, ax = plt.subplots(nrows=2, figsize=(8,10))
-ax[0].pcolormesh(X, Y, Z, cmap='terrain_r')
+f, ax = plt.subplots(nrows=2, figsize=(8, 10))
+ax[0].pcolormesh(X, Y, Z, cmap="terrain_r")
 ax[0].add_patch(survey_limits)
 for aa in ax:
-    hh = aa.pcolormesh(amp.cdp_x, amp.cdp_y, amp.data, cmap='RdYlBu',
-                   vmin=minamp, vmax=maxamp)
-    aa.axis('equal')
+    hh = aa.pcolormesh(
+        amp.cdp_x, amp.cdp_y, amp.data, cmap="RdYlBu", vmin=minamp, vmax=maxamp
+    )
+    aa.axis("equal")
 ax[0].legend()
 ax[1].set_xlim(xmin, xmax)
 ax[1].set_ylim(ymin, ymax)
-ax[0].set_title('Top Hugin fm. and amplitude extraction on loaded seismic')
-ax[1].set_title('Amplitude extraction at Top Hugin (zoom)')
+ax[0].set_title("Top Hugin fm. and amplitude extraction on loaded seismic")
+ax[1].set_title("Amplitude extraction at Top Hugin (zoom)")
 cax = f.add_axes([0.15, 0.16, 0.5, 0.02])
-f.colorbar(hh, cax=cax, orientation='horizontal');
+f.colorbar(hh, cax=cax, orientation="horizontal")
 
 # %% [markdown]
 # Another classic display is to superimpose the structure contours to the amplitudes. This is much faster and easier using survey coordinates (inlines and crosslines):
 
 # %%
-f, ax = plt.subplots(figsize=(12,4))
-amp.plot(cmap='RdYlBu')
-cs = plt.contour(amp.xline, amp.iline, hrz_mapped.twt, levels=20, colors='grey')
-plt.clabel(cs, fontsize=10, fmt='%.0f')
+f, ax = plt.subplots(figsize=(12, 4))
+amp.plot(cmap="RdYlBu")
+cs = plt.contour(amp.xline, amp.iline, hrz_mapped.twt, levels=20, colors="grey")
+plt.clabel(cs, fontsize=10, fmt="%.0f")
 ax.invert_xaxis()
 
 # %% [markdown]
 # ## Display horizon in section view
 
 # %%
-opt = dict(x='xline', y='twt', add_colorbar=True,
-        interpolation='spline16', robust=True,
-        yincrease=False, cmap='Greys')
+opt = dict(
+    x="xline",
+    y="twt",
+    add_colorbar=True,
+    interpolation="spline16",
+    robust=True,
+    yincrease=False,
+    cmap="Greys",
+)
 
 inl_sel = [10130, 10100]
 
-f, ax = plt.subplots(nrows=2, figsize=(10, 6), sharey=True,
-                     constrained_layout=True)
+f, ax = plt.subplots(nrows=2, figsize=(10, 6), sharey=True, constrained_layout=True)
 for i, val in enumerate(inl_sel):
-    cube.data.sel(iline=val, twt=slice(2300,3000)).plot.imshow(ax=ax[i], **opt)
+    cube.data.sel(iline=val, twt=slice(2300, 3000)).plot.imshow(ax=ax[i], **opt)
     x, t = hrz_mapped.sel(iline=val).xline, hrz_mapped.sel(iline=val).twt
-    ax[i].plot(x, t, color='r')
+    ax[i].plot(x, t, color="r")
     ax[i].invert_xaxis()
 
 # %% [markdown]
@@ -170,21 +186,20 @@ for i, val in enumerate(inl_sel):
 # %%
 inl_sel = [10130, 10100]
 
-f, ax = plt.subplots(nrows=2, figsize=(10, 6), sharey=True,
-                     constrained_layout=True)
+f, ax = plt.subplots(nrows=2, figsize=(10, 6), sharey=True, constrained_layout=True)
 
 for i, val in enumerate(inl_sel):
     axz = ax[i].twinx()
     x, t = amp.sel(iline=val).xline, amp.sel(iline=val).twt
     a = amp.sel(iline=val).data
-    ax[i].plot(x, a, color='r')
-    axz.plot(x, t, color='k')
+    ax[i].plot(x, a, color="r")
+    axz.plot(x, t, color="k")
     ax[i].invert_xaxis()
     axz.invert_yaxis()
-    ax[i].set_ylabel('Amplitude', color='r')
-    plt.setp(ax[i].yaxis.get_majorticklabels(), color='r')
-    axz.set_ylabel('TWT [ms]')
-    ax[i].set_title('Amplitude and two-way-time at inline {}'.format(val))
+    ax[i].set_ylabel("Amplitude", color="r")
+    plt.setp(ax[i].yaxis.get_majorticklabels(), color="r")
+    axz.set_ylabel("TWT [ms]")
+    ax[i].set_title("Amplitude and two-way-time at inline {}".format(val))
 
 # %% [markdown]
 # ## Horizon Sculpting and Windowed map Extraction
@@ -201,38 +216,50 @@ masks = [mask_above, mask_below]
 # Lets see what our masks look like
 
 # %%
-opt = dict(x='xline', y='twt', add_colorbar=True,
-        interpolation='spline16', robust=True,
-        yincrease=False, cmap='Greys')
+opt = dict(
+    x="xline",
+    y="twt",
+    add_colorbar=True,
+    interpolation="spline16",
+    robust=True,
+    yincrease=False,
+    cmap="Greys",
+)
 
 inl_sel = [10130, 10100]
 
-f, ax = plt.subplots(nrows=2, figsize=(10, 6), sharey=True,
-                     constrained_layout=True)
-for i, val in enumerate(inl_sel,):
-    masks[i].data.sel(iline=val, twt=slice(2300,3000)).plot.imshow(ax=ax[i], **opt)
+f, ax = plt.subplots(nrows=2, figsize=(10, 6), sharey=True, constrained_layout=True)
+for i, val in enumerate(
+    inl_sel,
+):
+    masks[i].data.sel(iline=val, twt=slice(2300, 3000)).plot.imshow(ax=ax[i], **opt)
     x, t = hrz_mapped.sel(iline=val).xline, hrz_mapped.sel(iline=val).twt
-    ax[i].plot(x, t, color='r')
+    ax[i].plot(x, t, color="r")
     ax[i].invert_xaxis()
 
 # %% [markdown]
 # And if we combine the masks.
 
 # %%
-opt = dict(x='xline', y='twt', add_colorbar=True,
-        interpolation='spline16', robust=True,
-        yincrease=False, cmap='Greys')
+opt = dict(
+    x="xline",
+    y="twt",
+    add_colorbar=True,
+    interpolation="spline16",
+    robust=True,
+    yincrease=False,
+    cmap="Greys",
+)
 
 inl_sel = [10130, 10100]
 
-f, ax = plt.subplots(nrows=1, figsize=(10, 3), sharey=True,
-                     constrained_layout=True)
+f, ax = plt.subplots(nrows=1, figsize=(10, 3), sharey=True, constrained_layout=True)
 
-masked_data = 0.5*(mask_below + mask_above)
+masked_data = 0.5 * (mask_below + mask_above)
 
-masked_data.data.sel(iline=val, twt=slice(2300,3000)).plot.imshow(ax=ax, **opt)
+masked_data.data.sel(iline=val, twt=slice(2300, 3000)).plot.imshow(ax=ax, **opt)
 x, t = hrz_mapped.sel(iline=val).xline, hrz_mapped.sel(iline=val).twt
-ax.plot(x, t, color='r')
+ax.plot(x, t, color="r")
 ax.invert_xaxis()
 
 # %% [markdown]
@@ -240,11 +267,14 @@ ax.invert_xaxis()
 # we can use the `np.apply_along_axis` function to apply a custom function to our masked cube.
 
 # %%
-summed_amp = masked_data.sum(dim='twt')
+summed_amp = masked_data.sum(dim="twt")
 
-f, ax = plt.subplots(figsize=(12,4))
-summed_amp.data.plot.imshow(cmap='RdYlBu', interpolation='spline16', )
-cs = plt.contour(amp.xline, amp.iline, hrz_mapped.twt, levels=20, colors='grey')
-plt.clabel(cs, fontsize=10, fmt='%.0f')
+f, ax = plt.subplots(figsize=(12, 4))
+summed_amp.data.plot.imshow(
+    cmap="RdYlBu",
+    interpolation="spline16",
+)
+cs = plt.contour(amp.xline, amp.iline, hrz_mapped.twt, levels=20, colors="grey")
+plt.clabel(cs, fontsize=10, fmt="%.0f")
 ax.invert_xaxis()
-ax.set_title('Sum of amplitudes Top Hugin 0 to +100ms')
+ax.set_title("Sum of amplitudes Top Hugin 0 to +100ms")
