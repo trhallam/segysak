@@ -16,18 +16,19 @@
 # %% [markdown]
 # # Quick Overview
 #
-# Here you can find some quick examples of what you can do with segysak. For more details refer to the [examples](../../examples.html).
+# Here you can find some quick examples of what you can do with segysak. For more details refer to the [examples](../examples.html).
 
 # %% [markdown]
 # The library is imported as *segysak* and the loaded `xarray` objects are compatible with *numpy* and *matplotlib*.
 #
 # The cropped volume from the Volve field in the North Sea (made available by Equinor) is used for this example, and
-# all the examples and data in this documentation are available from the `examples` folder of the 
+# all the examples and data in this documentation are available from the `examples` folder of the
 # [Github](https://github.com/trhallam/segysak) respository.
 
 # %% nbsphinx="hidden"
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 # %%
 import segysak as sg
@@ -49,6 +50,7 @@ print("3D", V3D_path, V3D_path.exists())
 
 # %%
 from segysak.segy import get_segy_texthead
+
 get_segy_texthead(V3D_path)
 
 # %% [markdown]
@@ -71,7 +73,7 @@ scan
 # can also see the byte positions of the **local grid** for INLINE_3D in byte *189* and for CROSSLINE_3D in byte *193*.
 
 # %%
-scan[scan['std'] > 0]
+scan[scan["std"] > 0]
 
 # %% [markdown]
 # To retreive the raw header content use `segy_header_scrape`. Setting `partial_scan=None` will return the
@@ -79,11 +81,12 @@ scan[scan['std'] > 0]
 
 # %%
 from segysak.segy import segy_header_scrape
+
 scrape = segy_header_scrape(V3D_path, partial_scan=1000)
 scrape
 
 # %% [markdown]
-# ## Load SEG-Y data 
+# ## Load SEG-Y data
 
 # %% [markdown]
 # All SEGY (2D, 2D gathers, 3D & 3D gathers) are ingested into `xarray.Dataset` objects through the
@@ -94,7 +97,8 @@ scrape
 
 # %%
 from segysak.segy import segy_loader, well_known_byte_locs
-V3D = segy_loader(V3D_path, iline = 189,  xline = 193, cdpx = 73, cdpy = 77, vert_domain='TWT')
+
+V3D = segy_loader(V3D_path, iline=189, xline=193, cdpx=73, cdpy=77, vert_domain="TWT")
 V3D
 
 # %% [markdown]
@@ -106,12 +110,14 @@ V3D
 # `xarray` selections can be passed to normal `matplotlib.pyplot` functions.
 
 # %%
-fig, ax1 = plt.subplots(ncols=1, figsize = (15,8))
+fig, ax1 = plt.subplots(ncols=1, figsize=(15, 8))
 iline_sel = 10093
-V3D.data.transpose('twt', 'iline', 'xline', transpose_coords=True).sel(iline = iline_sel).plot(yincrease=False, cmap = 'seismic_r')
-plt.grid('grey')
-plt.ylabel('TWT')
-plt.xlabel('XLINE')
+V3D.data.transpose("twt", "iline", "xline", transpose_coords=True).sel(
+    iline=iline_sel
+).plot(yincrease=False, cmap="seismic_r")
+plt.grid("grey")
+plt.ylabel("TWT")
+plt.xlabel("XLINE")
 
 # %% [markdown]
 # ## Saving data to NetCDF4
@@ -124,10 +130,13 @@ V3D.seisio.to_netcdf("V3D.SEISNC")
 
 # %% [markdown]
 # ## Saving data to SEG-Y.
-# 
+#
 # To return data to SEG-Y after modification use the `segy_writer` function. `segy_writer` takes as argument a SEISNC dataset which
 # requires certain attributes be set. You can also specify the byte locations to write header information.
 
 # %%
 from segysak.segy import segy_writer
-segy_writer(V3D, "V3D.segy", trace_header_map=dict(iline=5, xline=21)) # Petrel Locations
+
+segy_writer(
+    V3D, "V3D.segy", trace_header_map=dict(iline=5, xline=21)
+)  # Petrel Locations
