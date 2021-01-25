@@ -114,6 +114,11 @@ github_url = "https://github.com/trhallam/segysak/"
 
 htmlhelp_basename = "segysakdoc"
 
+nbsphinx_prolog = """
+.. note::
+
+   Get this example as a Jupyter Notebook  :download:`ipynb <{{ env.doc2path(env.docname, base=None)[9:] }}>`
+"""
 
 # build examples - comment this out if you have pre-built examples and don't want
 # to rebuild for all docs
@@ -150,6 +155,8 @@ if build_examples:
             top_level_examples / "data",
             examples_dir / "data",
         )
+else:
+    nbsphinx_execute = "never"
 
 
 def setup(app):

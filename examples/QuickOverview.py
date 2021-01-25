@@ -31,8 +31,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # %%
-import segysak as sg
-import numpy as np
 import matplotlib.pyplot as plt
 import pathlib
 
@@ -129,7 +127,7 @@ plt.xlabel("XLINE")
 V3D.seisio.to_netcdf("V3D.SEISNC")
 
 # %% [markdown]
-# ## Saving data to SEG-Y.
+# ## Saving data to SEG-Y
 #
 # To return data to SEG-Y after modification use the `segy_writer` function. `segy_writer` takes as argument a SEISNC dataset which
 # requires certain attributes be set. You can also specify the byte locations to write header information.

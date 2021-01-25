@@ -13,8 +13,6 @@
 #     name: python3
 # ---
 
-# %% [markdown]
-# This notebook is part of the `segysak` documentation: https://segysak.readthedocs.io/en/latest/.
 
 # %% [markdown]
 # # SEGY-SAK Basics
@@ -24,12 +22,13 @@
 # %% [markdown]
 # ## Creating empty 3D geometry
 #
-# In **segysak** we use the term `seisnc` to refer to a `dataset` which is compatible with **segysak's** functionality and which has the additional names spaces registered with `xarray`, for all intensive purposes it is an `xarray.Dataset` but with defined dimensions and coordinates and some extended functionality. The `seisnc` dimensions are defined depending on what type of seismic it is (2D, 3D, gathers, *etc.*) 
+# In **segysak** we use the term `seisnc` to refer to a `dataset` which is compatible with **segysak's** functionality and which has the additional names spaces registered with `xarray`, for all intensive purposes it is an `xarray.Dataset` but with defined dimensions and coordinates and some extended functionality. The `seisnc` dimensions are defined depending on what type of seismic it is (2D, 3D, gathers, *etc.*)
 #
 # To create an empty 3D instance of `seisnc` use the `create3d_dataset`. The function creates a new `seisnc` based upon definitions for the dimensions, `iline` numbering, `xline` numbering and the vertical sampling.
 
 # %%
 import matplotlib.pyplot as plt
+
 # %matplotlib inline
 
 from segysak import create3d_dataset
@@ -37,7 +36,16 @@ from segysak import create3d_dataset
 # dims iline, xline, vert
 dims = (10, 5, 1000)
 
-new_seisnc = create3d_dataset(dims, first_iline=1, iline_step=2, first_xline=10, xline_step=1, first_sample=0, sample_rate=1, vert_domain='TWT')
+new_seisnc = create3d_dataset(
+    dims,
+    first_iline=1,
+    iline_step=2,
+    first_xline=10,
+    xline_step=1,
+    first_sample=0,
+    sample_rate=1,
+    vert_domain="TWT",
+)
 new_seisnc
 
 # %% [markdown]
@@ -55,17 +63,19 @@ xarray_selection = new_seisnc.sel(iline=9, xline=12)
 # key error
 # xarray_selection = new_seisnc.sel(twt=8.5)
 # select nearest twt slice
-xarray_selection = new_seisnc.sel(twt=8.5, method='nearest')
+xarray_selection = new_seisnc.sel(twt=8.5, method="nearest")
 # select a range
-xarray_selection = new_seisnc.sel(iline=[9,11,13])
+xarray_selection = new_seisnc.sel(iline=[9, 11, 13])
 # select a subcube
 # also slices can be used to select ranges as if they were indices!
-xarray_selection = new_seisnc.sel(iline=slice(9,13), xline=[10, 11, 12])
+xarray_selection = new_seisnc.sel(iline=slice(9, 13), xline=[10, 11, 12])
 # index selection principles are similar
-xarray_selection = new_seisnc.sel(iline=slice(1,4))
+xarray_selection = new_seisnc.sel(iline=slice(1, 4))
 
 # putting it altogether to extract a sub-cropped horizon slice at odd interval
-xarray_selection = new_seisnc.sel(twt=8.5, iline=new_seisnc.iline[:4], xline=[10, 12], method='nearest')
+xarray_selection = new_seisnc.sel(
+    twt=8.5, iline=new_seisnc.iline[:4], xline=[10, 12], method="nearest"
+)
 xarray_selection
 
 # %% [markdown]
@@ -82,18 +92,19 @@ xarray_selection
 # get the dims
 dims = new_seisnc.dims
 print(dims)
-dkeys = ('xline', 'iline', 'twt')
+dkeys = ("xline", "iline", "twt")
 dsize = [dims[key] for key in dkeys]
-print('keys:', dkeys, 'sizes:', dsize)
+print("keys:", dkeys, "sizes:", dsize)
 
 # %%
 import numpy as np
+
 # create some to data the dimension shapes
 xline_, iline_, twt_ = np.meshgrid(new_seisnc.iline, new_seisnc.xline, new_seisnc.twt)
-data = np.sin(twt_/100) + 2*iline_ * np.cos(xline_/20 + 10)
+data = np.sin(twt_ / 100) + 2 * iline_ * np.cos(xline_ / 20 + 10)
 
 # assign the data to dataset by passing in a tuple of the dimension keys and the new data
-new_seisnc['data'] = (dkeys, data)
+new_seisnc["data"] = (dkeys, data)
 
 fig, axs = plt.subplots(ncols=3, figsize=(15, 5))
 
@@ -101,10 +112,14 @@ fig, axs = plt.subplots(ncols=3, figsize=(15, 5))
 new_seisnc.data.sel(iline=7).plot(ax=axs[0])
 
 # rotate the cube
-new_seisnc.data.transpose('twt', 'iline', 'xline').sel(iline=7).plot(ax=axs[1], yincrease=False)
+new_seisnc.data.transpose("twt", "iline", "xline").sel(iline=7).plot(
+    ax=axs[1], yincrease=False
+)
 
 # xline is the same?
-new_seisnc.data.transpose('twt', 'iline', 'xline').isel(xline=2).plot(ax=axs[2], yincrease=False)
+new_seisnc.data.transpose("twt", "iline", "xline").isel(xline=2).plot(
+    ax=axs[2], yincrease=False
+)
 
 # %% [markdown]
 # ## Other Useful Methods
@@ -138,11 +153,11 @@ print(np.sum(new_seisnc.data))
 # Along with using masks this is fundamental building block for performing horizonal sculpting.
 
 # %%
-map_data = np.abs(new_seisnc.data).sum(dim='twt')
+map_data = np.abs(new_seisnc.data).sum(dim="twt")
 img = map_data.plot()
 
 # %% [markdown]
 # Sometimes we need to modify the dimensions because they were read wrong or do scale them. Modify your dimension from the seisnc and then put it back using `assign_coords`.
 
 # %%
-new_seisnc.assign_coords(iline=new_seisnc.iline*10, twt=new_seisnc.twt+1500)
+new_seisnc.assign_coords(iline=new_seisnc.iline * 10, twt=new_seisnc.twt + 1500)
