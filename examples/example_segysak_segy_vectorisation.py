@@ -13,8 +13,6 @@
 #     name: python3
 # ---
 
-# %% [markdown]
-# This notebook is part of the `segysak` documentation: https://segysak.readthedocs.io/en/latest/.
 
 # %% [markdown] jupyter={"source_hidden": true}
 # # SEGY to Vector DataFrames and Back
@@ -27,7 +25,7 @@
 
 # %%
 import pathlib
-from IPython import display
+from IPython.display import display
 from segysak.segy import segy_loader, well_known_byte_locs, segy_writer
 
 volve_3d_path = pathlib.Path("data/volve10r12-full-twt-sub3d.sgy")
