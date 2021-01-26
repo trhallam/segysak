@@ -1,0 +1,10 @@
+attrdict >= 2.0
+dask >= 2021
+jupytext >= 1.9.1
+pypandoc >= 1.5
+matplotlib
+tqdm
+xarray
+numpy
+nbsphinx
+click >= 7.0, <8.0
