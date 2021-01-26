@@ -117,7 +117,7 @@ htmlhelp_basename = "segysakdoc"
 nbsphinx_prolog = """
 .. note::
 
-   Get this example as a Jupyter Notebook  :download:`ipynb <{{ env.doc2path(env.docname, base=None)[9:] }}>`
+   Get this example as a Jupyter Notebook  :download:`ipynb <_examples/{{ env.doc2path(env.docname, base=None)[9:] }}>`
 """
 
 # build examples - comment this out if you have pre-built examples and don't want
@@ -128,7 +128,9 @@ if build_examples:
     # need to copy notebooks into main tree
     print("Copy examples into docs/_examples")
     top_level_examples = pathlib.Path(".").absolute().parent / "examples"
+    print("Top_Level", top_level_examples)
     examples_dir = pathlib.Path("_examples")
+    print("Examples Dir", examples_dir.absolute())
     shutil.rmtree(examples_dir, ignore_errors=True)
     examples_dir.mkdir(exist_ok=True)
 
