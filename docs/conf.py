@@ -115,21 +115,23 @@ github_url = "https://github.com/trhallam/segysak/"
 htmlhelp_basename = "segysakdoc"
 
 nbsphinx_prolog = """
+{% set docname = "./" + env.docname[8:] %}
+
 .. note::
 
-   Get this example as a Jupyter Notebook  :download:`ipynb <{{ env.doc2path(env.docname, base=None) }}>`
+   Get this example as a Jupyter Notebook :download:`ipynb <{{ docname }}.ipynb>`
 """
 
 # build examples - comment this out if you have pre-built examples and don't want
 # to rebuild for all docs
-build_examples = True
+build_examples = False
 
 if build_examples:
     # need to copy notebooks into main tree
-    print("Copy examples into docs/_examples")
+    print("Copy examples into docs/examples")
     top_level_examples = pathlib.Path(".").absolute().parent / "examples"
     print("Top_Level", top_level_examples)
-    examples_dir = pathlib.Path("_examples")
+    examples_dir = pathlib.Path("examples")
     print("Examples Dir", examples_dir.absolute())
     shutil.rmtree(examples_dir, ignore_errors=True)
     examples_dir.mkdir(exist_ok=True)
