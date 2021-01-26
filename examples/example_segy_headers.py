@@ -41,7 +41,7 @@ scan
 
 # %%
 import pandas as pd
-from IPython import display
+from IPython.display import display
 
 with pd.option_context("display.max_rows", 89):
     display(scan)
