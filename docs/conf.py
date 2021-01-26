@@ -117,7 +117,7 @@ htmlhelp_basename = "segysakdoc"
 nbsphinx_prolog = """
 .. note::
 
-   Get this example as a Jupyter Notebook  :download:`ipynb <_examples/{{ env.doc2path(env.docname, base=None)[9:] }}>`
+   Get this example as a Jupyter Notebook  :download:`ipynb <{{ env.doc2path(env.docname, base=None) }}>`
 """
 
 # build examples - comment this out if you have pre-built examples and don't want
