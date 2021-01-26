@@ -124,7 +124,7 @@ nbsphinx_prolog = """
 
 # build examples - comment this out if you have pre-built examples and don't want
 # to rebuild for all docs
-build_examples = False
+build_examples = True
 
 if build_examples:
     # need to copy notebooks into main tree
