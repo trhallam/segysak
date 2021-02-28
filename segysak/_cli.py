@@ -219,6 +219,9 @@ def convert(
     output_file, input_files, iline, xline, cdpx, cdpy, crop, output_type, dimension
 ):
 
+    if len(input_files) > 1 and output_file is not None:
+        raise ValueError("The output file option should not be used with multiple input files.")
+
     for input_file in input_files:
         input_file = pathlib.Path(input_file)
         if output_type is None and output_file is not None:
@@ -239,13 +242,18 @@ def convert(
 
         if len(crop) == 0:
             crop_loc = None
+        else:
+            crop_loc = crop
 
         if output_type == "NETCDF":
             if output_file is None:
-                output_file = input_file.stem + ".SEISNC"
+                output_file_loc = input_file.stem + ".SEISNC"
+            else:
+                output_file_loc = output_file
+
             segy_converter(
                 input_file,
-                ncfile=output_file,
+                ncfile=output_file_loc,
                 iline=iline,
                 xline=xline,
                 ix_crop=crop_loc,
@@ -256,7 +264,9 @@ def convert(
             LOGGER.info(f"NetCDF output written to {output_file}")
         elif output_type == "SEGY":
             if output_file is None:
-                output_file = input_file.stem + ".segy"
+                output_file_loc = input_file.stem + ".segy"
+            else:
+                output_file_loc = output_file
 
             cdp_x = cdpx
             cdp_y = cdpy
@@ -269,7 +279,7 @@ def convert(
             }
             segy_writer(
                 input_file,
-                output_file,
+                output_file_loc,
                 trace_header_map=trace_header_map,
                 dimension=dimension,
             )
