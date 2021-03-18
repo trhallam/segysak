@@ -146,3 +146,4 @@ segysak xarray accessor modules
   :toctree: generated/
 
   SeisGeom.plot_bounds
+  SeisGeom.get_affine_transform

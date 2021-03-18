@@ -183,7 +183,11 @@ def scrape(filename, ebcidc=False, trace_headers=False):
 @cli.command(
     help="Convert file between SEGY and NETCDF (direction is guessed or can be made explicit with the --output-type option)"
 )
-@click.argument("input-file", type=click.Path(exists=True))
+@click.argument(
+    "input-files",
+    type=click.Path(exists=True),
+    nargs=-1,
+)
 @click.option(
     "--output-file", "-o", type=click.STRING, help="Output file name", default=None
 )
@@ -216,56 +220,82 @@ def scrape(filename, ebcidc=False, trace_headers=False):
     help="Data dimension (domain) to write out, will default to TWT or DEPTH. Only used for writing to SEGY.",
 )
 def convert(
-    output_file, input_file, iline, xline, cdpx, cdpy, crop, output_type, dimension
+    output_file, input_files, iline, xline, cdpx, cdpy, crop, output_type, dimension
 ):
-    input_file = pathlib.Path(input_file)
-    if output_type is None and output_file is not None:
-        output_type = guess_file_type(output_file)
-    elif output_type is None and output_file is None:
-        """Because currently only one conversion exists we can guess the output from the input"""
-        input_type = guess_file_type(input_file)
-        if input_type:
-            output_type = "SEGY" if input_type == "NETCDF" else "NETCDF"
 
-    if output_type is None:
-        click.echo(
-            "Output type not recognised! Please provide the desired output file type explicitly using the --output-type option"
+    if len(input_files) > 1 and output_file is not None:
+        raise ValueError(
+            "The output file option should not be used with multiple input files."
         )
-        raise SystemExit
 
-    click.echo(f"Converting file {input_file.name} to {output_type}")
+    for input_file in input_files:
+        input_file = pathlib.Path(input_file)
+        if output_type is None and output_file is not None:
+            output_type = guess_file_type(output_file)
+        elif output_type is None and output_file is None:
+            """Because currently only one conversion exists we can guess the output from the input"""
+            input_type = guess_file_type(input_file)
+            if input_type:
+                output_type = "SEGY" if input_type == "NETCDF" else "NETCDF"
 
-    if len(crop) == 0:
-        crop = None
+        if output_type is None:
+            click.echo(
+                "Output type not recognised! Please provide the desired output file type explicitly using the --output-type option"
+            )
+            raise SystemExit
 
-    if output_type == "NETCDF":
-        if output_file is None:
-            output_file = input_file.stem + ".SEISNC"
-        segy_converter(
-            input_file,
-            ncfile=output_file,
-            iline=iline,
-            xline=xline,
-            ix_crop=crop,
-            cdpx=cdpx,
-            cdpy=cdpy,
-        )
-        click.echo(f"Converted file saved as {output_file}")
-        LOGGER.info(f"NetCDF output written to {output_file}")
-    elif output_type == "SEGY":
-        if output_file is None:
-            output_file = input_file.stem + ".segy"
-        thm = dict()
-# iline=iline, xline=xline, 
-#         )
-        segy_writer(
-            input_file, output_file, trace_header_map=thm, dimension=dimension
-        )
-        click.echo(f"Converted file saved as {output_file}")
-        LOGGER.info(f"SEGY output written to {output_file}")
-    else:
-        click.echo(f"Conversion to output-type {output_type} is not implemented yet")
-        raise SystemExit
+        click.echo(f"Converting file {input_file.name} to {output_type}")
+
+        if len(crop) == 0:
+            crop_loc = None
+        else:
+            crop_loc = crop
+
+        if output_type == "NETCDF":
+            if output_file is None:
+                output_file_loc = input_file.stem + ".SEISNC"
+            else:
+                output_file_loc = output_file
+
+            segy_converter(
+                input_file,
+                ncfile=output_file_loc,
+                iline=iline,
+                xline=xline,
+                ix_crop=crop_loc,
+                cdpx=cdpx,
+                cdpy=cdpy,
+            )
+            click.echo(f"Converted file saved as {output_file_loc}")
+            LOGGER.info(f"NetCDF output written to {output_file_loc}")
+        elif output_type == "SEGY":
+            if output_file is None:
+                output_file_loc = input_file.stem + ".segy"
+            else:
+                output_file_loc = output_file
+
+            cdp_x = cdpx
+            cdp_y = cdpy
+            vars = locals()
+
+            trace_header_map = {
+                key: vars[key]
+                for key in ["iline", "xline", "cdp_x", "cdp_y"]
+                if vars[key] is not None
+            }
+            segy_writer(
+                input_file,
+                output_file_loc,
+                trace_header_map=trace_header_map,
+                dimension=dimension,
+            )
+            click.echo(f"Converted file saved as {output_file_loc}")
+            LOGGER.info(f"SEGY output written to {output_file_loc}")
+        else:
+            click.echo(
+                f"Conversion to output-type {output_type} is not implemented yet"
+            )
+            raise SystemExit
 
 
 if __name__ == "__main__":

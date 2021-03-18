@@ -33,7 +33,7 @@ notebook_deps = [
     "pyvista",
 ]
 
-testing_deps = ["flake8", "pytest", "hypothesis", "affine"]
+testing_deps = ["flake8", "pytest", "hypothesis", "affine", "pytest_cases"]
 
 extras_require = {
     "notebook": notebook_deps,
@@ -44,8 +44,11 @@ extras_require = {
         "sphinxcontrib-programoutput",
         "nbsphinx >= 0.7",
         "pandoc",
-        "nbconvert!=5.4" "nbformat",
+        "nbconvert!=5.4",
+        "nbformat",
         "sphinx-copybutton",
+        "rtds-action",
+        "jupytext",
     ]
     + notebook_deps,
 }
@@ -75,7 +78,10 @@ setup(
         "Programming Language :: Python :: 3 :: Only",
         "Topic :: Scientific/Engineering",
     ],
-    setup_requires=["pytest-runner", "setuptools_scm",],
+    setup_requires=[
+        "pytest-runner",
+        "setuptools_scm",
+    ],
     use_scm_version={
         "root": ".",
         "relative_to": __file__,

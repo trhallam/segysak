@@ -11,6 +11,7 @@ import pandas as pd
 from scipy.interpolate import griddata
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as plt
+from matplotlib.transforms import Affine2D
 
 from ._keyfield import AttrKeyField, DimensionKeyField, CoordKeyField, VariableKeyField
 from ._richstr import _upgrade_txt_richstr
@@ -191,7 +192,10 @@ class SeisGeom:
                 for key in keys
             ]
         ).transpose()
-        xlines_, ilines_ = np.meshgrid(self._obj["xline"], self._obj["iline"],)
+        xlines_, ilines_ = np.meshgrid(
+            self._obj["xline"],
+            self._obj["iline"],
+        )
 
         # these must all be the same length
         ils = np.atleast_1d(griddata(grid, ilines_.ravel(), points))
@@ -270,8 +274,7 @@ class SeisGeom:
         return cdp_ds
 
     def _has_dims(self, dimension_options, invalid_dimension_options=None):
-        """Check dataset has one of dimension options.
-        """
+        """Check dataset has one of dimension options."""
         current_dims = set(self._obj.dims)
 
         # check for a match
@@ -291,8 +294,7 @@ class SeisGeom:
         return result
 
     def _is_known_geometry(self):
-        """Decide if known geometry this volume is and return the appropriate enum.
-        """
+        """Decide if known geometry this volume is and return the appropriate enum."""
         current_dims = set(self._obj.dims)
         for key in DimensionKeyField:
             if set(key).issubset(current_dims):
@@ -300,8 +302,7 @@ class SeisGeom:
         return False
 
     def is_2d(self):
-        """Returns True if the dataset is 2D peformant else False
-        """
+        """Returns True if the dataset is 2D peformant else False"""
         dim_options = [
             DimensionKeyField.twod_twt,
             DimensionKeyField.twod_depth,
@@ -313,8 +314,7 @@ class SeisGeom:
         return self._has_dims(dim_options, invalid_dim_options)
 
     def is_3d(self):
-        """Returns True if the dataset is 3D peformant else False
-        """
+        """Returns True if the dataset is 3D peformant else False"""
         dim_options = [
             DimensionKeyField.threed_twt,
             DimensionKeyField.threed_depth,
@@ -326,8 +326,7 @@ class SeisGeom:
         return self._has_dims(dim_options, invalid_dim_options)
 
     def is_2dgath(self):
-        """Returns True if the dataset is 2D peformant and has offset or angle else False
-        """
+        """Returns True if the dataset is 2D peformant and has offset or angle else False"""
         dim_options = [
             DimensionKeyField.twod_ps_twt,
             DimensionKeyField.twod_ps_depth,
@@ -335,8 +334,7 @@ class SeisGeom:
         return self._has_dims(dim_options)
 
     def is_3dgath(self):
-        """Returns True if the dataset is 3D peformant and has offset or angle else False
-        """
+        """Returns True if the dataset is 3D peformant and has offset or angle else False"""
         dim_options = [
             DimensionKeyField.threed_ps_twt,
             DimensionKeyField.threed_ps_depth,
@@ -353,20 +351,17 @@ class SeisGeom:
             )
 
     def is_twt(self):
-        """Check if seisnc volume is in twt
-        """
+        """Check if seisnc volume is in twt"""
         self._check_multi_z()
         return True if CoordKeyField.twt in self._obj.dims else False
 
     def is_depth(self):
-        """Check if seisnc volume is in depth
-        """
+        """Check if seisnc volume is in depth"""
         self._check_multi_z()
         return True if CoordKeyField.depth in self._obj.dims else False
 
     def is_empty(self):
-        """Check if empty
-        """
+        """Check if empty"""
         if VariableKeyField.data in self._obj.variables:
             # This could be smartened up to check logic make sure dimensions of data
             # are correct.
@@ -375,8 +370,7 @@ class SeisGeom:
             return True
 
     def get_measurement_system(self):
-        """Return measurement_system if present, else None
-        """
+        """Return measurement_system if present, else None"""
         if hasattr(self._obj, "measurement_system"):
             return self._obj.measurement_system
         else:
@@ -657,3 +651,44 @@ class SeisGeom:
             coord_df.cdp_y.values.reshape(self._obj.cdp_y.shape),
         )
 
+    def get_affine_transform(self):
+        """Calculate the forward iline/xline -> cdp_x, cdp_y Affine transform
+        for Matplotlib using corner point geometry.
+
+        Returns:
+            matplotlib.transforms.Affine2D:
+
+        Raises:
+            ValueError: If Dataset is not 3D
+        """
+        if not self.is_3d():
+            raise ValueError()
+        self.calc_corner_points()
+
+        cp_xy = self._obj.corner_points_xy
+        cp_ix = self._obj.corner_points
+
+        ang_xl = np.arctan2(cp_xy[1][1] - cp_xy[0][1], cp_xy[1][0] - cp_xy[0][0])
+        ang_il = np.arctan2(cp_xy[3][1] - cp_xy[0][1], cp_xy[3][0] - cp_xy[0][0])
+        il_length = np.sqrt(
+            np.power(cp_xy[3][0] - cp_xy[0][0], 2)
+            + np.power(cp_xy[3][1] - cp_xy[0][1], 2)
+        )
+        xl_length = np.sqrt(
+            np.power(cp_xy[1][0] - cp_xy[0][0], 2)
+            + np.power(cp_xy[1][1] - cp_xy[0][1], 2)
+        )
+        dxl = cp_ix[1][1] - cp_ix[0][1]
+        dil = cp_ix[3][0] - cp_ix[0][0]
+
+        affine_grid2loc = Affine2D()
+        affine_grid2loc = (
+            affine_grid2loc.rotate_around(  # rotate around origin
+                cp_xy[0][0], cp_xy[0][1], -ang_il
+            )
+            .translate(-cp_xy[0][0], -cp_xy[0][1])  # move to zero origin
+            .scale(1.0 / il_length, 1.0 / xl_length)  # scale to 1.0
+            .scale(dil, dxl)  # scale to il/xl
+            .translate(cp_ix[0][0], cp_ix[0][1])  # move to ilxl origin
+        )
+        return affine_grid2loc.inverted()

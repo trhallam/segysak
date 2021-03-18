@@ -17,6 +17,8 @@ nbsphinx >= 0.7
 pandoc
 nbconvert!=5.4
 nbformat
+jupyter
 jupyter_client
+jupytext
 pyshp
 matplotlib

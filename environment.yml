@@ -5,7 +5,7 @@ channels:
   - defaults
 
 dependencies:
-  - python=3.7
+  - python=3.8
   - dask
   - dask-core
   - distributed
@@ -21,6 +21,7 @@ dependencies:
   - jupyter
   - ipywidgets
   - nbconvert
+  - jupytext
   - segyio
   - matplotlib
   - pip
@@ -33,3 +34,5 @@ dependencies:
       - nbsphinx >= 0.7
       - pandoc
       - h5netcdf>=0.8
+      - parso<0.8.0,>=0.7.0
+      - rtds-action

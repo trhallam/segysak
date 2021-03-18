@@ -56,7 +56,7 @@ Documentation
 
    why-segysak
    installation
-   _examples/notebooks/QuickOverview
+   examples/QuickOverview
 
 **User Guide**
 

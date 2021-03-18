@@ -2,8 +2,6 @@
 """Functions to interact with segy data
 """
 
-from warnings import warn
-from functools import partial
 import importlib
 import pathlib
 from numpy.core.fromnumeric import trace
@@ -14,7 +12,6 @@ import segyio
 import h5netcdf
 from attrdict import AttrDict
 import numpy as np
-import pandas as pd
 import xarray as xr
 
 try:
@@ -47,7 +44,6 @@ from segysak._keyfield import (
 )
 from segysak._seismic_dataset import (
     create_seismic_dataset,
-    create3d_dataset,
     _dataset_coordinate_helper,
 )
 
@@ -121,11 +117,11 @@ def _segy3d_ncdf(
         if head_df[head_loc.xline].diff().min() < 0:
             contig_dir = head_loc.iline
             broken_dir = head_loc.xline
-            slicer = lambda x, y: slice(x, y, ...)
+            # slicer = lambda x, y: slice(x, y, ...)
         else:
             contig_dir = head_loc.xline
             broken_dir = head_loc.iline
-            slicer = lambda x, y: slice(y, x, ...)
+            # slicer = lambda x, y: slice(y, x, ...)
 
         print(f"Fast direction is {broken_dir}")
 
@@ -134,12 +130,10 @@ def _segy3d_ncdf(
         )
 
         percentiles = np.zeros_like(PERCENTILES)
-
-        for contig, grp in head_df.groupby(contig_dir):
+        for _, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
-                seisnc_data[val.il_index, val.xl_index, :] = segyf.trace[trc][
-                    n0 : ns + 1
-                ]
+                i1, i2 = val[["il_index", "xl_index"]].values.astype(int)
+                seisnc_data[i1, i2, :] = segyf.trace[trc][n0 : ns + 1]
                 percentiles = (
                     np.percentile(segyf.trace[trc][n0 : ns + 1], PERCENTILES)
                     + percentiles
@@ -253,11 +247,11 @@ def _segy3d_xr(
         if head_df[head_loc.xline].diff().min() < 0:
             contig_dir = head_loc.iline
             broken_dir = head_loc.xline
-            slicer = lambda x, y: slice(x, y, ...)
+            # slicer = lambda x, y: slice(x, y, ...)
         else:
             contig_dir = head_loc.xline
             broken_dir = head_loc.iline
-            slicer = lambda x, y: slice(y, x, ...)
+            # slicer = lambda x, y: slice(y, x, ...)
 
         print(f"Fast direction is {broken_dir}")
 
@@ -376,7 +370,7 @@ def _3dsegy_loader(
     # short way to get inlines/xlines
     ilines = head_df[head_loc.iline].unique()
     xlines = head_df[head_loc.xline].unique()
-    inlines = np.sort(ilines)
+    ilines = np.sort(ilines)
     xlines = np.sort(xlines)
     iline_index_map = {il: i for i, il in enumerate(ilines)}
     xline_index_map = {xl: i for i, xl in enumerate(xlines)}
@@ -402,7 +396,7 @@ def _3dsegy_loader(
         n0, ns = zcrop
         ns0 = sample_rate * n0
         nsamp = ns - n0 + 1
-    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate, dtype=int)
+    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate)
 
     builder, domain = _dataset_coordinate_helper(
         vert_samples, vert_domain, iline=ilines, xline=xlines, offset=offsets
@@ -416,6 +410,7 @@ def _3dsegy_loader(
     ds.attrs[AttrKeyField.source_file] = pathlib.Path(segyfile).name
     ds.attrs[AttrKeyField.measurement_system] = msys
     ds.attrs[AttrKeyField.sample_rate] = sample_rate
+    ds.attrs[AttrKeyField.coord_scalar] = head_df.SourceGroupScalar.median()
 
     if ncfile is not None and return_geometry == False:
         ds.seisio.to_netcdf(ncfile)
@@ -504,7 +499,7 @@ def _segy2d_xr(
     if vert_domain == "TWT":
         dims = DimensionKeyField.twod_twt
     elif vert_domain == "DEPTH":
-        dims = DimensionKeyField.twod_ps_depth
+        dims = DimensionKeyField.twod_depth
     else:
         raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
@@ -551,7 +546,7 @@ def _segy2d_ps_xr(
     """Helper function to load 2d data into an xarray with the seisnc form."""
 
     if vert_domain == "TWT":
-        dims = DimensionKeyField.twod_twt
+        dims = DimensionKeyField.twod_ps_twt
     elif vert_domain == "DEPTH":
         dims = DimensionKeyField.twod_ps_depth
     else:
@@ -643,7 +638,7 @@ def _2dsegy_loader(
         n0, nsamp = zcrop
         ns0 = sample_rate * n0
         nsamp = nsamp - n0 + 1
-    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate, dtype=int)
+    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate)
 
     builder, domain = _dataset_coordinate_helper(
         vert_samples, vert_domain, cdp=cdps, offset=offsets
@@ -657,6 +652,7 @@ def _2dsegy_loader(
     ds.attrs[AttrKeyField.source_file] = pathlib.Path(segyfile).name
     ds.attrs[AttrKeyField.measurement_system] = msys
     ds.attrs[AttrKeyField.sample_rate] = sample_rate
+    ds.attrs[AttrKeyField.coord_scalar] = head_df.SourceGroupScalar.median()
 
     if ncfile is not None and return_geometry == True:
         ds.seisio.to_netcdf(ncfile)
@@ -811,7 +807,7 @@ def _loader_converter_header_handling(
         head_df[head_loc.cdpx] = head_df[head_loc.cdpx] * coord_scalar_mult * 1.0
         head_df[head_loc.cdpy] = head_df[head_loc.cdpy] * coord_scalar_mult * 1.0
 
-    # TODO: might need to scale offsets as well?
+    # TODO: might need to scale offsets as well? This isn't available in segy standard
 
     # Cropping
     if cdp_crop and cdp is not None:  # 2d cdp cropping
@@ -1045,12 +1041,12 @@ def segy_loader(
 ):
     """Load SEGY file into xarray.Dataset
 
-    The returned Dataset has the following structure
+    The output dataset has the following structure
         Dimensions:
-            d1 - CDP or Inline axis
-            d2 - Xline axis
-            d3 - The vertical axis
-            d4 - Offset/Angle Axis
+            cdp/iline - CDP or Inline axis
+            xline - Xline axis
+            twt/depth - The vertical axis
+            offset - Offset/Angle Axis
         Coordinates:
             iline - The inline numbering
             xline - The xline numbering
@@ -1060,19 +1056,29 @@ def segy_loader(
         Variables
             data - The data volume
         Attributes:
-            TBC
+            ns - number of samples vertical
+            sample_rate - sample rate in ms/m
+            test - text header
+            measurement_system : m/ft
+            source_file : segy source
+            srd : seismic reference datum
+            percentiles : data amplitude percentiles
+            coord_scalar : from trace headers
 
     Args:
         segyfile (str): Input segy file path
+        cdp (int, optional): The CDP byte location, usually 21.
         iline (int, optional): Inline byte location, usually 189
         xline (int, optional): Cross-line byte location, usally 193
+        cdpx (int, optional): UTMX byte location, usually 181
+        cdpy (int, optional): UTMY byte location, usually 185
+        offset (int, optional): Offset/angle byte location
         vert_domain (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
-        cdp (int, optional): The CDP byte location, usually 21.
         data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
-        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
-            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
         ix_crop (list, optional): List of minimum and maximum inline and crossline to output.
             Has the form '[min_il, max_il, min_xl, max_xl]'. Ignored for 2D data.
+        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
+            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
         xy_crop (list, optional): List of minimum and maximum cdp_x and cdp_y to output.
             Has the form '[min_x, max_x, min_y, max_y]'. Ignored for 2D data.
         z_crop (list, optional): List of minimum and maximum vertical samples to output.
@@ -1192,10 +1198,10 @@ def segy_converter(
 
     The output ncfile has the following structure
         Dimensions:
-            d1 - CDP or Inline axis
-            d2 - Xline axis
-            d3 - The vertical axis
-            d4 - Offset/Angle Axis
+            cdp/iline - CDP or Inline axis
+            xline - Xline axis
+            twt/depth - The vertical axis
+            offset - Offset/Angle Axis
         Coordinates:
             iline - The inline numbering
             xline - The xline numbering
@@ -1205,29 +1211,39 @@ def segy_converter(
         Variables
             data - The data volume
         Attributes:
-            TBC
+            ns - number of samples vertical
+            sample_rate - sample rate in ms/m
+            test - text header
+            measurement_system : m/ft
+            source_file : segy source
+            srd : seismic reference datum
+            percentiles : data amplitude percentiles
+            coord_scalar : from trace headers
 
     Args:
         segyfile (str): Input segy file path
         ncfile (str): Output SEISNC file path. If none the loaded data will be
             returned in memory as an xarray.Dataset.
+        cdp (int, optional): The CDP byte location, usually 21.
         iline (int, optional): Inline byte location, usually 189
         xline (int, optional): Cross-line byte location, usally 193
+        cdpx (int, optional): UTMX byte location, usually 181
+        cdpy (int, optional): UTMY byte location, usually 185
+        offset (int, optional): Offset/angle byte location
         vert_domain (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
-        cdp (int, optional): The CDP byte location, usually 21.
         data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
-        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
-            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
         ix_crop (list, optional): List of minimum and maximum inline and crossline to output.
             Has the form '[min_il, max_il, min_xl, max_xl]'. Ignored for 2D data.
+        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
+            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
         xy_crop (list, optional): List of minimum and maximum cdp_x and cdp_y to output.
             Has the form '[min_x, max_x, min_y, max_y]'. Ignored for 2D data.
         z_crop (list, optional): List of minimum and maximum vertical samples to output.
             Has the form '[min, max]'.
         return_geometry (bool, optional): If true returns an xarray.dataset which doesn't contain data but mirrors
             the input volume header information.
-        extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.
         silent (bool): Disable progress bar.
+        extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.a
         **segyio_kwargs: Extra keyword arguments for segyio.open
 
     """
