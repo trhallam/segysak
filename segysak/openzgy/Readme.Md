@@ -10,9 +10,14 @@ for installation.
 Alternatively, if the module is not installed manually we make a version available
 through `segysak` as a submodule.
 
-To check out `segysak` and `openzgy` in a ready to go format use the following command when cloning the repository.
+To check out `segysak` and `openzgy` in a ready to go format use the following commands when cloning the repository.
 ```bash
-git clone --recursive <repo.git>
+git clone --recurse-submodules <repo.git>
+# checkout to the desired branch
+git checkout zgy_integration
+# update the submodules
+git submodule init
+git submodule update
 ```
 
 ## Usage
