@@ -907,11 +907,11 @@ def segy_loader(
 ):
     """Load SEGY file into xarray.Dataset
 
-    The output ncfile has the following structure
+    The output dataset has the following structure
         Dimensions:
-            d1 - CDP or Inline axis
-            d2 - Xline axis
-            d3 - The vertical axis
+            cdp/iline - CDP or Inline axis
+            xline - Xline axis
+            twt/depth - The vertical axis
             d4 - Offset/Angle Axis
         Coordinates:
             iline - The inline numbering
@@ -922,21 +922,29 @@ def segy_loader(
         Variables
             data - The data volume
         Attributes:
-            TBC
+            ns - number of samples vertical
+            sample_rate - sample rate in ms/m
+            test - text header
+            measurement_system : m/ft
+            source_file : segy source
+            srd : seismic reference datum
+            percentiles : data amplitude percentiles
+            coord_scalar : from trace headers
 
     Args:
         segyfile (str): Input segy file path
-        ncfile (str, optional): Output SEISNC file path. If none the loaded data will be
-            returned in memory as an xarray.Dataset.
+        cdp (int, optional): The CDP byte location, usually 21.
         iline (int, optional): Inline byte location, usually 189
         xline (int, optional): Cross-line byte location, usally 193
-        vert (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
-        cdp (int, optional): The CDP byte location, usually 21.
+        cdpx (int, optional): UTMX byte location, usually 181
+        cdpy (int, optional): UTMY byte location, usually 185
+        offset (int, optional): Offset/angle byte location
+        vert_domain (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
         data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
-        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
-            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
         ix_crop (list, optional): List of minimum and maximum inline and crossline to output.
             Has the form '[min_il, max_il, min_xl, max_xl]'. Ignored for 2D data.
+        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
+            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
         xy_crop (list, optional): List of minimum and maximum cdp_x and cdp_y to output.
             Has the form '[min_x, max_x, min_y, max_y]'. Ignored for 2D data.
         z_crop (list, optional): List of minimum and maximum vertical samples to output.
@@ -1056,9 +1064,9 @@ def segy_converter(
 
     The output ncfile has the following structure
         Dimensions:
-            d1 - CDP or Inline axis
-            d2 - Xline axis
-            d3 - The vertical axis
+            cdp/iline - CDP or Inline axis
+            xline - Xline axis
+            twt/depth - The vertical axis
             d4 - Offset/Angle Axis
         Coordinates:
             iline - The inline numbering
@@ -1069,29 +1077,39 @@ def segy_converter(
         Variables
             data - The data volume
         Attributes:
-            TBC
+            ns - number of samples vertical
+            sample_rate - sample rate in ms/m
+            test - text header
+            measurement_system : m/ft
+            source_file : segy source
+            srd : seismic reference datum
+            percentiles : data amplitude percentiles
+            coord_scalar : from trace headers
 
     Args:
         segyfile (str): Input segy file path
         ncfile (str): Output SEISNC file path. If none the loaded data will be
             returned in memory as an xarray.Dataset.
+        cdp (int, optional): The CDP byte location, usually 21.
         iline (int, optional): Inline byte location, usually 189
         xline (int, optional): Cross-line byte location, usally 193
-        vert (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
-        cdp (int, optional): The CDP byte location, usually 21.
+        cdpx (int, optional): UTMX byte location, usually 181
+        cdpy (int, optional): UTMY byte location, usually 185
+        offset (int, optional): Offset/angle byte location
+        vert_domain (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
         data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
-        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
-            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
         ix_crop (list, optional): List of minimum and maximum inline and crossline to output.
             Has the form '[min_il, max_il, min_xl, max_xl]'. Ignored for 2D data.
+        cdp_crop (list, optional): List of minimum and maximum cmp values to output.
+            Has the form '[min_cmp, max_cmp]'. Ignored for 3D data.
         xy_crop (list, optional): List of minimum and maximum cdp_x and cdp_y to output.
             Has the form '[min_x, max_x, min_y, max_y]'. Ignored for 2D data.
         z_crop (list, optional): List of minimum and maximum vertical samples to output.
             Has the form '[min, max]'.
         return_geometry (bool, optional): If true returns an xarray.dataset which doesn't contain data but mirrors
             the input volume header information.
-        extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.
         silent (bool): Disable progress bar.
+        extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.a
         **segyio_kwargs: Extra keyword arguments for segyio.open
 
     """

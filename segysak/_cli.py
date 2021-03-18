@@ -260,8 +260,8 @@ def convert(
                 cdpx=cdpx,
                 cdpy=cdpy,
             )
-            click.echo(f"Converted file saved as {output_file}")
-            LOGGER.info(f"NetCDF output written to {output_file}")
+            click.echo(f"Converted file saved as {output_file_loc}")
+            LOGGER.info(f"NetCDF output written to {output_file_loc}")
         elif output_type == "SEGY":
             if output_file is None:
                 output_file_loc = input_file.stem + ".segy"
@@ -283,8 +283,8 @@ def convert(
                 trace_header_map=trace_header_map,
                 dimension=dimension,
             )
-            click.echo(f"Converted file saved as {output_file}")
-            LOGGER.info(f"SEGY output written to {output_file}")
+            click.echo(f"Converted file saved as {output_file_loc}")
+            LOGGER.info(f"SEGY output written to {output_file_loc}")
         else:
             click.echo(f"Conversion to output-type {output_type} is not implemented yet")
             raise SystemExit
