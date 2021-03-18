@@ -5,8 +5,9 @@ Examples
     :maxdepth: 4
     :glob:
 
-    _examples/notebooks/example_segysak_basics
-    _examples/notebooks/example_segy_headers
-    _examples/notebooks/example_amplitude_extraction_displays
-    _examples/notebooks/example_extract_arbitrary_line
-    _examples/notebooks/example_segysak_dask
+    examples/example_segysak_basics
+    examples/example_segy_headers
+    examples/example_amplitude_extraction_displays
+    examples/example_extract_arbitrary_line
+    examples/example_segysak_segy_vectorisation
+    examples/example_segysak_dask
