@@ -8,7 +8,7 @@ These are some of the many ways to contribute:
 
 * Submitting bug reports and feature requests
 * Writing tutorials or examples
-* Fixing typos and improving to the documentation
+* Fixing typos and improving the documentation
 * Writing code for everyone to use
 
 If you get stuck at any point you can create an issue on GitHub (look for the *Issues*
