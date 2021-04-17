@@ -48,6 +48,22 @@ class SeisIO:
 
         self._obj.to_netcdf(seisnc, **kwargs)
 
+    def to_subsurface(self):
+        try:
+            from subsurface.structs.base_structures import StructuredData
+        except ImportError as err:
+            print("subsurface optional dependency required")
+            raise err
+
+        if self._obj.seis.is_3d():
+            subsurface_struct = StructuredData(self._obj, "data")
+        elif self._obj.seis.is_2d():
+            subsurface_struct = StructuredData(self._obj, "data")
+        else:
+            raise NotImplementedError
+
+        return subsurface_struct
+
 
 def open_seisnc(seisnc, **kwargs):
     """Load from netcdf4 with seisnc specs.
