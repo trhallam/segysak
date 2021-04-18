@@ -49,6 +49,15 @@ class SeisIO:
         self._obj.to_netcdf(seisnc, **kwargs)
 
     def to_subsurface(self):
+        """Convert seismic data to a subsurface StructuredData Object
+
+        Raises:
+            err: [description]
+            NotImplementedError: [description]
+
+        Returns:
+            subsurface.structs.base_structures.StructuredData: subsurface struct
+        """
         try:
             from subsurface.structs.base_structures import StructuredData
         except ImportError as err:
@@ -708,3 +717,32 @@ class SeisGeom:
             .translate(cp_ix[0][0], cp_ix[0][1])  # move to ilxl origin
         )
         return affine_grid2loc.inverted()
+
+    def get_dead_trace_map(self, scan=None):
+        """Scan the vertical axis of a volume to find traces that are all NaN
+        and return an DataArray which maps the all dead traces.
+
+        Faster scans can be performed by setting scan to an int or list of int
+        representing horizontal slice indexes to use for the scan.
+
+        Args:
+            scan (int/list of int, optional): Horizontal indexes to scan.
+            Defaults to None (scan full volume).
+
+        Returns:
+            xarray.DataArray: boolean dead trace map.
+        """
+
+        if self.is_twt():
+            vdom = CoordKeyField.twt
+        else:
+            vdom = CoordKeyField.depth
+
+        if scan:
+            nan_map = (
+                self._obj.data.isel(**{vdom: scan}).isnull().reduce(np.all, dim=vdom)
+            )
+        else:
+            nan_map = self._obj.data.isnull().reduce(np.all, dim=vdom)
+
+        return nan_map
