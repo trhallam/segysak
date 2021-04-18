@@ -33,7 +33,14 @@ notebook_deps = [
     "pyvista",
 ]
 
-testing_deps = ["flake8", "pytest", "hypothesis", "affine", "pytest_cases"]
+testing_deps = [
+    "flake8",
+    "pytest",
+    "hypothesis",
+    "affine",
+    "pytest_cases",
+    "subsurface",
+]
 
 extras_require = {
     "notebook": notebook_deps,

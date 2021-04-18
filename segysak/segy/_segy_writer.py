@@ -261,7 +261,7 @@ def _ncdf2segy_3d(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
@@ -332,19 +332,6 @@ def _ncdf2segy_3d(
                 pbar.update(nj)
         pbar.close()
 
-        segyf.bin.update(
-            tsort=segyio.TraceSortingFormat.INLINE_SORTING,
-            hdt=int(ds.sample_rate * 1000),
-            hns=nk,
-            mfeet=msys,
-            jobid=1,
-            lino=1,
-            reno=1,
-            ntrpr=ni * nj,
-            nart=ni * nj,
-            fold=1,
-        )
-
     if not text:
         # create text header
         overrides = {
@@ -378,7 +365,7 @@ def _ncdf2segy_3dgath(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
@@ -495,7 +482,7 @@ def _ncdf2segy_2d(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
@@ -595,7 +582,7 @@ def _ncdf2segy_2d_gath(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
@@ -724,6 +711,7 @@ def _segy_writer_input_handler(
         _ncdf2segy_2d(ds, segyfile, **common_kwargs, **thm)
     elif ds.seis.is_2dgath():
         thm = output_byte_locs("standard_2d_gath")
+        thm.update(trace_header_map)
         _ncdf2segy_2d_gath(ds, segyfile, **common_kwargs, **thm)
     elif ds.seis.is_3d():
         thm = output_byte_locs("standard_3d")

@@ -557,7 +557,7 @@ class SeisGeom:
                 )
 
         elif self.is_2d() or self.is_2dgath():
-            cdp = DimensionKeyField.cdp_2d
+            cdp = DimensionKeyField.cdp_2d[0]
             cdps = self._obj[cdp].values
             corner_points = (cdps[0], cdps[-1])
 
@@ -645,7 +645,7 @@ class SeisGeom:
         return ax
 
     def subsample_dims(self, **dim_kwargs):
-        """Return a dictionary of subsampled dims suitable for xarra.interp.
+        """Return a dictionary of subsampled dims suitable for xarray.interp.
 
         This tool halves
 
@@ -718,7 +718,7 @@ class SeisGeom:
         )
         return affine_grid2loc.inverted()
 
-    def get_dead_trace_map(self, scan=None):
+    def get_dead_trace_map(self, scan=None, zeros_as_nan=False):
         """Scan the vertical axis of a volume to find traces that are all NaN
         and return an DataArray which maps the all dead traces.
 
@@ -727,7 +727,8 @@ class SeisGeom:
 
         Args:
             scan (int/list of int, optional): Horizontal indexes to scan.
-            Defaults to None (scan full volume).
+                Defaults to None (scan full volume).
+            zeros_as_nan (bool, optional): Treat zeros as NaN during scan.
 
         Returns:
             xarray.DataArray: boolean dead trace map.
@@ -744,5 +745,9 @@ class SeisGeom:
             )
         else:
             nan_map = self._obj.data.isnull().reduce(np.all, dim=vdom)
+
+        if zeros_as_nan:
+            zero_map = np.abs(self._obj.data).sum(dim=vdom)
+            nan_map = xr.where(zero_map == 0.0, 1, nan_map)
 
         return nan_map
