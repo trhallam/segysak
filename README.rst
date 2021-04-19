@@ -15,14 +15,14 @@ Access the full documentation for SEGY-SAK from `readthedocs <https://segysak.re
 
 To do this *SEGY-SAK* offers two things; a commandline interface (CLI) for
 inspecting and converting SEGY data to a more friendly format called
-NETCDF4, and by providing convienience functions for the data using
+NETCDF4, and by providing convenience functions for the data using
 `xarray <http://xarray.pydata.org/en/stable/>`_.
 We try hard to load the data the same way everytime so your functions will
 work no-matter which cube/line you load. The `xarray` conventions we use are
 outlined in the documentation.
 
 Why NETCDF4? Well, NETCDF4 is a fancy type of enclosed file binary format that
-allows for faster indexing and data retreival than SEGY. We try our best to
+allows for faster indexing and data retrieval than SEGY. We try our best to
 scan in the header information and to make it easy (or easier) to load SEGY
 in different formats, different configuration (2D, 2D gathers, 3D, 3D gathers).
 We do all this with the help of `segyio <https://github.com/equinor/segyio>`_
@@ -48,7 +48,7 @@ Current Capabilities
 
   * Load 2D, 3D and gathers type SEGY to a ``xarray.Dataset``.
 
-  * Access header information and text headers in Python with conveience
+  * Access header information and text headers in Python with convenience
     functions.
 
   * Select traces by UTM X and Y coordinates.
@@ -144,7 +144,7 @@ the bins of 3D data. Vertical dimensions are ``twt`` and ``depth``. A typical
 
 For 2D data SEGY-SAK uses the dimensino labels ``cdp`` and ``offset``. This allows
 the package to distinguish between 2D and 3D data to allow automation on saving
-and convience wrappers. The same vertical dimensions apply as for 3D.
+and convenience wrappers. The same vertical dimensions apply as for 3D.
 A typical ``xarray`` in 2D format would return
 
 .. code-block:: python
