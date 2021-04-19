@@ -43,7 +43,7 @@ volve_3d_df = volve_3d.to_dataframe()
 display(volve_3d_df)
 
 # %% [markdown]
-# We can remove the multi-index by resetting the index of the DataFrame. Vectorized workflows such as machine learning and then be easily applied to the DataFrame.
+# We can remove the multi-index by resetting the index of the DataFrame. Vectorized workflows such as machine learning can then be easily applied to the DataFrame.
 
 # %%
 volve_3d_df_reindex = volve_3d_df.reset_index()
