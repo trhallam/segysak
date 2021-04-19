@@ -67,9 +67,7 @@ def get_segy_texthead(segyfile, ext_headers=False, no_richstr=False, **segyio_kw
         return _upgrade_txt_richstr(text)
 
 
-def put_segy_texthead(
-    segyfile, ebcidc, ext_headers=False, line_counter=True, **segyio_kwargs
-):
+def put_segy_texthead(segyfile, ebcidc, line_counter=True, **segyio_kwargs):
 
     header = ""
     if isinstance(ebcidc, dict):
@@ -106,7 +104,7 @@ def put_segy_texthead(
             warn("String EBCIDC is too large - truncating", UserWarning)
         header = bytes(ebcidc[:3200], "utf8")
     else:
-        raise ValueError("Unknown ebcidc type")
+        raise ValueError("Unknown ebcidc type expect bytes, str or dict")
 
     segyio_kwargs["ignore_geometry"] = True
     with segyio.open(segyfile, "r+", **segyio_kwargs) as segyf:

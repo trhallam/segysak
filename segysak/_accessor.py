@@ -343,6 +343,10 @@ class SeisGeom:
         dim_options = [
             DimensionKeyField.threed_twt,
             DimensionKeyField.threed_depth,
+            DimensionKeyField.threed_xline_twt,
+            DimensionKeyField.threed_iline_twt,
+            DimensionKeyField.threed_xline_depth,
+            DimensionKeyField.threed_iline_depth,
         ]
         invalid_dim_options = [
             DimensionKeyField.threed_ps_twt,
