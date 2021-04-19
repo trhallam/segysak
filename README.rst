@@ -22,7 +22,7 @@ work no-matter which cube/line you load. The `xarray` conventions we use are
 outlined in the documentation.
 
 Why NETCDF4? Well, NETCDF4 is a fancy type of enclosed file binary format that
-allows for faster indexing and data retreival than SEGY. We try our best to
+allows for faster indexing and data retrieval than SEGY. We try our best to
 scan in the header information and to make it easy (or easier) to load SEGY
 in different formats, different configuration (2D, 2D gathers, 3D, 3D gathers).
 We do all this with the help of `segyio <https://github.com/equinor/segyio>`_
