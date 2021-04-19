@@ -16,7 +16,7 @@
 # %% [markdown]
 # # Extract an arbitrary line from a 3D volume
 #
-# Arbitrary lines are often defined as peicewise lines on time/z slices or basemap views that draw a path through features of interest or for example betweem well locations.
+# Arbitrary lines are often defined as piecewise lines on time/z slices or basemap views that draw a path through features of interest or for example betweem well locations.
 #
 # By extracting an arbitrary line we hope to end up with a uniformly sampled vertical section of data that traverses the path where the sampling interval is. of the order of the bin interval of the dataset
 #
@@ -145,7 +145,7 @@ axs[1].imshow(line_extracted_by_petrel.to_array().squeeze().T, aspect="auto", cm
 axs[1].set_title("petrel")
 
 # %% [markdown]
-# Plot the geometry, trace header locatons along with the volve 3d bound box, tmo make sure things line up
+# Plot the geometry, trace header locations along with the volve 3d bound box, too make sure things line up
 
 # %%
 plt.figure(figsize=(10,10))
