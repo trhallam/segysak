@@ -44,7 +44,7 @@ print("3D", V3D_path, V3D_path.exists())
 
 # %% [markdown]
 # A basic operation would be to check the text header included in the SEG-Y file. The *get_segy_texthead*
-# function accounts for commong encoding issues and returns the header as a text string.
+# function accounts for common encoding issues and returns the header as a text string.
 
 # %%
 from segysak.segy import get_segy_texthead
@@ -53,7 +53,7 @@ get_segy_texthead(V3D_path)
 
 # %% [markdown]
 # If you need to investigate the trace header data more deeply, then *segy_header_scan* can be used to report
-# basic statistic of each byte position for a limited number of traces.
+# basic statistics of each byte position for a limited number of traces.
 #
 # *segy_header_scan* returns a `pandas.DataFrame`. To see the full DataFrame use the `pandas` option_context manager.
 
@@ -104,7 +104,7 @@ V3D
 #
 # `xarray` objects use smart label based indexing techniques to retreive subsets of data. More
 # details on `xarray` techniques for *segysak* are covered in the examples, but this demonstrates
-# a general syntax for selecting data by label with `xarray`. Plottnig is done by `matploblib` and
+# a general syntax for selecting data by label with `xarray`. Plotting is done by `matploblib` and
 # `xarray` selections can be passed to normal `matplotlib.pyplot` functions.
 
 # %%
@@ -120,7 +120,7 @@ plt.xlabel("XLINE")
 # %% [markdown]
 # ## Saving data to NetCDF4
 #
-# SEGYSAK offers a convience utility to make saving to NetCDF4 simple. This is accesssed through the `seisio` accessor on the loaded
+# SEGYSAK offers a convenience utility to make saving to NetCDF4 simple. This is accesssed through the `seisio` accessor on the loaded
 # SEG-Y or SEISNC volume. The `to_netcdf` method accepts the same arguments as the `xarray` version.
 
 # %%
