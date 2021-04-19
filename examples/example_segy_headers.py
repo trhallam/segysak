@@ -16,7 +16,7 @@
 # %% [markdown]
 # # Working with SEG-Y headers
 #
-# Headers in SEG-Y data are additional meta information asscoiated with each trace. In SEG-Y these are not pooled in a common data block but interleaved with the seismic trace data so we need to do some work to extract it. **segysak** has two helper methods for extracting information from a SEGY file. These are `segy_header_scan` and `segy_header_scrape`. Both of these functions return `pandas.DataFrame` objects containing header or header related information which can be used QC, analysis and plotting.
+# Headers in SEG-Y data are additional meta information associated with each trace. In SEG-Y these are not pooled in a common data block but interleaved with the seismic trace data so we need to do some work to extract it. **segysak** has two helper methods for extracting information from a SEGY file. These are `segy_header_scan` and `segy_header_scrape`. Both of these functions return `pandas.DataFrame` objects containing header or header related information which can be used for QC, analysis and plotting.
 
 # %% [markdown]
 # ## Scanning the headers
@@ -47,7 +47,7 @@ with pd.option_context("display.max_rows", 89):
     display(scan)
 
 # %% [markdown]
-# Often lots of header fields don't get filled, so lets filter by the standard deviation column `std`. Infact, there are so few here we don't need the context manager. As you can see, for `segy_loader` or `segy_converter` we will need to tell those functions that the byte location for **iline** and **xline** are *189* and *193* respectively, and the byte locations for **cdpx** and **cdpy** are either *73* and *77* or *181* and *185* which are identical pairs.
+# Often lots of header fields don't get filled, so lets filter by the standard deviation column `std`. In fact, there are so few here we don't need the context manager. As you can see, for `segy_loader` or `segy_converter` we will need to tell those functions that the byte location for **iline** and **xline** are *189* and *193* respectively, and the byte locations for **cdpx** and **cdpy** are either *73* and *77* or *181* and *185* which are identical pairs.
 
 # %%
 # NIIIICCCEEEE...
