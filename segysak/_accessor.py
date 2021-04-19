@@ -64,8 +64,15 @@ class SeisIO:
             print("subsurface optional dependency required")
             raise err
 
+        if self._obj.seis.is_twt():
+            vdom = "twt"
+        else:
+            vdom = "depth"
+
         if self._obj.seis.is_3d():
-            subsurface_struct = StructuredData(self._obj, "data")
+            ds = self._obj.rename_dims({"iline": "x", "xline": "y", vdom: "z"})
+            ds["z"] = ds["z"] * -1
+            subsurface_struct = StructuredData(ds, "data")
         elif self._obj.seis.is_2d():
             subsurface_struct = StructuredData(self._obj, "data")
         else:
