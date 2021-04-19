@@ -142,7 +142,7 @@ the bins of 3D data. Vertical dimensions are ``twt`` and ``depth``. A typical
 2D and 2D Gathers
 ^^^^^^^^^^^^^^^^^
 
-For 2D data SEGY-SAK uses the dimensino labels ``cdp`` and ``offset``. This allows
+For 2D data SEGY-SAK uses the dimension labels ``cdp`` and ``offset``. This allows
 the package to distinguish between 2D and 3D data to allow automation on saving
 and convenience wrappers. The same vertical dimensions apply as for 3D.
 A typical ``xarray`` in 2D format would return
@@ -164,7 +164,7 @@ dimensions of the data (``iline``, ``xline`` for 3D and ``cdp`` for 2D).
 
 Attributes
 ^^^^^^^^^^^
-Any number of attributes can be added to a ``siesnc`` file. Currently the
+Any number of attributes can be added to a ``seisnc`` file. Currently the
 following attributes are extracted or reserved for use by ``SEGY-SAK``.
 
  * ``ns`` number of samples per trace
