@@ -108,7 +108,7 @@ Can be loaded into *Python* using ``xarray``.
 ---------------------------------------------
 
 The ``xarray`` seismic specification termed ``seisnc`` can be used by segysak to
-output NETCDF4 files is more performant for Python operations than standard SEG-Y.
+output NETCDF4 files and is more performant for Python operations than standard SEG-Y.
 Unlike SEG-Y, ``xarray`` compatable files fit neatly into the Python scientific
 stack providing operations like lazy loading, easy slicing, compatability with
 multi-core and multi-node operations using ``dask`` as well as important features
