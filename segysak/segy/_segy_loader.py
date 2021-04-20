@@ -1069,7 +1069,7 @@ def segy_loader(
         segyfile (str): Input segy file path
         cdp (int, optional): The CDP byte location, usually 21.
         iline (int, optional): Inline byte location, usually 189
-        xline (int, optional): Cross-line byte location, usally 193
+        xline (int, optional): Cross-line byte location, usually 193
         cdpx (int, optional): UTMX byte location, usually 181
         cdpy (int, optional): UTMY byte location, usually 185
         offset (int, optional): Offset/angle byte location
@@ -1226,7 +1226,7 @@ def segy_converter(
             returned in memory as an xarray.Dataset.
         cdp (int, optional): The CDP byte location, usually 21.
         iline (int, optional): Inline byte location, usually 189
-        xline (int, optional): Cross-line byte location, usally 193
+        xline (int, optional): Cross-line byte location, usually 193
         cdpx (int, optional): UTMX byte location, usually 181
         cdpy (int, optional): UTMY byte location, usually 185
         offset (int, optional): Offset/angle byte location
