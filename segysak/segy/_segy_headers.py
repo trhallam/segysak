@@ -78,7 +78,14 @@ def segy_bin_scrape(segyfile, **segyio_kwargs):
         return {key: segyf.bin[item] for key, item in bk.items()}
 
 
-def segy_header_scrape(segyfile, partial_scan=None, silent=False, **segyio_kwargs):
+def segy_header_scrape(
+    segyfile,
+    partial_scan=None,
+    silent=False,
+    bytes_filter=None,
+    chunk=100_000,
+    **segyio_kwargs,
+):
     """Scape all data from segy trace headers
 
     Args:
@@ -86,29 +93,46 @@ def segy_header_scrape(segyfile, partial_scan=None, silent=False, **segyio_kwarg
         partial_scan (int): Setting partial scan to a positive int will scan only
             that many traces. Defaults to None.
         silent (bool): Disable progress bar.
+        bytes_filter (list): List of byte locations to load exclusively.
+        chunk (int): Number of traces to read in one go.
 
     Returns:
         pandas.DataFrame: Raw header information in table for scanned traces.
     """
+    assert (chunk > 0) and isinstance(chunk, int)
     header_keys = _active_tracefield_segyio()
-    columns = header_keys.keys()
+    enum_byte_index = {
+        int(byte_loc): i for i, byte_loc in enumerate(header_keys.values())
+    }
+
+    if bytes_filter:
+        for byte_loc in bytes_filter:
+            assert byte_loc in enum_byte_index
+        bytes_filter_index = [enum_byte_index[byte_loc] for byte_loc in bytes_filter]
+    else:
+        bytes_filter_index = list(enum_byte_index.values())
+
+    columns = [list(header_keys.keys())[i] for i in bytes_filter_index]
     segyio_kwargs["ignore_geometry"] = True
     with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
         ntraces = segyf.tracecount
         if partial_scan is not None:
-            ntraces = int(partial_scan)
-        slc = slice(0, ntraces, 1)
-        # take headers returned from segyio and create lists for a dataframe
-        hv = np.vstack(
-            [
-                tuple(x.values())
-                for x in tqdm(
-                    segyf.header[slc], total=ntraces, disable=silent, **TQDM_ARGS
-                )
-            ]
-        )
-        head_df = pd.DataFrame(hv, columns=columns)
-        head_df.replace(to_replace=-2147483648, value=np.nan, inplace=True)
+            ntraces = min(ntraces, int(partial_scan))
+
+        head_df = pd.DataFrame(index=pd.Index(range(ntraces)), columns=columns)
+        slc_end = chunk
+        with tqdm(total=ntraces, disable=silent, **TQDM_ARGS) as pbar:
+            while slc_end <= ntraces + chunk:
+                slc = slice(slc_end - chunk, min(slc_end, ntraces), 1)
+
+                # take headers returned from segyio and create lists for a dataframe
+                head_df.iloc[slc, :] = np.vstack(
+                    [tuple(x.values()) for x in segyf.header[slc]]
+                )[:, bytes_filter_index]
+                slc_end += chunk
+                pbar.update(slc.stop - slc.start)
+
+    head_df.replace(to_replace=-2147483648, value=np.nan, inplace=True)
     return head_df
 
 
