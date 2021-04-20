@@ -772,7 +772,7 @@ def segy_writer(
             limitations. Defaults to 10. This is primarily used for large 3D and ignored for 2D data.
         dimension (str): Data dimension to output, defaults to 'twt' or 'depth' whichever is present
         silent (bool, optional): Turn off progress reporting. Defaults to False.
-        use_text (book, optional): Use the seisnc text for the EBCIDC output. This text usally comes from
+        use_text (bool, optional): Use the seisnc text for the EBCIDC output. This text usally comes from
             the loaded SEG-Y file and may not match the segysak SEG-Y output. Defaults to False and writes
             the default segysak EBCIDC
     """
