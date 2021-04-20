@@ -56,6 +56,7 @@ extras_require = {
         "sphinx-copybutton",
         "rtds-action",
         "jupytext",
+        "pyvista",
     ]
     + notebook_deps,
 }

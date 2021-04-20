@@ -54,7 +54,12 @@ from segysak._core import FrozenDict
 
 KNOWN_BYTES = FrozenDict(KNOWN_BYTES)
 
-from ._segy_headers import segy_bin_scrape, segy_header_scrape, what_geometry_am_i
+from ._segy_headers import (
+    segy_bin_scrape,
+    segy_header_scrape,
+    what_geometry_am_i,
+    _active_tracefield_segyio,
+)
 from ._segy_text import get_segy_texthead
 from ._segy_globals import _SEGY_MEASUREMENT_SYSTEM
 
@@ -768,12 +773,27 @@ def _loader_converter_header_handling(
     silent=False,
     extra_byte_fields=None,
     head_df=None,
+    optimised_load=False,
     **segyio_kwargs,
 ):
 
+    if optimised_load:
+        scrape_bytes = [
+            val for val in [cdp, iline, xline, cdpx, cdpy, offset] if val is not None
+        ]
+        scrape_bytes += list(extra_byte_fields.values())
+        scrape_bytes += [
+            _active_tracefield_segyio()["DelayRecordingTime"],
+            _active_tracefield_segyio()["SourceGroupScalar"],
+        ]
+    else:
+        scrape_bytes = None
+
     if head_df is None:
         # Start by scraping the headers.
-        head_df = segy_header_scrape(segyfile, silent=silent, **segyio_kwargs)
+        head_df = segy_header_scrape(
+            segyfile, silent=silent, bytes_filter=scrape_bytes, **segyio_kwargs
+        )
 
     head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
     head_loc = AttrDict(
@@ -1267,6 +1287,7 @@ def segy_converter(
         return_geometry=return_geometry,
         silent=silent,
         extra_byte_fields=extra_byte_fields,
+        optimised_load=True,
         **segyio_kwargs,
     )
 
