@@ -18,7 +18,7 @@
 #
 # Arbitrary lines are often defined as peicewise lines on time/z slices or basemap views that draw a path through features of interest or for example betweem well locations.
 #
-# By extracting an arbitrary line we hope to end up with a uniformly sampled vertical section of data that traverses the path where the sampling interval is. of the order of the bin interval of the dataset
+# By extracting an arbitrary line we hope to end up with a uniformly sampled vertical section of data that traverses the path where the sampling interval is of the order of the bin interval of the dataset
 #
 #
 
@@ -46,7 +46,7 @@ volve_3d = segy_loader(volve_3d_path, **well_known_byte_locs("petrel_3d"))
 # %% [markdown]
 # ## Arbitrary Lines
 #
-# We define a line by as lists of cdp_x & cdp_y points. These can be inside or outside of the survey, but oviously should intersect it in order to be useful.
+# We define a line as lists of cdp_x & cdp_y points. These can be inside or outside of the survey, but oviously should intersect it in order to be useful.
 
 # %%
 arb_line_A = (np.array([434300, 434600, 435500, 436300]), np.array([6.4786e6, 6.4780e6, 6.4779e6, 6.4781e6]))
@@ -114,7 +114,7 @@ points_from_shapefile = [list(t) for t in list(zip(*sf.shape(0).points))]
 pprint(points_from_shapefile)
 
 # %% [markdown]
-# Load the segy containing the line thst Petrel exracted along this geometry
+# Load the segy containing the line that Petrel extracted along this geometry
 
 # %%
 line_extracted_by_petrel_path = path.join("data", "volve10r12-full-twt-arb.sgy")
@@ -134,7 +134,7 @@ toc = time()
 print(f"That took {toc-tic} seconds")
 
 # %% [markdown]
-# Plot the extract lines side by side
+# Plot the extracted lines side by side
 
 # %%
 fig, axs = plt.subplots(1,2, figsize=(16,8))
@@ -145,7 +145,7 @@ axs[1].imshow(line_extracted_by_petrel.to_array().squeeze().T, aspect="auto", cm
 axs[1].set_title("petrel")
 
 # %% [markdown]
-# Plot the geometry, trace header locatons along with the volve 3d bound box, tmo make sure things line up
+# Plot the geometry, trace header locatons along with the volve 3d bound box, to make sure things line up.
 
 # %%
 plt.figure(figsize=(10,10))
