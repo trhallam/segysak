@@ -261,7 +261,7 @@ def _ncdf2segy_3d(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
@@ -298,7 +298,7 @@ def _ncdf2segy_3d(
     # the file, i.e. its inline numbers, crossline numbers, etc. You can also add
     # more structural information, but offsets etc. have sensible defautls. This is
     # the absolute minimal specification for a N-by-M volume
-    spec.sorting = 1
+    spec.sorting = 2
     spec.format = 1
     spec.iline = iline
     spec.xline = xline
@@ -331,19 +331,6 @@ def _ncdf2segy_3d(
                 segyf.trace[il0:iln] = data.data[i, :, :].values.astype(np.float32)
                 pbar.update(nj)
         pbar.close()
-
-        segyf.bin.update(
-            tsort=segyio.TraceSortingFormat.INLINE_SORTING,
-            hdt=int(ds.sample_rate * 1000),
-            hns=nk,
-            mfeet=msys,
-            jobid=1,
-            lino=1,
-            reno=1,
-            ntrpr=ni * nj,
-            nart=ni * nj,
-            fold=1,
-        )
 
     if not text:
         # create text header
@@ -378,7 +365,7 @@ def _ncdf2segy_3dgath(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
@@ -418,7 +405,7 @@ def _ncdf2segy_3dgath(
     # the file, i.e. its inline numbers, crossline numbers, etc. You can also add
     # more structural information, but offsets etc. have sensible defautls. This is
     # the absolute minimal specification for a N-by-M volume
-    spec.format = 1
+    spec.format = 2
     spec.iline = iline
     spec.xline = xline
     spec.samples = ds[dimension].astype(int).values
@@ -495,7 +482,7 @@ def _ncdf2segy_2d(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
@@ -595,7 +582,7 @@ def _ncdf2segy_2d_gath(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
@@ -724,6 +711,7 @@ def _segy_writer_input_handler(
         _ncdf2segy_2d(ds, segyfile, **common_kwargs, **thm)
     elif ds.seis.is_2dgath():
         thm = output_byte_locs("standard_2d_gath")
+        thm.update(trace_header_map)
         _ncdf2segy_2d_gath(ds, segyfile, **common_kwargs, **thm)
     elif ds.seis.is_3d():
         thm = output_byte_locs("standard_3d")
