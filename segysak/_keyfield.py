@@ -23,7 +23,11 @@ DimensionKeyField = FrozenDict(
         cdp_3d=("iline", "xline"),
         cdp_2d=("cdp",),
         threed_twt=("iline", "xline", "twt"),
+        threed_xline_twt=("iline", "twt"),
+        threed_iline_twt=("xline", "twt"),
         threed_depth=("iline", "xline", "depth"),
+        threed_xline_depth=("iline", "depth"),
+        threed_iline_depth=("xline", "depth"),
         threed_head=("iline", "xline"),
         threed_ps_twt=("iline", "xline", "twt", "offset"),
         threed_ps_depth=("iline", "xline", "depth", "offset"),
@@ -60,6 +64,7 @@ AttrKeyField = FrozenDict(
 
 
 VerticalKeyField = FrozenDict(dict(twt="TWT", depth="DEPTH"))
+VerticalKeyDim = FrozenDict(dict(TWT="twt", DEPTH="depth"))
 
 
 VerticalUnits = FrozenDict(

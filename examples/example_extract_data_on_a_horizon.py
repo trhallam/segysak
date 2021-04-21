@@ -18,16 +18,23 @@
 
 # %% nbsphinx="hidden"
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 # %%
 # %load_ext autoreload
 # %autoreload 2
 
 import matplotlib.pyplot as plt
+
 # %matplotlib inline
 
-from segysak.segy import segy_loader, get_segy_texthead, segy_header_scan, segy_header_scrape
+from segysak.segy import (
+    segy_loader,
+    get_segy_texthead,
+    segy_header_scan,
+    segy_header_scrape,
+)
 
 from os import path
 
@@ -57,7 +64,7 @@ print("Top Hugin", top_hugin_path, path.exists(top_hugin_path))
 # %%
 import pandas as pd
 
-top_hugin_df = pd.read_csv(top_hugin_path, names=["cdp_x","cdp_y","twt"], sep=' ')
+top_hugin_df = pd.read_csv(top_hugin_path, names=["cdp_x", "cdp_y", "twt"], sep=" ")
 top_hugin_df.head()
 
 # %% [markdown]
@@ -73,7 +80,9 @@ top_hugin_df.head()
 # Alternative we can use the points to output a `xarray.Dataset` which comes with coordinates for plotting already gridded up for Pyvista.
 
 # %%
-top_hugin_ds = volve_3d.seis.surface_from_points(top_hugin_df, 'twt', right=('cdp_x', 'cdp_y'))
+top_hugin_ds = volve_3d.seis.surface_from_points(
+    top_hugin_df, "twt", right=("cdp_x", "cdp_y")
+)
 top_hugin_ds
 
 # %%
@@ -94,11 +103,15 @@ plt.imshow(top_hugin_ds.twt)
 # Extracting horizon amplitudes requires us to interpolate the cube onto the 3D horizon.
 
 # %%
-top_hugin_amp = volve_3d.data.interp({'iline':top_hugin_ds.iline, 'xline':top_hugin_ds.xline, 'twt':top_hugin_ds.twt})
+top_hugin_amp = volve_3d.data.interp(
+    {"iline": top_hugin_ds.iline, "xline": top_hugin_ds.xline, "twt": top_hugin_ds.twt}
+)
 
 # %%
-# 
+#
 fig = plt.figure(figsize=(15, 5))
-top_hugin_amp.plot(cmap='bwr')
-cs = plt.contour(top_hugin_amp.xline, top_hugin_amp.iline, top_hugin_ds.twt, levels=20, colors='grey')
-plt.clabel(cs, fontsize=14, fmt='%.1f')
+top_hugin_amp.plot(cmap="bwr")
+cs = plt.contour(
+    top_hugin_amp.xline, top_hugin_amp.iline, top_hugin_ds.twt, levels=20, colors="grey"
+)
+plt.clabel(cs, fontsize=14, fmt="%.1f")

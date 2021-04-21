@@ -48,6 +48,38 @@ class SeisIO:
 
         self._obj.to_netcdf(seisnc, **kwargs)
 
+    def to_subsurface(self):
+        """Convert seismic data to a subsurface StructuredData Object
+
+        Raises:
+            err: [description]
+            NotImplementedError: [description]
+
+        Returns:
+            subsurface.structs.base_structures.StructuredData: subsurface struct
+        """
+        try:
+            from subsurface.structs.base_structures import StructuredData
+        except ImportError as err:
+            print("subsurface optional dependency required")
+            raise err
+
+        if self._obj.seis.is_twt():
+            vdom = "twt"
+        else:
+            vdom = "depth"
+
+        if self._obj.seis.is_3d():
+            ds = self._obj.rename_dims({"iline": "x", "xline": "y", vdom: "z"})
+            ds["z"] = ds["z"] * -1
+            subsurface_struct = StructuredData(ds, "data")
+        elif self._obj.seis.is_2d():
+            subsurface_struct = StructuredData(self._obj, "data")
+        else:
+            raise NotImplementedError
+
+        return subsurface_struct
+
 
 def open_seisnc(seisnc, **kwargs):
     """Load from netcdf4 with seisnc specs.
@@ -318,6 +350,10 @@ class SeisGeom:
         dim_options = [
             DimensionKeyField.threed_twt,
             DimensionKeyField.threed_depth,
+            DimensionKeyField.threed_xline_twt,
+            DimensionKeyField.threed_iline_twt,
+            DimensionKeyField.threed_xline_depth,
+            DimensionKeyField.threed_iline_depth,
         ]
         invalid_dim_options = [
             DimensionKeyField.threed_ps_twt,
@@ -532,7 +568,7 @@ class SeisGeom:
                 )
 
         elif self.is_2d() or self.is_2dgath():
-            cdp = DimensionKeyField.cdp_2d
+            cdp = DimensionKeyField.cdp_2d[0]
             cdps = self._obj[cdp].values
             corner_points = (cdps[0], cdps[-1])
 
@@ -620,7 +656,7 @@ class SeisGeom:
         return ax
 
     def subsample_dims(self, **dim_kwargs):
-        """Return a dictionary of subsampled dims suitable for xarra.interp.
+        """Return a dictionary of subsampled dims suitable for xarray.interp.
 
         This tool halves
 
@@ -692,3 +728,37 @@ class SeisGeom:
             .translate(cp_ix[0][0], cp_ix[0][1])  # move to ilxl origin
         )
         return affine_grid2loc.inverted()
+
+    def get_dead_trace_map(self, scan=None, zeros_as_nan=False):
+        """Scan the vertical axis of a volume to find traces that are all NaN
+        and return an DataArray which maps the all dead traces.
+
+        Faster scans can be performed by setting scan to an int or list of int
+        representing horizontal slice indexes to use for the scan.
+
+        Args:
+            scan (int/list of int, optional): Horizontal indexes to scan.
+                Defaults to None (scan full volume).
+            zeros_as_nan (bool, optional): Treat zeros as NaN during scan.
+
+        Returns:
+            xarray.DataArray: boolean dead trace map.
+        """
+
+        if self.is_twt():
+            vdom = CoordKeyField.twt
+        else:
+            vdom = CoordKeyField.depth
+
+        if scan:
+            nan_map = (
+                self._obj.data.isel(**{vdom: scan}).isnull().reduce(np.all, dim=vdom)
+            )
+        else:
+            nan_map = self._obj.data.isnull().reduce(np.all, dim=vdom)
+
+        if zeros_as_nan:
+            zero_map = np.abs(self._obj.data).sum(dim=vdom)
+            nan_map = xr.where(zero_map == 0.0, 1, nan_map)
+
+        return nan_map
