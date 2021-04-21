@@ -8,9 +8,9 @@
 #       format_version: '1.3'
 #       jupytext_version: 1.11.1
 #   kernelspec:
-#     display_name: Python (segysak)
+#     display_name: Python 3
 #     language: python
-#     name: segysak
+#     name: python3
 # ---
 
 # %% [markdown]
@@ -35,9 +35,10 @@ ss_cube = segycube.seisio.to_subsurface()
 display(ss_cube)
 
 # %% [markdown]
-# Cast to a `ss.StructuredGrid` and plot using PyVista 
+# Cast to a `ss.StructuredGrid` and plot using PyVista
 
 # %%
 ss_grid = ss.StructuredGrid(ss_cube)
 pvgrid = ss.visualization.to_pyvista_grid(ss_grid, "data")
-ss.visualization.pv_plot([pvgrid])
+_ = ss.visualization.pv_plot([pvgrid])
+_.close()

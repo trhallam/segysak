@@ -63,19 +63,6 @@ def cropping_limits():
     return crop, cropz
 
 
-def test_get_segy_texthead(temp_dir, temp_segy):
-    ebcidc = get_segy_texthead(temp_segy)
-    assert isinstance(ebcidc, str)
-    assert len(ebcidc) < 3200
-    assert ebcidc[:3] == "C01"
-
-
-def test_get_segy_texthead_odd(temp_dir, segy_with_nonascii_text):
-    ebcidc = get_segy_texthead(segy_with_nonascii_text)
-    print(ebcidc)
-    assert isinstance(ebcidc, str)
-
-
 def test_well_known_byte_locs_fail():
     with pytest.raises(ValueError):
         well_known_byte_locs("gibberish")
