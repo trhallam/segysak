@@ -16,9 +16,9 @@
 # %% [markdown]
 # # Extract an arbitrary line from a 3D volume
 #
-# Arbitrary lines are often defined as peicewise lines on time/z slices or basemap views that draw a path through features of interest or for example betweem well locations.
+# Arbitrary lines are often defined as piecewise lines on time/z slices or basemap views that draw a path through features of interest or for example between well locations.
 #
-# By extracting an arbitrary line we hope to end up with a uniformly sampled vertical section of data that traverses the path where the sampling interval is. of the order of the bin interval of the dataset
+# By extracting an arbitrary line we hope to end up with a uniformly sampled vertical section of data that traverses the path where the sampling interval is of the order of the bin interval of the dataset
 #
 #
 
@@ -53,7 +53,7 @@ volve_3d = segy_loader(volve_3d_path, **well_known_byte_locs("petrel_3d"))
 # %% [markdown]
 # ## Arbitrary Lines
 #
-# We define a line by as lists of cdp_x & cdp_y points. These can be inside or outside of the survey, but oviously should intersect it in order to be useful.
+# We define a line as lists of cdp_x & cdp_y points. These can be inside or outside of the survey, but obviously should intersect it in order to be useful.
 
 # %%
 arb_line_A = (
@@ -70,8 +70,9 @@ arb_line_B = (
 
 # %%
 ax = volve_3d.seis.plot_bounds()
-ax.plot(arb_line_A[0], arb_line_A[1], ".-")
-ax.plot(arb_line_B[0], arb_line_B[1], ".-")
+ax.plot(arb_line_A[0], arb_line_A[1], '.-', label="Arb Line A")
+ax.plot(arb_line_B[0], arb_line_B[1], '.-', label="Arb Line B")
+ax.legend()
 
 # %% [markdown]
 # Let's extract line A.
@@ -92,6 +93,9 @@ print(f"That took {toc-tic} seconds")
 plt.figure(figsize=(8, 8))
 plt.imshow(line_A.to_array().squeeze().T, aspect="auto", cmap="RdBu", vmin=-10, vmax=10)
 
+# %% [markdown]
+# Now, let's extract line B. Note that blank traces are inserted where the line extends outside the survey bounds.
+
 # %%
 tic = time()
 line_B = volve_3d.seis.interp_line(arb_line_B[0], arb_line_B[1], bin_spacing_hint=10)
@@ -107,7 +111,7 @@ plt.imshow(line_B.to_array().squeeze().T, aspect="auto", cmap="RdBu", vmin=-10, 
 #
 # We have an arbitrary line geometry defined over this small survey region stored in a shape file exported from Petrel.
 #
-# Let's load that and extract an arbirary line using segysak. We also have the seismic data extracted along that line by Petrel, so we can see how that compares.
+# Let's load that and extract an arbitrary line using segysak. We also have the seismic data extracted along that line by Petrel, so we can see how that compares.
 
 # %%
 import shapefile
@@ -127,7 +131,7 @@ points_from_shapefile = [list(t) for t in list(zip(*sf.shape(0).points))]
 pprint(points_from_shapefile)
 
 # %% [markdown]
-# Load the segy containing the line thst Petrel exracted along this geometry
+# Load the segy containing the line that Petrel extracted along this geometry
 
 # %%
 line_extracted_by_petrel_path = path.join("data", "volve10r12-full-twt-arb.sgy")
@@ -153,7 +157,7 @@ toc = time()
 print(f"That took {toc-tic} seconds")
 
 # %% [markdown]
-# Plot the extract lines side by side
+# Plot the extracted lines side by side
 
 # %%
 fig, axs = plt.subplots(1, 2, figsize=(16, 8))
@@ -176,7 +180,7 @@ axs[1].imshow(
 axs[1].set_title("petrel")
 
 # %% [markdown]
-# Plot the geometry, trace header locatons along with the volve 3d bound box, tmo make sure things line up
+# Plot the geometry, trace header locations along with the volve 3d bound box, to make sure things line up.
 
 # %%
 plt.figure(figsize=(10, 10))
