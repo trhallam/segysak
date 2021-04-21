@@ -48,6 +48,7 @@ Documentation
 
 * :doc:`why-segysak`
 * :doc:`installation`
+* :doc:`tutorial`
 
 .. toctree::
    :maxdepth: 1
@@ -57,6 +58,7 @@ Documentation
    why-segysak
    installation
    examples/QuickOverview
+   tutorial
 
 **User Guide**
 
