@@ -103,7 +103,6 @@ Can be loaded into *Python* using ``xarray``.
 
    test = xarray.open_dataset('test.SEISNC')
 
-.. include:: docs/seisnc-standard.rst
 
 Complete Documentation
 ----------------------
