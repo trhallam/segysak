@@ -105,27 +105,6 @@ Can be loaded into *Python* using ``xarray``.
 
 .. include:: docs/seisnc-standard.rst
 
-Attributes
-^^^^^^^^^^^
-Any number of attributes can be added to a ``siesnc`` file. Currently the
-following attributes are extracted or reserved for use by ``SEGY-SAK``.
-
- * ``ns`` number of samples per trace
- * ``ds`` sample interval
- * ``text`` ebcidc header as ascii text
- * ``measurement_sys`` vertical units of the data
- * ``d3_domain`` vertical domain of the data
- * ``epsg`` data epsg code
- * ``corner_points`` corner points of the dataset in grid coordinates
- * ``corner_points_xy`` corner points of the dataset in xy
- * ``source_file`` name of the file the dataset was created from
- * ``srd`` seismic reference datum of the data in vertical units ``measurement_sys``
-   and ``d3_domain``
- * ``datatype`` the data type e.g. amplitude, velocity, attribute
- * ``percentiles`` this is an array of approximate percentile values created during
-   scanning from SEGY. Primarily this is useful for plotting by limiting the dynamic
-   range of the display. The percentiles are in percent 0, 0.1, 10, 50, 90, 99.9 & 100.
-
 Complete Documentation
 ----------------------
 
