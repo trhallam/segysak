@@ -11,7 +11,9 @@ from hypothesis.strategies import integers, text, floats, tuples, sampled_from
 from hypothesis.extra.numpy import arrays
 
 from affine import Affine
-from subsurface import StructuredData
+
+if sys.version_info >= (3, 8):
+    from subsurface import StructuredData
 
 from segysak import create3d_dataset
 from segysak._keyfield import DimensionKeyField
