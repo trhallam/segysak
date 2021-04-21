@@ -1,4 +1,7 @@
 import pytest
+
+import sys
+
 import numpy as np
 from scipy import interpolate
 import xarray as xr
@@ -18,15 +21,27 @@ from segysak._accessor import coordinate_df
 
 class TestSeisIO:
     def test_to_subsurface_3d(self, empty3d):
-        assert isinstance(empty3d.seisio.to_subsurface(), StructuredData)
+        if sys.version_info >= (3, 8):
+            assert isinstance(empty3d.seisio.to_subsurface(), StructuredData)
+        else:
+            print("Python <=3.7 not support by subsurface")
+            assert True
 
     def test_to_subsurface_3dgath(self, empty3d_gath):
-        with pytest.raises(NotImplementedError):
-            empty3d_gath.seisio.to_subsurface()
+        if sys.version_info >= (3, 8):
+            with pytest.raises(NotImplementedError):
+                empty3d_gath.seisio.to_subsurface()
+        else:
+            print("Python <=3.7 not support by subsurface")
+            assert True
 
     def test_to_subsurface_2dgath(self, empty2d_gath):
-        with pytest.raises(NotImplementedError):
-            empty2d_gath.seisio.to_subsurface()
+        if sys.version_info >= (3, 8):
+            with pytest.raises(NotImplementedError):
+                empty2d_gath.seisio.to_subsurface()
+        else:
+            print("Python <=3.7 not support by subsurface")
+            assert True
 
 
 @pytest.mark.parametrize(
