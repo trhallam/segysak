@@ -102,11 +102,13 @@ def segy_header_scrape(
     """
     assert (chunk > 0) and isinstance(chunk, int)
     header_keys = _active_tracefield_segyio()
-    enum_byte_index = {int(byte_loc):i for i, byte_loc in enumerate(header_keys.values())}
+    enum_byte_index = {
+        int(byte_loc): i for i, byte_loc in enumerate(header_keys.values())
+    }
 
     if bytes_filter:
         for byte_loc in bytes_filter:
-            assert (byte_loc in enum_byte_index)
+            assert byte_loc in enum_byte_index
         bytes_filter_index = [enum_byte_index[byte_loc] for byte_loc in bytes_filter]
         enum_filter = [segyio.TraceField(byte_loc) for byte_loc in bytes_filter]
     else:
@@ -129,7 +131,10 @@ def segy_header_scrape(
                 slc = slice(slc_end - chunk, min(slc_end, ntraces), 1)
                 # take headers returned from segyio and create lists for a dataframe
                 head_df.iloc[slc, :] = np.vstack(
-                    [list(next(segyf_hgen).values()) for _ in range(slc.stop-slc.start)]
+                    [
+                        list(next(segyf_hgen).values())
+                        for _ in range(slc.stop - slc.start)
+                    ]
                 )[:, bytes_filter_index]
                 slc_end += chunk
                 pbar.update(slc.stop - slc.start)

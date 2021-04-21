@@ -18,6 +18,7 @@
 
 # %%
 from segysak.segy import segy_loader
+from IPython import display
 import subsurface as ss
 import warnings
 
