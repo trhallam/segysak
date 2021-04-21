@@ -138,7 +138,7 @@ def _segy3d_ncdf(
         for _, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
                 i1, i2 = val[["il_index", "xl_index"]].values.astype(int)
-                seisnc_data[i1, i2, :] = segyf.trace[trc][n0 : ns + 1]
+                seisnc_data[i1, i2, :] = segyf.trace[trc][n0 : ns + 1].astype(np.float32)
                 percentiles = (
                     np.percentile(segyf.trace[trc][n0 : ns + 1], PERCENTILES)
                     + percentiles
@@ -1290,7 +1290,7 @@ def segy_converter(
         optimised_load=True,
         **segyio_kwargs,
     )
-
+    print("header_loaded")
     common_args = (segyfile, head_df, head_bin, head_loc)
 
     common_kwargs = dict(
@@ -1304,6 +1304,9 @@ def segy_converter(
 
     # 3d data needs iline and xline
     if iline is not None and xline is not None:
+
+        
+        print("is_3d")
         ds = _3dsegy_loader(
             *common_args,
             **common_kwargs,
