@@ -69,6 +69,7 @@ instance/
 docs/_build/
 docs/_examples
 docs/generated
+docs/_temp
 
 # PyBuilder
 target/
