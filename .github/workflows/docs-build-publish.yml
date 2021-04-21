@@ -5,7 +5,7 @@ on:
     types:
       - created
       - edited
-    branches: master
+    branches: main
   workflow_dispatch:
 
 jobs:

@@ -31,6 +31,7 @@ Loading & Converting SEG-Y data files
    :toctree: generated/
 
    segy_loader
+   segy_freeloader
    segy_converter
    well_known_byte_locs
 
@@ -52,6 +53,7 @@ Writing SEG-Y files
    :toctree: generated/
 
    segy_writer
+   segy_freewriter
    output_byte_locs
 
 .. currentmodule:: segysak
