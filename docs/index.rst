@@ -79,17 +79,19 @@ Documentation
 
 **Help & Reference**
 
+* :doc:`_temp/contributing`
 * :doc:`api`
 
-.. * :doc:`contributing`
 .. * :doc:`related-projects`
 
 .. toctree::
-   :maxdepth: 1
-   :hidden:
+   :maxdepth: 2
    :caption: Help & reference
+   :hidden:
 
+   _temp/contributing
    api
+
 
 See also
 --------
