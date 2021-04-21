@@ -173,4 +173,3 @@ def halfsample(arr):
 def plane(xy, a, b, c):
     x, y = xy
     return a * x + b * y + c
-

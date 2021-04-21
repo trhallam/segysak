@@ -45,4 +45,3 @@ class TestFrozenDict:
     def test_fromkeys(self):
         fdict = FrozenDict().fromkeys(["a"], [1])
         assert isinstance(fdict, FrozenDict)
-
