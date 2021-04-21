@@ -8,7 +8,7 @@
 
 Access the full documentation for SEGY-SAK from `readthedocs <https://segysak.readthedocs.io/en/latest/>`__
 
-.. image:: https://github.com/trhallam/segysak/raw/master/docs/_static/logo_small.png
+.. image:: https://github.com/trhallam/segysak/raw/main/docs/_static/logo_small.png
   :alt: LOGO
 
 *SEGY-SAK* aims to be your Python Swiss Army Knife for Seismic Data.
@@ -206,7 +206,7 @@ The complete documentation for *SEGY-SAK* can be found at
 
 .. |license| image:: https://img.shields.io/badge/license-GPLv3-brightgreen
    :alt: license
-   :target: https://github.com/trhallam/segysak/blob/master/LICENSE
+   :target: https://github.com/trhallam/segysak/blob/main/LICENSE
 
 .. |docs| image:: https://readthedocs.org/projects/segysak/badge/?version=latest
    :target: https://segysak.readthedocs.io/en/latest/?badge=latest
