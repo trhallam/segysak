@@ -39,7 +39,8 @@ display(ss_cube)
 # Cast to a `ss.StructuredGrid` and plot using PyVista
 
 # %%
-ss_grid = ss.StructuredGrid(ss_cube)
-pvgrid = ss.visualization.to_pyvista_grid(ss_grid, "data")
-_ = ss.visualization.pv_plot([pvgrid])
-_.close()
+# plotting issues with jupytext?
+# ss_grid = ss.StructuredGrid(ss_cube)
+# pvgrid = ss.visualization.to_pyvista_grid(ss_grid, "data")
+# _ = ss.visualization.pv_plot([pvgrid])
+# _.close()
