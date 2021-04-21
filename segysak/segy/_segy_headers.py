@@ -1,4 +1,5 @@
 import importlib
+import itertools
 import numpy as np
 import pandas as pd
 import segyio
@@ -101,20 +102,22 @@ def segy_header_scrape(
     """
     assert (chunk > 0) and isinstance(chunk, int)
     header_keys = _active_tracefield_segyio()
-    enum_byte_index = {
-        int(byte_loc): i for i, byte_loc in enumerate(header_keys.values())
-    }
+    enum_byte_index = {int(byte_loc):i for i, byte_loc in enumerate(header_keys.values())}
 
     if bytes_filter:
         for byte_loc in bytes_filter:
-            assert byte_loc in enum_byte_index
+            assert (byte_loc in enum_byte_index)
         bytes_filter_index = [enum_byte_index[byte_loc] for byte_loc in bytes_filter]
+        enum_filter = [segyio.TraceField(byte_loc) for byte_loc in bytes_filter]
     else:
         bytes_filter_index = list(enum_byte_index.values())
+        enum_filter = [segyio.TraceField(byte_loc) for byte_loc in header_keys.values()]
 
     columns = [list(header_keys.keys())[i] for i in bytes_filter_index]
     segyio_kwargs["ignore_geometry"] = True
+
     with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
+        segyf_hgen = segyf.header[:]
         ntraces = segyf.tracecount
         if partial_scan is not None:
             ntraces = min(ntraces, int(partial_scan))
@@ -122,12 +125,11 @@ def segy_header_scrape(
         head_df = pd.DataFrame(index=pd.Index(range(ntraces)), columns=columns)
         slc_end = chunk
         with tqdm(total=ntraces, disable=silent, **TQDM_ARGS) as pbar:
-            while slc_end <= ntraces + chunk:
+            while slc_end <= ntraces + chunk - 1:
                 slc = slice(slc_end - chunk, min(slc_end, ntraces), 1)
-
                 # take headers returned from segyio and create lists for a dataframe
                 head_df.iloc[slc, :] = np.vstack(
-                    [tuple(x.values()) for x in segyf.header[slc]]
+                    [list(next(segyf_hgen).values()) for _ in range(slc.stop-slc.start)]
                 )[:, bytes_filter_index]
                 slc_end += chunk
                 pbar.update(slc.stop - slc.start)
