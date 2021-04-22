@@ -27,13 +27,15 @@
 
 # %% nbsphinx="hidden"
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 # %%
 import numpy as np
 from segysak import open_seisnc, segy
 
 import matplotlib.pyplot as plt
+
 # %matplotlib inline
 
 # %%
@@ -46,7 +48,7 @@ client
 # We can also scale the cluster to be a bit smaller.
 
 # %%
-client.cluster.scale(2, memory='0.5gb')
+client.cluster.scale(2, memory="0.5gb")
 client
 
 # %% [markdown]
@@ -55,9 +57,11 @@ client
 # If your data is in SEG-Y to use dask it must be converted to SEISNC. If you do this with the CLI it only need happen once.
 
 # %%
-segy_file = 'data/volve10r12-full-twt-sub3d.sgy'
-seisnc_file = 'data/volve10r12-full-twt-sub3d.seisnc'
-segy.segy_converter(segy_file, seisnc_file, iline=189, xline=193, cdpx=181, cdpy=185, silent=True)
+segy_file = "data/volve10r12-full-twt-sub3d.sgy"
+seisnc_file = "data/volve10r12-full-twt-sub3d.seisnc"
+segy.segy_converter(
+    segy_file, seisnc_file, iline=189, xline=193, cdpx=181, cdpy=185, silent=True
+)
 
 # %% [markdown]
 # By specifying the chunks argument to the `open_seisnc` command we can ask dask to fetch the data in chunks of size *n*. In this example the `iline` dimension will be chunked in groups of 100. The valid arguments to chunks depends on the dataset but any dimension can be used.
@@ -65,7 +69,7 @@ segy.segy_converter(segy_file, seisnc_file, iline=189, xline=193, cdpx=181, cdpy
 # Even though the seis of the dataset is `2.14GB` it hasn't yet been loaded into memory, not will `dask` load it entirely unless the operation demands it.
 
 # %%
-seisnc = open_seisnc('data/volve10r12-full-twt-sub3d.seisnc', chunks={'iline':100})
+seisnc = open_seisnc("data/volve10r12-full-twt-sub3d.seisnc", chunks={"iline": 100})
 seisnc.seis.humanbytes
 
 # %% [markdown]
@@ -97,9 +101,9 @@ mean.compute().values
 # %%
 fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(20, 10))
 
-iline = seisnc.sel(iline = 10100).transpose('twt', 'xline').data
-xline = seisnc.sel(xline = 2349).transpose('twt', 'iline').data
-zslice = seisnc.sel(twt = 2900, method='nearest').transpose('iline', 'xline').data
+iline = seisnc.sel(iline=10100).transpose("twt", "xline").data
+xline = seisnc.sel(xline=2349).transpose("twt", "iline").data
+zslice = seisnc.sel(twt=2900, method="nearest").transpose("iline", "xline").data
 
 q = iline.quantile([0, 0.001, 0.5, 0.999, 1]).values
 rq = np.max(np.abs([q[1], q[-2]]))
@@ -109,12 +113,12 @@ xline.plot(robust=True, ax=axs[0, 1], yincrease=False)
 zslice.plot(robust=True, ax=axs[0, 2])
 
 imshow_kwargs = dict(
-    cmap='seismic', aspect='auto', vmin=-rq, vmax=rq, interpolation='bicubic'
+    cmap="seismic", aspect="auto", vmin=-rq, vmax=rq, interpolation="bicubic"
 )
 
 axs[1, 0].imshow(iline.values, **imshow_kwargs)
-axs[1, 0].set_title('iline')
+axs[1, 0].set_title("iline")
 axs[1, 1].imshow(xline.values, **imshow_kwargs)
-axs[1, 1].set_title('xline')
-axs[1, 2].imshow(zslice.values, origin='lower', **imshow_kwargs)
-axs[1, 2].set_title('twt')
+axs[1, 1].set_title("xline")
+axs[1, 2].imshow(zslice.values, origin="lower", **imshow_kwargs)
+axs[1, 2].set_title("twt")

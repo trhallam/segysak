@@ -24,6 +24,11 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# created docs
+docs/examples
+examples/*.ipynb
+
 # don't commit auto-generated version.py
 segysak/version.py
 
@@ -69,6 +74,7 @@ instance/
 docs/_build/
 docs/_examples
 docs/generated
+docs/_temp
 
 # PyBuilder
 target/

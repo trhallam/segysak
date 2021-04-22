@@ -183,7 +183,11 @@ def scrape(filename, ebcidc=False, trace_headers=False):
 @cli.command(
     help="Convert file between SEGY and NETCDF (direction is guessed or can be made explicit with the --output-type option)"
 )
-@click.argument("input-files", type=click.Path(exists=True), nargs=-1,)
+@click.argument(
+    "input-files",
+    type=click.Path(exists=True),
+    nargs=-1,
+)
 @click.option(
     "--output-file", "-o", type=click.STRING, help="Output file name", default=None
 )
@@ -220,7 +224,9 @@ def convert(
 ):
 
     if len(input_files) > 1 and output_file is not None:
-        raise ValueError("The output file option should not be used with multiple input files.")
+        raise ValueError(
+            "The output file option should not be used with multiple input files."
+        )
 
     for input_file in input_files:
         input_file = pathlib.Path(input_file)
@@ -286,7 +292,9 @@ def convert(
             click.echo(f"Converted file saved as {output_file_loc}")
             LOGGER.info(f"SEGY output written to {output_file_loc}")
         else:
-            click.echo(f"Conversion to output-type {output_type} is not implemented yet")
+            click.echo(
+                f"Conversion to output-type {output_type} is not implemented yet"
+            )
             raise SystemExit
 
 

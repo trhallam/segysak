@@ -63,13 +63,6 @@ def cropping_limits():
     return crop, cropz
 
 
-def test_get_segy_texthead(temp_dir, temp_segy):
-    ebcidc = get_segy_texthead(temp_segy)
-    assert isinstance(ebcidc, str)
-    assert len(ebcidc) < 3200
-    assert ebcidc[:3] == "C01"
-
-
 def test_well_known_byte_locs_fail():
     with pytest.raises(ValueError):
         well_known_byte_locs("gibberish")
@@ -95,6 +88,9 @@ def test_segy_header_scan(temp_dir, temp_segy):
     scanned = head.nscan
     assert scanned == TEST_SEGY_SIZE
     # assert isinstance(head, dict) now a dataframe
+
+    with pytest.raises(ValueError):
+        header = segy_header_scan("", max_traces_scan=23.9, silent=True)
 
 
 def test_segy_header_scan_all(temp_dir, temp_segy):
