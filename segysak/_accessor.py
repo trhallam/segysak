@@ -199,7 +199,8 @@ class SeisGeom:
         return "{} {}".format(f, suffixes[i])
 
     def _coord_as_dimension(self, points, drop):
-        """Select data at x and y coordinates
+        """Convert x and y points to iline and xline. If the affine transform
+        cannot be found this function will use a gridding interpolation approach.
 
         Args:
             cdp_x (float/array-like)
@@ -209,39 +210,50 @@ class SeisGeom:
         Returns:
             xarray.Dataset: At selected coordinates.
         """
-
+        affine = None
         keys = ("cdp_x", "cdp_y")
 
-        # check drop keys actually on dims, might not be
-        drop = set(drop).intersection(*[set(self._obj[key].dims) for key in keys])
+        try:
+            affine = self.get_affine_transform().inverted()
+        except:
+            pass
 
-        grid = np.vstack(
-            [
-                self._obj[key]
-                .mean(dim=drop, skipna=True)
-                .transpose("iline", "xline", transpose_coords=True)
-                .values.ravel()
-                for key in keys
-            ]
-        ).transpose()
-        xlines_, ilines_ = np.meshgrid(
-            self._obj["xline"],
-            self._obj["iline"],
-        )
+        if affine is not None:
+            ilxl = affine.transform(np.dstack(points)[0])
+            ils, xls = ilxl[:, 0], ilxl[:, 1]
 
-        # these must all be the same length
-        ils = np.atleast_1d(griddata(grid, ilines_.ravel(), points))
-        xls = np.atleast_1d(griddata(grid, xlines_.ravel(), points))
+        else:
+            # check drop keys actually on dims, might not be
+            drop = set(drop).intersection(*[set(self._obj[key].dims) for key in keys])
+
+            grid = np.vstack(
+                [
+                    self._obj[key]
+                    .mean(dim=drop, skipna=True)
+                    .transpose("iline", "xline", transpose_coords=True)
+                    .values.ravel()
+                    for key in keys
+                ]
+            ).transpose()
+            xlines_, ilines_ = np.meshgrid(
+                self._obj["xline"],
+                self._obj["iline"],
+            )
+
+            # these must all be the same length
+            ils = np.atleast_1d(griddata(grid, ilines_.ravel(), points))
+            xls = np.atleast_1d(griddata(grid, xlines_.ravel(), points))
 
         return ils, xls
 
-    def xysel(self, cdp_x, cdp_y, method="nearest"):
+    def xysel(self, cdp_x, cdp_y, method="nearest", sample_dim_name="cdp"):
         """Select data at x and y coordinates
 
         Args:
             cdp_x (float/array-like)
             cdp_y (float/array-like)
             method (str): Same as methods for xarray.Dataset.interp
+            sample_dim_name (str, optional): The name to give the output sampling dimension.
 
         Returns:
             xarray.Dataset: At selected coordinates.
@@ -264,34 +276,44 @@ class SeisGeom:
             other_dims = dims.difference(core_dims)
             il, xl = self._coord_as_dimension((cdp_x, cdp_y), other_dims)
 
-            # populate back to 2d
-            cdp_ds = [
-                None
-                if np.isnan(np.sum([i, x]))
-                else self._obj.interp(iline=i, xline=x, method=method)
-                for i, x in zip(il, xl)
-            ]
+            sampling_arrays = dict(
+                iline=xr.DataArray(
+                    il, dims=sample_dim_name, coords={sample_dim_name: range(il.size)}
+                ),
+                xline=xr.DataArray(
+                    xl, dims=sample_dim_name, coords={sample_dim_name: range(xl.size)}
+                ),
+            )
+            output_ds = self._obj.interp(**sampling_arrays, method=method)
 
-            if all(map(lambda x: x is None, cdp_ds)):
-                raise ValueError("No points intersected the dataset")
+            # # populate back to 2d
+            # cdp_ds = [
+            #     None
+            #     if np.isnan(np.sum([i, x]))
+            #     else self._obj.interp(iline=i, xline=x, method=method)
+            #     for i, x in zip(il, xl)
+            # ]
 
-            for ds in cdp_ds:
-                if ds is not None:
-                    none_replace = ds.copy(deep=True)
-                    break
+            # if all(map(lambda x: x is None, cdp_ds)):
+            #     raise ValueError("No points intersected the dataset")
 
-            none_replace[VariableKeyField.data][:] = np.nan
-            none_replace[CoordKeyField.iline] = np.nan
-            none_replace[CoordKeyField.xline] = np.nan
+            # for ds in cdp_ds:
+            #     if ds is not None:
+            #         none_replace = ds.copy(deep=True)
+            #         break
 
-            for i, (point, xloc, yloc) in enumerate(zip(cdp_ds, cdp_x, cdp_y)):
-                if point is None:
-                    point = none_replace
-                point[CoordKeyField.cdp_x] = point[CoordKeyField.cdp_x] * 0 + xloc
-                point[CoordKeyField.cdp_y] = point[CoordKeyField.cdp_y] * 0 + yloc
-                point[CoordKeyField.cdp] = i + 1
-                point.attrs = dict()
-                cdp_ds[i] = point.copy()
+            # none_replace[VariableKeyField.data][:] = np.nan
+            # none_replace[CoordKeyField.iline] = np.nan
+            # none_replace[CoordKeyField.xline] = np.nan
+
+            # for i, (point, xloc, yloc) in enumerate(zip(cdp_ds, cdp_x, cdp_y)):
+            #     if point is None:
+            #         point = none_replace
+            #     point[CoordKeyField.cdp_x] = point[CoordKeyField.cdp_x] * 0 + xloc
+            #     point[CoordKeyField.cdp_y] = point[CoordKeyField.cdp_y] * 0 + yloc
+            #     point[CoordKeyField.cdp] = i + 1
+            #     point.attrs = dict()
+            #     cdp_ds[i] = point.copy()
 
         elif self.is_2d() or self.is_2dgath():
             raise NotImplementedError("Not yet implemented for 2D")
@@ -300,10 +322,12 @@ class SeisGeom:
                 "xysel not support for this volume, must be 3d, 3dgath, 2d or 2dgath"
             )
 
-        cdp_ds = xr.concat(cdp_ds, "cdp")
-        cdp_ds.attrs = self._obj.attrs.copy()
+        # cdp_ds = xr.concat(cdp_ds, "cdp")
+        # cdp_ds.attrs = self._obj.attrs.copy()
 
-        return cdp_ds
+        # return cdp_ds
+        output_ds.attrs = self._obj.attrs.copy()
+        return output_ds
 
     def _has_dims(self, dimension_options, invalid_dimension_options=None):
         """Check dataset has one of dimension options."""

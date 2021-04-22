@@ -23,6 +23,7 @@ import pathlib
 from IPython.display import display
 import pandas as pd
 import xarray as xr
+import numpy as np
 from segysak.segy import segy_loader, segy_header_scan
 import matplotlib.pyplot as plt
 
@@ -63,6 +64,8 @@ penobscot_3d_gath.isel(xline=5, offset=0).data.T.plot(
 )
 
 # %% [markdown]
+# ## Plotting Gathers Sequentially fro
+#
 # Plotting of gathers is often done in stacked way, displaying sequential gathers along a common dimension, usually inline or crossline. Xarray provides the `stack` method which can be used to stack labelled dimensions together.
 
 # %%
@@ -93,6 +96,43 @@ axs.imshow(
 )
 
 # %% [markdown]
+# ## Arbitrary line extration on Gathers
+#
+# Arbitrary line slicing of gathers based upon coordinates is also possible. Lets create a line that crosses the 3D.
+
+# %%
+arb_line = np.array([(733600, 733850), (4895180.0, 4895180.0)])
+
+ax = penobscot_3d_gath.seis.plot_bounds()
+ax.plot(arb_line[0, :], arb_line[1, :], label="arb_line")
+plt.legend()
+
+# %% [markdown]
+# Here we need to think carefully about the `bin_spacing_hint`. We also don't want to interpolate the gathers, so we use `xysel_method="nearest"`.
+
+# %%
+penobscot_3d_gath_arb = penobscot_3d_gath.seis.interp_line(
+    arb_line[0, :], arb_line[1, :], bin_spacing_hint=30, xysel_method="nearest"
+)
+
+# %%
+fig, axs = plt.subplots(figsize=(20, 10))
+axs.imshow(
+    penobscot_3d_gath_arb.data.stack(
+        stacked_offset=(
+            "cdp",
+            "offset",
+        )
+    ).values,
+    vmin=-5000,
+    vmax=5000,
+    cmap="seismic",
+    aspect="auto",
+)
+
+# %% [markdown]
+# ## Muting and Stacking Gathers
+#
 # Using one of our gathers lets define a mute function before we stack the data.
 
 # %%

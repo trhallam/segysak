@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.9.1
+#       jupytext_version: 1.11.1
 #   kernelspec:
 #     display_name: Python 3
 #     language: python
@@ -30,10 +30,18 @@ warnings.filterwarnings("ignore")
 # %%
 from os import path
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+import wellpathpy as wpp
+import xarray as xr
 
 # %% [markdown]
 # ## Load Small 3D Volume from Volve
+
+# %%
+from segysak import __version__
+
+print(__version__)
 
 # %%
 volve_3d_path = path.join("data", "volve10r12-full-twt-sub3d.sgy")
@@ -70,8 +78,8 @@ arb_line_B = (
 
 # %%
 ax = volve_3d.seis.plot_bounds()
-ax.plot(arb_line_A[0], arb_line_A[1], '.-', label="Arb Line A")
-ax.plot(arb_line_B[0], arb_line_B[1], '.-', label="Arb Line B")
+ax.plot(arb_line_A[0], arb_line_A[1], ".-", label="Arb Line A")
+ax.plot(arb_line_B[0], arb_line_B[1], ".-", label="Arb Line B")
 ax.legend()
 
 # %% [markdown]
@@ -207,3 +215,79 @@ ax.scatter(
 ax.set_xlim(434500, 435500)
 ax.set_ylim(6477800, 6478600)
 plt.legend(labels=["bounds", "geom", "corner", "segysak", "petrel"])
+
+# %% [markdown]
+# ## Well Paths
+#
+# Well paths can also be treated as an arbitrary line. In this example we will use the Affine transform to convert well X and Y locations to the seismic local grid, and the Xarray `interp` method to extract a seismic trace along the well bore.
+#
+# First we have to load the well bore deviation and use `wellpathpy` to convert it to XYZ coordinates with a higher sampling rate.
+
+# %%
+f12_dev = pd.read_csv("data/well_f12_deviation.asc", comment="#", delim_whitespace=True)
+f12_dev_pos = wpp.deviation(*f12_dev[["MD", "INCL", "AZIM_GN"]].values.T)
+
+# depth values in MD that we want to sample the seismic cube at
+new_depths = np.arange(0, f12_dev["MD"].max(), 1)
+
+# use minimum curvature and resample to 1m interval
+f12_dev_pos = f12_dev_pos.minimum_curvature().resample(new_depths)
+
+# adjust position of deviation to local coordinates and TVDSS
+f12_dev_pos.to_wellhead(
+    6478566.23,
+    435050.21,
+    inplace=True,
+)
+f12_dev_pos.loc_to_tvdss(
+    54.9,
+    inplace=True,
+)
+
+fig, ax = plt.subplots(figsize=(10, 5))
+volve_3d.seis.plot_bounds(ax=ax)
+sc = ax.scatter(f12_dev_pos.easting, f12_dev_pos.northing, c=f12_dev_pos.depth, s=1)
+plt.colorbar(sc, label="F12 Depth")
+ax.set_aspect("equal")
+
+
+# %% [markdown]
+# We can easily sample the seismic cube by converting the positional log to `iline` and `xline` using the Affine transform for our data. We also need to convert the TVDSS values of the to TWT (in this case we will just use a constant velocity).
+#
+# In both instances we will create custom xarray.DataArray instances because this allows us to relate the coordinate systems of well samples (on the new dimension `well`) to the `iline` and `xline` dimensions of the cube.
+
+# %%
+# need the inverse to go from xy to il/xl
+affine = volve_3d.seis.get_affine_transform().inverted()
+ilxl = affine.transform(np.dstack([f12_dev_pos.easting, f12_dev_pos.northing])[0])
+
+f12_dev_ilxl = dict(
+    iline=xr.DataArray(ilxl[:, 0], dims="well", coords={"well": range(ilxl.shape[0])}),
+    xline=xr.DataArray(ilxl[:, 1], dims="well", coords={"well": range(ilxl.shape[0])}),
+)
+
+twt = xr.DataArray(
+    -1.0 * f12_dev_pos.depth * 2000 / 2400,  # 2400 m/s to convert to TWT - and negate,
+    dims="well",
+    coords={"well": range(ilxl.shape[0])},
+)
+
+f12_dev_ilxl
+
+# %% [markdown]
+# The DataArrays with the new axes can be passed to interp which will perform interpolation for us on the new dimension `well`.
+#
+# We can also plot the well path on our seismic extracted along the well path.
+
+# %%
+sel = volve_3d.interp(**f12_dev_ilxl)
+fig, axs = plt.subplots(figsize=(20, 10))
+sel.data.T.plot(ax=axs, yincrease=False)
+twt.plot(color="k", ax=axs)
+
+# %% [markdown]
+# To extract the data along the well path we just need to interpolate using the additional `twt` DataArray.
+
+# %%
+well_seismic = volve_3d.interp(**f12_dev_ilxl, twt=twt)
+well_seismic.data.plot()

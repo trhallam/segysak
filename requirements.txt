@@ -24,4 +24,4 @@ pyshp
 matplotlib
 more-itertools
 subsurface
-
+wellpathpy
