@@ -64,7 +64,7 @@ penobscot_3d_gath.isel(xline=5, offset=0).data.T.plot(
 )
 
 # %% [markdown]
-# ## Plotting Gathers Sequentially fro
+# ## Plotting Gathers Sequentially
 #
 # Plotting of gathers is often done in stacked way, displaying sequential gathers along a common dimension, usually inline or crossline. Xarray provides the `stack` method which can be used to stack labelled dimensions together.
 
