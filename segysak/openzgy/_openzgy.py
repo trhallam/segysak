@@ -1,12 +1,37 @@
 """Open ZGY Wrapper Module for Xarray"""
 
+# look for local installation
+import sys
+import importlib
+import pathlib
+
+_missing_local = True
+_missing_submodule = True
+
 try:
-    from openzgy.api import ZgyReader, ZgyWriter, SampleDataType, UnitDimension
+    import openzgy
+
+    _missing_local = False
 except ImportError:
+    pass
+
+if _missing_local:
+    _here = pathlib.Path(__file__).absolute().parent
+    _finder = importlib.machinery.FileFinder(str(_here / "open-zgy/python"))
+    _spec = _finder.find_spec("openzgy")
+    if _spec is not None:
+        _module = importlib.util.module_from_spec(_spec)
+        sys.modules["openzgy"] = _module
+        _spec.loader.exec_module(_module)
+        _missing_submodule = False
+
+if _missing_local and _missing_submodule:
     raise ImportError(
         "The OpenZgy Module requires that Open ZGY for Python"
         " be installed. Checkout the module ReadMe for more information."
     )
+
+from openzgy.api import ZgyReader, ZgyWriter, SampleDataType, UnitDimension
 
 import numpy as np
 from .._seismic_dataset import create3d_dataset

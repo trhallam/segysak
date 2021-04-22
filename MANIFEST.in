@@ -4,3 +4,6 @@ prune docs
 prune .*
 prune .egg-info
 exclude .*
+
+recursive-include segysak/openzgy/open-zgy/python *
+recursive-exclude segysak/openzgy/open-zgy/python *.pyc
