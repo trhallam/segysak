@@ -22,6 +22,7 @@ install_requires = [
     "h5netcdf",
     "setuptools_scm",
     "attrdict",
+    "more-itertools",
 ]
 
 notebook_deps = [
@@ -33,7 +34,14 @@ notebook_deps = [
     "pyvista",
 ]
 
-testing_deps = ["flake8", "pytest", "hypothesis", "affine", "pytest_cases"]
+testing_deps = [
+    "flake8",
+    "pytest",
+    "hypothesis",
+    "affine",
+    "pytest_cases",
+    "subsurface",
+]
 
 extras_require = {
     "notebook": notebook_deps,
@@ -49,6 +57,7 @@ extras_require = {
         "sphinx-copybutton",
         "rtds-action",
         "jupytext",
+        "pyvista",
     ]
     + notebook_deps,
 }

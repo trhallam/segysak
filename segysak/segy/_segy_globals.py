@@ -1,4 +1,3 @@
-
 from collections import defaultdict
 
 _SEGY_MEASUREMENT_SYSTEM = defaultdict(lambda: 0)

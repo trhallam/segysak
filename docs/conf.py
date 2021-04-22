@@ -11,7 +11,9 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import pathlib
 import shutil
+from sys import path
 
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
@@ -27,6 +29,14 @@ release = get_distribution("segysak").version
 version = ".".join(release.split(".")[:2])
 
 print(release, version)
+
+
+# -- Copy Extra Files
+docs = pathlib.Path(__file__).parent.absolute()
+(docs / "_temp").mkdir(exist_ok=True)
+shutil.copy(docs / "../contributing.rst", docs / "_temp/contributing.rst")
+# sys.path.insert(0, os.path.abspath(".."))
+
 
 # -- Project information -----------------------------------------------------
 

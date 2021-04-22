@@ -28,6 +28,7 @@ dependencies:
   - click
   - attrdict
   - pyshp
+  - more-itertools
   - pip:
       - sphinxcontrib-programoutput
       - sphinx-copybutton

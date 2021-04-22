@@ -22,3 +22,6 @@ jupyter_client
 jupytext
 pyshp
 matplotlib
+more-itertools
+subsurface
+wellpathpy

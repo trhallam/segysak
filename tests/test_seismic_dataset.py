@@ -110,6 +110,24 @@ class TestCreateSeismicDataset:
         )
         assert len(dataset.dims) == d + 2
 
+    def test_mutally_not_allowed_arguments(self):
+        with pytest.raises(ValueError):
+            ds = create_seismic_dataset(cdp=100, iline=100, xline=100)
+
+        with pytest.raises(ValueError):
+            ds = create_seismic_dataset(cdp=100, iline=100)
+
+        with pytest.raises(ValueError):
+            ds = create_seismic_dataset(cdp=100, xline=100)
+
+    def test_mutually_required_arguments(self):
+
+        with pytest.raises(ValueError):
+            ds = create_seismic_dataset(iline=100)
+
+        with pytest.raises(ValueError):
+            ds = create_seismic_dataset(xline=100)
+
 
 class TestCreate2DDataset:
     """
@@ -127,6 +145,18 @@ class TestCreate2DDataset:
     def test_create_2D_dataset_custom_cdp(self, t, f, s):
         dataset = create2d_dataset(dims=(t, 100), first_cdp=f, cdp_step=s)
         assert dataset.cdp.data.max() == f + s * t - s
+
+    @given(integers(1, 10000), integers(0, 100), integers(1, 100), integers(0, 50))
+    def test_create_2D_dataset_wfirstoffset(self, s, f, r, o):
+        dataset = create2d_dataset(
+            dims=(100, s, 5),
+            first_cdp=f,
+            cdp_step=s,
+            sample_rate=r,
+            first_offset=o,
+            offset_step=10,
+        )
+        assert dataset.offset.data.max() == 4 * 10 + o
 
 
 class TestCreate3DDataset:
