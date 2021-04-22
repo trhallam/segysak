@@ -35,6 +35,8 @@ KNOWN_BYTES = dict(
     petrel_2d=dict(cdp=21, cdpx=73, cdpy=77),
 )
 
+UNRECOGNIZED_OFFSET = 'Unknown Enum'
+
 from segysak._keyfield import (
     CoordKeyField,
     AttrKeyField,
@@ -76,6 +78,14 @@ class SegyLoadError(Exception):
 
 def _get_tf(var):
     return str(segyio.TraceField(var))
+
+
+def _validate_offset_val(offset_name, offset_value):
+    """ Check that the byte offset for a given kwarg is recognized by segyio
+    """
+    if _get_tf(offset_value) == UNRECOGNIZED_OFFSET:
+        msg = "Offset value {} for offset {} unrecognized.".format(offset_value, offset_name)
+        raise ValueError(msg)
 
 
 def _header_to_index_mapping(series):
@@ -778,6 +788,12 @@ def _loader_converter_header_handling(
     optimised_load=False,
     **segyio_kwargs,
 ):
+    head_loc = AttrDict(
+        dict(cdp=cdp, offset=offset, iline=iline, xline=xline, cdpx=cdpx, cdpy=cdpy)
+    )
+    for name, value in head_loc.items():
+        if value is not None:
+            _validate_offset_val(name, value)
 
     if optimised_load:
         scrape_bytes = [
