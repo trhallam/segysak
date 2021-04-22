@@ -44,6 +44,10 @@ TEST_FILES_SEGYIO_3DG = [
     ("small-ps.sgy", {"iline": 189, "xline": 193, "offset": 37}),
 ]
 
+TEST_FILES_SEGYIO_3D_BAD_OFFSET = [
+    ("acute-small.sgy", {"iline": 189, "xline": 194}),
+]
+
 TEST_FILES_SEGYIO_2D = [
     None,
 ]
@@ -173,6 +177,19 @@ def segyio3d_test_files(request):
     ids=[file for file, _ in TEST_FILES_SEGYIO_3DG],
 )
 def segyio3dps_test_files(request):
+    file, segyio_kwargs = request.param
+    return (file, segyio_kwargs)
+
+
+@pytest.fixture(
+    scope="session",
+    params=[
+        (TEST_DATA_SEGYIO / file, segyio_kwargs)
+        for file, segyio_kwargs in TEST_FILES_SEGYIO_3D_BAD_OFFSET
+    ],
+    ids=[file for file, _ in TEST_FILES_SEGYIO_3D_BAD_OFFSET]
+)
+def segyio3d_bad_offsets_files(request):
     file, segyio_kwargs = request.param
     return (file, segyio_kwargs)
 

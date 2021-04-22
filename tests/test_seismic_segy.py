@@ -187,6 +187,12 @@ def test_segyiotests_2ds_wheaderscrap(segyio3d_test_files):
     assert isinstance(ds, xr.Dataset)
 
 
+def test_segyio_bad_offsets(temp_dir, segyio3d_bad_offsets_files):
+    file, segyio_kwargs = segyio3d_bad_offsets_files
+    with pytest.raises(ValueError):
+        segy_loader(str(file), **segyio_kwargs)
+
+
 def test_segyiotests_ps_2ncdf(temp_dir, segyio3dps_test_files):
     file, segyio_kwargs = segyio3dps_test_files
     seisnc = temp_dir / file.with_suffix(".siesnc").name
