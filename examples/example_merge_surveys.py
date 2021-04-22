@@ -61,8 +61,12 @@ survey_1 = create_seismic_dataset(twt=twt, iline=iline, xline=xline)
 survey_1["cdp_x"] = (("iline", "xline"), np.empty((iN, xN)))
 survey_1["cdp_y"] = (("iline", "xline"), np.empty((iN, xN)))
 
-stacked_iline = survey_1.iline.broadcast_like(survey_1.cdp_x).stack({"ravel":(..., "xline")})
-stacked_xline = survey_1.xline.broadcast_like(survey_1.cdp_x).stack({"ravel":(..., "xline")})
+stacked_iline = survey_1.iline.broadcast_like(survey_1.cdp_x).stack(
+    {"ravel": (..., "xline")}
+)
+stacked_xline = survey_1.xline.broadcast_like(survey_1.cdp_x).stack(
+    {"ravel": (..., "xline")}
+)
 
 points = np.dstack([stacked_iline, stacked_xline])
 points_xy = affine_survey1.transform(points[0])
@@ -78,8 +82,12 @@ survey_2 = create_seismic_dataset(twt=twt, iline=iline, xline=xline)
 survey_2["cdp_x"] = (("iline", "xline"), np.empty((iN, xN)))
 survey_2["cdp_y"] = (("iline", "xline"), np.empty((iN, xN)))
 
-stacked_iline = survey_1.iline.broadcast_like(survey_1.cdp_x).stack({"ravel":(..., "xline")})
-stacked_xline = survey_1.xline.broadcast_like(survey_1.cdp_x).stack({"ravel":(..., "xline")})
+stacked_iline = survey_1.iline.broadcast_like(survey_1.cdp_x).stack(
+    {"ravel": (..., "xline")}
+)
+stacked_xline = survey_1.xline.broadcast_like(survey_1.cdp_x).stack(
+    {"ravel": (..., "xline")}
+)
 
 points = np.dstack([stacked_iline, stacked_xline])
 points_xy = affine_survey2.transform(points[0])
@@ -94,9 +102,13 @@ survey_2["cdp_y"] = stacked_iline.copy(data=points_xy[:, 1]).unstack()
 # %%
 # plotting every 10th line
 
-plt.figure(figsize=(10,10))
-survey_1_plot = plt.plot(survey_1.cdp_x.values[::10, ::10], survey_1.cdp_y.values[::10, ::10], color='grey')
-survey_2_plot = plt.plot(survey_2.cdp_x.values[::10, ::10], survey_2.cdp_y.values[::10, ::10], color='blue')
+plt.figure(figsize=(10, 10))
+survey_1_plot = plt.plot(
+    survey_1.cdp_x.values[::10, ::10], survey_1.cdp_y.values[::10, ::10], color="grey"
+)
+survey_2_plot = plt.plot(
+    survey_2.cdp_x.values[::10, ::10], survey_2.cdp_y.values[::10, ::10], color="blue"
+)
 # plt.aspect("equal")
 plt.legend([survey_1_plot[0], survey_2_plot[0]], ["survey_1", "survey_2"])
 
@@ -104,15 +116,21 @@ plt.legend([survey_1_plot[0], survey_2_plot[0]], ["survey_1", "survey_2"])
 # Let's output these two datasets to disk so we can use lazy loading from seisnc. If the files are large, it's good practice to do this, because you will probably run out of memory.
 #
 # We are going to fill survey one with a values of 1 and survey 2 with a value of 2, just for simplicity in this example.
-# We also tell the dtype to be `np.float32` to reduce memory usage. 
+# We also tell the dtype to be `np.float32` to reduce memory usage.
 
 # %%
 # save out with new geometry
-survey_1["data"] = (("iline", "xline", "twt"), np.full((iN, xN, tN), 1, dtype=np.float32))
-survey_1.seisio.to_netcdf('data/survey_1.seisnc')
+survey_1["data"] = (
+    ("iline", "xline", "twt"),
+    np.full((iN, xN, tN), 1, dtype=np.float32),
+)
+survey_1.seisio.to_netcdf("data/survey_1.seisnc")
 del survey_1
-survey_2["data"] = (("iline", "xline", "twt"), np.full((iN, xN, tN), 2, dtype=np.float32), )
-survey_2.seisio.to_netcdf('data/survey_2.seisnc')
+survey_2["data"] = (
+    ("iline", "xline", "twt"),
+    np.full((iN, xN, tN), 2, dtype=np.float32),
+)
+survey_2.seisio.to_netcdf("data/survey_2.seisnc")
 del survey_2
 
 # %% [markdown]
@@ -122,8 +140,8 @@ del survey_2
 # Let us reimport the surveys we created but in a chunked (lazy) way.
 
 # %%
-survey_1 = open_seisnc('data/survey_1.seisnc', chunks=dict(iline=10, xline=10, twt=100))
-survey_2 = open_seisnc('data/survey_2.seisnc', chunks=dict(iline=10, xline=10, twt=100))
+survey_1 = open_seisnc("data/survey_1.seisnc", chunks=dict(iline=10, xline=10, twt=100))
+survey_2 = open_seisnc("data/survey_2.seisnc", chunks=dict(iline=10, xline=10, twt=100))
 
 # %% [markdown]
 # Check that the survey is chunked by looking at the printout for or datasets. Lazy and chunked data will have a `dask.array<chunksize=` where the values are usually displayed.
@@ -148,7 +166,10 @@ survey_1
 # We will also need an affine transform which converts from il/xl on survey 2 to il/xl on survey 1. This will relate the two grids to each other. Fortunately affine transforms can be added together which makes this pretty straight forward.
 
 # %%
-ilxl2_to_ilxl1 = survey_2.seis.get_affine_transform() + survey_1.seis.get_affine_transform().inverted()
+ilxl2_to_ilxl1 = (
+    survey_2.seis.get_affine_transform()
+    + survey_1.seis.get_affine_transform().inverted()
+)
 
 # %% [markdown]
 # Let's check the transform to see if it makes sense. The colouring of our values by inline should be the same after the transform is applied. Cool.
@@ -156,20 +177,20 @@ ilxl2_to_ilxl1 = survey_2.seis.get_affine_transform() + survey_1.seis.get_affine
 # %%
 # plotting every 50th line
 
-n=5
+n = 5
 
-fig, axs = plt.subplots(ncols=2, figsize=(20,10))
+fig, axs = plt.subplots(ncols=2, figsize=(20, 10))
 survey_1_plot = axs[0].scatter(
-    survey_1.cdp_x.values[::n, ::n], 
-    survey_1.cdp_y.values[::n, ::n], 
-    c=survey_1.iline.broadcast_like(survey_1.cdp_x).values[::n, ::n], 
-    s=20
+    survey_1.cdp_x.values[::n, ::n],
+    survey_1.cdp_y.values[::n, ::n],
+    c=survey_1.iline.broadcast_like(survey_1.cdp_x).values[::n, ::n],
+    s=20,
 )
 survey_2_plot = axs[0].scatter(
-    survey_2.cdp_x.values[::n, ::n], 
-    survey_2.cdp_y.values[::n, ::n], 
-    c=survey_2.iline.broadcast_like(survey_2.cdp_x).values[::n, ::n], 
-    s=20
+    survey_2.cdp_x.values[::n, ::n],
+    survey_2.cdp_y.values[::n, ::n],
+    c=survey_2.iline.broadcast_like(survey_2.cdp_x).values[::n, ::n],
+    s=20,
 )
 plt.colorbar(survey_1_plot, ax=axs[0])
 axs[0].set_aspect("equal")
@@ -177,46 +198,55 @@ axs[0].set_aspect("equal")
 axs[0].set_title("inline numbering before transform")
 
 new_ilxl = ilxl2_to_ilxl1.transform(
-    np.dstack([
-        survey_2.iline.broadcast_like(survey_2.cdp_x).values.ravel(),
-        survey_2.xline.broadcast_like(survey_2.cdp_x).values.ravel(),
-    ])[0]
+    np.dstack(
+        [
+            survey_2.iline.broadcast_like(survey_2.cdp_x).values.ravel(),
+            survey_2.xline.broadcast_like(survey_2.cdp_x).values.ravel(),
+        ]
+    )[0]
 ).reshape((survey_2.iline.size, survey_2.xline.size, 2))
 
 survey_2.seis.calc_corner_points()
 s2_corner_points_in_s1 = ilxl2_to_ilxl1.transform(survey_2.attrs["corner_points"])
 
 print("Min Iline:", s2_corner_points_in_s1[:, 0].min(), survey_1.iline.min().values)
-min_iline_combined = min(s2_corner_points_in_s1[:, 0].min(), survey_1.iline.min().values)
+min_iline_combined = min(
+    s2_corner_points_in_s1[:, 0].min(), survey_1.iline.min().values
+)
 print("Max Iline:", s2_corner_points_in_s1[:, 0].max(), survey_1.iline.max().values)
-max_iline_combined = max(s2_corner_points_in_s1[:, 0].max(), survey_1.iline.max().values)
+max_iline_combined = max(
+    s2_corner_points_in_s1[:, 0].max(), survey_1.iline.max().values
+)
 
-print("Min Xline:", s2_corner_points_in_s1[:,1].min(), survey_1.xline.min().values)
-min_xline_combined = min(s2_corner_points_in_s1[:, 1].min(), survey_1.xline.min().values)
+print("Min Xline:", s2_corner_points_in_s1[:, 1].min(), survey_1.xline.min().values)
+min_xline_combined = min(
+    s2_corner_points_in_s1[:, 1].min(), survey_1.xline.min().values
+)
 print("Max Xline:", s2_corner_points_in_s1[:, 1].max(), survey_1.xline.max().values)
-max_xline_combined = max(s2_corner_points_in_s1[:, 1].max(), survey_1.xline.max().values)
+max_xline_combined = max(
+    s2_corner_points_in_s1[:, 1].max(), survey_1.xline.max().values
+)
 print(min_iline_combined, max_iline_combined, min_xline_combined, max_xline_combined)
 
 survey_1_plot = axs[1].scatter(
-    survey_1.cdp_x.values[::n, ::n], 
-    survey_1.cdp_y.values[::n, ::n], 
-    c=survey_1.iline.broadcast_like(survey_1.cdp_x).values[::n, ::n], 
+    survey_1.cdp_x.values[::n, ::n],
+    survey_1.cdp_y.values[::n, ::n],
+    c=survey_1.iline.broadcast_like(survey_1.cdp_x).values[::n, ::n],
     vmin=min_iline_combined,
     vmax=max_iline_combined,
     s=20,
-    cmap="hsv"
+    cmap="hsv",
 )
 
 
-
 survey_2_plot = axs[1].scatter(
-    survey_2.cdp_x.values[::n, ::n], 
-    survey_2.cdp_y.values[::n, ::n], 
-    c=new_ilxl[::n, ::n, 0], 
+    survey_2.cdp_x.values[::n, ::n],
+    survey_2.cdp_y.values[::n, ::n],
+    c=new_ilxl[::n, ::n, 0],
     vmin=min_iline_combined,
     vmax=max_iline_combined,
     s=20,
-    cmap='hsv'
+    cmap="hsv",
 )
 plt.colorbar(survey_1_plot, ax=axs[1])
 
@@ -232,28 +262,56 @@ iline_step = survey_1.iline.diff("iline").mean().values
 xline_step = survey_1.xline.diff("xline").mean().values
 
 # create the new dimensions
-new_iline_dim = np.arange(int(min_iline_combined//iline_step)*iline_step, int(max_iline_combined)+iline_step*2, iline_step, dtype=np.int32)
-new_xline_dim = np.arange(int(min_xline_combined//xline_step)*xline_step, int(max_xline_combined)+xline_step*2, xline_step, dtype=np.int32)
+new_iline_dim = np.arange(
+    int(min_iline_combined // iline_step) * iline_step,
+    int(max_iline_combined) + iline_step * 2,
+    iline_step,
+    dtype=np.int32,
+)
+new_xline_dim = np.arange(
+    int(min_xline_combined // xline_step) * xline_step,
+    int(max_xline_combined) + xline_step * 2,
+    xline_step,
+    dtype=np.int32,
+)
 
 # create a new empty dataset and a blank cdp_x for dims broadcasting
-survey_comb = create_seismic_dataset(iline=new_iline_dim, xline=new_xline_dim, twt=survey_1.twt)
-survey_comb["cdp_x"] = (("iline", "xline"), np.empty((new_iline_dim.size, new_xline_dim.size)))
+survey_comb = create_seismic_dataset(
+    iline=new_iline_dim, xline=new_xline_dim, twt=survey_1.twt
+)
+survey_comb["cdp_x"] = (
+    ("iline", "xline"),
+    np.empty((new_iline_dim.size, new_xline_dim.size)),
+)
 
 # calculate the x and y using the survey 1 affine which is our base grid and reshape to the dataset grid
-new_cdp_xy = affine_survey1.transform(np.dstack([
-    survey_comb.iline.broadcast_like(survey_comb.cdp_x).values.ravel(),
-    survey_comb.xline.broadcast_like(survey_comb.cdp_x).values.ravel(),    
-])[0])
+new_cdp_xy = affine_survey1.transform(
+    np.dstack(
+        [
+            survey_comb.iline.broadcast_like(survey_comb.cdp_x).values.ravel(),
+            survey_comb.xline.broadcast_like(survey_comb.cdp_x).values.ravel(),
+        ]
+    )[0]
+)
 new_cdp_xy_grid = new_cdp_xy.reshape((new_iline_dim.size, new_xline_dim.size, 2))
 
 # plot to check
-plt.figure(figsize=(10,10))
+plt.figure(figsize=(10, 10))
 
-survey_comb_plot = plt.plot(new_cdp_xy_grid[:, :, 0], new_cdp_xy_grid[:, :, 1], color='red', alpha=0.5)
-survey_1_plot = plt.plot(survey_1.cdp_x.values[::10, ::10], survey_1.cdp_y.values[::10, ::10], color='grey')
-survey_2_plot = plt.plot(survey_2.cdp_x.values[::10, ::10], survey_2.cdp_y.values[::10, ::10], color='blue')
+survey_comb_plot = plt.plot(
+    new_cdp_xy_grid[:, :, 0], new_cdp_xy_grid[:, :, 1], color="red", alpha=0.5
+)
+survey_1_plot = plt.plot(
+    survey_1.cdp_x.values[::10, ::10], survey_1.cdp_y.values[::10, ::10], color="grey"
+)
+survey_2_plot = plt.plot(
+    survey_2.cdp_x.values[::10, ::10], survey_2.cdp_y.values[::10, ::10], color="blue"
+)
 
-plt.legend([survey_1_plot[0], survey_2_plot[0], survey_comb_plot[0]], ["survey_1", "survey_2", "survey_merged"])
+plt.legend(
+    [survey_1_plot[0], survey_2_plot[0], survey_comb_plot[0]],
+    ["survey_1", "survey_2", "survey_merged"],
+)
 
 # put the new x and y in the empty dataset
 survey_comb["cdp_x"] = (("iline", "xline"), new_cdp_xy_grid[..., 0])
@@ -266,7 +324,7 @@ survey_comb = survey_comb.set_coords(("cdp_x", "cdp_y"))
 # Resampling one dataset to another requires us to tell Xarray/dask where we want the new traces to be. First we can convert the x and y coordinates of the combined survey to the il xl of survey 2 using the affine transform of survey 2. This transform works il/xl to x and y and therefore we need it inverted.
 
 # %%
-survey_2_new_ilxl_loc =affine_survey2.inverted().transform(new_cdp_xy)
+survey_2_new_ilxl_loc = affine_survey2.inverted().transform(new_cdp_xy)
 
 # %% [markdown]
 # We then need to create a sampling DataArray. If we passed the iline and cross line locations from the previous cell unfortunately Xarray would broadcast the inline and xline values against each other. The simplest way is to create a new stacked flat dimension which we can unstack into a cube later.
@@ -275,10 +333,13 @@ survey_2_new_ilxl_loc =affine_survey2.inverted().transform(new_cdp_xy)
 
 # %%
 flat = (
-    survey_comb # use the combined survey
-    .rename({"iline":"new_iline", "xline":"new_xline"}) # renaming inline and xline so they don't confuse xarray
-    .stack({"flat":("new_iline", "new_xline")}) # and flatten the iline and xline axes using stack
-    .flat # return just the flat coord object which is multi-index (so we can unstack later)
+    survey_comb.rename(  # use the combined survey
+        {"iline": "new_iline", "xline": "new_xline"}
+    )  # renaming inline and xline so they don't confuse xarray
+    .stack(
+        {"flat": ("new_iline", "new_xline")}
+    )  # and flatten the iline and xline axes using stack
+    .flat  # return just the flat coord object which is multi-index (so we can unstack later)
 )
 flat
 
@@ -288,12 +349,8 @@ flat
 # interpolate on the cartesian product of iline and xline, which isn't really what we want.
 
 resampling_data_arrays = dict(
-    iline=xr.DataArray(
-        survey_2_new_ilxl_loc[:, 0], dims="flat", coords={"flat": flat}
-    ),
-    xline=xr.DataArray(
-        survey_2_new_ilxl_loc[:, 1], dims="flat", coords={"flat": flat}
-    ),
+    iline=xr.DataArray(survey_2_new_ilxl_loc[:, 0], dims="flat", coords={"flat": flat}),
+    xline=xr.DataArray(survey_2_new_ilxl_loc[:, 1], dims="flat", coords={"flat": flat}),
 )
 
 resampling_data_arrays
@@ -306,19 +363,26 @@ resampling_data_arrays
 
 # %%
 survey_2_resamp = survey_2.interp(**resampling_data_arrays)
-survey_2_resamp_newgeom = survey_2_resamp.drop_vars(("iline", "xline")).unstack("flat").rename({"new_iline":"iline", "new_xline":"xline"}).data
-survey_2_resamp_newgeom.to_netcdf("data/survey_2_1.nc", compute=True)
+survey_2_resamp_newgeom = (
+    survey_2_resamp.drop_vars(("iline", "xline"))
+    .unstack("flat")
+    .rename({"new_iline": "iline", "new_xline": "xline"})
+    .data
+)
+survey_2_resamp_newgeom.to_netcdf("data/survey_2_1.nc", compute=True, engine="h5netcdf")
 
 # %% [markdown]
 # ## Combining Cubes
 #
-# The last step is combining the cube is to load the two datasets to be combined and concatenate them together along a new axis. This will simplify reduction processes later. 
+# The last step is combining the cube is to load the two datasets to be combined and concatenate them together along a new axis. This will simplify reduction processes later.
 
 # %%
-survey_2_resamp_newgeom = xr.open_dataarray("data/survey_2_1.nc", chunks=dict(iline=10, xline=10, twt=100))
+survey_2_resamp_newgeom = xr.open_dataarray(
+    "data/survey_2_1.nc", chunks=dict(iline=10, xline=10, twt=100)
+)
 
 # %%
-survey_2_resamp_newgeom.expand_dims({"survey":[2]})
+survey_2_resamp_newgeom.expand_dims({"survey": [2]})
 
 # %%
 # concatenate survey with new dimension "survey".
@@ -328,7 +392,7 @@ survey_comb["data"] = xr.concat([survey_1.data, survey_2_resamp_newgeom], "surve
 survey_comb
 
 # %% [markdown]
-# We can check the merged surveys by looking at some plots. If we select just the first survey the values will be 1. If we select just the second survey the values will be 2. And if we take the mean along the survey dimension, then where the surveys overlap the values will be 1.5. 
+# We can check the merged surveys by looking at some plots. If we select just the first survey the values will be 1. If we select just the second survey the values will be 2. And if we take the mean along the survey dimension, then where the surveys overlap the values will be 1.5.
 #
 # For seismic data, a better form of conditioning and reduction might be required for merging traces together to ensure a smoother seam.
 
