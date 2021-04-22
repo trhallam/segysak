@@ -14,7 +14,13 @@
 # ---
 
 # %% [markdown]
-# # Using `segysak` with `subsurface`.
+# # Using `segysak` with `subsurface`
+#
+# **The interface from `segysak` to [`subsurface`](https://github.com/softwareunderground/subsurface) is experimental and currently under active development. This example will be updated to reflect current functionality and compatability with `subsurface`.**
+#
+# Subsurface is a library which provides data structures to facilitate communication of data efficiently between the various packages of the geoscience and subsurface Python stack. Subsurface uses Xarray data structures internally which have a defined format and interface enabling data to sent and received between libraries.
+#
+# The subsurface interchange is being built throught the `seisio` accessor in `segysak`.
 
 # %%
 from segysak.segy import segy_loader
@@ -29,6 +35,9 @@ warnings.filterwarnings("ignore")
 
 # %%
 segycube = segy_loader("data/volve10r12-full-twt-sub3d.sgy")
+
+# %% [markdown]
+# A 3D SEGYSAK Xarray Dataset can be converted to a Subsurface `StructuredGrid` using the `to_subsurface()` method.
 
 # %%
 ss_cube = segycube.seisio.to_subsurface()

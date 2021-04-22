@@ -134,7 +134,7 @@ survey_2.seisio.to_netcdf("data/survey_2.seisnc")
 del survey_2
 
 # %% [markdown]
-# # Merging Starts Here
+# ## How to merge two different geometries
 
 # %% [markdown]
 # Let us reimport the surveys we created but in a chunked (lazy) way.
