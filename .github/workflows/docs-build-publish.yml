@@ -40,12 +40,15 @@ jobs:
           jupytext --to ipynb --execute examples/*.py
           mv examples/*.ipynb examples/notebooks/.
 
-      - uses: actions/upload-artifact@v2
+      - name: Artifact Upload
+        if: success()
+        uses: actions/upload-artifact@v2
         with:
           name: example-notebooks-${{ github.sha }}
           path: examples/notebooks
 
       - name: Trigger RTDs build
+        if: success()
         uses: dfm/rtds-action@v1
         with:
           webhook_url: ${{ secrets.RTDS_WEBHOOK_URL }}

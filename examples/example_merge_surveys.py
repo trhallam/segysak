@@ -378,7 +378,7 @@ survey_2_resamp_newgeom.to_netcdf("data/survey_2_1.nc", compute=True, engine="h5
 
 # %%
 survey_2_resamp_newgeom = xr.open_dataarray(
-    "data/survey_2_1.nc", chunks=dict(iline=10, xline=10, twt=100)
+    "data/survey_2_1.nc", chunks=dict(iline=10, xline=10, twt=100), engine="h5netcdf"
 )
 
 # %%
