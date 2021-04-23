@@ -115,9 +115,30 @@ def set_seisnc_dims(
 
     # update seisnc on disk
     with netCDF4.Dataset(str(ncfile), mode="a") as seisnc:
-        seisnc.createVariable("CDP_X", "f4", ("i", "j",))
-        seisnc.createVariable("CDP_Y", "f4", ("i", "j",))
-        seisnc.createVariable("CDP_TRACE", "i4", ("i", "j",))
+        seisnc.createVariable(
+            "CDP_X",
+            "f4",
+            (
+                "i",
+                "j",
+            ),
+        )
+        seisnc.createVariable(
+            "CDP_Y",
+            "f4",
+            (
+                "i",
+                "j",
+            ),
+        )
+        seisnc.createVariable(
+            "CDP_TRACE",
+            "i4",
+            (
+                "i",
+                "j",
+            ),
+        )
         seisnc.createVariable("data", "f4", ("i", "j", "k"))
 
         seisnc.createVariable("vert", "f4", ("k"))

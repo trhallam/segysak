@@ -1,4 +1,4 @@
-### SEGYSAK Example Jupyter Notebooks
+### SEGY-SAK Example Jupyter Notebooks
 
 What is this space.
 

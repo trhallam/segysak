@@ -5,7 +5,7 @@ on:
     types:
       - created
       - edited
-    branches: master
+    branches: main
   workflow_dispatch:
 
 jobs:
@@ -13,7 +13,19 @@ jobs:
     name: "Build the notebooks for the docs"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          # Need to fetch more than the last commit so that setuptools_scm can
+          # create the correct version string. If the number of commits since
+          # the last release is greater than this, the version will still be
+          # wrong. Increase if necessary.
+          fetch-depth: 100
+          # The GitHub token is preserved by default but this job doesn't need
+          # to be able to push to GitHub.
+          persist-credentials: false
+          # get zgy submodule
+          submodules: true
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -40,12 +52,15 @@ jobs:
           jupytext --to ipynb --execute examples/*.py
           mv examples/*.ipynb examples/notebooks/.
 
-      - uses: actions/upload-artifact@v2
+      - name: Artifact Upload
+        if: success()
+        uses: actions/upload-artifact@v2
         with:
           name: example-notebooks-${{ github.sha }}
           path: examples/notebooks
 
       - name: Trigger RTDs build
+        if: success()
         uses: dfm/rtds-action@v1
         with:
           webhook_url: ${{ secrets.RTDS_WEBHOOK_URL }}

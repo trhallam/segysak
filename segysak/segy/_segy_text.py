@@ -67,9 +67,7 @@ def get_segy_texthead(segyfile, ext_headers=False, no_richstr=False, **segyio_kw
         return _upgrade_txt_richstr(text)
 
 
-def put_segy_texthead(
-    segyfile, ebcidc, ext_headers=False, line_counter=True, **segyio_kwargs
-):
+def put_segy_texthead(segyfile, ebcidc, line_counter=True, **segyio_kwargs):
 
     header = ""
     if isinstance(ebcidc, dict):
@@ -106,7 +104,7 @@ def put_segy_texthead(
             warn("String EBCIDC is too large - truncating", UserWarning)
         header = bytes(ebcidc[:3200], "utf8")
     else:
-        raise ValueError("Unknown ebcidc type")
+        raise ValueError("Unknown ebcidc type expect bytes, str or dict")
 
     segyio_kwargs["ignore_geometry"] = True
     with segyio.open(segyfile, "r+", **segyio_kwargs) as segyf:
@@ -155,11 +153,11 @@ def create_default_texthead(override=None):
 
     Example:
         >>> create_default_texthead(override={7:'Hello', 8:'World!'})
-        {1: 'segysak SEGY Output',
+        {1: 'segysak SEG-Y Output',
         2: 'Data created by: username ',
         3: '',
         4: 'DATA FORMAT: SEG-Y;  DATE: 2019-06-09 15:14:00',
-        5: 'DATA DESCRIPTION: SEGY format data output from segysak',
+        5: 'DATA DESCRIPTION: SEG-Y format data output from segysak',
         6: '',
         7: 'Hello',
         8: 'World!',
@@ -182,12 +180,34 @@ def create_default_texthead(override=None):
         4: f"DATA FORMAT: SEG-Y;  DATE: {today} {time}",
         5: "DATA DESCRIPTION: SEG-Y format data output from segysak using segyio",
         6: "",
-        35: "*** BYTE LOCATION OF KEY HEADERS ***",
-        36: "CMP UTM-X 181-184, ALL COORDS X100, CMP UTM-Y 185-188",
-        37: "INLINE 189-193, XLINE 194-198, ",
         40: "END TEXTUAL HEADER",
     }
     if override is not None:
         for key, line in override.items():
             text_dict[key] = line
     return _clean_texthead(text_dict)
+
+
+def trace_header_map_to_text(trace_header_map):
+    """Convert a trace header map to lines of text to say where header info was
+    put in a file.
+
+    Args:
+        trace_header_map (dict): Header byte locations.
+
+    Returns:
+        list: List of lines to output.
+    """
+    header_locs_text = [f"{key}: {value}," for key, value in trace_header_map.items()]
+
+    lines = ["*** BYTE LOCATION OF KEY HEADERS ***"]
+    line = ""
+    for byte_loc in header_locs_text:
+        if len(line + byte_loc) < 79:
+            line += byte_loc
+            line += " "
+        else:
+            lines.append(line)
+            line = byte_loc
+    lines.append(line)
+    return lines

@@ -27,4 +27,3 @@ def _upgrade_txt_richstr(text):
     return type(
         "rich_texthead", (str,), dict(_repr_pretty_=_prettify, _repr_html_=_htmlify)
     )(text)
-
