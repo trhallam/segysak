@@ -14,4 +14,5 @@ Examples
     examples/example_segysak_segy_vectorisation
     examples/example_segysak_dask
     examples/example_merge_surveys
+    examples/example_reading_and_writing_zgy
 
