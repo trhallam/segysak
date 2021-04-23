@@ -1,4 +1,4 @@
-"""Command line script for interacting with SEGY data.
+"""Command line script for interacting with SEG-Y data.
 """
 
 import os
@@ -70,7 +70,7 @@ def _action_ebcidc_out(arg, input_file):
     try:
         ebcidc = get_segy_texthead(input_file)
     except IOError:
-        LOGGER.error("Input SEGY file was not found - check name and path")
+        LOGGER.error("Input SEG-Y file was not found - check name and path")
         raise SystemExit
 
     if arg is None:
@@ -108,8 +108,8 @@ def guess_file_type(file):
 )
 def cli(version):
     """
-    The SEGY Swiss Army Knife (segysak) is a tool for managing segy data.
-    It can read and dump ebcidc headers, scan trace headers, convert SEGY to SEISNC and vice versa
+    The SEG-Y Swiss Army Knife (segysak) is a tool for managing segy data.
+    It can read and dump ebcidc headers, scan trace headers, convert SEG-Y to SEISNC and vice versa
     """
     LOGGER.info(f"segysak v{VERSION}")
     if version:
@@ -117,7 +117,7 @@ def cli(version):
         raise SystemExit
 
 
-@cli.command(help="Print SEGY EBCIDC header")
+@cli.command(help="Print SEG-Y EBCIDC header")
 @click.argument("filename", type=click.Path(exists=True))
 def ebcidc(filename):
     input_file = pathlib.Path(filename)
@@ -181,7 +181,7 @@ def scrape(filename, ebcidc=False, trace_headers=False):
 
 
 @cli.command(
-    help="Convert file between SEGY and NETCDF (direction is guessed or can be made explicit with the --output-type option)"
+    help="Convert file between SEG-Y and NETCDF (direction is guessed or can be made explicit with the --output-type option)"
 )
 @click.argument(
     "input-files",
@@ -208,7 +208,7 @@ def scrape(filename, ebcidc=False, trace_headers=False):
 )
 @click.option(
     "--output-type",
-    type=click.Choice(["SEGY", "NETCDF"], case_sensitive=False),
+    type=click.Choice(["SEG-Y", "NETCDF"], case_sensitive=False),
     default=None,
     help="Explicitly state the desired output file type by chosing one of the options",
 )
@@ -217,7 +217,7 @@ def scrape(filename, ebcidc=False, trace_headers=False):
     "-d",
     type=click.STRING,
     default=None,
-    help="Data dimension (domain) to write out, will default to TWT or DEPTH. Only used for writing to SEGY.",
+    help="Data dimension (domain) to write out, will default to TWT or DEPTH. Only used for writing to SEG-Y.",
 )
 def convert(
     output_file, input_files, iline, xline, cdpx, cdpy, crop, output_type, dimension
@@ -268,7 +268,7 @@ def convert(
             )
             click.echo(f"Converted file saved as {output_file_loc}")
             LOGGER.info(f"NetCDF output written to {output_file_loc}")
-        elif output_type == "SEGY":
+        elif output_type == "SEG-Y":
             if output_file is None:
                 output_file_loc = input_file.stem + ".segy"
             else:
@@ -290,7 +290,7 @@ def convert(
                 dimension=dimension,
             )
             click.echo(f"Converted file saved as {output_file_loc}")
-            LOGGER.info(f"SEGY output written to {output_file_loc}")
+            LOGGER.info(f"SEG-Y output written to {output_file_loc}")
         else:
             click.echo(
                 f"Conversion to output-type {output_type} is not implemented yet"

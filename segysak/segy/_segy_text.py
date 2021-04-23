@@ -153,11 +153,11 @@ def create_default_texthead(override=None):
 
     Example:
         >>> create_default_texthead(override={7:'Hello', 8:'World!'})
-        {1: 'segysak SEGY Output',
+        {1: 'segysak SEG-Y Output',
         2: 'Data created by: username ',
         3: '',
         4: 'DATA FORMAT: SEG-Y;  DATE: 2019-06-09 15:14:00',
-        5: 'DATA DESCRIPTION: SEGY format data output from segysak',
+        5: 'DATA DESCRIPTION: SEG-Y format data output from segysak',
         6: '',
         7: 'Hello',
         8: 'World!',

@@ -236,11 +236,11 @@ def segy_freewriter(
     silent=False,
     **dim_kwargs,
 ):
-    """Convert siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEG-Y.
 
     Args:
         seisnc (xarray.Dataset, string): The input SEISNC file either a path or the in memory xarray.Dataset
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         data_array (string): The Dataset variable name for the output volume.
         trace_header_map (dict, optional): Defaults to None. A dictionary of seisnc variables
             and byte locations. The variable will be written to the trace headers in the

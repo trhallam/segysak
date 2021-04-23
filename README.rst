@@ -14,7 +14,7 @@ Access the full documentation for SEGY-SAK from `readthedocs <https://segysak.re
 *SEGY-SAK* aims to be your Python Swiss Army Knife for Seismic Data.
 
 To do this *SEGY-SAK* offers two things; a commandline interface (CLI) for
-inspecting and converting SEGY data to a more friendly format called
+inspecting and converting SEG-Y data to a more friendly format called
 NETCDF4, and by providing convenience functions for the data using
 `xarray <http://xarray.pydata.org/en/stable/>`_.
 We try hard to load the data the same way everytime so your functions will
@@ -27,7 +27,7 @@ scan in the header information and to make it easy (or easier) to load SEGY
 in different formats, different configuration (2D, 2D gathers, 3D, 3D gathers).
 We do all this with the help of `segyio <https://github.com/equinor/segyio>`_
 which is a lower level interface to SEGY. If you stick to our ``xarray`` format
-of files we also offer utility functions to return to SEGY so you can export to
+of files we also offer utility functions to return to SEG-Y so you can export to
 other software.
 
 Current Capabilities
@@ -35,7 +35,7 @@ Current Capabilities
 
 - **CLI**:
 
-  - Convert 2D, 3D and gathers type SEGY to NETCDF4 and back. The NETCDF4 files
+  - Convert 2D, 3D and gathers type SEG-Y to NETCDF4 and back. The NETCDF4 files
     are one line open with ``xarray.open_dataset``.
 
   - Extract sub-volumes via cropping xline and inline.
@@ -46,7 +46,7 @@ Current Capabilities
 
 * **Xarray and Python API**:
 
-  * Load 2D, 3D and gathers type SEGY to a ``xarray.Dataset``.
+  * Load 2D, 3D and gathers type SEG-Y to a ``xarray.Dataset``.
 
   * Access header information and text headers in Python with convenience
     functions.

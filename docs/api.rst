@@ -3,7 +3,8 @@
 API reference
 #############
 
-This page provides an auto-generated summary of segysak's API. For more details
+This page provides an auto-generated summary of the ``segysak`` package API. 
+For more details
 and examples, refer to the relevant chapters in the main part of the
 documentation.
 
@@ -87,6 +88,13 @@ Creating empty seisnc volumes
    create2d_dataset
    create_seismic_dataset
 
+Xarray Accessor modules
+=========================
+
+Accessor modules are accessed as namespaces within the Xarray.Dataset objects
+created by SEGY-SAK. When ``segysak`` is imported, all ``xarray.Dataset`` objects will
+contain the ``.seis`` and ``.seisio`` namespaces.
+
 segysak xarray accessor modules
 --------------------------------
 
@@ -99,7 +107,7 @@ segysak xarray accessor modules
 ``SeisIO``
 ^^^^^^^^^^^^
 
-``xarray.Dataset.seisio`` queries
+Access via ``xarray.Dataset.seisio``
 
 .. autosummary::
   :toctree: generated/
@@ -109,7 +117,7 @@ segysak xarray accessor modules
 ``SeisGeom``
 ^^^^^^^^^^^^
 
-``xarray.Dataset.seis``
+Access via ``xarray.Dataset.seis``
 
 .. autosummary::
   :toctree: generated/
@@ -149,3 +157,19 @@ segysak xarray accessor modules
 
   SeisGeom.plot_bounds
   SeisGeom.get_affine_transform
+
+ZGY Files
+==========
+
+.. currentmodule:: segysak.openzgy
+
+Reading and Writing from ZGY
+-----------------------------
+
+**Experimental**
+
+.. autosummary::
+   :toctree: generated/
+
+   zgy_loader
+   zgy_writer

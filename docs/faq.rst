@@ -9,10 +9,10 @@ installed netCDF4 binaries and your system binaries. We suggest you try updating
 the library with your distribution package manager. Re-creating your conda
 environment or trying to reinstall the netCDF4 related packaged.
 
-How big can my input SEGY file be
+How big can my input SEG-Y file be
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For practical purposes SEGYSAK is a designed as a desktop focussed tool for files
+For practical purposes SEGY-SAK is a designed as a desktop focussed tool for files
 that fit into memory. Files on the order of 10s of Gb
 can be reliably loaded into memory these days.
 For files greater than the amount
