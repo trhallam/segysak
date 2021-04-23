@@ -1,4 +1,3 @@
-import importlib
 import xarray as xr
 import segyio
 import numpy as np
@@ -6,14 +5,7 @@ import pandas as pd
 from more_itertools import split_into, split_when
 from itertools import product
 
-try:
-    has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
-    if has_ipywidgets:
-        from tqdm.autonotebook import tqdm
-    else:
-        from tqdm import tqdm as tqdm
-except ModuleNotFoundError:
-    from tqdm import tqdm as tqdm
+from ._segy_core import tqdm, check_tracefield
 
 from .._accessor import open_seisnc
 from .._keyfield import CoordKeyField
@@ -56,6 +48,12 @@ def _segy_freewriter(
     **dim_kwargs,
 ):
     """"""
+    if trace_header_map:
+        byte_fields = list(trace_header_map.values())
+    else:
+        byte_fields = []
+    byte_fields += list(dim_kwargs.values())
+    check_tracefield(byte_fields)
 
     try:
         coord_scalar = seisnc.coord_scalar

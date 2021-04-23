@@ -2,7 +2,6 @@
 """Functions to interact with segy data
 """
 
-import importlib
 import pathlib
 from numpy.core.fromnumeric import trace
 
@@ -14,14 +13,7 @@ from attrdict import AttrDict
 import numpy as np
 import xarray as xr
 
-try:
-    has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
-    if has_ipywidgets:
-        from tqdm.autonotebook import tqdm
-    else:
-        from tqdm import tqdm as tqdm
-except ModuleNotFoundError:
-    from tqdm import tqdm as tqdm
+from ._segy_core import tqdm, check_tracefield
 
 TQDM_ARGS = dict(unit_scale=True, unit=" traces")
 PERCENTILES = [0, 0.1, 10, 50, 90, 99.9, 100]
@@ -1141,6 +1133,11 @@ def segy_loader(
         **segyio_kwargs,
     )
 
+    byte_loc = [
+        bytel for bytel in [cdp, iline, xline, cdpx, cdpy, offset] if bytel is not None
+    ]
+    check_tracefield(byte_loc)
+
     common_args = (segyfile, head_df, head_bin, head_loc)
 
     common_kwargs = dict(
@@ -1271,6 +1268,10 @@ def segy_converter(
     """
     # Input sanity checks
     extra_byte_fields = _loader_converter_checks(cdp, iline, xline, extra_byte_fields)
+    byte_loc = [
+        bytel for bytel in [cdp, iline, xline, cdpx, cdpy, offset] if bytel is not None
+    ]
+    check_tracefield(byte_loc)
 
     head_df, head_bin, head_loc = _loader_converter_header_handling(
         segyfile,
