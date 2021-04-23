@@ -37,7 +37,7 @@ warnings.filterwarnings("ignore")
 segycube = segy_loader("data/volve10r12-full-twt-sub3d.sgy")
 
 # %% [markdown]
-# A 3D SEGYSAK Xarray Dataset can be converted to a Subsurface `StructuredGrid` using the `to_subsurface()` method.
+# A 3D SEGY-SAK Xarray Dataset can be converted to a Subsurface `StructuredGrid` using the `to_subsurface()` method.
 
 # %%
 ss_cube = segycube.seisio.to_subsurface()

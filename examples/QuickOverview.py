@@ -39,7 +39,7 @@ V3D_path = pathlib.Path("data/volve10r12-full-twt-sub3d.sgy")
 print("3D", V3D_path, V3D_path.exists())
 
 # %% [markdown]
-# ## Scan SEGY headers
+# ## Scan SEG-Y headers
 #
 
 # %% [markdown]
@@ -87,7 +87,7 @@ scrape
 # ## Load SEG-Y data
 
 # %% [markdown]
-# All SEGY (2D, 2D gathers, 3D & 3D gathers) are ingested into `xarray.Dataset` objects through the
+# All SEG-Y (2D, 2D gathers, 3D & 3D gathers) are ingested into `xarray.Dataset` objects through the
 # `segy_loader` function. It is best to be explicit about the byte locations of key information but
 # `segy_loader` can attempt to guess the shape of your dataset. Some standard byte positions are
 # defined in the `well_known_bytes` function and others can be added via pull requests to the Github

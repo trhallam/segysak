@@ -16,7 +16,7 @@
 # %% [markdown]
 # # Reading and Writing ZGY
 #
-# SEGYSAK support readying and writing ZGY files via the [open-zgy](https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-zgy). Currently `open-zgy` is not available via pip and is baked into the `SEGY-SAK` release, so it may not be the latest version.
+# SEGY-SAK support readying and writing ZGY files via the [open-zgy](https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-zgy). Currently `open-zgy` is not available via pip and is baked into the `SEGY-SAK` release, so it may not be the latest version.
 #
 # ZGY support is experimental and functionality may change.
 

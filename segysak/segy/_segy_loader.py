@@ -362,7 +362,7 @@ def _3dsegy_loader(
     return_geometry=False,
     **segyio_kwargs,
 ):
-    """Convert SEGY data to Xarray or Netcdf4
+    """Convert SEG-Y data to Xarray or Netcdf4
 
     This is a helper function for segy_loader. Users should use that function
     directly to load all segy data.
@@ -604,7 +604,7 @@ def _2dsegy_loader(
     return_geometry=False,
     **segyio_kwargs,
 ):
-    """Convert SEGY data to Xarray or Netcdf4
+    """Convert SEG-Y data to Xarray or Netcdf4
 
     This is a helper function for segy_loader. Users should use that function
     directly to load all segy data.
@@ -708,7 +708,7 @@ def _2dsegy_loader(
 def well_known_byte_locs(name):
     """Return common bytes position kwargs_dict for segy_loader and segy_converter.
 
-    Returns a dict containing the byte locations for well known SEGY variants in the wild.
+    Returns a dict containing the byte locations for well known SEG-Y variants in the wild.
 
     Args:
         name (str): Takes one of keys from KNOWN_BYTES
@@ -1061,7 +1061,7 @@ def segy_loader(
     head_df=None,
     **segyio_kwargs,
 ):
-    """Load SEGY file into xarray.Dataset
+    """Load SEG-Y file into xarray.Dataset
 
     The output dataset has the following structure
         Dimensions:
@@ -1216,7 +1216,7 @@ def segy_converter(
     extra_byte_fields=None,
     **segyio_kwargs,
 ):
-    """Convert SEGY data to NetCDF4 File
+    """Convert SEG-Y data to NetCDF4 File
 
     The output ncfile has the following structure
         Dimensions:

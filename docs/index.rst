@@ -1,23 +1,33 @@
-segysak: A library for loading and manipulating SEG-Y data with Python using **xarray**
+SEGY-SAK: A library for loading and manipulating SEG-Y data with Python using **xarray**
 ========================================================================================
 
-**SEGYSAK** can be use as a tool to handle *SEGY*
+**SEGY-SAK** can be use as a tool to handle *SEG=Y*
 files inside Python environment.
 
-By including  **SEGYSAK** in your toolbox you will be
-able to load or transform the original binary *SEGY* data into more accessible and
+By including  **SEGY-SAK** in your toolbox you will be
+able to load or transform the original binary *SEG-Y* data into more accessible and
 Python friendly formats. It leverages the work of Segyio_ to simplify
-loading of common SEGY formats into ``xarray.Dataset`` objects for ease of use and
+loading of common SEG-Y formats into ``xarray.Dataset`` objects for ease of use and
 to NetCDF4_ files for better on disk and large file performance using dask_.
-Tools to help users create new volumes and to return data to SEGY are also included.
+Tools to help users create new volumes and to return data to SEG-Y are also included.
 
 Additional features include
 ----------------------------
 
+ - **Loading Assistance**
+  - Loading of nDimensional SEG-Y data
+  - Header editing
+  - Loading of seismic data with missing traces
+
+ - **Cube geometry functions**
+  - generate cube affine transform
+  - fill cdp_x and cdp_y
+
  - **Arbitrary slicing and extration**
 
   - label based slicing
-  - horizon
+  - arbitrary line slicing
+  - horizon extraction and sculpting
   - well path extraction
 
  - **Integrates with the existing Python scientific stack**
@@ -26,6 +36,7 @@ Additional features include
   - Inherited compatibility with core Python libraries (NumPy_, Scipy and Pandas_).
   - Works well with matplotlib_ and Pyvista_
 
+ - Experimental baked in ZGY support via open-zgy_.
  - **Scalability**
 
   - NetCDF4 files work with dask to scale your Python code to multi-core and
@@ -39,6 +50,7 @@ Additional features include
 .. _Xarray: http://xarray.pydata.org/en/stable/
 .. _Pyvista: https://docs.pyvista.org/
 .. _matplotlib: https://matplotlib.org/
+.. _open-zgy: https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-zgy
 
 
 Documentation
@@ -100,7 +112,8 @@ Fundamental Python libraries to segysak are segyio_ and xarray_.
 
 .. _xarray: http://xarray.pydata.org/en/stable/
 
-The full Volve dataset was published by Equinor and you can read_ about it
+Many of the examples in this documentation use a subset of the the full Volve
+dataset which was published by Equinor and you can read_ about it
 or get a copy of it here_.
 
 .. _read: https://www.equinor.com/en/news/14jun2018-disclosing-volve-data.html
@@ -124,6 +137,12 @@ the world due to the cancellation of of the EAGE Annual in June of that year.
 Significant contributions during the hackathon
 were made by Steve Purves, Gijs Straathof, Fabio Contreras and Alessandro Amato del Monte.
 
+Significant updates were made at Transform 2021. 
+Multiple new and advanced examples were released.
+A 2 hour video tutorial and notebook as a demonstration of key functionality
+and an introduction to Xarry for seismic applications streamed. 
+Experimental ZGY support was introduced.
+
 License
 -------
 
@@ -132,9 +151,3 @@ segysak use the GPL-3 license.
 The GNU General Public License is a free, copyleft license for
 software and other kinds of works.
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

@@ -15,7 +15,7 @@ from segysak.segy._segy_text import (
 def fake_header():
     fake_header = ""
     for i in range(40):
-        fake_header += f"C{i:02d} A SEGY HEADER" + " " * 63
+        fake_header += f"C{i:02d} A SEG-Y HEADER" + " " * 63
     return fake_header
 
 
@@ -97,21 +97,21 @@ def test_put_segy_texthead(temp_segy, default_header):
 def test_put_segy_texthead_bytes(temp_segy, ascii_bytes_header):
     put_segy_texthead(temp_segy, ascii_bytes_header)
     ebcidc = get_segy_texthead(temp_segy)
-    assert "A SEGY HEADER" in ebcidc
+    assert "A SEG-Y HEADER" in ebcidc
 
     put_segy_texthead(temp_segy, ascii_bytes_header * 10)
     ebcidc = get_segy_texthead(temp_segy)
-    assert "A SEGY HEADER" in ebcidc
+    assert "A SEG-Y HEADER" in ebcidc
 
 
 def test_put_segy_texthead_str(temp_segy, ascii_bytes_header):
     put_segy_texthead(temp_segy, ascii_bytes_header.decode("ascii"))
     ebcidc = get_segy_texthead(temp_segy)
-    assert "A SEGY HEADER" in ebcidc
+    assert "A SEG-Y HEADER" in ebcidc
 
     put_segy_texthead(temp_segy, ascii_bytes_header.decode("ascii") * 2)
     ebcidc = get_segy_texthead(temp_segy)
-    assert "A SEGY HEADER" in ebcidc
+    assert "A SEG-Y HEADER" in ebcidc
 
 
 def test_put_segy_texthead_unknown(temp_segy):

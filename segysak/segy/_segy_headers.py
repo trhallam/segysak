@@ -68,7 +68,7 @@ def segy_bin_scrape(segyfile, **segyio_kwargs):
     """Scrape binary header
 
     Args:
-        segyfile (str): SEGY File path
+        segyfile (str): SEG-Y File path
 
     Returns:
         dict: Binary header
@@ -90,7 +90,7 @@ def segy_header_scrape(
     """Scape all data from segy trace headers
 
     Args:
-        segyfile (str): SEGY File path
+        segyfile (str): SEG-Y File path
         partial_scan (int): Setting partial scan to a positive int will scan only
             that many traces. Defaults to None.
         silent (bool): Disable progress bar.

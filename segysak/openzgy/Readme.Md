@@ -1,4 +1,14 @@
-### SEGYSAK and  OpenZGY Support
+### SEGY-SAK and  OpenZGY Support for distribution
+
+SEGY-SAK distributes the OpenZGY as part of it's PyPI packages. Installing SEGY-SAK
+with `pip` will activate the `segysak.openzgy` module for reading and writing ZGY
+data. This does not make the Open-ZGY package available within the installed Python
+environment.
+
+If you require ZFP compression support. The `zfpy` package should be installed
+manually by the user.
+
+### SEGY-SAK and  OpenZGY Support for development
 
 Open ZGY support is experimental and requires the installation of the Open-Zgy
 Python library from the Open Group. Currently this is not available via pip so

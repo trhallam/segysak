@@ -48,7 +48,7 @@ def ncdf2segy(
 
     Args:
         ncfile (string): The input SEISNC file
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         CMP (bool, optional): The data is 2D. Defaults to False.
         iline (int, optional): Inline byte location. Defaults to 189.
         xline (int, optional): Crossline byte location. Defaults to 193.
@@ -265,7 +265,7 @@ def _ncdf2segy_3d(
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         iline (int): Inline byte location.
         xline (int): Crossline byte location.
         cdp_x (int): The byte location to write the cdp_x.
@@ -369,7 +369,7 @@ def _ncdf2segy_3dgath(
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         iline (int): Inline byte location.
         xline (int): Crossline byte location.
         cdp_x (int): The byte location to write the cdp_x.
@@ -486,7 +486,7 @@ def _ncdf2segy_2d(
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         cdp (int): The byte location to write the cdp.
         cdp_x (int): The byte location to write the cdp_x.
         cdp_y (int): The byte location to write the cdp_y.
@@ -586,7 +586,7 @@ def _ncdf2segy_2d_gath(
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         cdp (int): The byte location to write the cdp.
         cdp_x (int): The byte location to write the cdp_x.
         cdp_y (int): The byte location to write the cdp_y.
@@ -751,7 +751,7 @@ def segy_writer(
 
     Args:
         seisnc (xarray.Dataset, string): The input SEISNC file either a path or the in memory xarray.Dataset
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         trace_header_map (dict, optional): Defaults to None. A dictionary of seisnc variables
             and byte locations. The variable will be written to the trace headers in the
             assigned byte location. By default CMP=23, cdp_x=181, cdp_y=185, iline=189,
