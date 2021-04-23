@@ -62,7 +62,6 @@ extras_require = {
     + notebook_deps,
 }
 
-
 setup(
     name="segysak",
     # version="0.2.3a",
@@ -77,6 +76,7 @@ setup(
     tests_require=testing_deps,
     extras_require=extras_require,
     packages=find_packages(),
+    include_package_data=True,
     # add command line scripts here
     entry_points={"console_scripts": ["segysak=segysak._cli:cli"]},
     classifiers=[

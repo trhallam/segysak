@@ -5,5 +5,13 @@ prune .*
 prune .egg-info
 exclude .*
 
-recursive-include segysak/openzgy/open-zgy/python *
-recursive-exclude segysak/openzgy/open-zgy/python *.pyc
+include segysak/openzgy/open-zgy/LICENSE.txt
+include segysak/openzgy/open-zgy/README.md
+include segysak/openzgy/open-zgy/python/LICENSE.txt
+include segysak/openzgy/open-zgy/python/README.md
+include segysak/openzgy/open-zgy/python/setup.py
+include segysak/openzgy/open-zgy/python/requirements.txt
+include segysak/openzgy/open-zgy/python/openzgy/*.py
+include segysak/openzgy/open-zgy/python/openzgy/impl/*.py
+include segysak/openzgy/open-zgy/python/openzgy/test/*.py
+include segysak/openzgy/open-zgy/python/openzgy/tools/*.py
