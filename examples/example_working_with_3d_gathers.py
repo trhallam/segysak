@@ -66,7 +66,7 @@ penobscot_3d_gath.isel(xline=5, offset=0).data.T.plot(
 # %% [markdown]
 # ## Plotting Gathers Sequentially
 #
-# Plotting of gathers is often done in stacked way, displaying sequential gathers along a common dimension, usually inline or crossline. Xarray provides the `stack` method which can be used to stack labelled dimensions together.
+# Plotting of gathers is often done in a stacked way, displaying sequential gathers along a common dimension, usually inline or crossline. Xarray provides the `stack` method which can be used to stack labelled dimensions together.
 
 # %%
 fig, axs = plt.subplots(figsize=(20, 10))
@@ -133,7 +133,7 @@ axs.imshow(
 # %% [markdown]
 # ## Muting and Stacking Gathers
 #
-# Using one of our gathers lets define a mute function before we stack the data.
+# Using one of our gathers let's define a mute function before we stack the data.
 
 # %%
 fig, axs = plt.subplots(ncols=2, figsize=(20, 10))
