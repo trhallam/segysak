@@ -814,9 +814,6 @@ def _loader_converter_header_handling(
         )
 
     head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
-    head_loc = AttrDict(
-        dict(cdp=cdp, offset=offset, iline=iline, xline=xline, cdpx=cdpx, cdpy=cdpy)
-    )
 
     if all(map(lambda x: x is None, (cdp, iline, xline, offset))):
         # lets try and guess the data types if no hints given
