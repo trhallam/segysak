@@ -34,7 +34,7 @@ from dask.distributed import Client
 client = Client()
 
 # %% [markdown]
-# Creating some syntehtic seismic surveys for us to play with. The online documentation uses a smaller example, but you can stress dask by commenting the dimension lines for smaller data and uncommenting the large desktop size volumes.
+# Creating some synthetic seismic surveys for us to play with. The online documentation uses a smaller example, but you can stress dask by commenting the dimension lines for smaller data and uncommenting the large desktop size volumes.
 
 # %%
 # large desktop size merge
@@ -144,7 +144,7 @@ survey_1 = open_seisnc("data/survey_1.seisnc", chunks=dict(iline=10, xline=10, t
 survey_2 = open_seisnc("data/survey_2.seisnc", chunks=dict(iline=10, xline=10, twt=100))
 
 # %% [markdown]
-# Check that the survey is chunked by looking at the printout for or datasets. Lazy and chunked data will have a `dask.array<chunksize=` where the values are usually displayed.
+# Check that the survey is chunked by looking at the printout for our datasets. Lazy and chunked data will have a `dask.array<chunksize=` where the values are usually displayed.
 
 # %%
 survey_1
@@ -254,7 +254,7 @@ axs[1].set_title("inline numbering after transform")
 axs[1].set_aspect("equal")
 
 # %% [markdown]
-# So we now have a transform that can convert ilxl from `survey_2` to ilxl from `survey_1` and we need to create a combined geometry for the merge. The dims need to cover the maximum range (inline, crossline) of two surveys. We are also going to use survey 1 as the base as we don't want to have resample two cubes, although if you have a prefered geometry you could do that (custom affine transforms per survey required).
+# So we now have a transform that can convert ilxl from `survey_2` to ilxl from `survey_1` and we need to create a combined geometry for the merge. The dims need to cover the maximum range (inline, crossline) of two surveys. We are also going to use survey 1 as the base as we don't want to have to resample two cubes, although if you have a prefered geometry you could do that (custom affine transforms per survey required).
 
 # %%
 # create new dims
