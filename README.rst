@@ -17,7 +17,7 @@ To do this *SEGY-SAK* offers two things; a commandline interface (CLI) for
 inspecting and converting SEG-Y data to a more friendly format called
 NETCDF4, and by providing convenience functions for the data using
 `xarray <http://xarray.pydata.org/en/stable/>`_.
-We try hard to load the data the same way everytime so your functions will
+We try hard to load the data the same way every time so your functions will
 work no-matter which cube/line you load. The `xarray` conventions we use are
 outlined in the documentation.
 
