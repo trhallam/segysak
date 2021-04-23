@@ -1,18 +1,11 @@
-import importlib
+from numpy.core.fromnumeric import trace
 import xarray as xr
 import segyio
 import numpy as np
 import pandas as pd
 import warnings
 
-try:
-    has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
-    if has_ipywidgets:
-        from tqdm.autonotebook import tqdm
-    else:
-        from tqdm import tqdm as tqdm
-except ModuleNotFoundError:
-    from tqdm import tqdm as tqdm
+from ._segy_core import tqdm, check_tracefield
 
 from .._accessor import open_seisnc
 from .._core import FrozenDict
@@ -764,6 +757,9 @@ def segy_writer(
             the loaded SEG-Y file and may not match the segysak SEG-Y output. Defaults to False and writes
             the default segysak EBCIDC
     """
+    if trace_header_map:
+        check_tracefield(trace_header_map.values())
+
     if isinstance(seisnc, xr.Dataset):
         _segy_writer_input_handler(
             seisnc, segyfile, trace_header_map, dimension, silent, None, use_text

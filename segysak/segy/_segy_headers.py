@@ -1,35 +1,16 @@
-import importlib
-import itertools
 import numpy as np
 import pandas as pd
 import segyio
 
-try:
-    has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
-    if has_ipywidgets:
-        from tqdm.autonotebook import tqdm
-    else:
-        from tqdm import tqdm
-except ModuleNotFoundError:
-    from tqdm import tqdm
+from ._segy_core import (
+    _active_tracefield_segyio,
+    _active_binfield_segyio,
+    tqdm,
+    check_tracefield,
+)
 
 
 TQDM_ARGS = dict(unit_scale=True, unit=" traces")
-
-
-def _active_tracefield_segyio():
-    header_keys = segyio.tracefield.keys.copy()
-    # removed unused byte locations
-    _ = header_keys.pop("UnassignedInt1")
-    _ = header_keys.pop("UnassignedInt2")
-    return header_keys
-
-
-def _active_binfield_segyio():
-    bin_keys = segyio.binfield.keys.copy()
-    _ = bin_keys.pop("Unassigned1")
-    _ = bin_keys.pop("Unassigned2")
-    return bin_keys
 
 
 def segy_header_scan(segyfile, max_traces_scan=1000, silent=False, **segyio_kwargs):
@@ -100,6 +81,8 @@ def segy_header_scrape(
     Returns:
         pandas.DataFrame: Raw header information in table for scanned traces.
     """
+    check_tracefield(bytes_filter)
+
     assert (chunk > 0) and isinstance(chunk, int)
     header_keys = _active_tracefield_segyio()
     enum_byte_index = {
