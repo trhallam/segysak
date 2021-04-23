@@ -2,8 +2,8 @@
 """Functions to interact with segy data
 """
 
-import importlib
 import pathlib
+from numpy.core.fromnumeric import trace
 
 import segyio
 
@@ -13,14 +13,7 @@ from attrdict import AttrDict
 import numpy as np
 import xarray as xr
 
-try:
-    has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
-    if has_ipywidgets:
-        from tqdm.autonotebook import tqdm
-    else:
-        from tqdm import tqdm as tqdm
-except ModuleNotFoundError:
-    from tqdm import tqdm as tqdm
+from ._segy_core import tqdm, check_tracefield
 
 TQDM_ARGS = dict(unit_scale=True, unit=" traces")
 PERCENTILES = [0, 0.1, 10, 50, 90, 99.9, 100]
@@ -38,6 +31,7 @@ from segysak._keyfield import (
     CoordKeyField,
     AttrKeyField,
     VariableKeyField,
+    VerticalKeyDim,
     DimensionKeyField,
 )
 from segysak._seismic_dataset import (
@@ -52,7 +46,12 @@ from segysak._core import FrozenDict
 
 KNOWN_BYTES = FrozenDict(KNOWN_BYTES)
 
-from ._segy_headers import segy_bin_scrape, segy_header_scrape, what_geometry_am_i
+from ._segy_headers import (
+    segy_bin_scrape,
+    segy_header_scrape,
+    what_geometry_am_i,
+    _active_tracefield_segyio,
+)
 from ._segy_text import get_segy_texthead
 from ._segy_globals import _SEGY_MEASUREMENT_SYSTEM
 
@@ -75,7 +74,7 @@ def _header_to_index_mapping(series):
     as_unique = series.unique()
     sorted_unique = np.sort(as_unique)
     mapper = {val: i for i, val in enumerate(sorted_unique)}
-    return series.replace(mapper)
+    return series.map(mapper.get)
 
 
 def _segy3d_ncdf(
@@ -131,7 +130,9 @@ def _segy3d_ncdf(
         for _, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
                 i1, i2 = val[["il_index", "xl_index"]].values.astype(int)
-                seisnc_data[i1, i2, :] = segyf.trace[trc][n0 : ns + 1]
+                seisnc_data[i1, i2, :] = segyf.trace[trc][n0 : ns + 1].astype(
+                    np.float32
+                )
                 percentiles = (
                     np.percentile(segyf.trace[trc][n0 : ns + 1], PERCENTILES)
                     + percentiles
@@ -353,7 +354,7 @@ def _3dsegy_loader(
     return_geometry=False,
     **segyio_kwargs,
 ):
-    """Convert SEGY data to Xarray or Netcdf4
+    """Convert SEG-Y data to Xarray or Netcdf4
 
     This is a helper function for segy_loader. Users should use that function
     directly to load all segy data.
@@ -372,8 +373,8 @@ def _3dsegy_loader(
     xlines = np.sort(xlines)
     iline_index_map = {il: i for i, il in enumerate(ilines)}
     xline_index_map = {xl: i for i, xl in enumerate(xlines)}
-    head_df.loc[:, "il_index"] = head_df[head_loc.iline].replace(iline_index_map)
-    head_df.loc[:, "xl_index"] = head_df[head_loc.xline].replace(xline_index_map)
+    head_df.loc[:, "il_index"] = head_df[head_loc.iline].map(iline_index_map.get)
+    head_df.loc[:, "xl_index"] = head_df[head_loc.xline].map(xline_index_map.get)
 
     # binary header translation
     ns = head_bin["Samples"]
@@ -385,7 +386,7 @@ def _3dsegy_loader(
         offsets = head_df[head_loc.offset].unique()
         offsets = np.sort(offsets)
         offset_index_map = {off: i for i, off in enumerate(offsets)}
-        head_df["off_index"] = head_df[head_loc.offset].replace(offset_index_map)
+        head_df["off_index"] = head_df[head_loc.offset].map(offset_index_map.get)
     else:
         offsets = None
 
@@ -595,7 +596,7 @@ def _2dsegy_loader(
     return_geometry=False,
     **segyio_kwargs,
 ):
-    """Convert SEGY data to Xarray or Netcdf4
+    """Convert SEG-Y data to Xarray or Netcdf4
 
     This is a helper function for segy_loader. Users should use that function
     directly to load all segy data.
@@ -699,7 +700,7 @@ def _2dsegy_loader(
 def well_known_byte_locs(name):
     """Return common bytes position kwargs_dict for segy_loader and segy_converter.
 
-    Returns a dict containing the byte locations for well known SEGY variants in the wild.
+    Returns a dict containing the byte locations for well known SEG-Y variants in the wild.
 
     Args:
         name (str): Takes one of keys from KNOWN_BYTES
@@ -766,12 +767,27 @@ def _loader_converter_header_handling(
     silent=False,
     extra_byte_fields=None,
     head_df=None,
+    optimised_load=False,
     **segyio_kwargs,
 ):
 
+    if optimised_load:
+        scrape_bytes = [
+            val for val in [cdp, iline, xline, cdpx, cdpy, offset] if val is not None
+        ]
+        scrape_bytes += list(extra_byte_fields.values())
+        scrape_bytes += [
+            _active_tracefield_segyio()["DelayRecordingTime"],
+            _active_tracefield_segyio()["SourceGroupScalar"],
+        ]
+    else:
+        scrape_bytes = None
+
     if head_df is None:
         # Start by scraping the headers.
-        head_df = segy_header_scrape(segyfile, silent=silent, **segyio_kwargs)
+        head_df = segy_header_scrape(
+            segyfile, silent=silent, bytes_filter=scrape_bytes, **segyio_kwargs
+        )
 
     head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
     head_loc = AttrDict(
@@ -885,6 +901,138 @@ def _loader_converter_write_headers(
     return ds
 
 
+def segy_freeloader(
+    segyfile,
+    vert_domain="TWT",
+    data_type="AMP",
+    return_geometry=False,
+    silent=False,
+    extra_byte_fields=None,
+    head_df=None,
+    segyio_kwargs=None,
+    **dim_kwargs,
+):
+    """Freeform loader for SEG-Y data. This loader allows you to load SEG-Y into
+    an xarray.Dataset using an arbitrary number of header locations to create
+    othogonal dimensions. This is an eager loader and will transfer the entire
+    SEG-Y and requested header information to memory.
+
+    From the dimension header locations specified the freeloader will try to
+    create a Dataset where each trace is assigned to a dimension.
+
+    Args:
+        segyfile (string): The SEG-Y file/path.
+        vert_domain (str, optional): One of ('TWT', 'DEPTH'). Defaults to 'TWT'.
+        data_type (str, optional): Defaults to "AMP".
+        return_geometry (bool, optional): If true, just returned the empty
+            dataset based upon the calcuated header geometry. Defaults to False.
+        silent (bool, optional): Turn off progress bars. Defaults to False.
+        extra_byte_fields (dict, optional): Additional header information to
+            load into the Dataset. Defaults to None.
+        head_df (pandas.DataFrame): The DataFrame output from `segy_header_scrape`.
+            This DataFrame can be filtered by the user
+            to load select trace sets. Trace loading is based upon the DataFrame index.
+        segyio_kwargs (dict, optional): Extra keyword arguments for segyio.open
+        **dim_kwargs: Dimension names and byte location pairs.
+    """
+    if segyio_kwargs is None:
+        segyio_kwargs = dict()
+
+    if head_df is None:
+        # Start by scraping the headers.
+        head_df = segy_header_scrape(segyfile, silent=silent, **segyio_kwargs)
+
+    head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
+
+    # get vertical sample ranges
+    n0 = 0
+    nsamp = head_bin["Samples"]
+    ns0 = head_df.DelayRecordingTime.min()
+
+    # binary header translation
+    nsamp = head_bin["Samples"]
+    sample_rate = head_bin["Interval"] / 1000.0
+    msys = _SEGY_MEASUREMENT_SYSTEM[head_bin["MeasurementSystem"]]
+    vert_samples = np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate, dtype=int)
+
+    # creating dimensions and new dataset
+    dims = dict()
+    dim_index_names = list()
+    dim_fields = list()
+    for dim in dim_kwargs:
+        trace_field = str(segyio.TraceField(dim_kwargs[dim]))
+        if trace_field == "Unknown Enum":
+            raise ValueError(f"{dim}:{dim_kwargs[dim]} was not a valid byte header")
+        dim_fields.append(trace_field)
+        as_unique = head_df[trace_field].unique()
+        dims[dim] = np.sort(as_unique)
+        d_map = {dval: i for i, dval in enumerate(as_unique)}
+        index_name = f"{dim}_index"
+        dim_index_names.append(index_name)
+        head_df.loc[:, index_name] = head_df[trace_field].map(d_map)
+
+    if (
+        head_df[dim_index_names].shape
+        != head_df[dim_index_names].drop_duplicates().shape
+    ):
+        raise ValueError(
+            "The selected dimensions results in multiple traces per "
+            "dimension location, add additional dimensions or use "
+            "trace numbering to load as 2D."
+        )
+
+    builder, domain = _dataset_coordinate_helper(vert_samples, vert_domain, **dims)
+    ds = create_seismic_dataset(**builder)
+
+    # getting attributes
+    text = get_segy_texthead(segyfile, **segyio_kwargs)
+    ds.attrs[AttrKeyField.text] = text
+    ds.attrs[AttrKeyField.source_file] = pathlib.Path(segyfile).name
+    ds.attrs[AttrKeyField.measurement_system] = msys
+    ds.attrs[AttrKeyField.sample_rate] = sample_rate
+
+    # map extra byte fields into ds
+    if extra_byte_fields is not None:
+        to_add = list()
+        for name, byte in extra_byte_fields.items():
+            trace_field = str(segyio.TraceField(byte))
+            if trace_field == "Unknown Enum":
+                raise ValueError(f"{name}:{byte} was not a valid byte header")
+            to_add.append(trace_field)
+        to_add = to_add + dim_fields
+        extras = head_df[to_add].set_index(dim_fields).to_xarray()
+        extras = extras.rename_dims(
+            {b: a for a, b in zip(dim_kwargs, dim_fields) if a != b}
+        )
+        for name, xtr in zip(extra_byte_fields, to_add):
+            ds[name] = extras[xtr]
+
+    if return_geometry:
+        # return geometry -> e.g. don't process segy traces
+        return ds
+
+    segyio_kwargs.update(dict(ignore_geometry=True))
+
+    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
+
+        segyf.mmap()
+        shape = [ds.dims[d] for d in dim_kwargs] + [vert_samples.size]
+        volume = np.zeros(shape, dtype=np.float32)
+
+        # this can probably be done as a block - leaving for now just incase sorting becomes an issue
+        indexes = tuple([head_df[idx].values for idx in dim_index_names])
+        volume[indexes] = segyf.trace.raw[:][head_df.index.values]
+
+    percentiles = np.percentile(volume, PERCENTILES)
+    ds[VariableKeyField.data] = (
+        list(dim_kwargs) + [VerticalKeyDim[domain]],
+        volume,
+    )
+    ds.attrs[AttrKeyField.percentiles] = list(percentiles)
+
+    return ds
+
+
 def segy_loader(
     segyfile,
     cdp=None,
@@ -905,14 +1053,14 @@ def segy_loader(
     head_df=None,
     **segyio_kwargs,
 ):
-    """Load SEGY file into xarray.Dataset
+    """Load SEG-Y file into xarray.Dataset
 
     The output dataset has the following structure
         Dimensions:
             cdp/iline - CDP or Inline axis
             xline - Xline axis
             twt/depth - The vertical axis
-            d4 - Offset/Angle Axis
+            offset - Offset/Angle Axis
         Coordinates:
             iline - The inline numbering
             xline - The xline numbering
@@ -935,7 +1083,7 @@ def segy_loader(
         segyfile (str): Input segy file path
         cdp (int, optional): The CDP byte location, usually 21.
         iline (int, optional): Inline byte location, usually 189
-        xline (int, optional): Cross-line byte location, usally 193
+        xline (int, optional): Cross-line byte location, usually 193
         cdpx (int, optional): UTMX byte location, usually 181
         cdpy (int, optional): UTMY byte location, usually 185
         offset (int, optional): Offset/angle byte location
@@ -984,6 +1132,11 @@ def segy_loader(
         head_df=head_df,
         **segyio_kwargs,
     )
+
+    byte_loc = [
+        bytel for bytel in [cdp, iline, xline, cdpx, cdpy, offset] if bytel is not None
+    ]
+    check_tracefield(byte_loc)
 
     common_args = (segyfile, head_df, head_bin, head_loc)
 
@@ -1060,14 +1213,14 @@ def segy_converter(
     extra_byte_fields=None,
     **segyio_kwargs,
 ):
-    """Convert SEGY data to NetCDF4 File
+    """Convert SEG-Y data to NetCDF4 File
 
     The output ncfile has the following structure
         Dimensions:
             cdp/iline - CDP or Inline axis
             xline - Xline axis
             twt/depth - The vertical axis
-            d4 - Offset/Angle Axis
+            offset - Offset/Angle Axis
         Coordinates:
             iline - The inline numbering
             xline - The xline numbering
@@ -1092,7 +1245,7 @@ def segy_converter(
             returned in memory as an xarray.Dataset.
         cdp (int, optional): The CDP byte location, usually 21.
         iline (int, optional): Inline byte location, usually 189
-        xline (int, optional): Cross-line byte location, usally 193
+        xline (int, optional): Cross-line byte location, usually 193
         cdpx (int, optional): UTMX byte location, usually 181
         cdpy (int, optional): UTMY byte location, usually 185
         offset (int, optional): Offset/angle byte location
@@ -1115,6 +1268,10 @@ def segy_converter(
     """
     # Input sanity checks
     extra_byte_fields = _loader_converter_checks(cdp, iline, xline, extra_byte_fields)
+    byte_loc = [
+        bytel for bytel in [cdp, iline, xline, cdpx, cdpy, offset] if bytel is not None
+    ]
+    check_tracefield(byte_loc)
 
     head_df, head_bin, head_loc = _loader_converter_header_handling(
         segyfile,
@@ -1133,9 +1290,10 @@ def segy_converter(
         return_geometry=return_geometry,
         silent=silent,
         extra_byte_fields=extra_byte_fields,
+        optimised_load=True,
         **segyio_kwargs,
     )
-
+    print("header_loaded")
     common_args = (segyfile, head_df, head_bin, head_loc)
 
     common_kwargs = dict(
@@ -1149,6 +1307,8 @@ def segy_converter(
 
     # 3d data needs iline and xline
     if iline is not None and xline is not None:
+
+        print("is_3d")
         ds = _3dsegy_loader(
             *common_args,
             **common_kwargs,

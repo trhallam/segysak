@@ -5,8 +5,7 @@ from attrdict import AttrDict
 
 
 class FrozenDict(AttrDict):
-    """A Frozen Attribute Dictionary for protected key pair mappings in SEGYSAK.
-    """
+    """A Frozen Attribute Dictionary for protected key pair mappings in SEGY-SAK."""
 
     def __setitem__(self, key, value):
         raise TypeError(

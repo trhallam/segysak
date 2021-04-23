@@ -16,7 +16,8 @@
 # %% [markdown]
 # # Working with SEG-Y headers
 #
-# Headers in SEG-Y data are additional meta information associated with each trace. In SEG-Y these are not pooled in a common data block but interleaved with the seismic trace data so we need to do some work to extract it. **segysak** has two helper methods for extracting information from a SEGY file. These are `segy_header_scan` and `segy_header_scrape`. Both of these functions return `pandas.DataFrame` objects containing header or header related information which can be used for QC, analysis and plotting.
+# Headers in SEG-Y data are additional meta information asscoiated with each trace. In SEG-Y these are not pooled in a common data block but interleaved with the seismic trace data so we need to do some work to extract it. **segysak** has two helper methods for extracting information from a SEG-Y file. These are `segy_header_scan` and `segy_header_scrape`. Both of these functions return `pandas.DataFrame` objects containing header or header related information which can be used QC, analysis and plotting.
+
 
 # %% [markdown]
 # ## Scanning the headers

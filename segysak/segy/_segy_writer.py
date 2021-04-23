@@ -1,18 +1,11 @@
-import importlib
+from numpy.core.fromnumeric import trace
 import xarray as xr
 import segyio
 import numpy as np
 import pandas as pd
 import warnings
 
-try:
-    has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
-    if has_ipywidgets:
-        from tqdm.autonotebook import tqdm
-    else:
-        from tqdm import tqdm as tqdm
-except ModuleNotFoundError:
-    from tqdm import tqdm as tqdm
+from ._segy_core import tqdm, check_tracefield
 
 from .._accessor import open_seisnc
 from .._core import FrozenDict
@@ -48,7 +41,7 @@ def ncdf2segy(
 
     Args:
         ncfile (string): The input SEISNC file
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         CMP (bool, optional): The data is 2D. Defaults to False.
         iline (int, optional): Inline byte location. Defaults to 189.
         xline (int, optional): Crossline byte location. Defaults to 193.
@@ -261,11 +254,11 @@ def _ncdf2segy_3d(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         iline (int): Inline byte location.
         xline (int): Crossline byte location.
         cdp_x (int): The byte location to write the cdp_x.
@@ -298,7 +291,7 @@ def _ncdf2segy_3d(
     # the file, i.e. its inline numbers, crossline numbers, etc. You can also add
     # more structural information, but offsets etc. have sensible defautls. This is
     # the absolute minimal specification for a N-by-M volume
-    spec.sorting = 1
+    spec.sorting = 2
     spec.format = 1
     spec.iline = iline
     spec.xline = xline
@@ -331,19 +324,6 @@ def _ncdf2segy_3d(
                 segyf.trace[il0:iln] = data.data[i, :, :].values.astype(np.float32)
                 pbar.update(nj)
         pbar.close()
-
-        segyf.bin.update(
-            tsort=segyio.TraceSortingFormat.INLINE_SORTING,
-            hdt=int(ds.sample_rate * 1000),
-            hns=nk,
-            mfeet=msys,
-            jobid=1,
-            lino=1,
-            reno=1,
-            ntrpr=ni * nj,
-            nart=ni * nj,
-            fold=1,
-        )
 
     if not text:
         # create text header
@@ -378,11 +358,11 @@ def _ncdf2segy_3dgath(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         iline (int): Inline byte location.
         xline (int): Crossline byte location.
         cdp_x (int): The byte location to write the cdp_x.
@@ -418,7 +398,7 @@ def _ncdf2segy_3dgath(
     # the file, i.e. its inline numbers, crossline numbers, etc. You can also add
     # more structural information, but offsets etc. have sensible defautls. This is
     # the absolute minimal specification for a N-by-M volume
-    spec.format = 1
+    spec.format = 2
     spec.iline = iline
     spec.xline = xline
     spec.samples = ds[dimension].astype(int).values
@@ -495,11 +475,11 @@ def _ncdf2segy_2d(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         cdp (int): The byte location to write the cdp.
         cdp_x (int): The byte location to write the cdp_x.
         cdp_y (int): The byte location to write the cdp_y.
@@ -595,11 +575,11 @@ def _ncdf2segy_2d_gath(
     silent=False,
     **thm_args,
 ):
-    """Convert etlpy siesnc format (NetCDF4) to SEGY.
+    """Convert siesnc format (NetCDF4) to SEGY.
 
     Args:
         ds (xarray.Dataset): The input SEISNC dataset
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         cdp (int): The byte location to write the cdp.
         cdp_x (int): The byte location to write the cdp_x.
         cdp_y (int): The byte location to write the cdp_y.
@@ -724,6 +704,7 @@ def _segy_writer_input_handler(
         _ncdf2segy_2d(ds, segyfile, **common_kwargs, **thm)
     elif ds.seis.is_2dgath():
         thm = output_byte_locs("standard_2d_gath")
+        thm.update(trace_header_map)
         _ncdf2segy_2d_gath(ds, segyfile, **common_kwargs, **thm)
     elif ds.seis.is_3d():
         thm = output_byte_locs("standard_3d")
@@ -763,7 +744,7 @@ def segy_writer(
 
     Args:
         seisnc (xarray.Dataset, string): The input SEISNC file either a path or the in memory xarray.Dataset
-        segyfile (string): The output SEGY file
+        segyfile (string): The output SEG-Y file
         trace_header_map (dict, optional): Defaults to None. A dictionary of seisnc variables
             and byte locations. The variable will be written to the trace headers in the
             assigned byte location. By default CMP=23, cdp_x=181, cdp_y=185, iline=189,
@@ -772,10 +753,13 @@ def segy_writer(
             limitations. Defaults to 10. This is primarily used for large 3D and ignored for 2D data.
         dimension (str): Data dimension to output, defaults to 'twt' or 'depth' whichever is present
         silent (bool, optional): Turn off progress reporting. Defaults to False.
-        use_text (book, optional): Use the seisnc text for the EBCIDC output. This text usally comes from
+        use_text (bool, optional): Use the seisnc text for the EBCIDC output. This text usally comes from
             the loaded SEG-Y file and may not match the segysak SEG-Y output. Defaults to False and writes
             the default segysak EBCIDC
     """
+    if trace_header_map:
+        check_tracefield(trace_header_map.values())
+
     if isinstance(seisnc, xr.Dataset):
         _segy_writer_input_handler(
             seisnc, segyfile, trace_header_map, dimension, silent, None, use_text

@@ -22,6 +22,7 @@ install_requires = [
     "h5netcdf",
     "setuptools_scm",
     "attrdict",
+    "more-itertools",
 ]
 
 notebook_deps = [
@@ -33,7 +34,14 @@ notebook_deps = [
     "pyvista",
 ]
 
-testing_deps = ["flake8", "pytest", "hypothesis", "affine", "pytest_cases"]
+testing_deps = [
+    "flake8",
+    "pytest",
+    "hypothesis",
+    "affine",
+    "pytest_cases",
+    "subsurface",
+]
 
 extras_require = {
     "notebook": notebook_deps,
@@ -49,10 +57,10 @@ extras_require = {
         "sphinx-copybutton",
         "rtds-action",
         "jupytext",
+        "pyvista",
     ]
     + notebook_deps,
 }
-
 
 setup(
     name="segysak",
@@ -68,6 +76,7 @@ setup(
     tests_require=testing_deps,
     extras_require=extras_require,
     packages=find_packages(),
+    include_package_data=True,
     # add command line scripts here
     entry_points={"console_scripts": ["segysak=segysak._cli:cli"]},
     classifiers=[
@@ -86,6 +95,8 @@ setup(
         "root": ".",
         "relative_to": __file__,
         "local_scheme": "no-local-version",
+        "version_scheme": "post-release",
+        "write_to_template": "__version__ = '{version}'",
         "write_to": "segysak/version.py",
     },
     python_requires=">=3.6",

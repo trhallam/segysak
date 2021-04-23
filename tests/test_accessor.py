@@ -1,5 +1,9 @@
 import pytest
+
+import sys
+
 import numpy as np
+from scipy import interpolate
 import xarray as xr
 
 from hypothesis import given, assume, settings
@@ -8,11 +12,168 @@ from hypothesis.extra.numpy import arrays
 
 from affine import Affine
 
+if sys.version_info >= (3, 8):
+    from subsurface import StructuredData
+
 from segysak import create3d_dataset
 from segysak._keyfield import DimensionKeyField
 
+from segysak._accessor import coordinate_df
 
-def TestIsFunctions():
+
+class TestSeisIO:
+    def test_to_subsurface_3d(self, empty3d):
+        if sys.version_info >= (3, 8):
+            assert isinstance(empty3d.seisio.to_subsurface(), StructuredData)
+        else:
+            print("Python <=3.7 not support by subsurface")
+            assert True
+
+    def test_to_subsurface_3dgath(self, empty3d_gath):
+        if sys.version_info >= (3, 8):
+            with pytest.raises(NotImplementedError):
+                empty3d_gath.seisio.to_subsurface()
+        else:
+            print("Python <=3.7 not support by subsurface")
+            assert True
+
+    def test_to_subsurface_2dgath(self, empty2d_gath):
+        if sys.version_info >= (3, 8):
+            with pytest.raises(NotImplementedError):
+                empty2d_gath.seisio.to_subsurface()
+        else:
+            print("Python <=3.7 not support by subsurface")
+            assert True
+
+
+@pytest.mark.parametrize(
+    "coord,extras,linear_fillna,expected_shape",
+    [
+        (True, None, True, (414, 4)),
+        (False, None, True, (414, 4)),
+        (False, None, False, (414, 4)),
+        (
+            True,
+            [
+                "extra",
+            ],
+            True,
+            (414, 5),
+        ),
+    ],
+)
+def test_coordinate_df(f3_dataset, coord, extras, linear_fillna, expected_shape):
+    print(f3_dataset)
+    df = coordinate_df(
+        f3_dataset, coord=coord, extras=extras, linear_fillna=linear_fillna
+    )
+    assert df.shape == expected_shape
+
+
+def test_humanbytes(f3_dataset):
+    assert isinstance(f3_dataset.seis.humanbytes, str)
+
+
+def test_get_measurement_system(f3_dataset):
+    assert f3_dataset.seis.get_measurement_system() == "m"
+    local = f3_dataset.copy(deep=True)
+    local.attrs = {}
+    assert local.seis.get_measurement_system() is None
+
+
+def test_surface_from_points_nparray(f3_dataset, f3_horizon_exact):
+    interpolated = f3_dataset.seis.surface_from_points(
+        f3_horizon_exact[["cdp_x", "cdp_y"]].values,
+        f3_horizon_exact["horizon"].values,
+    )
+    assert interpolated.data.mean() == 50.0
+
+
+def test_surface_from_points_df(f3_dataset, f3_horizon_shift):
+    interpolated = f3_dataset.seis.surface_from_points(
+        f3_horizon_shift, "horizon", right=("cdp_x", "cdp_y")
+    )
+    assert interpolated.horizon.mean() == 50.0
+
+
+def test_subsample_dims(f3_dataset):
+    ss = f3_dataset.seis.subsample_dims(twt=2, xline=1)
+    assert ss["twt"].size == (f3_dataset.twt.values.size * 2 ** 2 - 3)
+    assert ss["xline"].size == (f3_dataset.xline.values.size * 2 - 1)
+
+
+def test_fill_cdpna(f3_dataset):
+    ds = f3_dataset.copy(deep=True)
+    ds.cdp_x[:, 5:10] = np.nan
+    ds.cdp_y[:, 5:10] = np.nan
+    ds.seis.fill_cdpna()
+    assert np.allclose(f3_dataset.cdp_x.values, ds.cdp_x.values, atol=0.01)
+    assert np.allclose(f3_dataset.cdp_y.values, ds.cdp_y.values, atol=0.01)
+
+
+def test_get_affine_transform(geometry_dataset):
+    at = geometry_dataset.seis.get_affine_transform()
+    df = geometry_dataset.drop_vars("data").to_dataframe().reset_index()
+    assert np.allclose(
+        at.transform(df[["iline", "xline"]].values),
+        df[["cdp_x", "cdp_y"]].values,
+        atol=1,
+    )
+
+
+def test_calc_corner_points(f3_dataset):
+    f3_dataset.seis.calc_corner_points()
+    print(f3_dataset.attrs["corner_points"])
+    print(f3_dataset.attrs["corner_points_xy"])
+
+    assert f3_dataset.attrs["corner_points"] == (
+        (111, 875),
+        (111, 892),
+        (133, 892),
+        (133, 875),
+    )
+    assert np.allclose(
+        np.array(f3_dataset.attrs["corner_points_xy"]),
+        np.array(
+            (
+                (620197.2, 6074233.0),
+                (620622.1, 6074245.0),
+                (620606.7, 6074794.5),
+                (620181.94, 6074782.5),
+            )
+        ),
+    )
+
+
+def test_calc_corner_points2d(volve_2d_dataset):
+    volve_2d_dataset.seis.calc_corner_points()
+    assert volve_2d_dataset.attrs["corner_points"] == (1, 202)
+    assert np.allclose(
+        np.array(volve_2d_dataset.attrs["corner_points_xy"]),
+        np.array(
+            (
+                (436482.16, 6477774.5),
+                (436482.16, 6477774.5),
+                (434044.3, 6477777.0),
+                (434044.3, 6477777.0),
+            )
+        ),
+    )
+
+
+def test_get_dead_trace_map(f3_withdead_dataset):
+    dead = f3_withdead_dataset.seis.get_dead_trace_map(zeros_as_nan=True)
+    assert isinstance(dead, xr.DataArray)
+    assert dead.sum().values == 175
+
+    dead = f3_withdead_dataset.seis.get_dead_trace_map(
+        scan=[30, 31, 32], zeros_as_nan=True
+    )
+    assert isinstance(dead, xr.DataArray)
+    assert dead.sum().values == 175
+
+
+class TestIsFunctions:
     def test_is_2d(self, empty2d):
         assert empty2d.seis.is_2d()
         assert not empty2d.seis.is_3d()
