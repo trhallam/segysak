@@ -205,7 +205,7 @@ for i, val in enumerate(inl_sel):
 # ## Horizon Sculpting and Windowed map Extraction
 
 # %% [markdown]
-# To create windows map extraction it is necessary to first mask the seisnc cube and the to collapse it along the chosen axis using a prefered method. In this case we are just going to calculate the mean amplitude in a 100ms window below our horizon.
+# To create windows map extraction it is necessary to first mask the seisnc cube and then to collapse it along the chosen axis using a prefered method. In this case we are just going to calculate the mean amplitude in a 100ms window below our horizon.
 
 # %%
 mask_below = cube.where(cube.twt < hrz_mapped.twt + 100)

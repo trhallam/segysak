@@ -77,7 +77,7 @@ top_hugin_df.head()
 # point_cloud.plot(eye_dome_lighting=True)
 
 # %% [markdown]
-# Alternative we can use the points to output a `xarray.Dataset` which comes with coordinates for plotting already gridded up for Pyvista.
+# Alternativey we can use the points to output a `xarray.Dataset` which comes with coordinates for plotting already gridded up for Pyvista.
 
 # %%
 top_hugin_ds = volve_3d.seis.surface_from_points(

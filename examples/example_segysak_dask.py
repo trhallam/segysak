@@ -16,7 +16,7 @@
 # %% [markdown]
 # # Using **dask**
 #
-# [dask](https://dask.org/) is a Python package build upon the scientific stack to enable scalling of Python through interactive sessions to multi-core and multi-node.
+# [dask](https://dask.org/) is a Python package built upon the scientific stack to enable scalling of Python through interactive sessions to multi-core and multi-node.
 #
 # Of particular relevance to **SEGY-SAK** is that `xrray.Dataset` loads naturally into `dask`.
 
