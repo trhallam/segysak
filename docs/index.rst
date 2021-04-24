@@ -1,7 +1,7 @@
 SEGY-SAK: A library for loading and manipulating SEG-Y data with Python using **xarray**
 ========================================================================================
 
-**SEGY-SAK** can be use as a tool to handle *SEG=Y*
+**SEGY-SAK** can be use as a tool to handle *SEG-Y*
 files inside Python environment.
 
 By including  **SEGY-SAK** in your toolbox you will be
