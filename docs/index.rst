@@ -20,15 +20,15 @@ Additional features include
   - Loading of seismic data with missing traces
 
  - **Cube geometry functions**
-  - generate cube affine transform
-  - fill cdp_x and cdp_y
+  - Generate cube affine transform
+  - Fill cdp_x and cdp_y
 
  - **Arbitrary slicing and extration**
 
-  - label based slicing
-  - arbitrary line slicing
-  - horizon extraction and sculpting
-  - well path extraction
+  - Label based slicing
+  - Arbitrary line slicing
+  - Horizon extraction and sculpting
+  - Well path extraction
 
  - **Integrates with the existing Python scientific stack**
 
