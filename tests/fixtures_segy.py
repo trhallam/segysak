@@ -41,7 +41,6 @@ TEST_FILES_SEGYIO_3DG = [
     ("small-ps-dec-il-off-inc-xl.sgy", {"iline": 189, "xline": 193, "offset": 37}),
     ("small-ps-dec-il-xl-inc-off.sgy", {"iline": 189, "xline": 193, "offset": 37}),
     ("small-ps-dec-il-xl-off.sgy", {"iline": 189, "xline": 193, "offset": 37}),
-    ("small-ps-dec-il-xl-off.sgy", {"iline": 189, "xline": 193, "offset": 37}),
     ("small-ps-dec-off-inc-il-xl.sgy", {"iline": 189, "xline": 193, "offset": 37}),
     ("small-ps-dec-xl-inc-il-off.sgy", {"iline": 189, "xline": 193, "offset": 37}),
     ("small-ps-dec-xl-off-inc-il.sgy", {"iline": 189, "xline": 193, "offset": 37}),
