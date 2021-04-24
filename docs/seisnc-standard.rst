@@ -36,7 +36,7 @@ the bins of 3D data. Vertical dimensions are ``twt`` and ``depth``. A typical
 2D and 2D Gathers
 ^^^^^^^^^^^^^^^^^
 
-For 2D data SEGY-SAK uses the dimensino labels ``cdp`` and ``offset``. This allows
+For 2D data SEGY-SAK uses the dimension labels ``cdp`` and ``offset``. This allows
 the package to distinguish between 2D and 3D data to allow automation on saving
 and convience wrappers. The same vertical dimensions apply as for 3D.
 A typical ``xarray`` in 2D format would return
