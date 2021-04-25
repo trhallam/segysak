@@ -131,7 +131,7 @@ Contact us through our Swung Slack channel - |slack|
 History
 -------
 segysak was originally conceived out of a need for a better interface to SEG-Y data
-in Python. The ground work was layed by Tony Hallam but development really began
+in Python. The groundwork was layed by Tony Hallam but development really began
 during the Transform 2020 Software Underground Hackathon held online across
 the world due to the cancellation of of the EAGE Annual in June of that year.
 Significant contributions during the hackathon
