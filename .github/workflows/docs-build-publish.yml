@@ -49,7 +49,7 @@ jobs:
 
       - name: Execute the notebooks
         run: |
-          jupytext --to ipynb --execute examples/*.py
+          xvfb-run jupytext --to ipynb --execute examples/*.py
           mv examples/*.ipynb examples/notebooks/.
 
       - name: Artifact Upload
