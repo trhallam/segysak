@@ -96,7 +96,7 @@ axs.imshow(
 )
 
 # %% [markdown]
-# ## Arbitrary line extration on Gathers
+# ## Arbitrary line extraction on Gathers
 #
 # Arbitrary line slicing of gathers based upon coordinates is also possible. Lets create a line that crosses the 3D.
 
