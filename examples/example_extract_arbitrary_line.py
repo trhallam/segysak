@@ -18,7 +18,7 @@
 #
 # Arbitrary lines are often defined as piecewise lines on time/z slices or basemap views that draw a path through features of interest or for example between well locations.
 #
-# By extracting an arbitrary line we hope to end up with a uniformly sampled vertical section of data that traverses the path where the sampling interval is of the order of the bin interval of the dataset
+# By extracting an arbitrary line we hope to end up with a uniformly sampled vertical section of data that traverses the path where the sampling interval is of the order of the bin interval of the dataset.
 #
 #
 
@@ -74,7 +74,7 @@ arb_line_B = (
 )
 
 # %% [markdown]
-# Let's see how these lines are placed relative to the survey bounds. We can see *A* is full enclosed whilst *B* has some segments outside.
+# Let's see how these lines are placed relative to the survey bounds. We can see *A* is fully enclosed whilst *B* has some segments outside.
 
 # %%
 ax = volve_3d.seis.plot_bounds()
@@ -252,7 +252,7 @@ ax.set_aspect("equal")
 
 
 # %% [markdown]
-# We can easily sample the seismic cube by converting the positional log to `iline` and `xline` using the Affine transform for our data. We also need to convert the TVDSS values of the to TWT (in this case we will just use a constant velocity).
+# We can easily sample the seismic cube by converting the positional log to `iline` and `xline` using the Affine transform for our data. We also need to convert the TVDSS values of the data to TWT (in this case we will just use a constant velocity).
 #
 # In both instances we will create custom xarray.DataArray instances because this allows us to relate the coordinate systems of well samples (on the new dimension `well`) to the `iline` and `xline` dimensions of the cube.
 
