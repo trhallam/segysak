@@ -18,7 +18,7 @@
 #
 # **The interface from `segysak` to [`subsurface`](https://github.com/softwareunderground/subsurface) is experimental and currently under active development. This example will be updated to reflect current functionality and compatability with `subsurface`.**
 #
-# Subsurface is a library which provides data structures to facilitate communication of data efficiently between the various packages of the geoscience and subsurface Python stack. Subsurface uses Xarray data structures internally which have a defined format and interface enabling data to sent and received between libraries.
+# Subsurface is a library which provides data structures to facilitate communication of data efficiently between the various packages of the geoscience and subsurface Python stack. Subsurface uses Xarray data structures internally which have a defined format and interface enabling data to be sent and received between libraries.
 #
 # The subsurface interchange is being built throught the `seisio` accessor in `segysak`.
 
