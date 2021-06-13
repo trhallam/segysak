@@ -17,7 +17,7 @@
 # %% [markdown]
 # # SEGY-SAK Basics
 #
-# **segysak** offers a number of utilities to create and load seismic data using `xarray` and `segyio`. In general **segysak** uses `xarray.Dataset` to store the data and provides and interface to additional seismic specific functionality by adding the `.seis` and `.seisio` names-spaces to an `xarray.Dataset` (just `dataset` from now on). That sounds complicated but let us walk through some examples together.
+# **segysak** offers a number of utilities to create and load seismic data using `xarray` and `segyio`. In general **segysak** uses `xarray.Dataset` to store the data and provides an interface to additional seismic specific functionality by adding the `.seis` and `.seisio` names-spaces to an `xarray.Dataset` (just `dataset` from now on). That sounds complicated but let us walk through some examples together.
 
 # %% [markdown]
 # ## Creating empty 3D geometry
