@@ -81,7 +81,7 @@ xarray_selection
 # %% [markdown]
 # ## Coordinates Selection
 #
-# Usually for seismic the X and Y coordinates labelled `cdp_x` and `cdp_y` in seisnc are rotated and scaled relative to the grid geometry and now seisnc dimensions `iline`, `xline` and `twt`. For `xarray` this means you cannot use the `.sel` and `.isel` methods to select data for `cdp_x` and `cdp_y`. **segysak** is developing more natural interfaces to access data using X and Y coordinates and this is available thorugh the `seisnc.seis` namespace, covered in other examples.
+# Usually for seismic the X and Y coordinates labelled `cdp_x` and `cdp_y` in seisnc are rotated and scaled relative to the grid geometry and now seisnc dimensions `iline`, `xline` and `twt`. For `xarray` this means you cannot use the `.sel` and `.isel` methods to select data for `cdp_x` and `cdp_y`. **segysak** is developing more natural interfaces to access data using X and Y coordinates and this is available through the `seisnc.seis` namespace, covered in other examples.
 
 # %% [markdown]
 # ## Adding data to an empty seisnc
