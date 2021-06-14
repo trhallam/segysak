@@ -150,14 +150,14 @@ print(np.sum(new_seisnc.data))
 
 # %% [markdown]
 # With `xarray` you can apply operations along 1 or more dimensions to reduce the dataset. This could be useful for collapsing gathers for example by applying the mean along the `offset` dimension. Here we combine a `numpy` operation `abs` which returns an `DataArray` and then sum along the time dimension to create a grid without the time dimension.
-# Along with using masks this is fundamental building block for performing horizonal sculpting.
+# Along with using masks this is a fundamental building block for performing horizonal sculpting.
 
 # %%
 map_data = np.abs(new_seisnc.data).sum(dim="twt")
 img = map_data.plot()
 
 # %% [markdown]
-# Sometimes we need to modify the dimensions because they were read wrong or do scale them. Modify your dimension from the seisnc and then put it back using `assign_coords`.
+# Sometimes we need to modify the dimensions because they were read wrong or to scale them. Modify your dimension from the seisnc and then put it back using `assign_coords`.
 
 # %%
 new_seisnc.assign_coords(iline=new_seisnc.iline * 10, twt=new_seisnc.twt + 1500)
