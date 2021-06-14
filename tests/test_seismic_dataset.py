@@ -91,7 +91,7 @@ class TestCreateSeismicDataset:
         assert dataset.dims["depth"] == s
 
     @given(
-        arrays(np.float, shape=integers(0, 10000), elements=floats(-1000, 1000)),
+        arrays(float, shape=integers(0, 10000), elements=floats(-1000, 1000)),
         integers(0, 10000),
     )
     def test_create_2D_seismic_dataset_with_arrays(self, a, t):

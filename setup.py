@@ -21,7 +21,7 @@ install_requires = [
     "click",
     "h5netcdf",
     "setuptools_scm",
-    "attrdict",
+    "addict",
     "more-itertools",
 ]
 

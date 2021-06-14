@@ -18,7 +18,7 @@ if VERSION is None:
 
         VERSION = get_version(root="..", relative_to=__file__)
     except LookupError:
-        VERSION = "¯\_(ツ)_/¯"
+        VERSION = r"¯\_(ツ)_/¯"
 
 from segysak.segy import (
     segy_converter,
