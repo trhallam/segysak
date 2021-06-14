@@ -700,14 +700,17 @@ def _segy_writer_input_handler(
 
     if ds.seis.is_2d():
         thm = output_byte_locs("standard_2d")
+        thm.unfreeze()
         thm.update(trace_header_map)
         _ncdf2segy_2d(ds, segyfile, **common_kwargs, **thm)
     elif ds.seis.is_2dgath():
         thm = output_byte_locs("standard_2d_gath")
+        thm.unfreeze()
         thm.update(trace_header_map)
         _ncdf2segy_2d_gath(ds, segyfile, **common_kwargs, **thm)
     elif ds.seis.is_3d():
         thm = output_byte_locs("standard_3d")
+        thm.unfreeze()
         thm.update(trace_header_map)
         _ncdf2segy_3d(
             ds,
@@ -718,6 +721,7 @@ def _segy_writer_input_handler(
         )
     elif ds.seis.is_3dgath():
         thm = output_byte_locs("standard_3d_gath")
+        thm.unfreeze()
         thm.update(trace_header_map)
         _ncdf2segy_3dgath(
             ds,
