@@ -9,7 +9,9 @@ import segyio
 
 # import netCDF
 import h5netcdf
-from attrdict import AttrDict
+
+# from attrdict import AttrDict
+from addict import Dict
 import numpy as np
 import xarray as xr
 
@@ -790,7 +792,7 @@ def _loader_converter_header_handling(
         )
 
     head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
-    head_loc = AttrDict(
+    head_loc = Dict(
         dict(cdp=cdp, offset=offset, iline=iline, xline=xline, cdpx=cdpx, cdpy=cdpy)
     )
 
@@ -802,7 +804,7 @@ def _loader_converter_header_handling(
             print("Couldn't determine geometry, will load traces as flat 2D.")
             pass
 
-    head_loc = AttrDict(
+    head_loc = Dict(
         {
             key: (_get_tf(val) if val is not None else None)
             for key, val in head_loc.items()
