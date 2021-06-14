@@ -138,6 +138,8 @@ def scan(max_traces, filename):
     pd.set_option("display.max_rows", hscan.shape[0])
     click.echo(hscan[["byte_loc", "min", "max", "mean"]])
 
+    return 0
+
 
 @cli.command()
 @click.option(
@@ -178,6 +180,8 @@ def scrape(filename, ebcidc=False, trace_headers=False):
         if trace_headers:
             head_df = segy_header_scrape(file)
             head_df.to_csv(header_name)
+
+    return 0
 
 
 @cli.command(
@@ -296,6 +300,8 @@ def convert(
                 f"Conversion to output-type {output_type} is not implemented yet"
             )
             raise SystemExit
+
+    return 0
 
 
 if __name__ == "__main__":
