@@ -250,7 +250,9 @@ def convert(
 
         click.echo(f"Converting file {input_file.name} to {output_type}")
 
-        if len(crop) == 0:
+        if crop is None:
+            crop_loc = None
+        elif isinstance(crop, list) and len(crop) == 0:
             crop_loc = None
         else:
             crop_loc = crop
