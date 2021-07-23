@@ -252,7 +252,7 @@ def convert(
 
         if crop is None:
             crop_loc = None
-        elif isinstance(crop, list) and len(crop) == 0:
+        elif isinstance(crop, (list, tuple)) and len(crop) == 0:
             crop_loc = None
         else:
             crop_loc = crop
