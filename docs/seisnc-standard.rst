@@ -12,7 +12,7 @@ This specification is not meant to be prescriptive but outlines some basic
 requirements for ``xarray`` datasets to work with *SEGY-SAK* functionality.
 
 *SEGY-SAK* uses the convention ``.seisnc`` for the suffix on NETCDF4 files it
-creates. These files are datasets with specific 1D and 2D coordiates and have a
+creates. These files are datasets with specific 1D and 2D coordinates and have a
 single variable called ``data``.
 The ``data`` variable contains the seismic cube volume or 2D line traces.
 Attributes can be used to provide further metadata about the cube.
