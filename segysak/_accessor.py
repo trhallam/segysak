@@ -3,19 +3,27 @@
 data manipulation.
 
 """
+import warnings
+
+
+from cmath import isnan
 from collections.abc import Iterable
+from multiprocessing.sharedctypes import Value
+from more_itertools import windowed
 
 import xarray as xr
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
-from scipy.optimize import curve_fit
+from scipy.optimize import curve_fit, OptimizeWarning
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Affine2D
 
 from ._keyfield import AttrKeyField, DimensionKeyField, CoordKeyField, VariableKeyField
 from ._richstr import _upgrade_txt_richstr
 from .tools import get_uniform_spacing, halfsample, plane
+
+warnings.filterwarnings("error", category=OptimizeWarning)
 
 
 @xr.register_dataset_accessor("seisio")
@@ -146,20 +154,25 @@ def coordinate_df(seisnc, coord=True, extras=None, linear_fillna=True):
         return seisnc_coord_nona
 
     # create fits to surface for target x from il/xl
-    fitx = curve_fit(
-        plane,
-        (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
-        seisnc_coord_nona.cdp_x,
-        p0=(0, 0, 0),
-    )
-    x_from_ix = lambda xy: plane(xy, *fitx[0])
-    # create fits to surface for target y from il/xl
-    fity = curve_fit(
-        plane,
-        (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
-        seisnc_coord_nona.cdp_y,
-        p0=(0, 0, 0),
-    )
+    try:
+        fitx = curve_fit(
+            plane,
+            (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
+            seisnc_coord_nona.cdp_x,
+            p0=(0, 0, 0),
+        )
+        x_from_ix = lambda xy: plane(xy, *fitx[0])
+        # create fits to surface for target y from il/xl
+        fity = curve_fit(
+            plane,
+            (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
+            seisnc_coord_nona.cdp_y,
+            p0=(0, 0, 0),
+        )
+    except OptimizeWarning:
+        raise ValueError(
+            "Could not find fit to plane from existing cdp_x and cdp_y values."
+        )
     y_from_ix = lambda xy: plane(xy, *fity[0])
 
     filled_x = x_from_ix((seisnc_coord.iline, seisnc_coord.xline))
@@ -711,6 +724,20 @@ class SeisGeom:
             coord_df.cdp_y.values.reshape(self._obj.cdp_y.shape),
         )
 
+    def grid_rotation(self):
+        """Calculate the rotation of the grid using the sum under the curve method.
+
+        (x2 − x1)(y2 + y1)
+
+        Returns a value >0 if the rotation of points along inline is clockwise.
+        """
+        self.calc_corner_points()
+        points = self._obj.corner_points_xy
+        p2p_sum = np.sum(
+            [(b[0] - a[0]) * (b[1] + a[1]) for a, b in windowed(points, 2)]
+        )
+        return p2p_sum
+
     def get_affine_transform(self):
         """Calculate the forward iline/xline -> cdp_x, cdp_y Affine transform
         for Matplotlib using corner point geometry.
@@ -725,33 +752,51 @@ class SeisGeom:
             raise ValueError()
         self.calc_corner_points()
 
-        cp_xy = self._obj.corner_points_xy
-        cp_ix = self._obj.corner_points
+        # direct solve for affine transform via equation substitution
+        # https://cdn.sstatic.net/Sites/math/img/site-background-image.png?v=09a720444763
+        (x0p, y0p), (x1p, y1p), (x2p, y2p) = self._obj.corner_points_xy[:3]
+        (x0, y0), (x1, y1), (x2, y2) = self._obj.corner_points[:3]
 
-        ang_xl = np.arctan2(cp_xy[1][1] - cp_xy[0][1], cp_xy[1][0] - cp_xy[0][0])
-        ang_il = np.arctan2(cp_xy[3][1] - cp_xy[0][1], cp_xy[3][0] - cp_xy[0][0])
-        il_length = np.sqrt(
-            np.power(cp_xy[3][0] - cp_xy[0][0], 2)
-            + np.power(cp_xy[3][1] - cp_xy[0][1], 2)
-        )
-        xl_length = np.sqrt(
-            np.power(cp_xy[1][0] - cp_xy[0][0], 2)
-            + np.power(cp_xy[1][1] - cp_xy[0][1], 2)
-        )
-        dxl = cp_ix[1][1] - cp_ix[0][1]
-        dil = cp_ix[3][0] - cp_ix[0][0]
-
-        affine_grid2loc = Affine2D()
-        affine_grid2loc = (
-            affine_grid2loc.rotate_around(  # rotate around origin
-                cp_xy[0][0], cp_xy[0][1], -ang_il
+        xs = np.array([v[0] for v in self._obj.corner_points_xy])
+        ys = np.array([v[0] for v in self._obj.corner_points_xy])
+        if np.all(xs == xs[0]) or np.all(ys == ys[0]):
+            raise ValueError(
+                "The coordinates cannot be transformed, check self.seis.corner_points_xy"
             )
-            .translate(-cp_xy[0][0], -cp_xy[0][1])  # move to zero origin
-            .scale(1.0 / il_length, 1.0 / xl_length)  # scale to 1.0
-            .scale(dil, dxl)  # scale to il/xl
-            .translate(cp_ix[0][0], cp_ix[0][1])  # move to ilxl origin
+
+        a = (x1p * y0 - x2p * y0 - x0p * y1 + x2p * y1 + x0p * y2 - x1p * y2) / (
+            x1 * y0 - x2 * y0 - x0 * y1 + x2 * y1 + x0 * y2 - x1 * y2
         )
-        return affine_grid2loc.inverted()
+        c = (x1p * x0 - x2p * x0 - x0p * x1 + x2p * x1 + x0p * x2 - x1p * x2) / (
+            -x1 * y0 + x2 * y0 + x0 * y1 - x2 * y1 - x0 * y2 + x1 * y2
+        )
+        b = (y1p * y0 - y2p * y0 - y0p * y1 + y2p * y1 + y0p * y2 - y1p * y2) / (
+            x1 * y0 - x2 * y0 - x0 * y1 + x2 * y1 + x0 * y2 - x1 * y2
+        )
+        d = (y1p * x0 - y2p * x0 - y0p * x1 + y2p * x1 + y0p * x2 - y1p * x2) / (
+            -x1 * y0 + x2 * y0 + x0 * y1 - x2 * y1 - x0 * y2 + x1 * y2
+        )
+        e = (
+            x2p * x1 * y0
+            - x1p * x2 * y0
+            - x2p * x0 * y1
+            + x0p * x2 * y1
+            + x1p * x0 * y2
+            - x0p * x1 * y2
+        ) / (x1 * y0 - x2 * y0 - x0 * y1 + x2 * y1 + x0 * y2 - x1 * y2)
+        f = (
+            y2p * x1 * y0
+            - y1p * x2 * y0
+            - y2p * x0 * y1
+            + y0p * x2 * y1
+            + y1p * x0 * y2
+            - y0p * x1 * y2
+        ) / (x1 * y0 - x2 * y0 - x0 * y1 + x2 * y1 + x0 * y2 - x1 * y2)
+
+        values = (v if ~np.isnan(v) else 0.0 for v in (a, b, c, d, e, f))
+
+        affine_grid2loc = Affine2D.from_values(*values)
+        return affine_grid2loc
 
     def get_dead_trace_map(self, scan=None, zeros_as_nan=False):
         """Scan the vertical axis of a volume to find traces that are all NaN
