@@ -3,9 +3,6 @@
 data manipulation.
 
 """
-import warnings
-
-
 from cmath import isnan
 from collections.abc import Iterable
 from multiprocessing.sharedctypes import Value
@@ -22,8 +19,6 @@ from matplotlib.transforms import Affine2D
 from ._keyfield import AttrKeyField, DimensionKeyField, CoordKeyField, VariableKeyField
 from ._richstr import _upgrade_txt_richstr
 from .tools import get_uniform_spacing, halfsample, plane
-
-warnings.filterwarnings("error", category=OptimizeWarning)
 
 
 @xr.register_dataset_accessor("seisio")
@@ -154,25 +149,20 @@ def coordinate_df(seisnc, coord=True, extras=None, linear_fillna=True):
         return seisnc_coord_nona
 
     # create fits to surface for target x from il/xl
-    try:
-        fitx = curve_fit(
-            plane,
-            (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
-            seisnc_coord_nona.cdp_x,
-            p0=(0, 0, 0),
-        )
-        x_from_ix = lambda xy: plane(xy, *fitx[0])
-        # create fits to surface for target y from il/xl
-        fity = curve_fit(
-            plane,
-            (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
-            seisnc_coord_nona.cdp_y,
-            p0=(0, 0, 0),
-        )
-    except OptimizeWarning:
-        raise ValueError(
-            "Could not find fit to plane from existing cdp_x and cdp_y values."
-        )
+    fitx = curve_fit(
+        plane,
+        (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
+        seisnc_coord_nona.cdp_x,
+        p0=(0, 0, 0),
+    )
+    x_from_ix = lambda xy: plane(xy, *fitx[0])
+    # create fits to surface for target y from il/xl
+    fity = curve_fit(
+        plane,
+        (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
+        seisnc_coord_nona.cdp_y,
+        p0=(0, 0, 0),
+    )
     y_from_ix = lambda xy: plane(xy, *fity[0])
 
     filled_x = x_from_ix((seisnc_coord.iline, seisnc_coord.xline))
@@ -754,8 +744,13 @@ class SeisGeom:
 
         # direct solve for affine transform via equation substitution
         # https://cdn.sstatic.net/Sites/math/img/site-background-image.png?v=09a720444763
-        (x0p, y0p), (x1p, y1p), (x2p, y2p) = self._obj.corner_points_xy[:3]
-        (x0, y0), (x1, y1), (x2, y2) = self._obj.corner_points[:3]
+        # ints for iline xline will often overflow
+        (x0p, y0p), (x1p, y1p), (x2p, y2p) = np.array(
+            self._obj.corner_points_xy[:3], dtype=float
+        )
+        (x0, y0), (x1, y1), (x2, y2) = np.array(
+            self._obj.corner_points[:3], dtype=float
+        )
 
         xs = np.array([v[0] for v in self._obj.corner_points_xy])
         ys = np.array([v[0] for v in self._obj.corner_points_xy])
@@ -763,7 +758,6 @@ class SeisGeom:
             raise ValueError(
                 "The coordinates cannot be transformed, check self.seis.corner_points_xy"
             )
-
         a = (x1p * y0 - x2p * y0 - x0p * y1 + x2p * y1 + x0p * y2 - x1p * y2) / (
             x1 * y0 - x2 * y0 - x0 * y1 + x2 * y1 + x0 * y2 - x1 * y2
         )
@@ -792,9 +786,7 @@ class SeisGeom:
             + y1p * x0 * y2
             - y0p * x1 * y2
         ) / (x1 * y0 - x2 * y0 - x0 * y1 + x2 * y1 + x0 * y2 - x1 * y2)
-
         values = (v if ~np.isnan(v) else 0.0 for v in (a, b, c, d, e, f))
-
         affine_grid2loc = Affine2D.from_values(*values)
         return affine_grid2loc
 
