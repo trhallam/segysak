@@ -1,3 +1,6 @@
+import warnings
+
+from multiprocessing.sharedctypes import Value
 import pytest
 
 import sys
@@ -5,12 +8,22 @@ import sys
 import numpy as np
 from scipy import interpolate
 import xarray as xr
+from matplotlib.transforms import Affine2D
 
 from hypothesis import given, assume, settings
-from hypothesis.strategies import integers, text, floats, tuples, sampled_from
+from hypothesis.strategies import (
+    integers,
+    builds,
+    floats,
+    tuples,
+    sampled_from,
+    composite,
+    randoms,
+)
 from hypothesis.extra.numpy import arrays
 
 from affine import Affine
+from scipy.optimize import OptimizeWarning
 
 if sys.version_info >= (3, 8):
     from subsurface import StructuredData
@@ -119,6 +132,48 @@ def test_get_affine_transform(geometry_dataset):
         df[["cdp_x", "cdp_y"]].values,
         atol=1,
     )
+
+
+@composite
+def affine2ds(draw):
+    def builder(t, sk, sc, r):
+        tfm = Affine2D()
+        tfm.translate(*t).rotate(r).skew(*sk).scale(*sc)
+        return tfm
+
+    fkws = dict(allow_nan=False, allow_infinity=False, min_value=-10e2, max_value=10e2)
+    t = tuples(floats(**fkws), floats(**fkws))
+    sk = tuples(floats(**fkws), floats(**fkws))
+    sc = tuples(floats(**fkws), floats(**fkws))
+    r = floats(**fkws)
+    return draw(builds(builder, t, sk, sc, r))
+
+
+@given(affine2ds())
+@settings(max_examples=100)
+def test_get_affine_transform2(tfm):
+    # build a test data set
+    a = create3d_dataset(
+        (10, 10, 10),
+    )
+
+    lh_x = np.full((10, 10), np.nan)
+    lh_y = np.full((10, 10), np.nan)
+    for ci, cx in zip((0, 0, 9), (0, 9, 0)):
+        lh_x[ci, cx], lh_y[ci, cx] = tfm.transform([ci, cx])
+
+    a["cdp_x"] = (("iline", "xline"), lh_x)
+    a["cdp_y"] = (("iline", "xline"), lh_y)
+
+    warnings.filterwarnings("error", category=OptimizeWarning)
+
+    try:
+        a.seis.fill_cdpna()
+        a.seis.calc_corner_points()
+        tf = a.seis.get_affine_transform()
+        assert np.allclose(tfm.get_matrix(), tf.get_matrix(), atol=10e-1)
+    except ValueError as err:
+        assert True
 
 
 def test_calc_corner_points(f3_dataset):
