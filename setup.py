@@ -40,7 +40,6 @@ testing_deps = [
     "hypothesis",
     "affine",
     "pytest_cases",
-    "subsurface",
 ]
 
 extras_require = {

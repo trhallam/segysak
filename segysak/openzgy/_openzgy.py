@@ -127,7 +127,10 @@ def zgy_writer(seisnc_dataset, filename, dimension=None):
     assert seisnc_dataset.seis.is_3d()
 
     seisnc_dataset.seis.calc_corner_points()
-    corners = tuple(seisnc_dataset.attrs["corner_points_xy"][i] for i in [0, 3, 1, 2])
+    if seisnc_dataset.corner_points_xy:
+        corners = tuple(seisnc_dataset.corner_points_xy[i] for i in [0, 3, 1, 2])
+    else:
+        corners=[(0, 0), (0, 0), (0, 0), (0, 0)]
 
     dimension = _check_dimension(seisnc_dataset, dimension)
     if dimension == "twt":

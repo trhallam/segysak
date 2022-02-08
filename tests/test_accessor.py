@@ -23,10 +23,9 @@ from hypothesis.strategies import (
 from hypothesis.extra.numpy import arrays
 
 from affine import Affine
-from scipy.optimize import OptimizeWarning
 
-if sys.version_info >= (3, 8):
-    from subsurface import StructuredData
+# if sys.version_info >= (3, 8):
+#     from subsurface import StructuredData
 
 from segysak import create3d_dataset
 from segysak._keyfield import DimensionKeyField
@@ -34,29 +33,29 @@ from segysak._keyfield import DimensionKeyField
 from segysak._accessor import coordinate_df
 
 
-class TestSeisIO:
-    def test_to_subsurface_3d(self, empty3d):
-        if sys.version_info >= (3, 8):
-            assert isinstance(empty3d.seisio.to_subsurface(), StructuredData)
-        else:
-            print("Python <=3.7 not support by subsurface")
-            assert True
+# class TestSeisIO:
+#     def test_to_subsurface_3d(self, empty3d):
+#         if sys.version_info >= (3, 8):
+#             assert isinstance(empty3d.seisio.to_subsurface(), StructuredData)
+#         else:
+#             print("Python <=3.7 not support by subsurface")
+#             assert True
 
-    def test_to_subsurface_3dgath(self, empty3d_gath):
-        if sys.version_info >= (3, 8):
-            with pytest.raises(NotImplementedError):
-                empty3d_gath.seisio.to_subsurface()
-        else:
-            print("Python <=3.7 not support by subsurface")
-            assert True
+#     def test_to_subsurface_3dgath(self, empty3d_gath):
+#         if sys.version_info >= (3, 8):
+#             with pytest.raises(NotImplementedError):
+#                 empty3d_gath.seisio.to_subsurface()
+#         else:
+#             print("Python <=3.7 not support by subsurface")
+#             assert True
 
-    def test_to_subsurface_2dgath(self, empty2d_gath):
-        if sys.version_info >= (3, 8):
-            with pytest.raises(NotImplementedError):
-                empty2d_gath.seisio.to_subsurface()
-        else:
-            print("Python <=3.7 not support by subsurface")
-            assert True
+#     def test_to_subsurface_2dgath(self, empty2d_gath):
+#         if sys.version_info >= (3, 8):
+#             with pytest.raises(NotImplementedError):
+#                 empty2d_gath.seisio.to_subsurface()
+#         else:
+#             print("Python <=3.7 not support by subsurface")
+#             assert True
 
 
 @pytest.mark.parametrize(
