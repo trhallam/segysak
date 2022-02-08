@@ -123,6 +123,10 @@ def segy_header_scrape(
                 pbar.update(slc.stop - slc.start)
 
     head_df.replace(to_replace=-2147483648, value=np.nan, inplace=True)
+
+    for col in head_df:
+        head_df[col] = pd.to_numeric(head_df[col], downcast="unsigned")
+
     return head_df
 
 
