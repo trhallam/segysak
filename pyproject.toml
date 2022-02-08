@@ -1,0 +1,9 @@
+[project]
+name = "segysak"
+
+[build-system]
+requires = ["setuptools", "wheel", "setuptools_scm>=6.2"]
+
+[tool.setuptools_scm]
+write_to = "segysak/_version.py"
+local_scheme = "no-local-version"

@@ -24,6 +24,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+_version.py
 
 # created docs
 docs/examples
