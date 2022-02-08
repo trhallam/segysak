@@ -37,7 +37,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-          cache: 'pip'
+          #cache: 'pip'
 
       - name: Install package and deps
         run: |
@@ -89,7 +89,7 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-          cache: 'pip'
+          #cache: 'pip'
 
       - name: Install dependencies and pacakge
         run: |
