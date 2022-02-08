@@ -124,10 +124,10 @@ jobs:
 
 
   publish:
+    if: github.event_name == 'push'
     name: Publish to test.PyPI and PyPI
     runs-on: ubuntu-latest
     needs: [build-test]
-    if: github.event_name == 'push'
 
     steps:
       - name: Get wheels
