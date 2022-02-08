@@ -127,6 +127,8 @@ def test_fill_cdpna(f3_dataset):
 def test_get_affine_transform(geometry_dataset):
     at = geometry_dataset.seis.get_affine_transform()
     df = geometry_dataset.drop_vars("data").to_dataframe().reset_index()
+    print(at.transform(df[["iline", "xline"]]))
+    print(df[["cdp_x", "cdp_y"]])
     assert np.allclose(
         at.transform(df[["iline", "xline"]].values),
         df[["cdp_x", "cdp_y"]].values,
@@ -159,21 +161,22 @@ def test_get_affine_transform2(tfm):
 
     lh_x = np.full((10, 10), np.nan)
     lh_y = np.full((10, 10), np.nan)
-    for ci, cx in zip((0, 0, 9), (0, 9, 0)):
+    for ci, cx in zip((0, 0, 9, 9), (0, 9, 0, 9)):
         lh_x[ci, cx], lh_y[ci, cx] = tfm.transform([ci, cx])
 
     a["cdp_x"] = (("iline", "xline"), lh_x)
     a["cdp_y"] = (("iline", "xline"), lh_y)
 
-    warnings.filterwarnings("error", category=OptimizeWarning)
-
     try:
         a.seis.fill_cdpna()
         a.seis.calc_corner_points()
         tf = a.seis.get_affine_transform()
-        assert np.allclose(tfm.get_matrix(), tf.get_matrix(), atol=10e-1)
-    except ValueError as err:
-        assert True
+
+        df = a.to_dataframe().reset_index()
+        check = tf.transform(np.array([df.iline, df.xline]).T)
+        assert np.allclose(df[["cdp_x", "cdp_y"]].values, check, atol=10e-3)
+    except ValueError:
+        pass
 
 
 def test_calc_corner_points(f3_dataset):
