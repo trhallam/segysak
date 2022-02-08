@@ -22,7 +22,7 @@ install_requires = [
     "h5netcdf",
     "setuptools_scm",
     "addict",
-    "more-itertools",
+    "more-itertools>=8.0",
 ]
 
 notebook_deps = [

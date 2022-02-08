@@ -324,6 +324,18 @@ def _ncdf2segy_3d(
                 segyf.trace[il0:iln] = data.data[i, :, :].values.astype(np.float32)
                 pbar.update(nj)
         pbar.close()
+        segyf.bin.update(
+            tsort=segyio.TraceSortingFormat.UNKNOWN_SORTING,  # trace sorting
+            hdt=int(ds.sample_rate * 1000),  # Interval
+            hns=nk,  # samples
+            mfeet=msys,  # measurement system
+            jobid=1,  # jobid
+            lino=1,  # line number
+            reno=1,  # reel number
+            ntrpr=ni * nj,  # n traces
+            nart=0,  # aux traces
+            fold=1,
+        )
 
     if not text:
         # create text header
