@@ -515,7 +515,7 @@ def _segy2d_xr(
         volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
-        # this can probably be done as a block - leaving for now just incase sorting becomes an issue
+        # this can probably be done as a block - leaving for now just in case sorting becomes an issue
         for trc, val in head_df.iterrows():
             volume[int(val.cdp_index), :] = segyf.trace[trc][n0 : ns + 1]
             pb.update()
@@ -564,7 +564,7 @@ def _segy2d_ps_xr(
         volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
-        # this can probably be done as a block - leaving for now just incase sorting becomes an issue
+        # this can probably be done as a block - leaving for now just in case sorting becomes an issue
         for trc, val in head_df.iterrows():
             volume[int(val.cdp_index), :, int(val.off_index)] = segyf.trace[trc][
                 n0 : ns + 1
