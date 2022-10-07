@@ -39,13 +39,6 @@ def zgy_loader(filename):
             first_xline=xlstart,
         )
 
-        # load attributes
-        ds.attrs[AttrKeyField.corner_points_xy] = [c for c in corners]
-        ds.attrs[AttrKeyField.source_file] = str(filename)
-        ds.attrs[AttrKeyField.text] = "SEGY-SAK Created from ZGY Loader"
-        ds.attrs[AttrKeyField.ns] = data_shape[2]
-        ds.attrs[AttrKeyField.coord_scalar] = header["hunitfactor"]
-
         # load data
         data = np.zeros(data_shape, dtype=np.float32)
         reader.read((0, 0, 0), data)

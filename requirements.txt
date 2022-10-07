@@ -1,6 +1,6 @@
 numpy >= 1.10
 pandas >= 0.25
-xarray >= 0.12
+xarray >= 0.18
 dask >= 2.17
 distributed >= 2.17
 toolz
@@ -24,3 +24,4 @@ pyshp
 matplotlib
 more-itertools
 wellpathpy
+pyzgy
