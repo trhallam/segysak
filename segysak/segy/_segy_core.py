@@ -4,7 +4,7 @@ import importlib
 try:
     has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
     if has_ipywidgets:
-        from tqdm.autonotebook import tqdm
+        from tqdm.auto import tqdm
     else:
         from tqdm import tqdm as tqdm
 except ModuleNotFoundError:
