@@ -88,7 +88,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: "3.10"
           #cache: 'pip'
 
       - name: Install dependencies and pacakge
@@ -109,7 +109,7 @@ jobs:
 
       - name: Artifact Upload
         if: success()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: example-notebooks-${{ github.sha }}
           path: examples/notebooks
