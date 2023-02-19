@@ -6,15 +6,16 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.9.1
+#       jupytext_version: 1.14.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
 
+# %%
 
-# %% [markdown] jupyter={"source_hidden": true}
+# %% [markdown]
 # # SEG-Y to Vector DataFrames and Back
 #
 # The connection of segysak to `xarray` greatly simplifies the process of vectorising segy 3D data and returning it to SEGY. To do this, one can use the close relationship between `pandas` and `xarray`.
@@ -80,5 +81,5 @@ volve_3d_ds
 # %% [markdown]
 # Afterwards, use the `segy_writer` utility as normal to return to SEGY.
 
-# %%
+# %% tags=[]
 segy_writer(volve_3d_ds, "test.segy")

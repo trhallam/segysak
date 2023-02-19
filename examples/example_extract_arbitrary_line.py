@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.1
+#       jupytext_version: 1.14.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -239,7 +239,7 @@ f12_dev_pos.to_wellhead(
     435050.21,
     inplace=True,
 )
-f12_dev_pos.loc_to_tvdss(
+f12_dev_pos.to_tvdss(
     54.9,
     inplace=True,
 )
@@ -288,6 +288,8 @@ twt.plot(color="k", ax=axs)
 # %% [markdown]
 # To extract the data along the well path we just need to interpolate using the additional `twt` DataArray.
 
-# %%
+# %% tags=[]
 well_seismic = volve_3d.interp(**f12_dev_ilxl, twt=twt)
 well_seismic.data.plot()
+
+# %%

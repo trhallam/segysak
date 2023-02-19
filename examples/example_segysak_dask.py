@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.9.1
+#       jupytext_version: 1.14.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -98,7 +98,7 @@ mean.compute().values
 #
 # The lazy loading of data means we can plot what we want using `xarray` style slicing and `dask` will fetch only the data we need.
 
-# %%
+# %% tags=[]
 fig, axs = plt.subplots(nrows=2, ncols=3, figsize=(20, 10))
 
 iline = seisnc.sel(iline=10100).transpose("twt", "xline").data
