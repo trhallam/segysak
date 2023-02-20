@@ -53,9 +53,11 @@ def test_get_segy_texthead(temp_dir, temp_segy):
     ebcidc = get_segy_texthead(temp_segy)
     ebcidc = get_segy_texthead(temp_segy, no_richstr=True)
 
+    without_newlines = ebcidc.replace("\n", "")
+
     assert isinstance(ebcidc, str)
-    assert len(ebcidc) < 3200
-    assert ebcidc[:3] == "C01"
+    assert len(without_newlines) <= 3200
+    assert ebcidc[:3] == "C 1"
 
 
 def test_get_segy_texthead_odd(temp_dir, segy_with_nonascii_text):

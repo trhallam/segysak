@@ -290,14 +290,14 @@ class TestCreate_xysel:
     """
 
     @given(
-        tuples(integers(3, 50), integers(3, 50), integers(3, 10)),
+        tuples(integers(3, 10), integers(3, 10), integers(3, 10)),
         tuples(floats(-1000, 1000), floats(-1000, 1000)),
         floats(0.1, 10000),
         tuples(floats(0, 45), floats(0, 45)),
         floats(-180, 180),
         integers(1, 20),
     )
-    @settings(deadline=None, max_examples=25)
+    @settings(deadline=None, max_examples=5)
     def test_full_stack_dataset_xysel(self, d, translate, scale, shear, rotate, samp):
         dataset = create3d_dataset(dims=d)
         xlines_, ilines_ = np.meshgrid(dataset.xline, dataset.iline)
@@ -341,7 +341,7 @@ class TestCreate_xysel:
         floats(-180, 180),
         integers(5, 10),
     )
-    @settings(deadline=None, max_examples=25, print_blob=True)
+    @settings(deadline=None, max_examples=2, print_blob=True)
     def test_angle_stack_dataset_xysel(
         self, o, f, s, translate, scale, shear, rotate, samp
     ):

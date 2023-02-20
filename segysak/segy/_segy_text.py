@@ -1,4 +1,8 @@
 from warnings import warn
+import textwrap
+from functools import reduce
+from collections import defaultdict
+import operator
 import segyio
 from segysak._richstr import _upgrade_txt_richstr
 from segysak.tools import _get_userid, _get_datetime
@@ -67,45 +71,85 @@ def get_segy_texthead(segyfile, ext_headers=False, no_richstr=False, **segyio_kw
         return _upgrade_txt_richstr(text)
 
 
+def _process_string_texthead(string, n, nlines=40):
+    """New lines are preserved.
+    
+    Args:
+        string (str): The textheader as a string.
+        n (int): The number of allowable chars per line.
+
+    Returns:
+        list: The string broken into lines and pre-padded for line breaks.
+    """
+    txt = reduce(operator.add, [textwrap.wrap(s, width=n) for s in string.split('\n')], [])
+    txt = list(map(lambda x: x.strip().ljust(n), txt))
+    while len(txt) < nlines:
+        txt.append("".ljust(n))
+    return txt
+
+def _process_dict_texthead(strdict, n, nlines=40):
+    """Pads each str to n
+    
+    Args:
+        strdict (dict): The textheader as a dict with numeric keys for line numbers e.g. {1: 'line 1'}.
+        n (int): The number of allowable chars per line.
+        nlines
+
+    Returns:
+        list: The string broken into lines and pre-padded for line breaks.  
+    """
+    tdict = defaultdict(lambda: "")
+    tdict.update(strdict)
+    return [tdict[i].ljust(n) for i in range(1, nlines+1)]
+
+
 def put_segy_texthead(segyfile, ebcidc, line_counter=True, **segyio_kwargs):
-
+    """Puts a text header (ebcidc) into a segyfile.
+        
+    Args:
+        segyfile (str): The path to the file to update.
+        ebcidc (str, list, dict, bytes):
+           A standard string, new lines will be preserved.
+           A list or lines to add.
+           A dict with numeric keys for line numbers e.g. {1: 'line 1'}.
+           A pre-encoded byte header to add to the segyfile directly.
+        line_counter (bool, opt): Add a line counter with format "CXX " to the start of each line.
+            This reduces the maximum content per line to 76 chars.
+    """
     header = ""
-    if isinstance(ebcidc, dict):
-        for key in ebcidc:
-            if not isinstance(key, int):
-                warn(
-                    "ebcidc dict contains not integer keys that will be ignored",
-                    UserWarning,
-                )
-        for line in range(1, 41):
-            if line_counter:
-                lc = f"C{line:02d} "
-                n = 75
-                content = "{:<76}"
-            else:
-                lc = ""
-                n = 79
-                content = "{:<80}"
-            try:
-                test = ebcidc[line]
-                if len(test) > 75:
-                    warn(f"EBCIDC line {line} is too long - truncating", UserWarning)
-                header = header + lc + content.format(ebcidc[line][:n])
-            except KeyError:
-                # line not specified in dictionary
-                header = header + lc + " " * n
-        header = bytes(header, "utf8")
-    elif isinstance(ebcidc, bytes):
-        if len(ebcidc) > 3200:
-            warn("Byte EBCIDC is too large - truncating", UserWarning)
-        header = ebcidc[:3200]
-    elif isinstance(ebcidc, str):
-        if len(ebcidc) > 3200:
-            warn("String EBCIDC is too large - truncating", UserWarning)
-        header = bytes(ebcidc[:3200], "utf8")
-    else:
-        raise ValueError("Unknown ebcidc type expect bytes, str or dict")
+    n = 76 if line_counter else 80
 
+    if not isinstance(ebcidc, (str, list, dict, bytes)):
+        raise ValueError(f"Unknown type for ebcidc: {type(ebcidc)}")
+
+    if isinstance(ebcidc, dict):
+        lines = _process_dict_texthead(ebcidc, n)
+    elif isinstance(ebcidc, str):
+        lines = _process_string_texthead(ebcidc, n)
+    elif isinstance(ebcidc, list):
+        lines = ebcidc
+    else:
+        lines = []
+    
+    if not isinstance(ebcidc, bytes):
+        if line_counter:
+            lines = [f"C{i+1:2d} {line:s}" for i, line in enumerate(lines)]
+    
+        # check lengths
+        for i, line in enumerate(lines):
+            if len(line) > 80:
+                lines[i] = line[:80]
+                warn(f"EBCIDC line {line} is too long - truncating", UserWarning)
+        # convert to bytes
+        header = bytes("".join(lines), "utf8")
+    else:
+        header = ebcidc
+    
+    # check size
+    if len(header) > 3200:
+        warn("Byte EBCIDC is too large - truncating", UserWarning)
+        header = header[:3200]
+       
     segyio_kwargs["ignore_geometry"] = True
     with segyio.open(segyfile, "r+", **segyio_kwargs) as segyf:
         segyf.text[0] = header
