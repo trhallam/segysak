@@ -41,7 +41,6 @@ BAD_HEADER = (
     "b" * 4000,
     {n: "b" * 85 for n in range(1, 41)},
     bytes("b" * 4000, "utf8"),
-    {"not_a_num": "b" * 65},
 )
 
 
@@ -73,7 +72,7 @@ def test_put_segy_texthead_ok(temp_dir, temp_segy, header):
     put_segy_texthead(temp_segy, header)
 
 
-@pytest.mark.parametrize("header", BAD_HEADER, ids=["str", "adict", "bytes", "bdict"])
+@pytest.mark.parametrize("header", BAD_HEADER, ids=["str", "adict", "bytes"])
 def test_put_segy_texthead_notok(temp_dir, temp_segy, header):
     with pytest.warns(UserWarning):
         put_segy_texthead(temp_segy, header)

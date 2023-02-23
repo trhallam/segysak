@@ -128,7 +128,7 @@ def create_temp_segy(n, test_file, skew=False):
 
 
 @pytest.fixture(
-    scope="session",
+    scope="module",
     params=[
         (TEST_SEGY_SIZE, TEST_SEGY_REG, False),
         (TEST_SEGY_SIZE, TEST_SEGY_SKEW, True),
