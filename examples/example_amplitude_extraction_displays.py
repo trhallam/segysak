@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.9.1
+#       jupytext_version: 1.14.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -266,7 +266,7 @@ ax.invert_xaxis()
 # To get the horizon window extraction for sum of amplitudes we now need to sum along the time axis. Or
 # we can use the `np.apply_along_axis` function to apply a custom function to our masked cube.
 
-# %%
+# %% tags=[]
 summed_amp = masked_data.sum(dim="twt")
 
 f, ax = plt.subplots(figsize=(12, 4))

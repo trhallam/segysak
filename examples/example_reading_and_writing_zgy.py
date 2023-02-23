@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.1
+#       jupytext_version: 1.14.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -71,7 +71,7 @@ axs[1, 1].set_title("Loaded from ZGY: " + axs[1, 1].title.get_text())
 # %% [markdown]
 # Check that the global coordinates are the same.
 
-# %%
+# %% tags=[]
 fig, axs = plt.subplots(ncols=2, figsize=(15, 6))
 
 p1 = axs[0].pcolormesh(
@@ -97,3 +97,5 @@ p2 = axs[1].pcolormesh(
 )
 plt.colorbar(p1, ax=axs[1], label="Seismic Amplitude")
 axs[1].set_title("Loaded from ZGY")
+
+# %%

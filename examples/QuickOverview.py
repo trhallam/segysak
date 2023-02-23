@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.9.1
+#       jupytext_version: 1.14.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -132,7 +132,7 @@ V3D.seisio.to_netcdf("V3D.SEISNC")
 # To return data to SEG-Y after modification use the `segy_writer` function. `segy_writer` takes as argument a SEISNC dataset which
 # requires certain attributes be set. You can also specify the byte locations to write header information.
 
-# %%
+# %% tags=[]
 from segysak.segy import segy_writer
 
 segy_writer(

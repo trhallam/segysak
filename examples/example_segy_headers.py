@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.9.1
+#       jupytext_version: 1.14.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -87,7 +87,7 @@ plot = scrape.hist(bins=25, figsize=(20, 10))
 # %% [markdown]
 # We can also just plot up the geometry to check that everything looks ok, here the line numbering and coordinates seem to match up, great!
 
-# %%
+# %% tags=[]
 fig, axs = plt.subplots(nrows=2, figsize=(12, 10), sharex=True, sharey=True)
 
 scrape.plot(

@@ -6,9 +6,9 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.11.1
+#       jupytext_version: 1.14.4
 #   kernelspec:
-#     display_name: Python 3
+#     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
@@ -157,7 +157,7 @@ penobscot_3d_gath_muted.isel(iline=5, xline=0).data.plot(
 # %% [markdown]
 # Stacking is the process of averaging the gathers for constant time to create a single trace per inline and crossline location.
 
-# %%
+# %% tags=[] jupyter={"outputs_hidden": true}
 fig, axs = plt.subplots(ncols=3, figsize=(20, 10))
 
 plot_kwargs = dict(vmax=5000, interpolation="bicubic", yincrease=False)
@@ -174,3 +174,8 @@ penobscot_3d_gath.isel(iline=5).data.mean("offset").T.plot.imshow(
 penobscot_3d_gath_muted.isel(iline=5).data.mean("offset").T.plot.imshow(
     ax=axs[2], **plot_kwargs
 )
+
+# %% tags=[]
+# !pip list
+
+# %%
