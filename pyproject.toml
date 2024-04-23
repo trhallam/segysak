@@ -1,9 +1,80 @@
 [project]
 name = "segysak"
+dynamic = ["version"]
+authors = [
+    {name= "SEGY-SAK Developers", email= "segysak@gamil.com"}
+]
+description = "SEG-Y Seismic Data Inspection and Manipulation Tools using Xarray"
+readme = {file = "README.rst", content-type = "text/x-rst"}
+dependencies = [
+    "numpy>=1.20",
+    "pandas",
+    "matplotlib",
+    "segyio",
+    "xarray",
+    "dask",
+    "distributed",
+    "tqdm",
+    "scipy!=1.10.0",  # version introduced bug with interp
+    "click",
+    "pyzgy",
+    "h5netcdf",
+    "addict",
+    "more-itertools>=8.0",
+]
+requires-python = ">=3.8"
+license = {file = "LICENSE"}
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering"
+]
+
+[project.urls]
+Repository = "https://github.com/trhallam/segysak"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pylint",
+    "hypothesis",
+    "affine",
+]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinxcontrib-programoutput",
+    "nbsphinx>=0.7",
+    "pandoc",
+    "nbconvert!=5.4",
+    "nbformat",
+    "sphinx-copybutton",
+    "rtds-action",
+    "jupytext",
+    "pyvista",
+    "jupyterlab",
+    "wellpathpy",
+    "pyshp",
+]
+
+[project.scripts]
+segysak = "segysak._cli:cli"
+
+# [project.entry-points."xarray-backends"]
 
 [build-system]
 requires = ["setuptools", "wheel", "setuptools_scm>=6.2"]
 
+[tool.setuptools]
+packages = ["segysak"]
+
 [tool.setuptools_scm]
 write_to = "segysak/_version.py"
 local_scheme = "no-local-version"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
