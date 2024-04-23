@@ -2,7 +2,6 @@ import pytest
 import pathlib
 
 from .fixtures_segy import *
-from .fixtures_zgy import *
 from .fixtures_seisnc import *
 from .fixtures_data import *
 
