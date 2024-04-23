@@ -1,5 +1,4 @@
 import pytest
-from pytest_cases import fixture_ref, parametrize
 
 from .fixtures_seisnc import *
 
@@ -81,7 +80,7 @@ def test_put_segy_texthead_notok(temp_dir, temp_segy, header):
 def test_segy_header_scan(temp_dir, temp_segy):
     head = segy_header_scan(temp_segy)
     scanned = head.nscan
-    assert scanned == TEST_SEGY_SIZE ** 2
+    assert scanned == TEST_SEGY_SIZE**2
     # assert isinstance(head, dict) now a dataframe
     head = segy_header_scan(temp_segy, max_traces_scan=TEST_SEGY_SIZE, silent=True)
     scanned = head.nscan
@@ -95,10 +94,10 @@ def test_segy_header_scan(temp_dir, temp_segy):
 def test_segy_header_scan_all(temp_dir, temp_segy):
     _ = segy_header_scan(temp_segy, max_traces_scan=0, silent=True)
     scanned = _.nscan
-    assert scanned == TEST_SEGY_SIZE ** 2
+    assert scanned == TEST_SEGY_SIZE**2
     _ = segy_header_scan(temp_segy, max_traces_scan="all", silent=True)
     scanned = _.nscan
-    assert scanned == TEST_SEGY_SIZE ** 2
+    assert scanned == TEST_SEGY_SIZE**2
 
 
 def test_segy_bin_scrape(temp_dir, temp_segy):
@@ -108,7 +107,7 @@ def test_segy_bin_scrape(temp_dir, temp_segy):
 def test_segy_header_scrape(temp_dir, temp_segy):
     header = segy_header_scrape(temp_segy, silent=True)
     assert isinstance(header, pd.DataFrame)
-    assert header.shape == (TEST_SEGY_SIZE ** 2, 89)
+    assert header.shape == (TEST_SEGY_SIZE**2, 89)
 
 
 # def test_segy2ncdf_3D(temp_dir, temp_segy):
@@ -286,17 +285,17 @@ def test_segyiotests_ps_writer_from_ds(temp_dir, segyio3dps_test_files):
 #     ids=["2d", "2dgath", "3d", "3d_depth", "3d_gath", "3d_twt"],
 # )
 # def test_seisnc_return(temp_dir, empty):
-    # dims = list(empty.dims)
-    # shp = [empty.dims[d] for d in dims]
-    # domain = empty.d3_domain
-    # empty["data"] = (dims, np.zeros(shp))
+# dims = list(empty.dims)
+# shp = [empty.dims[d] for d in dims]
+# domain = empty.d3_domain
+# empty["data"] = (dims, np.zeros(shp))
 
-    # if "offset" in empty:
-    #     empty["offset"] = empty["offset"].astype(np.int32)
+# if "offset" in empty:
+#     empty["offset"] = empty["offset"].astype(np.int32)
 
-    # segy_writer(empty, temp_dir / "temp_empty.segy")
-    # back = segy_loader(temp_dir / "temp_empty.segy", vert_domain=domain)
-    # assert empty == back
+# segy_writer(empty, temp_dir / "temp_empty.segy")
+# back = segy_loader(temp_dir / "temp_empty.segy", vert_domain=domain)
+# assert empty == back
 
 
 if __name__ == "__main__":
