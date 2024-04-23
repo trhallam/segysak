@@ -27,10 +27,29 @@ def test_no_input_file():
         cli()
 
 
-@pytest.mark.parametrize("cmd", ["scan", "ebcidc", "convert", "scrape"])
-def test_all_subcommands(temp_segy, cmd):
+@pytest.mark.parametrize("cmd", ("scan", "ebcidc", "scrape"))
+def test_no_output_subcommands(temp_segy, cmd):
     runner = CliRunner()
     result = runner.invoke(cli, [cmd, str(temp_segy)])
+    print(dir(result))
+    print(result.stdout)
+    print(result.output)
+    print(result.exception)
+
+    assert result.exit_code == 0
+
+
+def test_converter(temp_segy):
+    runner = CliRunner()
+    result = runner.invoke(
+        cli,
+        [
+            "convert",
+            "--output-file",
+            str(temp_segy.with_suffix(".seisnc")),
+            str(temp_segy),
+        ],
+    )
     print(dir(result))
     print(result.stdout)
     print(result.output)
