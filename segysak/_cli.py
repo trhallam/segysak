@@ -8,7 +8,7 @@ import click
 from tqdm import tqdm
 
 try:
-    from .version import version as VERSION
+    from ._version import version as VERSION
 except ImportError:
     VERSION = None
 
