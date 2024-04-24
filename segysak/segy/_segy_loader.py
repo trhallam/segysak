@@ -36,7 +36,6 @@ from segysak._seismic_dataset import (
 # from segysak.seisnc import create_empty_seisnc, set_seisnc_dims
 from segysak.tools import check_crop, check_zcrop
 from segysak._accessor import open_seisnc
-from segysak._core import FrozenDict
 
 from ._segy_headers import (
     segy_bin_scrape,
