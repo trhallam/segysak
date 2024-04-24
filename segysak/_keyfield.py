@@ -3,7 +3,6 @@
 
 from typing import Tuple
 from dataclasses import dataclass
-from ._core import FrozenDict
 
 
 class MetaDataClass:
