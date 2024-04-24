@@ -1,3 +1,4 @@
+from typing import Dict
 import numpy as np
 import pandas as pd
 import segyio
@@ -13,21 +14,23 @@ from ._segy_core import (
 TQDM_ARGS = dict(unit_scale=True, unit=" traces")
 
 
-def segy_header_scan(segyfile, max_traces_scan=1000, silent=False, **segyio_kwargs):
+def segy_header_scan(
+    segyfile: str, max_traces_scan: int = 1000, silent: bool = False, **segyio_kwargs
+):
     """Perform a scan of the segy file headers and return ranges.
 
-    To get the raw header information see segy_header_scrape
+    To get the complete raw header values see `segy_header_scrape`
 
     Args:
-        segyfile (string): Segy File Path
-        max_traces_scan (int/str, optional): Number of traces to scan.
-            For all set to 0 or 'all'. Defaults to 1000.
-        silent (bool): Disable progress bar.
+        segyfile: Segy File Path
+        max_traces_scan: Number of traces to scan.
+            For scan all traces set to <= 0. Defaults to 1000.
+        silent: Disable progress bar.
 
     Returns:
         pandas.DataFrame: Uses pandas describe to return statistics of your headers.
     """
-    if max_traces_scan == 0 or max_traces_scan == "all":
+    if max_traces_scan <= 0:
         max_traces_scan = None
     else:
         if not isinstance(max_traces_scan, int):
@@ -185,7 +188,7 @@ def what_geometry_am_i(head_df):
     # sanity check number
     if nof * n != ntraces:
         raise ValueError(
-            f"Couldn't determin geometry set byte locations manually. \n {print(stats)}"
+            f"SEGYSAK couldn't determine geometry set byte locations manually. \n {print(stats)}"
         )
 
     # print(has_offsets)

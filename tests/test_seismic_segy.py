@@ -95,7 +95,7 @@ def test_segy_header_scan_all(temp_dir, temp_segy):
     _ = segy_header_scan(temp_segy, max_traces_scan=0, silent=True)
     scanned = _.nscan
     assert scanned == TEST_SEGY_SIZE**2
-    _ = segy_header_scan(temp_segy, max_traces_scan="all", silent=True)
+    _ = segy_header_scan(temp_segy, max_traces_scan=-1, silent=True)
     scanned = _.nscan
     assert scanned == TEST_SEGY_SIZE**2
 
