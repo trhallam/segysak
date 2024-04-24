@@ -28,7 +28,7 @@ the bins of 3D data. Vertical dimensions are ``twt`` and ``depth``. A typical
 .. code-block:: python
 
    >>> seisnc_3d = segysak.segy_loader('test3d.sgy', iline=189, xline=193)
-   >>> seisnc_3d.dims
+   >>> seisnc_3d.sizes
 
    Frozen(SortedKeysDict({'iline': 61, 'xline': 202, 'twt': 850}))
 
@@ -44,14 +44,14 @@ A typical ``xarray`` in 2D format would return
 .. code-block:: python
 
    >>> seisnc_2d = segysak.segy_loader('test2d.sgy', cdp=21)
-   >>> seisnc_2d.dims
+   >>> seisnc_2d.sizes
 
    Frozen(SortedKeysDict({'cdp': 61, 'twt': 850}))
 
 Coordinates
 ^^^^^^^^^^^^
 
-If the ``cdpx`` and ``cdpy`` byte locations are specified during loading the
+If the ``cdp_x`` and ``cdp_y`` byte locations are specified during loading the
 SEG-Y the coordinates will be populated from the headers with the variable names
 ``cdp_x`` and ``cdp_y``. These will have dimensions equivalent to the horizontal
 dimensions of the data (``iline``, ``xline`` for 3D and ``cdp`` for 2D).

@@ -60,7 +60,7 @@ client
 segy_file = "data/volve10r12-full-twt-sub3d.sgy"
 seisnc_file = "data/volve10r12-full-twt-sub3d.seisnc"
 segy.segy_converter(
-    segy_file, seisnc_file, iline=189, xline=193, cdpx=181, cdpy=185, silent=True
+    segy_file, seisnc_file, iline=189, xline=193, cdp_x=181, cdp_y=185, silent=True
 )
 
 # %% [markdown]

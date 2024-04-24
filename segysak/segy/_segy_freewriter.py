@@ -28,7 +28,7 @@ def _chunk_iterator(ds):
         }
 
     else:
-        ranges = {dim: [tuple(ds[dim].values)] for dim in ds.dims}
+        ranges = {dim: [tuple(ds[dim].values)] for dim in ds.sizes}
     lens = {key: len(val) for key, val in ranges.items()}
     order = tuple(ranges.keys())
     ranges = tuple(ranges.values())

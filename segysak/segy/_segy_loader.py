@@ -1,33 +1,25 @@
 # pylint: disable=invalid-name, unused-variable
 """Functions to interact with segy data
 """
-
 import pathlib
-from numpy.core.fromnumeric import trace
-
-import segyio
 
 # import netCDF
 import h5netcdf
+import segyio
 
 # from attrdict import AttrDict
 from addict import Dict
 import numpy as np
 import xarray as xr
 
+from .._keyfield import CoordKeyField
 from ._segy_core import tqdm, check_tracefield
+from ._segy_knownbytes import KNOWN_BYTES
+
 
 TQDM_ARGS = dict(unit_scale=True, unit=" traces")
 PERCENTILES = [0, 0.1, 10, 50, 90, 99.9, 100]
 
-KNOWN_BYTES = dict(
-    standard_3d=dict(iline=181, xline=185, cdpx=189, cdpy=193),
-    standard_3d_gath=dict(iline=181, xline=185, cdpx=189, cdpy=193, offset=37),
-    standard_2d=dict(cdp=21, cdpx=189, cdpy=193),
-    standard_2d_gath=dict(cdp=21, cdpx=189, cdpy=193, offset=37),
-    petrel_3d=dict(iline=5, xline=21, cdpx=73, cdpy=77),
-    petrel_2d=dict(cdp=21, cdpx=73, cdpy=77),
-)
 
 from segysak._keyfield import (
     CoordKeyField,
@@ -45,8 +37,6 @@ from segysak._seismic_dataset import (
 from segysak.tools import check_crop, check_zcrop
 from segysak._accessor import open_seisnc
 from segysak._core import FrozenDict
-
-KNOWN_BYTES = FrozenDict(KNOWN_BYTES)
 
 from ._segy_headers import (
     segy_bin_scrape,
@@ -259,7 +249,7 @@ def _segy3d_xr(
         pb = tqdm(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
-        shape = [ds.dims[d] for d in dims]
+        shape = [ds.sizes[d] for d in dims]
         volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
@@ -320,15 +310,15 @@ def _segy3dps_xr(
         pb = tqdm(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
-        shape = [ds.dims[d] for d in dims]
+        shape = [ds.sizes[d] for d in dims]
         volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
         for contig, grp in head_df.groupby(contig_dir):
             for trc, val in grp.iterrows():
-                volume[
-                    int(val.il_index), int(val.xl_index), :, int(val.off_index)
-                ] = segyf.trace[trc][n0 : ns + 1]
+                volume[int(val.il_index), int(val.xl_index), :, int(val.off_index)] = (
+                    segyf.trace[trc][n0 : ns + 1]
+                )
                 percentiles = (
                     np.percentile(segyf.trace[trc][n0 : ns + 1], PERCENTILES)
                     + percentiles
@@ -511,7 +501,7 @@ def _segy2d_xr(
         pb = tqdm(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
-        shape = [ds.dims[d] for d in dims]
+        shape = [ds.sizes[d] for d in dims]
         volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
@@ -560,7 +550,7 @@ def _segy2d_ps_xr(
         pb = tqdm(
             total=segyf.tracecount, desc="Converting SEGY", disable=silent, **TQDM_ARGS
         )
-        shape = [ds.dims[d] for d in dims]
+        shape = [ds.sizes[d] for d in dims]
         volume = np.zeros(shape, dtype=np.float32)
         percentiles = np.zeros_like(PERCENTILES)
 
@@ -756,8 +746,8 @@ def _loader_converter_header_handling(
     cdp=None,
     iline=None,
     xline=None,
-    cdpx=None,
-    cdpy=None,
+    cdp_x=None,
+    cdp_y=None,
     offset=None,
     vert_domain="TWT",
     data_type="AMP",
@@ -775,7 +765,7 @@ def _loader_converter_header_handling(
 
     if optimised_load:
         scrape_bytes = [
-            val for val in [cdp, iline, xline, cdpx, cdpy, offset] if val is not None
+            val for val in [cdp, iline, xline, cdp_x, cdp_y, offset] if val is not None
         ]
         scrape_bytes += list(extra_byte_fields.values())
         scrape_bytes += [
@@ -793,7 +783,7 @@ def _loader_converter_header_handling(
 
     head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
     head_loc = Dict(
-        dict(cdp=cdp, offset=offset, iline=iline, xline=xline, cdpx=cdpx, cdpy=cdpy)
+        dict(cdp=cdp, offset=offset, iline=iline, xline=xline, cdp_x=cdp_x, cdp_y=cdp_y)
     )
 
     if all(map(lambda x: x is None, (cdp, iline, xline, offset))):
@@ -811,17 +801,17 @@ def _loader_converter_header_handling(
         }
     )
 
-    if all(v is not None for v in (head_loc.cdpx, head_loc.cdpy)):
-        extra_byte_fields[CoordKeyField.cdp_x] = head_loc.cdpx
-        extra_byte_fields[CoordKeyField.cdp_y] = head_loc.cdpy
+    if all(v is not None for v in (head_loc.cdp_x, head_loc.cdp_y)):
+        extra_byte_fields[CoordKeyField.cdp_x] = head_loc.cdp_x
+        extra_byte_fields[CoordKeyField.cdp_y] = head_loc.cdp_y
 
         # Scale Coordinates
         coord_scalar = head_df.SourceGroupScalar.median()
         coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar))
-        head_df[head_loc.cdpx] = head_df[head_loc.cdpx].astype(np.float32)
-        head_df[head_loc.cdpy] = head_df[head_loc.cdpy].astype(np.float32)
-        head_df[head_loc.cdpx] = head_df[head_loc.cdpx] * coord_scalar_mult * 1.0
-        head_df[head_loc.cdpy] = head_df[head_loc.cdpy] * coord_scalar_mult * 1.0
+        head_df[head_loc.cdp_x] = head_df[head_loc.cdp_x].astype(np.float32)
+        head_df[head_loc.cdp_y] = head_df[head_loc.cdp_y].astype(np.float32)
+        head_df[head_loc.cdp_x] = head_df[head_loc.cdp_x] * coord_scalar_mult * 1.0
+        head_df[head_loc.cdp_y] = head_df[head_loc.cdp_y] * coord_scalar_mult * 1.0
 
     # TODO: might need to scale offsets as well? This isn't available in segy standard
 
@@ -860,18 +850,18 @@ def _loader_converter_header_handling(
         x_min, x_max, y_min, y_max = check_crop(
             xy_crop,
             [
-                head_df[head_loc.cdpx].min(),
-                head_df[head_loc.cdpx].max(),
-                head_df[head_loc.cdpy].min(),
-                head_df[head_loc.cdpy].max(),
+                head_df[head_loc.cdp_x].min(),
+                head_df[head_loc.cdp_x].max(),
+                head_df[head_loc.cdp_y].min(),
+                head_df[head_loc.cdp_y].max(),
             ],
         )
         query = " & ".join(
             [
-                f"{head_loc.cdpx} >= @x_min",
-                f"{head_loc.cdpx} <= @x_max",
-                f"{head_loc.cdpy} >= @y_min",
-                f"{head_loc.cdpy} <= @y_max",
+                f"{head_loc.cdp_x} >= @x_min",
+                f"{head_loc.cdp_x} <= @x_max",
+                f"{head_loc.cdp_y} >= @y_min",
+                f"{head_loc.cdp_y} <= @y_max",
             ]
         )
         head_df = head_df.query(query).copy(deep=True)
@@ -1018,7 +1008,7 @@ def segy_freeloader(
     with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
 
         segyf.mmap()
-        shape = [ds.dims[d] for d in dim_kwargs] + [vert_samples.size]
+        shape = [ds.sizes[d] for d in dim_kwargs] + [vert_samples.size]
         volume = np.zeros(shape, dtype=np.float32)
 
         # this can probably be done as a block - leaving for now just incase sorting becomes an issue
@@ -1040,8 +1030,8 @@ def segy_loader(
     cdp=None,
     iline=None,
     xline=None,
-    cdpx=None,
-    cdpy=None,
+    cdp_x=None,
+    cdp_y=None,
     offset=None,
     vert_domain="TWT",
     data_type="AMP",
@@ -1086,8 +1076,8 @@ def segy_loader(
         cdp (int, optional): The CDP byte location, usually 21.
         iline (int, optional): Inline byte location, usually 189
         xline (int, optional): Cross-line byte location, usually 193
-        cdpx (int, optional): UTMX byte location, usually 181
-        cdpy (int, optional): UTMY byte location, usually 185
+        cdp_x (int, optional): UTMX byte location, usually 181
+        cdp_y (int, optional): UTMY byte location, usually 185
         offset (int, optional): Offset/angle byte location
         vert_domain (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
         data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
@@ -1119,8 +1109,8 @@ def segy_loader(
         cdp=cdp,
         iline=iline,
         xline=xline,
-        cdpx=cdpx,
-        cdpy=cdpy,
+        cdp_x=cdp_x,
+        cdp_y=cdp_y,
         offset=offset,
         vert_domain=vert_domain,
         data_type=data_type,
@@ -1136,7 +1126,9 @@ def segy_loader(
     )
 
     byte_loc = [
-        bytel for bytel in [cdp, iline, xline, cdpx, cdpy, offset] if bytel is not None
+        bytel
+        for bytel in [cdp, iline, xline, cdp_x, cdp_y, offset]
+        if bytel is not None
     ]
     check_tracefield(byte_loc)
 
@@ -1201,8 +1193,8 @@ def segy_converter(
     cdp=None,
     iline=None,
     xline=None,
-    cdpx=None,
-    cdpy=None,
+    cdp_x=None,
+    cdp_y=None,
     offset=None,
     vert_domain="TWT",
     data_type="AMP",
@@ -1248,8 +1240,8 @@ def segy_converter(
         cdp (int, optional): The CDP byte location, usually 21.
         iline (int, optional): Inline byte location, usually 189
         xline (int, optional): Cross-line byte location, usually 193
-        cdpx (int, optional): UTMX byte location, usually 181
-        cdpy (int, optional): UTMY byte location, usually 185
+        cdp_x (int, optional): UTMX byte location, usually 181
+        cdp_y (int, optional): UTMY byte location, usually 185
         offset (int, optional): Offset/angle byte location
         vert_domain (str, optional): Vertical sampling domain. One of ['TWT', 'DEPTH']. Defaults to 'TWT'.
         data_type (str, optional): Data type ['AMP', 'VEL']. Defaults to 'AMP'.
@@ -1271,7 +1263,9 @@ def segy_converter(
     # Input sanity checks
     extra_byte_fields = _loader_converter_checks(cdp, iline, xline, extra_byte_fields)
     byte_loc = [
-        bytel for bytel in [cdp, iline, xline, cdpx, cdpy, offset] if bytel is not None
+        bytel
+        for bytel in [cdp, iline, xline, cdp_x, cdp_y, offset]
+        if bytel is not None
     ]
     check_tracefield(byte_loc)
 
@@ -1280,8 +1274,8 @@ def segy_converter(
         cdp=cdp,
         iline=iline,
         xline=xline,
-        cdpx=cdpx,
-        cdpy=cdpy,
+        cdp_x=cdp_x,
+        cdp_y=cdp_y,
         offset=offset,
         vert_domain=vert_domain,
         data_type=data_type,
@@ -1353,7 +1347,7 @@ def segy_converter(
 
     with h5netcdf.File(ncfile, "a") as seisnc:
         for var, darray in new_vars.items():
-            seisnc_var = seisnc.create_variable(var, darray.dims, darray.dtype)
+            seisnc_var = seisnc.create_variable(var, darray.sizes, darray.dtype)
             seisnc_var[...] = darray[...]
             seisnc.flush()
 

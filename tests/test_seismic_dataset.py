@@ -20,6 +20,9 @@ from segysak._seismic_dataset import (
 from segysak._keyfield import VerticalUnits, VerticalKeyField
 
 
+VERTICAL_UNITS = ("ms", "s", "cm", "m", "km", "ft")
+
+
 class TestCheckers:
     """
     Test data checking utilities
@@ -39,24 +42,24 @@ class TestCheckers:
         with pytest.raises(ValueError):
             _check_input([[0, 0]])
 
-    @pytest.mark.parametrize("u", list(VerticalUnits))
+    @pytest.mark.parametrize("u", VERTICAL_UNITS)
     def test_vertical_units_pass_checking(self, u):
         assert _check_vert_units(u) == u
 
     @given(text())
     def test_illegal_vertical_units_raise_errors(self, t):
-        assume(t not in list(VerticalUnits))
+        assume(t not in VERTICAL_UNITS)
         with pytest.raises(ValueError):
             _check_vert_units(t)
 
-    @pytest.mark.parametrize("p", list(VerticalKeyField.values()))
+    @pytest.mark.parametrize("p", ["TWT", "DEPTH"])
     def test_domains_pass_checking(self, p):
         _, domain = _dataset_coordinate_helper(None, p)
         assert p == domain
 
     @given(text())
     def test_illegal_domain_raise_errors(self, t):
-        assume(t not in list(VerticalKeyField.values()))
+        assume(t not in ["TWT", "DEPTH"])
         with pytest.raises(ValueError):
             _dataset_coordinate_helper(None, t)
 
@@ -71,8 +74,8 @@ class TestCreateSeismicDataset:
         dataset = create_seismic_dataset(
             twt=s, depth=None, cdp=t, iline=None, xline=None, offset=None
         )
-        assert len(dataset.dims) == 2
-        assert dataset.dims["twt"] == s
+        assert len(dataset.sizes) == 2
+        assert dataset.sizes["twt"] == s
 
     @given(integers(0, 45))
     @settings(max_examples=10)
@@ -80,15 +83,15 @@ class TestCreateSeismicDataset:
         dataset = create_seismic_dataset(
             twt=100, depth=None, cdp=1000, iline=None, xline=None, offset=o
         )
-        assert len(dataset.dims) == 3
+        assert len(dataset.sizes) == 3
 
     @given(integers(0, 10000), integers(0, 100000), integers(0, 100000))
     def test_create_3D_seismic_dataset_with_integers(self, s, i, x):
         dataset = create_seismic_dataset(
             twt=None, depth=s, cdp=None, iline=i, xline=x, offset=None
         )
-        assert len(dataset.dims) == 3
-        assert dataset.dims["depth"] == s
+        assert len(dataset.sizes) == 3
+        assert dataset.sizes["depth"] == s
 
     @given(
         arrays(float, shape=integers(0, 10000), elements=floats(-1000, 1000)),
@@ -98,8 +101,8 @@ class TestCreateSeismicDataset:
         dataset = create_seismic_dataset(
             twt=a, depth=None, cdp=t, iline=None, xline=None, offset=None
         )
-        assert len(dataset.dims) == 2
-        assert dataset.dims["twt"] == len(a)
+        assert len(dataset.sizes) == 2
+        assert dataset.sizes["twt"] == len(a)
 
     @given(integers(0, 100))
     @settings(max_examples=10)
@@ -108,7 +111,7 @@ class TestCreateSeismicDataset:
         dataset = create_seismic_dataset(
             twt=100, depth=None, cdp=1000, iline=None, xline=None, offset=None, **dims
         )
-        assert len(dataset.dims) == d + 2
+        assert len(dataset.sizes) == d + 2
 
     def test_mutally_not_allowed_arguments(self):
         with pytest.raises(ValueError):
@@ -166,7 +169,7 @@ class TestCreate3DDataset:
 
     @given(
         tuples(integers(1, 10000), integers(1, 10000), integers(0, 1000)),
-        sampled_from(list(VerticalUnits)),
+        sampled_from(VERTICAL_UNITS),
     )
     def test_create_full_stack_dataset(self, d, u):
         dataset = create3d_dataset(dims=d, vert_units=u)
@@ -184,4 +187,4 @@ class TestCreate3DDataset:
             (1000, 1000, 100, o), first_offset=f, offset_step=s, vert_domain=d
         )
         assert dataset.d3_domain == d.upper()
-        assert len(dataset.dims) == 4
+        assert len(dataset.sizes) == 4

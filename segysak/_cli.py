@@ -201,8 +201,8 @@ def scrape(filename, ebcidc=False, trace_headers=False):
 @click.option(
     "--xline", "-xl", type=click.INT, default=193, help="Crossline byte location"
 )
-@click.option("--cdpx", "-x", type=click.INT, default=181, help="CDP X byte location")
-@click.option("--cdpy", "-y", type=click.INT, default=185, help="CDP Y byte location")
+@click.option("--cdp-x", "-x", type=click.INT, default=181, help="CDP X byte location")
+@click.option("--cdp-y", "-y", type=click.INT, default=185, help="CDP Y byte location")
 @click.option(
     "--crop",
     type=click.INT,
@@ -224,7 +224,7 @@ def scrape(filename, ebcidc=False, trace_headers=False):
     help="Data dimension (domain) to write out, will default to TWT or DEPTH. Only used for writing to SEG-Y.",
 )
 def convert(
-    output_file, input_files, iline, xline, cdpx, cdpy, crop, output_type, dimension
+    output_file, input_files, iline, xline, cdp_x, cdp_y, crop, output_type, dimension
 ):
 
     if len(input_files) > 1 and output_file is not None:
@@ -269,8 +269,8 @@ def convert(
                 iline=iline,
                 xline=xline,
                 ix_crop=crop_loc,
-                cdpx=cdpx,
-                cdpy=cdpy,
+                cdp_x=cdp_x,
+                cdp_y=cdp_y,
             )
             click.echo(f"Converted file saved as {output_file_loc}")
             LOGGER.info(f"NetCDF output written to {output_file_loc}")
@@ -280,8 +280,8 @@ def convert(
             else:
                 output_file_loc = output_file
 
-            cdp_x = cdpx
-            cdp_y = cdpy
+            cdp_x = cdp_x
+            cdp_y = cdp_y
             vars = locals()
 
             trace_header_map = {

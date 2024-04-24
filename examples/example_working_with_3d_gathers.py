@@ -40,7 +40,7 @@ with pd.option_context("display.max_rows", 100):
 
 # %%
 penobscot_3d_gath = segy_loader(
-    segy_file, iline=189, xline=193, cdpx=181, cdpy=185, offset=37
+    segy_file, iline=189, xline=193, cdp_x=181, cdp_y=185, offset=37
 )
 
 # %% [markdown]

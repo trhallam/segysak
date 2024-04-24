@@ -59,15 +59,19 @@ def ncdf2segy(
                 dimension = "depth"
             else:
                 raise RuntimeError(
-                    f"twt and depth dimensions missing, please specify a dimension to convert: {seisnc.dims}"
+                    f"twt and depth dimensions missing, please specify a dimension to convert: {seisnc.sizes}"
                 )
-        elif dimension not in seisnc.dims:
+        elif dimension not in seisnc.sizes:
             raise RuntimeError(
-                f"Requested output dimension not found in the dataset: {seisnc.dims}"
+                f"Requested output dimension not found in the dataset: {seisnc.sizes}"
             )
 
         z0 = int(seisnc[dimension].values[0])
-        ni, nj, nk = seisnc.dims["iline"], seisnc.dims["xline"], seisnc.dims[dimension]
+        ni, nj, nk = (
+            seisnc.sizes["iline"],
+            seisnc.sizes["xline"],
+            seisnc.sizes[dimension],
+        )
         msys = _ISEGY_MEASUREMENT_SYSTEM[seisnc.seis.get_measurement_system()]
         spec = segyio.spec()
 
@@ -104,13 +108,13 @@ def ncdf2segy(
                             segyio.su.offset: 1,
                             iline: il_val[il],
                             xline: xln,
-                            segyio.su.cdpx: int(cdpx * coord_scalar_mult),
-                            segyio.su.cdpy: int(cdpy * coord_scalar_mult),
+                            segyio.su.cdpx: int(cdp_x * coord_scalar_mult),
+                            segyio.su.cdpy: int(cdp_y * coord_scalar_mult),
                             segyio.su.ns: nk,
                             segyio.su.delrt: z0,
                             segyio.su.scalco: int(coord_scalar),
                         }
-                        for xln, cdpx, cdpy in zip(
+                        for xln, cdp_x, cdp_y in zip(
                             xl_val, data.cdp_x.values[i, :], data.cdp_y.values[i, :]
                         )
                     ]
@@ -191,11 +195,11 @@ def _check_dimension(seisnc, dimension):
             dimension = "depth"
         else:
             raise RuntimeError(
-                f"twt and depth dimensions missing, please specify a dimension to convert: {seisnc.dims}"
+                f"twt and depth dimensions missing, please specify a dimension to convert: {seisnc.sizes}"
             )
-    elif dimension not in seisnc.dims:
+    elif dimension not in seisnc.sizes:
         raise RuntimeError(
-            f"Requested output dimension not found in the dataset: {seisnc.dims}"
+            f"Requested output dimension not found in the dataset: {seisnc.sizes}"
         )
 
     return dimension
@@ -279,9 +283,9 @@ def _ncdf2segy_3d(
 
     z0 = int(ds[dimension].values[0])
     ni, nj, nk = (
-        ds.dims[CoordKeyField.iline],
-        ds.dims[CoordKeyField.xline],
-        ds.dims[dimension],
+        ds.sizes[CoordKeyField.iline],
+        ds.sizes[CoordKeyField.xline],
+        ds.sizes[dimension],
     )
     order = (CoordKeyField.iline, CoordKeyField.xline)
     msys = _ISEGY_MEASUREMENT_SYSTEM[ds.seis.get_measurement_system()]
@@ -397,10 +401,10 @@ def _ncdf2segy_3dgath(
 
     z0 = int(ds[dimension].values[0])
     ni, nj, nk, nl = (
-        ds.dims[CoordKeyField.iline],
-        ds.dims[CoordKeyField.xline],
-        ds.dims[dimension],
-        ds.dims[CoordKeyField.offset],
+        ds.sizes[CoordKeyField.iline],
+        ds.sizes[CoordKeyField.xline],
+        ds.sizes[dimension],
+        ds.sizes[CoordKeyField.offset],
     )
     order = (CoordKeyField.iline, CoordKeyField.xline, CoordKeyField.offset)
     msys = _ISEGY_MEASUREMENT_SYSTEM[ds.seis.get_measurement_system()]
@@ -508,8 +512,8 @@ def _ncdf2segy_2d(
 
     z0 = int(ds[dimension].values[0])
     ni, nk = (
-        ds.dims[CoordKeyField.cdp],
-        ds.dims[dimension],
+        ds.sizes[CoordKeyField.cdp],
+        ds.sizes[dimension],
     )
     order = (CoordKeyField.cdp,)
     msys = _ISEGY_MEASUREMENT_SYSTEM[ds.seis.get_measurement_system()]
@@ -610,9 +614,9 @@ def _ncdf2segy_2d_gath(
 
     z0 = int(ds[dimension].values[0])
     ni, nk, nl = (
-        ds.dims[CoordKeyField.cdp],
-        ds.dims[dimension],
-        ds.dims[CoordKeyField.offset],
+        ds.sizes[CoordKeyField.cdp],
+        ds.sizes[dimension],
+        ds.sizes[CoordKeyField.offset],
     )
     order = (CoordKeyField.cdp, CoordKeyField.offset)
     msys = _ISEGY_MEASUREMENT_SYSTEM[ds.seis.get_measurement_system()]

@@ -96,7 +96,7 @@ scrape
 # %%
 from segysak.segy import segy_loader, well_known_byte_locs
 
-V3D = segy_loader(V3D_path, iline=189, xline=193, cdpx=73, cdpy=77, vert_domain="TWT")
+V3D = segy_loader(V3D_path, iline=189, xline=193, cdp_x=73, cdp_y=77, vert_domain="TWT")
 V3D
 
 # %% [markdown]

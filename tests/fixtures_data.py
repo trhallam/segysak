@@ -12,7 +12,7 @@ TEST_DATA_VOLVE = TESTS_PATH / "test-data-volve"
 def f3_dataset():
     ds = segy_loader(
         TEST_DATA_SEGYIO / "f3.sgy",
-        **{"iline": 189, "xline": 193, "cdpx": 181, "cdpy": 185},
+        **{"iline": 189, "xline": 193, "cdp_x": 181, "cdp_y": 185},
         silent=True
     )
 
@@ -46,7 +46,7 @@ def geometry_dataset():
 def f3_withdead_dataset():
     ds = segy_loader(
         TEST_DATA_SEGYSAK / "f3-withdead.sgy",
-        **{"iline": 189, "xline": 193, "cdpx": 181, "cdpy": 185},
+        **{"iline": 189, "xline": 193, "cdp_x": 181, "cdp_y": 185},
         silent=True
     )
     return ds
@@ -58,8 +58,8 @@ def volve_2d_dataset():
         TEST_DATA_VOLVE / "volve10r12-full-z-il10117sub.sgy",
         silent=True,
         cdp=21,
-        cdpx=73,
-        cdpy=77,
+        cdp_x=73,
+        cdp_y=77,
         vert_domain="DEPTH",
     )
     return ds

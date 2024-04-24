@@ -163,12 +163,12 @@ def what_geometry_am_i(head_df):
 
     # check for xy
     if {"SourceX", "SourceY"}.issubset(set(stats.index)):
-        byte_call["cdpx"] = 73
-        byte_call["cdpy"] = 77
+        byte_call["cdp_x"] = 73
+        byte_call["cdp_y"] = 77
     elif {"CDP_X", "CDP_Y"}.issubset(set(stats.index)):
         has_xy = True
-        byte_call["cdpx"] = 181
-        byte_call["cdpy"] = 185
+        byte_call["cdp_x"] = 181
+        byte_call["cdp_y"] = 185
 
     # check for ilxl
     if {"INLINE_3D", "CROSSLINE_3D"}.issubset(set(stats.index)):

@@ -124,7 +124,7 @@ def test_segy_header_scrape(temp_dir, temp_segy):
 #     segy2ncdf(temp_segy, temp_seisnc, silent=True, crop=crop)
 
 #     ds = xr.open_dataset(temp_seisnc)
-#     assert tuple(ds.dims.values()) == (
+#     assert tuple(ds.sizes.values()) == (
 #         max_il - min_il + 1,
 #         max_xl - min_xl + 1,
 #         TEST_SEGY_SIZE,
@@ -140,7 +140,7 @@ def test_segy_header_scrape(temp_dir, temp_segy):
 #     segy2ncdf(temp_segy, temp_seisnc, silent=True, zcrop=[min_z, max_z])
 
 #     ds = xr.open_dataset(temp_seisnc)
-#     assert tuple(ds.dims.values())[2] == max_z - min_z + 1
+#     assert tuple(ds.sizes.values())[2] == max_z - min_z + 1
 
 
 # def test_segy2ncdf_3D_crop(temp_dir, temp_segy, cropping_limits):
@@ -152,7 +152,7 @@ def test_segy_header_scrape(temp_dir, temp_segy):
 #     segy2ncdf(temp_segy, temp_seisnc, silent=True, crop=crop, zcrop=cropz)
 
 #     ds = xr.open_dataset(temp_seisnc)
-#     assert tuple(ds.dims.values()) == (
+#     assert tuple(ds.sizes.values()) == (
 #         max_il - min_il + 1,
 #         max_xl - min_xl + 1,
 #         max_z - min_z + 1,
@@ -285,8 +285,8 @@ def test_segyiotests_ps_writer_from_ds(temp_dir, segyio3dps_test_files):
 #     ids=["2d", "2dgath", "3d", "3d_depth", "3d_gath", "3d_twt"],
 # )
 # def test_seisnc_return(temp_dir, empty):
-# dims = list(empty.dims)
-# shp = [empty.dims[d] for d in dims]
+# dims = list(empty.sizes)
+# shp = [empty.sizes[d] for d in dims]
 # domain = empty.d3_domain
 # empty["data"] = (dims, np.zeros(shp))
 

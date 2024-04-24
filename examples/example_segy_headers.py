@@ -48,7 +48,7 @@ with pd.option_context("display.max_rows", 89):
     display(scan)
 
 # %% [markdown]
-# Often lots of header fields don't get filled, so lets filter by the standard deviation column `std`. In fact, there are so few here we don't need the context manager. As you can see, for `segy_loader` or `segy_converter` we will need to tell those functions that the byte location for **iline** and **xline** are *189* and *193* respectively, and the byte locations for **cdpx** and **cdpy** are either *73* and *77* or *181* and *185* which are identical pairs.
+# Often lots of header fields don't get filled, so lets filter by the standard deviation column `std`. In fact, there are so few here we don't need the context manager. As you can see, for `segy_loader` or `segy_converter` we will need to tell those functions that the byte location for **iline** and **xline** are *189* and *193* respectively, and the byte locations for **cdp_x** and **cdp_y** are either *73* and *77* or *181* and *185* which are identical pairs.
 
 # %%
 # NIIIICCCEEEE...

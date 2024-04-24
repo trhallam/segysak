@@ -170,10 +170,10 @@ def coordinate_df(seisnc, coord=True, extras=None, linear_fillna=True):
 
     seisnc_coord.loc[seisnc_coord.cdp_x.isna(), "cdp_x"] = filled_x[
         seisnc_coord.cdp_x.isna()
-    ]
+    ].astype(np.float32)
     seisnc_coord.loc[seisnc_coord.cdp_y.isna(), "cdp_y"] = filled_y[
         seisnc_coord.cdp_y.isna()
-    ]
+    ].astype(np.float32)
 
     return seisnc_coord
 
@@ -227,7 +227,7 @@ class SeisGeom:
 
         else:
             # check drop keys actually on dims, might not be
-            drop = set(drop).intersection(*[set(self._obj[key].dims) for key in keys])
+            drop = set(drop).intersection(*[set(self._obj[key].sizes) for key in keys])
 
             grid = np.vstack(
                 [
@@ -272,7 +272,7 @@ class SeisGeom:
         else:
             raise AttributeError("Dataset required twt or depth coordinates.")
 
-        dims = set(self._obj.dims.keys())
+        dims = set(self._obj.sizes.keys())
 
         if self.is_3d() or self.is_3dgath():
             # get other dims
@@ -334,7 +334,7 @@ class SeisGeom:
 
     def _has_dims(self, dimension_options, invalid_dimension_options=None):
         """Check dataset has one of dimension options."""
-        current_dims = set(self._obj.dims)
+        current_dims = set(self._obj.sizes)
 
         # check for a match
         result = False
@@ -354,7 +354,7 @@ class SeisGeom:
 
     def _is_known_geometry(self):
         """Decide if known geometry this volume is and return the appropriate enum."""
-        current_dims = set(self._obj.dims)
+        current_dims = set(self._obj.sizes)
         for key in DimensionKeyField:
             if set(key).issubset(current_dims):
                 return True
@@ -406,8 +406,8 @@ class SeisGeom:
 
     def _check_multi_z(self):
         if (
-            CoordKeyField.depth in self._obj.dims
-            and CoordKeyField.twt in self._obj.dims
+            CoordKeyField.depth in self._obj.sizes
+            and CoordKeyField.twt in self._obj.sizes
         ):
             raise ValueError(
                 "seisnc cannot determine domain both twt and depth dimensions found"
@@ -416,12 +416,12 @@ class SeisGeom:
     def is_twt(self):
         """Check if seisnc volume is in twt"""
         self._check_multi_z()
-        return True if CoordKeyField.twt in self._obj.dims else False
+        return True if CoordKeyField.twt in self._obj.sizes else False
 
     def is_depth(self):
         """Check if seisnc volume is in depth"""
         self._check_multi_z()
-        return True if CoordKeyField.depth in self._obj.dims else False
+        return True if CoordKeyField.depth in self._obj.sizes else False
 
     def is_empty(self):
         """Check if empty"""
@@ -443,7 +443,7 @@ class SeisGeom:
         """Create a new dataset with the same attributes and coordinates and
         dimensions but with data filled by zeros.
         """
-        current_dims = {dim: val for dim, val in self._obj.dims.items()}
+        current_dims = {dim: val for dim, val in self._obj.sizes.items()}
         dims = [dim for dim in current_dims.keys()]
         shp = [val for val in current_dims.values()]
         # TODO: Investigate copy options, might need to manually copy geometry
@@ -487,14 +487,14 @@ class SeisGeom:
             if var not in self._obj.variables:
                 raise ValueError("left coordinate names not found in dataset")
         for var in left:
-            if var in self._obj.dims:
+            if var in self._obj.sizes:
                 raise ValueError(
                     "surface_from_points is designed for coordinates that "
                     "are not already Dataset Dimensions, use ... instead."
                 )
 
         a, b = left
-        if self._obj[a].dims != self._obj[b].dims:
+        if self._obj[a].sizes != self._obj[b].sizes:
             raise ValueError(
                 f"left keys {a} and {b} should exist on the same dimensions"
             )
@@ -503,7 +503,7 @@ class SeisGeom:
             if len(right) != 2 and not isinstance(right, Iterable):
                 raise ValueError(
                     "points is DataFrame, right must a tuple specified "
-                    "with coordinate keys from column names, e.g right=('cdpx', 'cdpy')"
+                    "with coordinate keys from column names, e.g right=('cdp_x', 'cdp_y')"
                 )
             names = [attr] + list(right)
             if not set(names).issubset(points.columns):
@@ -523,7 +523,7 @@ class SeisGeom:
             _attr = attr
 
         temp_ds = self._obj.copy()
-        org_dims = temp_ds[a].dims
+        org_dims = temp_ds[a].sizes
         org_shp = temp_ds[a].shape
 
         var = griddata(
@@ -582,11 +582,11 @@ class SeisGeom:
                 (ilines[-1], xlines[0]),
             )
 
-            cdpx, cdpy = CoordKeyField.cdp_x, CoordKeyField.cdp_y
+            cdp_x, cdp_y = CoordKeyField.cdp_x, CoordKeyField.cdp_y
 
-            if set((cdpx, cdpy)).issubset(self._obj.variables):
-                xs = self._obj[cdpx].values
-                ys = self._obj[cdpy].values
+            if set((cdp_x, cdp_y)).issubset(self._obj.variables):
+                xs = self._obj[cdp_x].values
+                ys = self._obj[cdp_y].values
                 corner_points_xy = (
                     (xs[0, 0], ys[0, 0]),
                     (xs[0, -1], ys[0, -1]),
@@ -599,11 +599,11 @@ class SeisGeom:
             cdps = self._obj[cdp].values
             corner_points = (cdps[0], cdps[-1])
 
-            cdpx, cdpy = CoordKeyField.cdp_x, CoordKeyField.cdp_y
+            cdp_x, cdp_y = CoordKeyField.cdp_x, CoordKeyField.cdp_y
 
-            if set((cdpx, cdpy)).issubset(self._obj.variables):
-                xs = self._obj[cdpx].values
-                ys = self._obj[cdpy].values
+            if set((cdp_x, cdp_y)).issubset(self._obj.variables):
+                xs = self._obj[cdp_x].values
+                ys = self._obj[cdp_y].values
                 corner_points_xy = (
                     (xs[0], ys[0]),
                     (xs[0], ys[0]),
@@ -618,8 +618,8 @@ class SeisGeom:
 
     def interp_line(
         self,
-        cdpx,
-        cdpy,
+        cdp_x,
+        cdp_y,
         extra=None,
         bin_spacing_hint=10,
         line_method="slinear",
@@ -640,8 +640,8 @@ class SeisGeom:
         extra = dict() if extra is None else extra
 
         cdp_x_i, cdp_y_i, _, extra_i = get_uniform_spacing(
-            cdpx,
-            cdpy,
+            cdp_x,
+            cdp_y,
             bin_spacing_hint=bin_spacing_hint,
             extra=extra,
             method=line_method,

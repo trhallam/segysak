@@ -22,7 +22,7 @@ TEST_DATA_SEGYSAK = TEST_DATA_PATH / "test-data-segysak"
 TEST_FILES_SEGYIO_3D = [
     ("acute-small.sgy", {"iline": 189, "xline": 193}),
     ("f3-lsb.sgy", {"endian": "little", "iline": 189, "xline": 193}),
-    ("f3.sgy", {"iline": 189, "xline": 193, "cdpx": 181, "cdpy": 185}),
+    ("f3.sgy", {"iline": 189, "xline": 193}),  # , "cdp_x": 181, "cdp_y": 185}),
     ("inv-acute-small.sgy", {"iline": 189, "xline": 193}),
     ("left-small.sgy", {"iline": 189, "xline": 193}),
     ("normal-small.sgy", {"iline": 189, "xline": 193}),
@@ -30,7 +30,7 @@ TEST_FILES_SEGYIO_3D = [
     ("reflex-small.sgy", {"iline": 189, "xline": 193}),
     ("right-small.sgy", {"iline": 189, "xline": 193}),
     ("small.sgy", {"iline": 189, "xline": 193}),
-    ("left-small.sgy", {"iline": 189, "xline": 193, "cdpx": 181, "cdpy": 185}),
+    ("left-small.sgy", {"iline": 189, "xline": 193}),  # , "cdp_x": 181, "cdp_y": 185}),
     ("small-lsb.sgy", {"iline": 189, "xline": 193, "endian": "little"}),
     ("straight-small.sgy", {"iline": 189, "xline": 193}),
     ("text-embed-null.sgy", {"iline": 189, "xline": 193}),
@@ -88,15 +88,15 @@ def create_temp_segy(n, test_file, skew=False):
     xl_val = range(n + 1, n + n + 1, 1)
     il_val = range(1, n + 1, 1)
 
-    cdpx, cdpy = np.meshgrid(il_val, xl_val)
+    cdp_x, cdp_y = np.meshgrid(il_val, xl_val)
 
     if skew:
-        for i, x in enumerate(cdpx):
-            cdpx[i, :] = x + i
+        for i, x in enumerate(cdp_x):
+            cdp_x[i, :] = x + i
 
     with segyio.create(test_file, spec) as segyf:
         for i, (t, il, xl) in enumerate(
-            zip(data.reshape(-1, n), cdpx.ravel(), cdpy.ravel())
+            zip(data.reshape(-1, n), cdp_x.ravel(), cdp_y.ravel())
         ):
             segyf.header[i] = {
                 segyio.su.offset: 1,

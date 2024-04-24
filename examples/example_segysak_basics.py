@@ -91,7 +91,7 @@ xarray_selection
 
 # %%
 # get the dims
-dims = new_seisnc.dims
+dims = new_seisnc.sizes
 print(dims)
 dkeys = ("xline", "iline", "twt")
 dsize = [dims[key] for key in dkeys]

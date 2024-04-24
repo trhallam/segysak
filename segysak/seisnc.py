@@ -97,7 +97,7 @@ def set_seisnc_dims(
         units = "m"
 
     with xr.open_dataset(ncfile) as seisnc:
-        dims = seisnc.dims
+        dims = seisnc.sizes
 
     # create dimension arrays
     ns = dims["k"]
