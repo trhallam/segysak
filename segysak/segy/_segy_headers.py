@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union, List
 import numpy as np
 import pandas as pd
 import segyio
@@ -16,7 +16,7 @@ TQDM_ARGS = dict(unit_scale=True, unit=" traces")
 
 def segy_header_scan(
     segyfile: str, max_traces_scan: int = 1000, silent: bool = False, **segyio_kwargs
-):
+) -> pd.DataFrame:
     """Perform a scan of the segy file headers and return ranges.
 
     To get the complete raw header values see `segy_header_scrape`
@@ -28,7 +28,7 @@ def segy_header_scan(
         silent: Disable progress bar.
 
     Returns:
-        pandas.DataFrame: Uses pandas describe to return statistics of your headers.
+        Uses pandas describe to return statistics of your headers.
     """
     if max_traces_scan <= 0:
         max_traces_scan = None
@@ -48,14 +48,14 @@ def segy_header_scan(
     return header_keys
 
 
-def segy_bin_scrape(segyfile, **segyio_kwargs):
+def segy_bin_scrape(segyfile: str, **segyio_kwargs) -> Dict:
     """Scrape binary header
 
     Args:
-        segyfile (str): SEG-Y File path
+        segyfile: SEG-Y File path
 
     Returns:
-        dict: Binary header
+        Binary header
     """
     bk = _active_binfield_segyio()
     segyio_kwargs["ignore_geometry"] = True
@@ -64,13 +64,13 @@ def segy_bin_scrape(segyfile, **segyio_kwargs):
 
 
 def segy_header_scrape(
-    segyfile,
-    partial_scan=None,
-    silent=False,
-    bytes_filter=None,
-    chunk=100_000,
+    segyfile: str,
+    partial_scan: Union[int, None] = None,
+    silent: bool = False,
+    bytes_filter: Union[List[int], None] = None,
+    chunk: int = 100_000,
     **segyio_kwargs,
-):
+) -> pd.DataFrame:
     """Scape all data from segy trace headers
 
     Args:
@@ -96,10 +96,8 @@ def segy_header_scrape(
         for byte_loc in bytes_filter:
             assert byte_loc in enum_byte_index
         bytes_filter_index = [enum_byte_index[byte_loc] for byte_loc in bytes_filter]
-        enum_filter = [segyio.TraceField(byte_loc) for byte_loc in bytes_filter]
     else:
         bytes_filter_index = list(enum_byte_index.values())
-        enum_filter = [segyio.TraceField(byte_loc) for byte_loc in header_keys.values()]
 
     columns = [list(header_keys.keys())[i] for i in bytes_filter_index]
     segyio_kwargs["ignore_geometry"] = True
@@ -133,7 +131,7 @@ def segy_header_scrape(
     return head_df
 
 
-def what_geometry_am_i(head_df):
+def what_geometry_am_i(head_df: pd.DataFrame):
     """Try to work out file type from a header scan.
 
     This is a limited method to try and determine a file geometry type from
