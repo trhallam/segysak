@@ -8,23 +8,12 @@ import warnings
 from ._segy_core import tqdm, check_tracefield
 
 from .._accessor import open_seisnc
-from .._core import FrozenDict
 from .._keyfield import CoordKeyField
 from ._segy_text import create_default_texthead, put_segy_texthead, _clean_texthead
 from ._segy_globals import _ISEGY_MEASUREMENT_SYSTEM
+from ._segy_knownbytes import OUTPUT_BYTES
 
 TQDM_ARGS = dict(unit=" traces", desc="Writing to SEG-Y")
-
-OUTPUT_BYTES = FrozenDict(
-    dict(
-        standard_3d=dict(iline=181, xline=185, cdp_x=189, cdp_y=193),
-        standard_3d_gath=dict(iline=181, xline=185, cdp_x=189, cdp_y=193, offset=37),
-        standard_2d=dict(cdp=21, cdp_x=189, cdp_y=193),
-        standard_2d_gath=dict(cdp=21, cdp_x=189, cdp_y=193, offset=37),
-        petrel_3d=dict(iline=5, xline=21, cdp_x=73, cdp_y=77),
-        petrel_2d=dict(cdp=21, cdp_x=73, cdp_y=77),
-    )
-)
 
 
 def ncdf2segy(
@@ -716,17 +705,14 @@ def _segy_writer_input_handler(
 
     if ds.seis.is_2d():
         thm = output_byte_locs("standard_2d")
-        thm.unfreeze()
         thm.update(trace_header_map)
         _ncdf2segy_2d(ds, segyfile, **common_kwargs, **thm)
     elif ds.seis.is_2dgath():
         thm = output_byte_locs("standard_2d_gath")
-        thm.unfreeze()
         thm.update(trace_header_map)
         _ncdf2segy_2d_gath(ds, segyfile, **common_kwargs, **thm)
     elif ds.seis.is_3d():
         thm = output_byte_locs("standard_3d")
-        thm.unfreeze()
         thm.update(trace_header_map)
         _ncdf2segy_3d(
             ds,
@@ -737,7 +723,6 @@ def _segy_writer_input_handler(
         )
     elif ds.seis.is_3dgath():
         thm = output_byte_locs("standard_3d_gath")
-        thm.unfreeze()
         thm.update(trace_header_map)
         _ncdf2segy_3dgath(
             ds,

@@ -70,3 +70,4 @@ class _KnownBytes(MetaDataClass):
 
 
 KNOWN_BYTES = _KnownBytes()
+OUTPUT_BYTES = _KnownBytes()
