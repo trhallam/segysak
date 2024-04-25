@@ -8,19 +8,19 @@ from .._keyfield import CoordKeyField
 
 def standard_3d():
     return {
-        CoordKeyField.iline: 181,
-        CoordKeyField.xline: 185,
-        CoordKeyField.cdp_x: 189,
-        CoordKeyField.cdp_y: 193,
+        CoordKeyField.iline: 189,
+        CoordKeyField.xline: 193,
+        CoordKeyField.cdp_x: 181,
+        CoordKeyField.cdp_y: 185,
     }
 
 
 def standard_3d_gath():
     return {
-        CoordKeyField.iline: 181,
-        CoordKeyField.xline: 185,
-        CoordKeyField.cdp_x: 189,
-        CoordKeyField.cdp_y: 193,
+        CoordKeyField.iline: 189,
+        CoordKeyField.xline: 193,
+        CoordKeyField.cdp_x: 181,
+        CoordKeyField.cdp_y: 185,
         CoordKeyField.offset: 37,
     }
 
@@ -28,16 +28,16 @@ def standard_3d_gath():
 def standard_2d():
     return {
         CoordKeyField.cdp: 21,
-        CoordKeyField.cdp_x: 189,
-        CoordKeyField.cdp_y: 193,
+        CoordKeyField.cdp_x: 181,
+        CoordKeyField.cdp_y: 185,
     }
 
 
 def standard_2d_gath():
     return {
         CoordKeyField.cdp: 21,
-        CoordKeyField.cdp_x: 189,
-        CoordKeyField.cdp_y: 193,
+        CoordKeyField.cdp_x: 181,
+        CoordKeyField.cdp_y: 185,
         CoordKeyField.offset: 37,
     }
 
