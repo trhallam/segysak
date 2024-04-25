@@ -145,11 +145,11 @@ def header_as_dimensions(head_df: pd.DataFrame, **dim_kwargs) -> Dict[str, np.ar
     dim_index_names = list()
     dim_fields = list()
 
+    check_tracefield(list(dim_kwargs))
+
     for dim in dim_kwargs:
         # check the dimension byte location to get the head_df column name
         trace_field = str(segyio.TraceField(dim_kwargs[dim]))
-        if trace_field == "Unknown Enum":
-            raise ValueError(f"{dim}:{dim_kwargs[dim]} was not a valid byte header")
         dim_fields.append(trace_field)
 
         # get unique values of dimension and sort them ascending
