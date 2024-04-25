@@ -1,5 +1,6 @@
-import segyio
 import importlib
+import numpy as np
+import segyio
 
 try:
     has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
@@ -45,3 +46,14 @@ def check_tracefield(byte_list: list | None = None) -> bool:
         raise ValueError(f"Invalid byte locations: {failed}")
 
     return True
+
+
+def sample_range(ns0: float, sample_rate: float, nsamp: int) -> np.array:
+    """Return the samples or SEGY file.
+
+    Args:
+        ns0: First sample value.
+        sample_rate: The sampling interval.
+        nsamp: The number of samples in the range.
+    """
+    return np.arange(ns0, ns0 + sample_rate * nsamp, sample_rate, dtype=np.float32)
