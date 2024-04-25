@@ -21,6 +21,7 @@ from segysak.segy import (
     segy_header_scan,
     segy_header_scrape,
     segy_bin_scrape,
+    header_as_dimensions,
     segy_writer,
     well_known_byte_locs,
     output_byte_locs,
@@ -108,6 +109,13 @@ def test_segy_header_scrape(temp_dir, temp_segy):
     header = segy_header_scrape(temp_segy, silent=True)
     assert isinstance(header, pd.DataFrame)
     assert header.shape == (TEST_SEGY_SIZE**2, 89)
+
+
+def test_header_as_dimensions(temp_dir, temp_segy):
+    header = segy_header_scrape(temp_segy, silent=True)
+    assert isinstance(header, pd.DataFrame)
+    dims = header_as_dimensions(header, iline=189, xline=193)
+    assert len(dims) == 2
 
 
 # def test_segy2ncdf_3D(temp_dir, temp_segy):

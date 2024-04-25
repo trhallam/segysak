@@ -131,6 +131,44 @@ def segy_header_scrape(
     return head_df
 
 
+def header_as_dimensions(head_df: pd.DataFrame, **dim_kwargs) -> Dict[str, np.array]:
+    """Convert dim_kwargs to a diction of dimensions. Also useful for checking
+    geometry is correct and unique for each trace in a segy file header.
+
+    Args:
+        head_df: The header Dataframe from `segy_header_scrape`.
+        dim_kwargs: Dimension names (str) and byte location (int) pairs. Byte
+            locations must be valid segy byte locations for the trace headers.
+    """
+    # creating dimensions and new dataset
+    dims = dict()
+    dim_index_names = list()
+    dim_fields = list()
+
+    for dim in dim_kwargs:
+        # check the dimension byte location to get the head_df column name
+        trace_field = str(segyio.TraceField(dim_kwargs[dim]))
+        if trace_field == "Unknown Enum":
+            raise ValueError(f"{dim}:{dim_kwargs[dim]} was not a valid byte header")
+        dim_fields.append(trace_field)
+
+        # get unique values of dimension and sort them ascending
+        as_unique = head_df[trace_field].unique()
+        dims[dim] = np.sort(as_unique)
+
+    if (
+        head_df[dim_index_names].shape
+        != head_df[dim_index_names].drop_duplicates().shape
+    ):
+        raise ValueError(
+            "The selected dimensions results in multiple traces per "
+            "dimension location, add additional dimensions or use "
+            "trace numbering byte location to load as 2D."
+        )
+
+    return dims
+
+
 def what_geometry_am_i(head_df: pd.DataFrame):
     """Try to work out file type from a header scan.
 
