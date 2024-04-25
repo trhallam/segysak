@@ -26,16 +26,16 @@ def _active_binfield_segyio():
     return bin_keys
 
 
-def check_tracefield(byte_list=None):
+def check_tracefield(byte_list: list | None = None) -> bool:
     """Check that the byte fields requested by the user are valid Enums in segyio
 
     Args:
-        byte_list (list, optional): List of int byte fields.
+        byte_list: List of int byte fields.
     """
     if byte_list is None:
         return True
 
-    tracefield_keys = header_keys = segyio.tracefield.keys.copy()
+    tracefield_keys = segyio.tracefield.keys.copy()
     failed = [
         byte_loc
         for byte_loc in byte_list
