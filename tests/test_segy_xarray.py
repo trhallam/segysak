@@ -46,6 +46,20 @@ def test_SegyBackendEntrypoint_3dps(segyio3dps_test_files):
         assert dim in ds.sizes
 
 
+def test_SegyBackendEntrypoint_3dps_subsel(segyio3dps_test_files):
+    path, segyio_kwargs = segyio3dps_test_files
+    dims, segyio_kwargs = split_segyio_kwargs(segyio_kwargs)
+    ds = xr.open_dataset(
+        path, dim_byte_fields=dims, silent=True, segyio_kwargs=segyio_kwargs
+    )
+    assert isinstance(ds, xr.Dataset)
+    for dim in dims:
+        assert dim in ds.sizes
+
+    ds_sub = ds.isel(iline=0).data.values
+    pass
+
+
 def test_SegyBackendEntrypoint_variable_nbytes():
     ds = xr.open_dataset(
         TEST_DATA_SEGYIO / "f3.sgy",
