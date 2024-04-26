@@ -21,7 +21,9 @@ from . import (
     get_segy_texthead,
 )
 from ._segy_globals import _SEGY_MEASUREMENT_SYSTEM
-from ._segy_core import sample_range, check_tracefield
+from ._segy_core import tqdm, sample_range, check_tracefield
+
+TQDM_ARGS = dict(unit_scale=True, unit=" traces")
 
 
 class SgyBackendArray(BackendArray):
@@ -32,6 +34,7 @@ class SgyBackendArray(BackendArray):
         lock,
         sgy_file: os.PathLike,
         trace_map: Dataset,
+        silent: bool = False,
         segyio_kwargs: Dict = None,
     ):
         self.dnames = dnames
@@ -41,6 +44,7 @@ class SgyBackendArray(BackendArray):
         self.lock = lock
         self.trace_map = trace_map
         self.segyio_kwargs = segyio_kwargs
+        self._silent = silent
 
     def __getitem__(self, key: indexing.ExplicitIndexer) -> np.typing.ArrayLike:
         return indexing.explicit_indexing_adapter(
@@ -52,19 +56,35 @@ class SgyBackendArray(BackendArray):
 
     def _raw_indexing_method(self, key: tuple) -> np.typing.ArrayLike:
 
-        tracen_slice_df = self.trace_map.tracen[key[:-1]].to_dataframe().reset_index()
-        dim_cols = tracen_slice_df.columns[: (len(self.shape) - 1)]
+        out_sizes = self.trace_map.tracen[key[:-1]].sizes
+        out_dims = tuple(out_sizes)
+        out_shape = tuple(out_sizes[d] for d in out_dims)
+        tracen_slice_df = (
+            self.trace_map.tracen[key[:-1]]
+            .to_dataframe()
+            .reset_index()
+            .sort_values("tracen")
+        )
         # calculate contiguous trace blocks from selection
         breaks = tracen_slice_df.tracen[tracen_slice_df.tracen.diff(1) > 1]
         groups = pd.Series(
             name="blocks", index=breaks.index, data=range(1, len(breaks) + 1), dtype=int
         )
-        tracen_slice_df = tracen_slice_df.join(groups)
+        tracen_slice_df = tracen_slice_df.join(groups).reset_index(drop=True)
         tracen_slice_df.loc[0, "blocks"] = 0
         tracen_slice_df = tracen_slice_df.ffill()
 
         # extract the data from the segyfile into a flat trace x sample format
-        with segyio.open(str(self.sgy_file), "r", **self.segyio_kwargs) as segyf:
+        with (
+            segyio.open(str(self.sgy_file), "r", **self.segyio_kwargs) as segyf,
+            tqdm(
+                total=tracen_slice_df.shape[0],
+                desc="Loading Traces",
+                disable=self._silent,
+                **TQDM_ARGS,
+            ) as pb,
+        ):
+            segyf.mmap()
             volume = np.zeros(
                 (tracen_slice_df.shape[0], self.shape[-1]), dtype=self.dtype
             )
@@ -76,6 +96,7 @@ class SgyBackendArray(BackendArray):
 
                 volume[idx : idx + nt] = segyf.trace.raw[t0 : tn + 1]
                 idx += nt
+                pb.update(nt)
 
         # this creates a temporary dataset in the dimensions of a segy file
         # before using xarray to unstack the data into a block
@@ -86,12 +107,16 @@ class SgyBackendArray(BackendArray):
                 VerticalKeyDim.samples: range(0, self.shape[-1]),
             },
             data_vars={
-                dim: (("tracen"), tracen_slice_df[dim].values) for dim in dim_cols
+                dim: (("tracen"), tracen_slice_df[dim].values) for dim in out_dims
             },
         )
         ds["data"] = (("tracen", VerticalKeyDim.samples), volume)
-        ds = ds.set_index(tracen=list(dim_cols))
-        data = ds.unstack("tracen").data.transpose(*self.dnames).values
+        ds = ds.set_index(tracen=list(out_dims))
+        data = (
+            ds.unstack("tracen")
+            .data.transpose(*(out_dims + (VerticalKeyDim.samples,)))
+            .values
+        )
         return data
 
 
@@ -211,6 +236,7 @@ class SgyBackendEntrypoint(BackendEntrypoint):
             None,
             filename_or_obj,
             self.trace_index,
+            silent=self._silent,
             segyio_kwargs=self.segyio_kwargs,
         )
         data = indexing.LazilyIndexedArray(backend_array)
