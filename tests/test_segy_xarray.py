@@ -1,9 +1,72 @@
-# import xarray as xr
-# import pytest
-# import pathlib
+import xarray as xr
+import pytest
+import pathlib
 
-# from segysak.segy._segy_xarray import SegyBackendArray, SegyBackendEntrypoint
-# from segysak.segy import segy_header_scrape
+from segysak.segy._xarray import SgyBackendArray, SgyBackendEntrypoint
+
+TESTS_PATH = pathlib.Path(__file__).parent.absolute()
+TEST_DATA_SEGYIO = TESTS_PATH / "test-data-segyio"
+
+
+def split_segyio_kwargs(segyio_kwargs):
+    valid_dims = ("iline", "xline", "offset", "cdp")
+    valid_kwargs = ("endian",)
+    dims = dict()
+    other = dict()
+    for kwarg, value in segyio_kwargs.items():
+        if kwarg in valid_dims:
+            dims[kwarg] = value
+        elif kwarg in valid_kwargs:
+            other[kwarg] = value
+    return dims, other
+
+
+def test_SegyBackendEntrypoint_3d(segyio3d_test_files):
+    path, segyio_kwargs = segyio3d_test_files
+    dims, segyio_kwargs = split_segyio_kwargs(segyio_kwargs)
+    ds = xr.open_dataset(
+        path, dim_byte_fields=dims, silent=True, segyio_kwargs=segyio_kwargs
+    )
+    assert isinstance(ds, xr.Dataset)
+    for dim in dims:
+        assert dim in ds.sizes
+
+    data = ds.data.compute()
+    pass
+
+
+def test_SegyBackendEntrypoint_3dps(segyio3dps_test_files):
+    path, segyio_kwargs = segyio3dps_test_files
+    dims, segyio_kwargs = split_segyio_kwargs(segyio_kwargs)
+    ds = xr.open_dataset(
+        path, dim_byte_fields=dims, silent=True, segyio_kwargs=segyio_kwargs
+    )
+    assert isinstance(ds, xr.Dataset)
+    for dim in dims:
+        assert dim in ds.sizes
+
+
+def test_SegyBackendEntrypoint_variable_nbytes():
+    ds = xr.open_dataset(
+        TEST_DATA_SEGYIO / "f3.sgy",
+        dim_byte_fields={"iline": 189, "xline": 193},
+        extra_byte_fields={"cdp_x": 181, "cdp_y": 185},
+        silent=True,
+    )
+    for var, v in ds.variables.items():
+        assert v.nbytes
+    data = ds.isel(iline=10).data.values
+
+
+def test_SegyBackendEntrypoint_extra_byte_fields():
+    ds = xr.open_dataset(
+        TEST_DATA_SEGYIO / "f3.sgy",
+        dim_byte_fields={"iline": 189, "xline": 193},
+        extra_byte_fields={"cdp_x": 181, "cdp_y": 185},
+        silent=True,
+    )
+    pass
+
 
 # TESTS_PATH = pathlib.Path(__file__).parent.absolute()
 # TEST_DATA_SEGYIO = TESTS_PATH / "test-data-segyio"

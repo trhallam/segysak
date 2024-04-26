@@ -124,6 +124,7 @@ VerticalKeyField = _VerticalKeyField()
 class _VerticalKeyDim(MetaDataClass):
     TWT: str = "twt"
     DEPTH: str = "depth"
+    samples: str = "samples"
 
 
 VerticalKeyDim = _VerticalKeyDim()

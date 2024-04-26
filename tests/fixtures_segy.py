@@ -22,7 +22,7 @@ TEST_DATA_SEGYSAK = TEST_DATA_PATH / "test-data-segysak"
 TEST_FILES_SEGYIO_3D = [
     ("acute-small.sgy", {"iline": 189, "xline": 193}),
     ("f3-lsb.sgy", {"endian": "little", "iline": 189, "xline": 193}),
-    ("f3.sgy", {"iline": 189, "xline": 193}),  # , "cdp_x": 181, "cdp_y": 185}),
+    ("f3.sgy", {"iline": 189, "xline": 193, "cdp_x": 181, "cdp_y": 185}),
     ("inv-acute-small.sgy", {"iline": 189, "xline": 193}),
     ("left-small.sgy", {"iline": 189, "xline": 193}),
     ("normal-small.sgy", {"iline": 189, "xline": 193}),
@@ -30,7 +30,7 @@ TEST_FILES_SEGYIO_3D = [
     ("reflex-small.sgy", {"iline": 189, "xline": 193}),
     ("right-small.sgy", {"iline": 189, "xline": 193}),
     ("small.sgy", {"iline": 189, "xline": 193}),
-    ("left-small.sgy", {"iline": 189, "xline": 193}),  # , "cdp_x": 181, "cdp_y": 185}),
+    ("left-small.sgy", {"iline": 189, "xline": 193, "cdp_x": 181, "cdp_y": 185}),
     ("small-lsb.sgy", {"iline": 189, "xline": 193, "endian": "little"}),
     ("straight-small.sgy", {"iline": 189, "xline": 193}),
     ("text-embed-null.sgy", {"iline": 189, "xline": 193}),

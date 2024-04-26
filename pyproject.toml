@@ -64,7 +64,8 @@ docs = [
 [project.scripts]
 segysak = "segysak._cli:cli"
 
-# [project.entry-points."xarray-backends"]
+[project.entry-points."xarray.backends"]
+sgy_engine = "segysak.segy._xarray:SgyBackendEntrypoint"
 
 [build-system]
 requires = ["setuptools", "wheel", "setuptools_scm>=6.2"]
