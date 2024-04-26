@@ -1,3 +1,4 @@
+from typing import Union
 import importlib
 import numpy as np
 import segyio
@@ -27,7 +28,7 @@ def _active_binfield_segyio():
     return bin_keys
 
 
-def check_tracefield(byte_list: list | None = None) -> bool:
+def check_tracefield(byte_list: Union[list, None] = None) -> bool:
     """Check that the byte fields requested by the user are valid Enums in segyio
 
     Args:
@@ -37,11 +38,8 @@ def check_tracefield(byte_list: list | None = None) -> bool:
         return True
 
     tracefield_keys = segyio.tracefield.keys.copy()
-    failed = [
-        byte_loc
-        for byte_loc in byte_list
-        if byte_loc not in list(tracefield_keys.values())
-    ]
+    tracefield_bytes = list(tracefield_keys.values())
+    failed = [byte_loc for byte_loc in byte_list if byte_loc not in tracefield_bytes]
     if failed:
         raise ValueError(f"Invalid byte locations: {failed}")
 
