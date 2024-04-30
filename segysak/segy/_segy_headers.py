@@ -145,7 +145,7 @@ def header_as_dimensions(head_df: pd.DataFrame, dims: tuple) -> Dict[str, np.arr
         as_unique = head_df[dim].unique()
         unique_dims[dim] = np.sort(as_unique)
 
-    if head_df[dims].shape != head_df[dims].drop_duplicates().shape:
+    if head_df[list(dims)].shape != head_df[list(dims)].drop_duplicates().shape:
         raise ValueError(
             "The selected dimensions results in multiple traces per "
             "dimension location, add additional dimensions or use "

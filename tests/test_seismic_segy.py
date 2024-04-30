@@ -114,7 +114,7 @@ def test_segy_header_scrape(temp_dir, temp_segy):
 def test_header_as_dimensions(temp_dir, temp_segy):
     header = segy_header_scrape(temp_segy, silent=True)
     assert isinstance(header, pd.DataFrame)
-    dims = header_as_dimensions(header, iline=189, xline=193)
+    dims = header_as_dimensions(header, ("INLINE_3D", "CROSSLINE_3D"))
     assert len(dims) == 2
 
 
