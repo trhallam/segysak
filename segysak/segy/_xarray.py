@@ -82,11 +82,13 @@ class SgyBackendArray(BackendArray):
             .reset_index()
             .sort_values("tracen")
         )
+        # put -1 in blank traces
+        tracen_slice_df["tracen"] = tracen_slice_df["tracen"].fillna(-1).astype("int32")
 
         # calculate contiguous trace blocks from selection to enable fast selection
         # identify breaks in the trace numbering where the trace number increases
         # by more than 1
-        breaks = tracen_slice_df.tracen[tracen_slice_df.tracen.diff(1) > 1]
+        breaks = tracen_slice_df.tracen[tracen_slice_df.tracen.diff(1).abs() > 1]
         # create a series from the breaks and add back to tracen_slice_df
         groups = pd.Series(
             name="blocks", index=breaks.index, data=range(1, len(breaks) + 1), dtype=int
@@ -112,13 +114,13 @@ class SgyBackendArray(BackendArray):
             idx = 0
             for _, traces in tracen_slice_df.groupby("blocks"):
                 for batch in more_itertools.chunked(traces.tracen.values, self.batch):
-
                     t0 = batch[0]
                     tn = batch[-1]
                     nt = tn - t0 + 1
-                    volume[idx : idx + nt, :] = segyf.trace.raw[t0 : tn + 1][
-                        :, samp_slice
-                    ]
+                    if t0 != -1:  # don't do anything for missing traces where t0 = -1
+                        volume[idx : idx + nt, :] = segyf.trace.raw[t0 : tn + 1][
+                            :, samp_slice
+                        ]
                     idx += nt
                     pb.update(nt)
 
@@ -215,6 +217,21 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         shape = tuple(ds.sizes[dn] for dn in dnames)
         return dnames, shape, ds
 
+    def _determine_preferred_chunks(
+        self, dnames: Tuple[str], dshape: Tuple[int]
+    ) -> Dict[str, int]:
+        # function to try and determine preferred chunks for data
+        # this heuristically looks at the header dataframe and determines
+        # the fast numbering dimension and its size
+        dims = self._head_df[list(dnames[:-1])].astype("int32")
+
+        # find axes where dim value repeats (i.e. the min abs diff is zero)
+        diffs = dims.diff(axis=0).abs().min(axis=0)
+        chunks = {
+            d: 1 if s == 0.0 else dshape[i] for i, (d, s) in enumerate(diffs.items())
+        }
+        return chunks
+
     def open_dataset(
         self,
         filename_or_obj: Union[str, os.PathLike],
@@ -249,11 +266,15 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         self._silent = silent
         self.extra_byte_fields = extra_byte_fields if extra_byte_fields else dict()
         self.segyio_kwargs = segyio_kwargs if segyio_kwargs else dict()
+        self.segyio_kwargs.update({"ignore_geometry": True})
 
         check_tracefield(self.dim_byte_fields.values())
         check_tracefield(self.extra_byte_fields.values())
 
         dnames, dshape, ds = self._create_geometry_ds()
+        encoding = {
+            "preferred_chunks": self._determine_preferred_chunks(dnames, dshape)
+        }
 
         backend_array = SgyBackendArray(
             dnames,
@@ -265,7 +286,7 @@ class SgyBackendEntrypoint(BackendEntrypoint):
             segyio_kwargs=self.segyio_kwargs,
         )
         data = indexing.LazilyIndexedArray(backend_array)
-        ds["data"] = Variable(ds.dims, data)
+        ds["data"] = Variable(ds.dims, data, encoding=encoding)
         return ds
 
     def guess_can_open(self, filename_or_obj: Union[str, os.PathLike]):
