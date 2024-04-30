@@ -22,7 +22,7 @@ dependencies = [
     "addict",
     "more-itertools>=8.0",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {file = "LICENSE"}
 
 classifiers = [
