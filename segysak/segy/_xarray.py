@@ -2,6 +2,7 @@
 
 from typing import Dict, Tuple, Union
 import os
+import more_itertools
 
 import numpy as np
 import pandas as pd
@@ -45,6 +46,7 @@ class SgyBackendArray(BackendArray):
         self.trace_map = trace_map
         self.segyio_kwargs = segyio_kwargs
         self._silent = silent
+        self.batch = 10_000
 
     def __getitem__(self, key: indexing.ExplicitIndexer) -> np.typing.ArrayLike:
         return indexing.explicit_indexing_adapter(
@@ -56,17 +58,36 @@ class SgyBackendArray(BackendArray):
 
     def _raw_indexing_method(self, key: tuple) -> np.typing.ArrayLike:
 
-        out_sizes = self.trace_map.tracen[key[:-1]].sizes
-        out_dims = tuple(out_sizes)
-        out_shape = tuple(out_sizes[d] for d in out_dims)
+        # xarray expects int axes to be squeezed
+        squeeze_me = tuple(i for i, k in enumerate(key) if isinstance(k, int))
+
+        # map int back to slice
+        key = tuple(k if isinstance(k, slice) else slice(k, k + 1, 1) for k in key)
+
+        # slices/ints to lengths
+        out_sizes = tuple(
+            len(range(*slc.indices(shp))) if isinstance(slc, slice) else 1
+            for slc, shp in zip(key, self.shape)
+        )
+
+        # get the output sizes, last slice always samples
+        hor_slices = key[:-1]
+        samp_slice = key[-1]
+
+        # convert the trace number map to a dataframe (i.e. flat format)
+        # sort by trace number to access traces sequentially
         tracen_slice_df = (
-            self.trace_map.tracen[key[:-1]]
+            self.trace_map.tracen[hor_slices]
             .to_dataframe()
             .reset_index()
             .sort_values("tracen")
         )
-        # calculate contiguous trace blocks from selection
+
+        # calculate contiguous trace blocks from selection to enable fast selection
+        # identify breaks in the trace numbering where the trace number increases
+        # by more than 1
         breaks = tracen_slice_df.tracen[tracen_slice_df.tracen.diff(1) > 1]
+        # create a series from the breaks and add back to tracen_slice_df
         groups = pd.Series(
             name="blocks", index=breaks.index, data=range(1, len(breaks) + 1), dtype=int
         )
@@ -86,17 +107,20 @@ class SgyBackendArray(BackendArray):
         ):
             segyf.mmap()
             volume = np.zeros(
-                (tracen_slice_df.shape[0], self.shape[-1]), dtype=self.dtype
+                (tracen_slice_df.shape[0], out_sizes[-1]), dtype=self.dtype
             )
             idx = 0
             for _, traces in tracen_slice_df.groupby("blocks"):
-                t0 = traces.tracen.iloc[0]
-                tn = traces.tracen.iloc[-1]
-                nt = traces.shape[0]
+                for batch in more_itertools.chunked(traces.tracen.values, self.batch):
 
-                volume[idx : idx + nt] = segyf.trace.raw[t0 : tn + 1]
-                idx += nt
-                pb.update(nt)
+                    t0 = batch[0]
+                    tn = batch[-1]
+                    nt = tn - t0 + 1
+                    volume[idx : idx + nt, :] = segyf.trace.raw[t0 : tn + 1][
+                        :, samp_slice
+                    ]
+                    idx += nt
+                    pb.update(nt)
 
         # this creates a temporary dataset in the dimensions of a segy file
         # before using xarray to unstack the data into a block
@@ -104,18 +128,19 @@ class SgyBackendArray(BackendArray):
         ds = Dataset(
             coords={
                 "tracen": tracen_slice_df["tracen"],
-                VerticalKeyDim.samples: range(0, self.shape[-1]),
-            },
-            data_vars={
-                dim: (("tracen"), tracen_slice_df[dim].values) for dim in out_dims
+                VerticalKeyDim.samples: range(0, out_sizes[-1]),
             },
         )
-        ds["data"] = (("tracen", VerticalKeyDim.samples), volume)
-        ds = ds.set_index(tracen=list(out_dims))
+        # important here to use all known dims except samples to get multi-index
+        for dim in self.dnames[:-1]:
+            ds[dim] = Variable(("tracen",), tracen_slice_df[dim].values)
+        ds["sgy"] = Variable(("tracen", VerticalKeyDim.samples), volume)
+        ds = ds.set_index(tracen=list(self.dnames[:-1]))
         data = (
-            ds.unstack("tracen")
-            .data.transpose(*(out_dims + (VerticalKeyDim.samples,)))
-            .values
+            ds["sgy"]
+            .unstack("tracen")
+            .transpose(*self.dnames)
+            .values.squeeze(axis=squeeze_me)
         )
         return data
 
