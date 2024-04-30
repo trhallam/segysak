@@ -45,20 +45,20 @@ test = [
     "affine",
 ]
 docs = [
-    "sphinx",
-    "sphinx_rtd_theme",
-    "sphinxcontrib-programoutput",
-    "nbsphinx>=0.7",
-    "pandoc",
-    "nbconvert!=5.4",
-    "nbformat",
-    "sphinx-copybutton",
-    "rtds-action",
     "jupytext",
     "pyvista",
     "jupyterlab",
     "wellpathpy",
     "pyshp",
+    "mkdocs",
+    "mkdocstrings",
+    "mkdocstrings-python",
+    "mkdocs-material",
+    "mkdocs-material",
+    "mkdocs-simple-plugin",
+    "mkdocs-jupyter",
+    "mkdocs-include-markdown-plugin",
+    "mkautodoc",
 ]
 
 [project.scripts]

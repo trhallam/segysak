@@ -1,0 +1,104 @@
+site_name: segysak Documentation
+site_author: Tony Hallam
+docs_dir: docs
+theme:
+  name: material
+  language: "en"
+  features:
+    - navigations.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+  palette:
+    primary: teal
+  icon:
+    repo: fontawesome/brands/github
+  custom_dir: docs/overrides
+use_directory_urls: false
+repo_url: https://github.com/trhallam/segysak
+repo_name: trhallam/segysak
+edit_uri: edit/main/docs
+
+copyright: "Tony Hallam"
+
+markdown_extensions:
+  - admonition
+  - footnotes
+  - tables
+  - codehilite:
+      guess_lang: false
+  - toc:
+      permalink: false
+  # - pymdownx.snippets:
+  #     auto_append: ["docs/hyperlinks.md"]
+  - pymdownx.betterem
+  - pymdownx.caret
+  - pymdownx.mark
+  - pymdownx.tilde
+  - pymdownx.details
+  - pymdownx.highlight:
+      use_pygments: true
+      auto_title: true
+  - pymdownx.superfences
+  - pymdownx.smartsymbols
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji 
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.arithmatex:
+      generic: true
+
+# extra_javascript:
+#   - javascripts/mathjax.js
+#   - https://polyfill.io/v3/polyfill.min.js?features=es6
+#   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+plugins:
+  - search
+  - simple
+  - autorefs
+  - mkdocs-jupyter:
+      execute: true
+      kernel_name: python3
+      include_source: True
+      include: ["examples/example*.py", "examples/QuickOverview.py"]
+      ignore: ["*.ipynb"]
+  - mkdocstrings:
+      default_handler: python
+  - include-markdown
+
+nav:
+  - "Home":
+    - "About": index.md
+    - "Why SEGYSAK": why-segysak.md
+    - "Installation": installation.md
+    - "Issue Tracker": https://github.com/trhallam/segysak/issues
+
+  - "User Guide":
+    - "Tutorial": tutorial.md
+    - "Examples":
+      - "Quick Overview": examples/QuickOverview.py
+      - "Segysak Basics": examples/example_segysak_basics.py
+      - "SEGY Headers": examples/example_segysak_headers.py
+      - "Arbitrary Line": examples/example_arbitrary_line.py
+      - "Amplitude Extraction": examples/example_amplitude_extraction_displays.py
+      - "Data on a Horizon": examples/example_extract_data_on_a_horizon.py
+      - "Vectorize SEGY for ML": examples/example_segysak_segy_vectorization.py
+      - "Working with Gathers": example/example_working_with_3d_gathers.py
+      - "Merge two surveys": example/example_merge_surveys.py
+      - "Lazy operations with Dask": example/example_segysak_dask.py
+    - "Command Line Tools": "command-line-tool.md"
+    - FAQ: faq.md
+
+  # - "API":
+  #   - "Fluid Methods": api/fluid_methods.md
+  #   - "Fluids": api/fluid_classes.md
+  #   - "Fluid Blending": api/fluid_blend.md
+  #   - "Minerals": api/minerals.md
+  #   - "Rock Frame": api/rock_frame_classes.md
+  #   - "Porosity Adjustment Models": api/poro_adjust_classes.md
+  #   - "Vertical Stress Models": api/stress_classes.md
+  #   - "Stress Adjustment Models": api/stress_adjust.md
+  #   - "Models": api/model_methods.md
+  #   - "Elastic": api/elastic.md
+  #   - "Base Classes": api/base_classes.md
