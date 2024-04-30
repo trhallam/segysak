@@ -31,7 +31,14 @@ def _check_input(var):
 
 
 def create_seismic_dataset(
-    twt=None, depth=None, cdp=None, iline=None, xline=None, offset=None, **dim_args
+    twt=None,
+    depth=None,
+    cdp=None,
+    iline=None,
+    xline=None,
+    offset=None,
+    segysak_attr=True,
+    **dim_args,
 ):
     """Create a blank seismic dataset by setting the dimension sizes (d#) or by passing
     arrays for known dimensions.
@@ -51,6 +58,7 @@ def create_seismic_dataset(
             used with cdp argument. Use for 3D seismic data. Defaults to None.
         offset (int/array-like, optional): The offset. This will fill dimension d4.
             Use for pre-stack data. Defaults to None.
+        segysak_attr (bool, optional): Add SEGYSAK attributes to the Dataset
         dim_args (int/array-like): Other dimensions you would like in your dataset. The key will be the dimension name.
 
     Returns:
@@ -106,12 +114,13 @@ def create_seismic_dataset(
 
     ds = xr.Dataset(coords=dimensions)
 
-    if twt is not None:
-        ds.attrs[AttrKeyField.ns] = twt.size
-    elif depth is not None:
-        ds.attrs[AttrKeyField.ns] = depth.size
+    if segysak_attr:
+        if twt is not None:
+            ds.attrs[AttrKeyField.ns] = twt.size
+        elif depth is not None:
+            ds.attrs[AttrKeyField.ns] = depth.size
 
-    ds.attrs.update({name: None for name in AttrKeyField})
+        ds.attrs.update({name: None for name in AttrKeyField})
 
     return ds
 
