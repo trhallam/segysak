@@ -2,7 +2,7 @@ from typing import Union, Tuple, Dict, List
 import os
 import pathlib
 from more_itertools import split_into, split_when
-from itertools import product
+from itertools import product, chain
 
 import numpy as np
 import pandas as pd
@@ -24,20 +24,25 @@ from ._segy_globals import _ISEGY_MEASUREMENT_SYSTEM
 TQDM_ARGS = dict(unit=" traces", desc="Writing to SEG-Y")
 
 
-def _chunk_iterator(ds):
-    # get the chunk selection labels
-    if ds.chunks:
-        ranges = {
-            dim: tuple(split_into(ds[dim].values, ds.chunks[dim])) for dim in ds.chunks
-        }
+def chunked_index_iterator(chunks: Tuple[int], index):
+    cur_index = 0
+    for chunk_size in chunks:
+        yield index[cur_index : cur_index + chunk_size]
+        cur_index += chunk_size
 
+
+def chunk_iterator(da: xr.DataArray):
+    # get the chunk selection labels
+    if da.chunks:
+        chunks = da.chunksizes
     else:
-        ranges = {dim: [tuple(ds[dim].values)] for dim in ds.sizes}
-    lens = {key: len(val) for key, val in ranges.items()}
-    order = tuple(ranges.keys())
-    ranges = tuple(ranges.values())
-    for selection in product(*map(range, tuple(lens.values()))):
-        yield {order[i]: list(ranges[i][n]) for i, n in enumerate(selection)}
+        # autochunk
+        chunks = da.chunk().chunksizes
+    chunk_iterables = (
+        chunked_index_iterator(chks, da[var].values) for var, chks in chunks.items()
+    )
+    for chunk_index in product(*chunk_iterables):
+        yield {key: ci for key, ci in zip(chunks.keys(), chunk_index)}
 
 
 def _segy_freewriter(
@@ -52,13 +57,6 @@ def _segy_freewriter(
     **dim_kwargs,
 ):
     """"""
-    if trace_header_map:
-        byte_fields = list(trace_header_map.values())
-    else:
-        byte_fields = []
-    byte_fields += list(dim_kwargs.values())
-    check_tracefield(byte_fields)
-
     try:
         coord_scalar = seisnc.coord_scalar
     except AttributeError:
@@ -66,16 +64,6 @@ def _segy_freewriter(
         seisnc.attrs["coord_scalar"] = coord_scalar
     coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar) * -1)
     seisnc.attrs["coord_scalar_mult"] = coord_scalar_mult
-
-    # create empty trace header map if necessary
-    if trace_header_map is None:
-        trace_header_map = dict()
-    else:  # check that values of thm in ds
-        for key in trace_header_map:
-            try:
-                _ = seisnc[key]
-            except KeyError:
-                raise ValueError("keys of trace_header_map must be in seisnc")
 
     # remove duplicate dim_kwargs from trace_header_map
     for key in dim_kwargs:
@@ -85,17 +73,6 @@ def _segy_freewriter(
         thm_vars += (dead_trace_key,)
 
     dim_order = tuple(dim_kwargs.keys())
-
-    # create trace headers
-    trace_layout = seisnc[data_array].isel(**{vert_dimension: 0})
-    trace_headers = pd.DataFrame()
-    for var in thm_vars:
-        trace_headers[var] = (
-            seisnc[var]
-            .broadcast_like(trace_layout)
-            .transpose(*dim_order, transpose_coords=True)
-            .values.ravel()
-        )
 
     # scale coords
     if CoordKeyField.cdp_x in trace_header_map:
@@ -107,37 +84,20 @@ def _segy_freewriter(
             trace_headers[CoordKeyField.cdp_y] * seisnc.coord_scalar_mult
         )
 
-    trace_headers = trace_headers.astype(np.int32)
-    z0 = int(seisnc[vert_dimension].values[0])
-    ntraces = trace_headers.shape[0]
-    ns = seisnc[vert_dimension].values.size
     msys = _ISEGY_MEASUREMENT_SYSTEM[seisnc.seis.get_measurement_system()]
-    spec = segyio.spec()
-    spec.format = 1
-    spec.iline = 181
-    spec.xline = 185
-    spec.samples = range(ns)
 
     if dead_trace_key:
         dead = ~trace_headers[dead_trace_key].astype(bool)
-        spec.tracecount = dead.sum()
         live_index = trace_headers.where(dead).dropna().index
         tracen = pd.Series(
             index=live_index, data=np.arange(live_index.size), name="tracen"
         )
     else:
-        spec.tracecount = ntraces
         tracen = pd.Series(
             index=trace_headers.index,
             name="tracen",
             data=np.arange(trace_headers.index.size),
         )
-
-    # build trace headers
-    trace_headers = trace_headers.astype(np.int32)
-    trace_headers = trace_headers.join(
-        tracen.astype(np.float32),
-    )
 
     seisnc["tracen"] = trace_headers.set_index(list(dim_order))["tracen"].to_xarray()
     trace_headers = trace_headers.dropna(subset=["tracen"])
@@ -146,14 +106,6 @@ def _segy_freewriter(
     trace_headers = trace_headers[list(trace_header_map.keys())].rename(
         columns=trace_header_map
     )
-
-    # header constants
-    for byte, val in zip(
-        [segyio.su.offset, segyio.su.ns, segyio.su.delrt, segyio.su.scalco],
-        [1, ns, z0, int(seisnc.coord_scalar)],
-    ):
-        if byte not in trace_headers.columns:  # don't override user values
-            trace_headers[byte] = val
 
     # write out to segy
     with segyio.create(segyfile, spec) as segyf:
@@ -226,6 +178,38 @@ class SegyWriter:
                 self.byte_fields += list(field.values())
         check_tracefield(self.byte_fields)
 
+    def _create_output_trace_headers(
+        self,
+        da: xr.DataArray,
+        vert_dimension: str,
+        dim_order: Tuple[str],
+        header_vars: Dict[str, xr.DataArray],
+    ) -> pd.DataFrame:
+        """Takes the DataArray to output and optional dead_traces DataArray to
+        calculate output trace numbering and coordinate mapping.
+        """
+        trace_headers = xr.Dataset(coords={key: da[key] for key in dim_order})
+        shape = tuple(trace_headers.sizes.values())
+        ntraces = np.prod(shape)
+        trace_headers["tracen"] = xr.Variable(
+            dim_order, np.arange(0, ntraces, 1).reshape(shape)
+        )
+        # add header values
+        for header_var, header_da in header_vars.items():
+            trace_headers[header_var] = header_da.astype("int32")
+        return trace_headers
+
+    def _create_segyio_spec(self, samples: np.array, trace_count: int) -> segyio.spec:
+        spec = segyio.spec()
+        spec.format = 1
+        # these don't really matter actually
+        spec.iline = 181
+        spec.xline = 185
+        # this is the vertical domain of the DataArray
+        spec.samples = samples
+        spec.tracecount = trace_count
+        return spec
+
     def _default_text_header(self, trace_header_map: Dict[str, int]) -> str:
         """Create a default text header from trace header maps highlight trace
         header positions for data.
@@ -275,7 +259,7 @@ class SegyWriter:
     def _extract_attributes(self, da: xr.DataArray):
         try:
             self.coord_scalar = da.attrs["coord_scalar"]
-        except AttributeError:
+        except KeyError:
             self.coord_scalar = 0.0
 
         # calculates the
@@ -294,6 +278,7 @@ class SegyWriter:
         ds: xr.Dataset,
         data_var: str = "data",
         vert_dimension: str = "samples",
+        dead_trace_var: Union[str, None] = None,
         trace_header_map: Dict[str, int] = None,
         chunk_spec=None,
         **dim_kwargs,
@@ -305,6 +290,7 @@ class SegyWriter:
             segy_file: The output SEG-Y file and path
             data_var: The Dataset variable name for the output volume.
             vert_dimension: Data dimension to output as vertical trace, defaults to 'samples'.
+            dead_trace_var: A variable in the Dataset which signifies dead traces.
             trace_header_map: Defaults to None. A dictionary of Dataset variables
                 and byte locations. The variable will be written to the trace headers in the
                 assigned byte location. By default CMP=23, cdp_x=181, cdp_y=185, iline=189,
@@ -323,11 +309,26 @@ class SegyWriter:
         """
         # test for bad args
         assert data_var in ds
-        for dim in dim_kwargs:
-            assert dim in ds.coords
 
-        for th in trace_header_map:
-            assert th in ds
+        # The order of the keys determines the order of the segyfile trace numbering.
+        dim_order = tuple(dim_kwargs.keys())  # i.e. ('iline', 'xline')
+        full_dim_order = dim_order + (vert_dimension,)  # ('iline', 'xline', 'twt')
+
+        # check the dims specified match the data_var
+        for dim in ds[data_var].dims:
+            assert dim in full_dim_order
+
+        if trace_header_map:
+            # check the header map vars are in the dataset
+            for th in trace_header_map:
+                assert th in ds
+        else:
+            trace_header_map = dict()
+
+        header_vars = {
+            byte: ds[var]
+            for var, byte in chain(dim_kwargs.items(), trace_header_map.items())
+        }
 
         # combine and check header field lists
         self._create_byte_fields(trace_header_map, dim_kwargs)
@@ -335,6 +336,90 @@ class SegyWriter:
         #
         self.shape = ds[data_var].shape
 
+        # create the trace numbering and headers
+        trace_headers = self._create_output_trace_headers(
+            ds[data_var],
+            vert_dimension,
+            dim_order,
+            header_vars,
+        )
+
+        if dead_trace_var:
+            pass
+        else:
+            trace_count = trace_headers["tracen"].size
+
+        # get the spec of the segy file
+        samples = ds[data_var][vert_dimension].values
+        spec = self._create_segyio_spec(samples, trace_count)  # the number of samples
+
+        # add default header values if not specified by user
+        for byte, val in zip(
+            [segyio.su.offset, segyio.su.ns, segyio.su.delrt, segyio.su.scalco],
+            [1, samples.size, samples[0], int(self.coord_scalar)],
+        ):
+            if byte not in list(trace_headers.var()):  # don't override user values
+                trace_headers[byte] = xr.full_like(trace_headers["tracen"], val)
+
+        trace_headers_variables = list(trace_headers.var())
+        trace_headers_variables.remove("tracen")
+
+        with (
+            segyio.create(self.segy_file, spec) as segyf,
+            tqdm(total=trace_count) as pbar,
+        ):
+
+            segyf.bin.update(
+                # tsort=segyio.TraceSortingFormat.INLINE_SORTING,
+                # hdt=int(seisnc.sample_rate * 1000),
+                hns=samples.size,
+                # mfeet=msys,
+                jobid=1,
+                lino=1,
+                reno=1,
+                ntrpr=trace_count,
+                nart=trace_count,
+                fold=1,
+            )
+            for chunk_labels in chunk_iterator(ds[data_var]):
+                data = (
+                    ds[data_var]
+                    .sel(**chunk_labels)
+                    .transpose(*dim_order, vert_dimension)
+                    .stack({"ravel": dim_order})
+                )
+                if data.size < 1:
+                    continue
+
+                chunk_labels.pop(vert_dimension)
+                head = (
+                    trace_headers.sel(**chunk_labels)
+                    .transpose(*dim_order)
+                    .stack({"ravel": dim_order})
+                )
+
+                # get blocks of contiguous traces as slice representation
+                trace_locs = head["tracen"].values.astype(int)
+                trace_locs = tuple(
+                    map(
+                        lambda x: slice(x[0], x[-1] + 1),
+                        split_when(trace_locs, lambda x, y: y != x + 1),
+                    )
+                )
+                for slc_set in trace_locs:
+                    segyf.header[slc_set] = (
+                        head.isel(ravel=slc_set)
+                        .to_dataframe()[trace_headers_variables]
+                        .to_dict(orient="records")
+                    )
+                    segyf.trace[slc_set] = (
+                        data.isel(ravel=slc_set)
+                        .transpose("ravel", vert_dimension)
+                        .values.astype(np.float32)
+                    )
+                    pbar.update(slc_set.stop - slc_set.start)
+
+        # Write out a text header if available, else default header is used
         if self.use_text:
             text = ds[data_var].attrs.get("text")
             self.write_text_header(text, line_numbers=True)
