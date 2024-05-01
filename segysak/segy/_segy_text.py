@@ -73,7 +73,7 @@ def get_segy_texthead(segyfile, ext_headers=False, no_richstr=False, **segyio_kw
 
 def _process_string_texthead(string, n, nlines=40):
     """New lines are preserved.
-    
+
     Args:
         string (str): The textheader as a string.
         n (int): The number of allowable chars per line.
@@ -81,31 +81,34 @@ def _process_string_texthead(string, n, nlines=40):
     Returns:
         list: The string broken into lines and pre-padded for line breaks.
     """
-    txt = reduce(operator.add, [textwrap.wrap(s, width=n) for s in string.split('\n')], [])
+    txt = reduce(
+        operator.add, [textwrap.wrap(s, width=n) for s in string.split("\n")], []
+    )
     txt = list(map(lambda x: x.strip().ljust(n), txt))
     while len(txt) < nlines:
         txt.append("".ljust(n))
     return txt
 
+
 def _process_dict_texthead(strdict, n, nlines=40):
     """Pads each str to n
-    
+
     Args:
         strdict (dict): The textheader as a dict with numeric keys for line numbers e.g. {1: 'line 1'}.
         n (int): The number of allowable chars per line.
         nlines
 
     Returns:
-        list: The string broken into lines and pre-padded for line breaks.  
+        list: The string broken into lines and pre-padded for line breaks.
     """
     tdict = defaultdict(lambda: "")
     tdict.update(strdict)
-    return [tdict[i].ljust(n) for i in range(1, nlines+1)]
+    return [tdict[i].ljust(n) for i in range(1, nlines + 1)]
 
 
 def put_segy_texthead(segyfile, ebcidc, line_counter=True, **segyio_kwargs):
     """Puts a text header (ebcidc) into a segyfile.
-        
+
     Args:
         segyfile (str): The path to the file to update.
         ebcidc (str, list, dict, bytes):
@@ -130,11 +133,11 @@ def put_segy_texthead(segyfile, ebcidc, line_counter=True, **segyio_kwargs):
         lines = ebcidc
     else:
         lines = []
-    
+
     if not isinstance(ebcidc, bytes):
         if line_counter:
             lines = [f"C{i+1:2d} {line:s}" for i, line in enumerate(lines)]
-    
+
         # check lengths
         for i, line in enumerate(lines):
             if len(line) > 80:
@@ -144,12 +147,12 @@ def put_segy_texthead(segyfile, ebcidc, line_counter=True, **segyio_kwargs):
         header = bytes("".join(lines), "utf8")
     else:
         header = ebcidc
-    
+
     # check size
     if len(header) > 3200:
         warn("Byte EBCIDC is too large - truncating", UserWarning)
         header = header[:3200]
-       
+
     segyio_kwargs["ignore_geometry"] = True
     with segyio.open(segyfile, "r+", **segyio_kwargs) as segyf:
         segyf.text[0] = header
@@ -176,7 +179,7 @@ def _clean_texthead(text_dict, n=75):
             line_str = text_dict[line]
             if len(line_str) > n:
                 line_str = line_str[0:n]
-        except KeyError:
+        except IndexError:
             line_str = ""
         output[line] = line_str
     return output
