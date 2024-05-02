@@ -24,6 +24,11 @@ theme:
     repo: fontawesome/brands/github
 use_directory_urls: false
 
+# Customization
+extra:
+  version:
+    provider: mike
+
 markdown_extensions:
   - markdown.extensions.admonition:
   - markdown.extensions.footnotes:
