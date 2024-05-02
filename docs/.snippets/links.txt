@@ -1,0 +1,10 @@
+[Segyio]: https://segyio.readthedocs.io/en/latest/segyio.html
+[NetCDF4]: http://www.unidata.ucar.edu/software/netcdf
+[Dask]: http://dask.org
+[Xarray]: http://xarray.pydata.org/en/stable/
+[NumPy]: http://www.numpy.org
+[Scipy]: https://scipy.org/
+[Pandas]: http://pandas.pydata.org
+[matplotlib]: https://matplotlib.org/
+[Pyvista]: https://docs.pyvista.org/
+[PyZgy]: https://github.com/equinor/pyzgy

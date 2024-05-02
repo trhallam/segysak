@@ -1,5 +1,4 @@
-Overview: Why SEGY-SAK?
-========================
+# Overview: Why SEGY-SAK?
 
 The objective of SEGY-SAK was to bring together the usefulness of `segyio` and
 `xarray` to improve accessibility of seismic data for geoscientists using Python.

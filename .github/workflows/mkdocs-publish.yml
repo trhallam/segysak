@@ -1,0 +1,81 @@
+name: Publish docs via GitHub Pages
+
+on: [push, pull_request]
+
+env:
+  PACKAGE: digirock
+
+jobs:
+  mkdocs_build_test_deploy:
+    name: build mkdocs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update clone config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin gh-pages --depth=1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      # required to use caching because it depends on requirements.txt
+      - name: Setup Hatch
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install hatch
+
+      - name: Build docs examples
+        run: |
+          hatch run docs:build-examples
+          hatch run docs:cli-snippets
+
+      - name: Deploy mkdocs
+        if: success() && github.event_name == 'push' && github.ref_name == 'main'
+        run: |
+          hatch run docs:mike deploy --push --update-aliases $(hatch version) latest
+
+      - name: Deploy mkdocs dev
+        if: success() && github.event_name == 'push' && github.ref_name != 'main'
+        run: |
+          hatch run docs:mike deploy --push --update-aliases $(hatch version) dev
+
+  test_badge:
+    name: create docs badges
+    if: always() && github.ref_name == 'main'
+    needs: [mkdocs_build_test_deploy]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: passed?
+        if: needs.mkdocs_build_test_deploy.result == 'success'
+        run: |
+          echo "BADGE_COLOUR=green" >> $GITHUB_ENV
+          echo "BADGE_MSG=pass" >> $GITHUB_ENV
+
+      - name: failed?
+        if: needs.mkdocs_build_test_deploy.result == 'failure'
+        run: |
+          echo "BADGE_COLOUR=RED" >> $GITHUB_ENV
+          echo "BADGE_MSG=fail" >> $GITHUB_ENV
+
+      - name: create test badges
+        if:
+        uses: schneegans/dynamic-badges-action@v1.1.0
+        with:
+          auth: ${{ secrets.GIST_TOKEN }}
+          gistID: 0da415ee1bf30b0fc37a2fc4ddafbdee
+          filename: ${{ env.PACKAGE }}_docs.json
+          label: Docs
+          namedLogo: Read the Docs
+          logoColor: white
+          message: ${{ env.BADGE_MSG }}
+          color: ${{ env.BADGE_COLOUR }}
