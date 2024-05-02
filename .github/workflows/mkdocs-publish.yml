@@ -68,7 +68,6 @@ jobs:
           echo "BADGE_MSG=fail" >> $GITHUB_ENV
 
       - name: create test badges
-        if:
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_TOKEN }}
