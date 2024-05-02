@@ -42,28 +42,45 @@ jobs:
       - name: Deploy mkdocs
         if: success() && github.event_name == 'push' && github.ref_name == 'main'
         run: |
-          hatch run docs:mike deploy --update-aliases ${HATCH_VERSION} latest
+          hatch run docs:mike deploy --update-aliases --push ${HATCH_VERSION} latest
 
       - name: Deploy mkdocs dev
         if: success() && github.event_name == 'push' && github.ref_name != 'main'
         run: |
-          hatch run docs:mike deploy --update-aliases ${HATCH_VERSION} dev
+          hatch run docs:mike deploy --update-aliases --push ${HATCH_VERSION} dev
+
+  mkdocs_badges:
+    name: create docs badges
+    if: always() && github.ref_name == 'main'
+    needs: [mkdocs_build_test_deploy]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          fetch-depth: 1
+
+      - name: Update clone config
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Success Badge
-        if: success()
+        if: needs.mkdocs_build_test_deploy.result == 'success'
         run: |
           git checkout gh-pages
           if [ ! -d ${HATCH_VERSION} ]; then mkdir ${HATCH_VERSION}; fi
           echo '{"schemaVersion":1,"label":"Docs","message":"pass","color":"green","namedLogo":"materialformkdocs","logoColor":"white"}' | tee ${HATCH_VERSION}/badge-mkdocs.json
 
       - name: Fail Badge
-        if: success()
+        if: needs.mkdocs_build_test_deploy.result == 'failure'
         run: |
           git checkout gh-pages
           if [ ! -d ${HATCH_VERSION} ]; then mkdir ${HATCH_VERSION}; fi
           echo '{"schemaVersion":1,"label":"Docs","message":"fail","color":"red","namedLogo":"materialformkdocs","logoColor":"white"}' | tee ${HATCH_VERSION}/badge-mkdocs.json
 
       - name: Push to Github
-        if: always()
         run: |
           git push origin gh-pages
