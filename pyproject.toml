@@ -114,11 +114,10 @@ serve = [
 ]
 build = "mkdocs build -v"
 deploy = [
-    "echo $(segysak --version | grep -P '\\d+.\\d+.[a-zA-Z\\d]+' -o)",
     "clean",
     "build-examples",
     "cli-snippets",
-    "mike deploy --update-aliases $(segysak --version | grep -P '\\d+.\\d+.[a-zA-Z\\d]+' -o) dev"
+    "mike deploy --update-aliases $(hatch version) dev"
 ]
 
 # extras

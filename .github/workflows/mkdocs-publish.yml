@@ -31,7 +31,7 @@ jobs:
       - name: Setup Hatch
         run: |
           python -m pip install --upgrade pip
-          pip install hatch
+          python -m pip install hatch
 
       - name: Build docs examples
         run: |
@@ -41,14 +41,12 @@ jobs:
       - name: Deploy mkdocs
         if: success() && github.event_name == 'push' && github.ref_name == 'main'
         run: |
-          VERSION=$(git describe --tags --abbrev=0)
-          mike deploy --push --update-aliases ${VERSION} latest
+          hatch run docs:mike deploy --push --update-aliases $(hatch version) latest
 
       - name: Deploy mkdocs dev
         if: success() && github.event_name == 'push' && github.ref_name != 'main'
         run: |
-          VERSION=$(git describe --tags --abbrev=0)
-          mike deploy --push --update-aliases ${VERSION} dev
+          hatch run docs:mike deploy --push --update-aliases $(hatch version) dev
 
   test_badge:
     name: create docs badges
