@@ -179,14 +179,13 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         nsamp = self._head_bin["Samples"]
         ns0 = self._head_df.DelayRecordingTime.min()
         sample_rate = self._head_bin["Interval"] / 1000.0
-        msys = _SEGY_MEASUREMENT_SYSTEM[self._head_bin["MeasurementSystem"]]
         samples = sample_range(ns0, sample_rate, nsamp)
 
         # calculate dimensions, the dims must be specified to create unique orthogonal
         # geometry for each trace
         dims = header_as_dimensions(self._head_df, list(self.dim_byte_fields))
         dims[VerticalKeyDim.samples] = samples
-        ds = create_seismic_dataset(**dims)
+        ds = create_seismic_dataset(segysak_attr=False, **dims)
 
         # build a trace_index variable which maps dims to trace number in the segyfile
         self.trace_index = self._head_df[list(self.dim_byte_fields)].copy()
@@ -205,17 +204,21 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         else:
             ebf = []
 
-        # get segy file attributes
-        text = get_segy_texthead(self.filename_or_obj, **self.segyio_kwargs)
-
-        ds.attrs[AttrKeyField.source_file] = self.filename_or_obj
-        ds.attrs[AttrKeyField.text] = text
-        ds.attrs[AttrKeyField.measurement_system] = msys
-        ds.attrs[AttrKeyField.sample_rate] = sample_rate
-
         dnames = tuple(ds.sizes)
         shape = tuple(ds.sizes[dn] for dn in dnames)
         return dnames, shape, ds
+
+    def _add_dataarray_attr(self, da):
+
+        # get segy file attributes
+        text = get_segy_texthead(self.filename_or_obj, **self.segyio_kwargs)
+        msys = _SEGY_MEASUREMENT_SYSTEM[self._head_bin["MeasurementSystem"]]
+        sample_rate = self._head_bin["Interval"] / 1000.0
+
+        da.attrs[AttrKeyField.source_file] = self.filename_or_obj
+        da.attrs[AttrKeyField.text] = text
+        da.attrs[AttrKeyField.measurement_system] = msys
+        da.attrs[AttrKeyField.sample_rate] = sample_rate
 
     def _determine_preferred_chunks(
         self, dnames: Tuple[str], dshape: Tuple[int]
@@ -287,6 +290,7 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         )
         data = indexing.LazilyIndexedArray(backend_array)
         ds["data"] = Variable(ds.dims, data, encoding=encoding)
+        self._add_dataarray_attr(ds["data"])
         return ds
 
     def guess_can_open(self, filename_or_obj: Union[str, os.PathLike]):

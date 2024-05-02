@@ -17,7 +17,6 @@ dependencies = [
     "tqdm",
     "scipy!=1.10.0",  # version introduced bug with interp
     "click",
-    "pyzgy",
     "h5netcdf",
     "addict",
     "more-itertools>=8.0",
@@ -60,6 +59,7 @@ docs = [
     "mkdocs-include-markdown-plugin",
     "mkautodoc",
     "mike",
+    # "pyzgy", re-enable when working merge
 ]
 
 # testing config
