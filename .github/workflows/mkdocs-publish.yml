@@ -22,8 +22,8 @@ jobs:
       - name: create requirements
         run: |
           python -m pip install --upgrade pip
-          pip install pip_tools
-          pip-compile setup.cfg --extra docs
+          python -m pip install pip_tools
+          pip-compile pyproject.toml --extra docs
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -33,7 +33,7 @@ jobs:
       - name: Install package and deps
         run: |
           python -m pip install --upgrade pip
-          pip install .[docs]
+          python -m pip install .[docs]
 
       - name: build docs
         run: mkdocs build -f mkdocs.yml
