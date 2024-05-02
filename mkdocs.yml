@@ -43,7 +43,7 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.smartsymbols
   - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji 
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.arithmatex:
       generic: true
@@ -68,15 +68,16 @@ plugins:
   - include-markdown
 
 nav:
-  - "Home":
-    - "About": index.md
-    - "Why SEGYSAK": why-segysak.md
-    - "Installation": installation.md
-    - "Issue Tracker": https://github.com/trhallam/segysak/issues
+  - Home:
+      - About: index.md
+  - Walkthrough:
+      - Installation: installation.md
+  - Learn:
+      - Why SEGYSAK: why-segysak.md
+  - Community:
+      - Issue Tracker: https://github.com/trhallam/segysak/issues
 
-  - "User Guide":
-    - "Tutorial": tutorial.md
-    - "Examples":
+  - Examples:
       - "Quick Overview": examples/QuickOverview.py
       - "Segysak Basics": examples/example_segysak_basics.py
       - "SEGY Headers": examples/example_segysak_headers.py
@@ -87,18 +88,22 @@ nav:
       - "Working with Gathers": example/example_working_with_3d_gathers.py
       - "Merge two surveys": example/example_merge_surveys.py
       - "Lazy operations with Dask": example/example_segysak_dask.py
-    - "Command Line Tools": "command-line-tool.md"
-    - FAQ: faq.md
+  - CLI:
+      - About: cli/about.md
+      - Reference: cli/command-line-ref.md
+  - Tutorial: tutorial.md
+  - Meta:
+      - FAQ: faq.md
 
-  - "API": 
-    - "API Home": api.md 
-    - "Inspecting SEGY": api/segy_inspecting.md
-    - "SEGY via Xarray": api/segy_xarray.md
-    - "Loading SEGY": api/segy_loading.md
-    - "Writing SEGY": api/segy_writing.md
-    - "SEGY text header operations": api/segy_text.md
-    - "Xarray Accessor modules": api/xarray_accessor.md
-    - "New Xarray datasets": api/xarray_new.md
+  - Reference:
+      - About: api.md
+      - "Inspecting SEGY": api/segy_inspecting.md
+      - "SEGY via Xarray": api/segy_xarray.md
+      - "Loading SEGY": api/segy_loading.md
+      - "Writing SEGY": api/segy_writing.md
+      - "SEGY text header operations": api/segy_text.md
+      - "Xarray Accessor modules": api/xarray_accessor.md
+      - "New Xarray datasets": api/xarray_new.md
 
   #   - "Fluids": api/fluid_classes.md
   #   - "Fluid Blending": api/fluid_blend.md

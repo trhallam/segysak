@@ -1,0 +1,33 @@
+The data used for the SEGY-SAK examples is made available under licenses defined 
+by the originators.
+
+--------------------------------------------------------------------------------
+
+3D_gathers_pstm_nmo.sgy
+
+A subset of the Penobscot 3D Gathers provided in the OpendTect Free Datasets and
+made avaialble under the BY-SA 3.0 licence.
+
+https://creativecommons.org/licenses/by-sa/3.0/
+
+The full dataset is available from
+
+https://terranubis.com/datainfo/Penobscot
+
+--------------------------------------------------------------------------------
+
+volve10r12-full-twt-arb.sgy
+volve10r12-full-twtw-sub3d.sgy
+hor_twt_hugin_fm_top.dat
+well_f12_deviation.asc
+
+Are derived products or subsets of the Volve Open dataset released by Equinor.
+
+https://www.equinor.com/en/what-we-do/digitalisation-in-our-dna/volve-field-data-village-download.html
+
+The Volve data is made available under a licence specific to the dataset.
+
+https://www.equinor.com/content/dam/statoil/documents/what-we-do/Equinor-HRS-Terms-and-conditions-for-licence-to-data-Volve.pdf
+
+--------------------------------------------------------------------------------
+
