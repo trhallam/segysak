@@ -4,6 +4,8 @@ on: [push, pull_request]
 
 env:
   PACKAGE: segysak
+  BADGE_MSG: fail
+  BADGE_COLOUR: red
 
 jobs:
   mkdocs_build_test_deploy:
@@ -43,15 +45,22 @@ jobs:
         if: success() && github.event_name == 'push' && github.ref_name == 'main'
         run: |
           hatch run docs:mike deploy --update-aliases --push ${HATCH_VERSION} latest
+          echo "HATCH_VERSION=$(hatch version)" >> $GITHUB_ENV
 
       - name: Deploy mkdocs dev
         if: success() && github.event_name == 'push' && github.ref_name != 'main'
         run: |
           hatch run docs:mike deploy --update-aliases --push ${HATCH_VERSION} dev
 
+      - name: Update docs env vars
+        if: success()
+        run: |
+          echo "BADGE_MSG=pass"" >> $GITHUB_ENV
+          echo "BADGE_COLOUR=green" >> $GITHUB_ENV
+
   mkdocs_badges:
     name: create docs badges
-    if: always() && github.ref_name == 'main'
+    if: always()
     needs: [mkdocs_build_test_deploy]
     runs-on: ubuntu-latest
 
@@ -62,25 +71,10 @@ jobs:
           ref: gh-pages
           fetch-depth: 1
 
-      - name: Update clone config
+      - name: Update badges
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Success Badge
-        if: needs.mkdocs_build_test_deploy.result == 'success'
-        run: |
-          git checkout gh-pages
           if [ ! -d ${HATCH_VERSION} ]; then mkdir ${HATCH_VERSION}; fi
-          echo '{"schemaVersion":1,"label":"Docs","message":"pass","color":"green","namedLogo":"materialformkdocs","logoColor":"white"}' | tee ${HATCH_VERSION}/badge-mkdocs.json
-
-      - name: Fail Badge
-        if: needs.mkdocs_build_test_deploy.result == 'failure'
-        run: |
-          git checkout gh-pages
-          if [ ! -d ${HATCH_VERSION} ]; then mkdir ${HATCH_VERSION}; fi
-          echo '{"schemaVersion":1,"label":"Docs","message":"fail","color":"red","namedLogo":"materialformkdocs","logoColor":"white"}' | tee ${HATCH_VERSION}/badge-mkdocs.json
-
-      - name: Push to Github
-        run: |
+          echo '{"schemaVersion":1,"label":"Docs","message":"${BADGE_MSG}","color":"${BADGE_COLOUR}","namedLogo":"materialformkdocs","logoColor":"white"}' | tee ${HATCH_VERSION}/badge-mkdocs.json
           git push origin gh-pages
