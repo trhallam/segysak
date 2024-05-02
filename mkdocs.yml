@@ -76,7 +76,14 @@ plugins:
       include: ["examples/*.ipynb"]
   - mkdocstrings:
       default_handler: python
-  - include-markdown
+  - mike:
+      alias_type: symlink
+      redirect_template: null
+      deploy_prefix: ""
+      canonical_version: latest
+      version_selector: true
+      css_dir: css
+      javascript_dir: js
 
 nav:
   - Home:

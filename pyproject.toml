@@ -79,32 +79,47 @@ features = [
     "docs"
 ]
 
+[tool.hatch.envs.docs.env-vars]
+CLI_SNIPPETS = "docs/.snippets/cli"
+DOC_EXAMPLES = "docs/examples"
+
 [tool.hatch.envs.docs.scripts]
+clean = [
+  "if [ -d docs/examples ]; then rm -rf $DOC_EXAMPLES; fi",
+  "if [ -d docs/.snippets/cli ]; then rm -rf docs/.snippets/cli; fi",
+]
 build-examples = [
     "jupytext --to ipynb --execute examples/*.py",
-    "mkdir -p examples/notebooks",
-    "mv examples/*.ipynb examples/notebooks/.",
+    "mkdir -p $DOC_EXAMPLES",
+    "mv examples/*.ipynb $DOC_EXAMPLES/.",
 ]
 cli-snippets = [
-    "mkdir -p docs/.snippets/cli",
-    "segysak > docs/.snippets/cli/segysak.txt",
-    "segysak ebcidc --help > docs/.snippets/cli/ebcidc.txt",
-    "segysak scan --help > docs/.snippets/cli/scan.txt",
-    "segysak scrape --help > docs/.snippets/cli/scrape.txt",
-    "segysak convert --help > docs/.snippets/cli/convert.txt",
+    "echo $CLI_SNIPPETS",
+    "mkdir -p $CLI_SNIPPETS",
+    "segysak > $CLI_SNIPPETS/segysak.txt",
+    "segysak ebcidc --help > $CLI_SNIPPETS/ebcidc.txt",
+    "segysak scan --help > $CLI_SNIPPETS/scan.txt",
+    "segysak scrape --help > $CLI_SNIPPETS/scrape.txt",
+    "segysak convert --help > $CLI_SNIPPETS/convert.txt",
 ]
+
 serve = [
-    "if [ -f \"docs/examples\" ]; then rm -rf docs/examples/*.ipynb; fi",
-    "mkdir -p docs/examples",
-    """if [ ! -f \"examples/notebooks/QuickOverview.ipynb\" ]; then
+    """if [ ! -d $DOC_EXAMPLES ]; then
         jupytext --to ipynb examples/*.py;
-        mv examples/*.ipynb examples/notebooks/.;
+        mkdir -p $DOC_EXAMPLES;
+        mv examples/*.ipynb $DOC_EXAMPLES/.;
     fi""",
-    "cp examples/notebooks/*.ipynb docs/examples/.",
+    "cli-snippets",
     "mkdocs serve",
 ]
-build = "mkdocs build"
-
+build = "mkdocs build -v"
+deploy = [
+    "echo $(segysak --version | grep -P '\\d+.\\d+.[a-zA-Z\\d]+' -o)",
+    "clean",
+    "build-examples",
+    "cli-snippets",
+    "mike deploy --update-aliases $(segysak --version | grep -P '\\d+.\\d+.[a-zA-Z\\d]+' -o) dev"
+]
 
 # extras
 
