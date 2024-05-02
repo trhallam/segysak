@@ -2,13 +2,8 @@ name: Publish docs via GitHub Pages
 
 on: [push, pull_request]
 
-env:
-  PACKAGE: segysak
-  BADGE_MSG: fail
-  BADGE_COLOUR: red
-
 jobs:
-  mkdocs_build_test_deploy:
+  mkdocs:
     name: build mkdocs
     runs-on: ubuntu-latest
 
@@ -35,46 +30,32 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install hatch
 
-      - name: Build docs examples
+      - name: Set ENV Vars
         run: |
+          if [ "${GITHUB_REF_NAME}" == "main" ]; then
+            echo "MIKE_ALIAS=latest" >> $GITHUB_ENV
+          else
+            echo "MIKE_ALIAS=dev" >> $GITHUB_ENV
+          fi
           echo "HATCH_VERSION=$(hatch version)" >> $GITHUB_ENV
+          echo "${HATCH_VERSION} ${MIKE_ALIAS}"
+
+          echo "BADGE_MSG=fail" >> $GITHUB_ENV
+          echo "BADGE_COLOUR=red" >> $GITHUB_ENV
+
+      - name: Build docs examples
+        id: build
+        run: |
           hatch run docs:build-examples
           hatch run docs:cli-snippets
-
-      - name: Deploy mkdocs
-        if: success() && github.event_name == 'push' && github.ref_name == 'main'
-        run: |
-          hatch run docs:mike deploy --update-aliases --push ${HATCH_VERSION} latest
-          echo "HATCH_VERSION=$(hatch version)" >> $GITHUB_ENV
-
-      - name: Deploy mkdocs dev
-        if: success() && github.event_name == 'push' && github.ref_name != 'main'
-        run: |
-          hatch run docs:mike deploy --update-aliases --push ${HATCH_VERSION} dev
-
-      - name: Update docs env vars
-        if: success()
-        run: |
-          echo "BADGE_MSG=pass"" >> $GITHUB_ENV
+          hatch run docs:mike deploy --update-aliases --push ${HATCH_VERSION} ${MIKE_ALIAS}
+          echo "BADGE_MSG=pass" >> $GITHUB_ENV
           echo "BADGE_COLOUR=green" >> $GITHUB_ENV
 
-  mkdocs_badges:
-    name: create docs badges
-    if: always()
-    needs: [mkdocs_build_test_deploy]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
-        with:
-          ref: gh-pages
-          fetch-depth: 1
-
-      - name: Update badges
+      - name: Write Badges
+        if: always()
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout gh-pages
           if [ ! -d ${HATCH_VERSION} ]; then mkdir ${HATCH_VERSION}; fi
           echo '{"schemaVersion":1,"label":"Docs","message":"${BADGE_MSG}","color":"${BADGE_COLOUR}","namedLogo":"materialformkdocs","logoColor":"white"}' | tee ${HATCH_VERSION}/badge-mkdocs.json
           git push origin gh-pages
