@@ -58,7 +58,7 @@ plugins:
   - simple
   - autorefs
   - mkdocs-jupyter:
-      execute: true
+      execute: false
       kernel_name: python3
       include_source: True
       include: ["examples/example*.py", "examples/QuickOverview.py"]
@@ -90,8 +90,16 @@ nav:
     - "Command Line Tools": "command-line-tool.md"
     - FAQ: faq.md
 
-  # - "API":
-  #   - "Fluid Methods": api/fluid_methods.md
+  - "API": 
+    - "API Home": api.md 
+    - "Inspecting SEGY": api/segy_inspecting.md
+    - "SEGY via Xarray": api/segy_xarray.md
+    - "Loading SEGY": api/segy_loading.md
+    - "Writing SEGY": api/segy_writing.md
+    - "SEGY text header operations": api/segy_text.md
+    - "Xarray Accessor modules": api/xarray_accessor.md
+    - "New Xarray datasets": api/xarray_new.md
+
   #   - "Fluids": api/fluid_classes.md
   #   - "Fluid Blending": api/fluid_blend.md
   #   - "Minerals": api/minerals.md
