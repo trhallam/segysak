@@ -61,21 +61,78 @@ docs = [
     "mkautodoc",
 ]
 
+# testing config
+
+[tool.hatch.envs.hatch-test]
+features = [
+    "test"
+]
+
+[[tool.hatch.envs.hatch-test.matrix]]
+python = ["3.12", "3.11", "3.10", "3.9"]
+
+# docs config
+
+[tool.hatch.envs.docs]
+features = [
+    "docs"
+]
+
+[tool.hatch.envs.docs.scripts]
+build-examples = [
+    "jupytext --to ipynb --execute examples/*.py",
+    "mkdir -p examples/notebooks",
+    "mv examples/*.ipynb examples/notebooks/.",
+]
+cli-snippets = [
+    "mkdir -p docs/.snippets/cli",
+    "segysak > docs/.snippets/cli/segysak.txt",
+    "segysak ebcidc --help > docs/.snippets/cli/ebcidc.txt",
+    "segysak scan --help > docs/.snippets/cli/scan.txt",
+    "segysak scrape --help > docs/.snippets/cli/scrape.txt",
+    "segysak convert --help > docs/.snippets/cli/convert.txt",
+]
+serve = [
+    "if [ -f \"docs/examples\" ]; then rm -rf docs/examples/*.ipynb; fi",
+    "mkdir -p docs/examples",
+    """if [ ! -f \"examples/notebooks/QuickOverview.ipynb\" ]; then
+        jupytext --to ipynb examples/*.py;
+        mv examples/*.ipynb examples/notebooks/.;
+    fi""",
+    "cp examples/notebooks/*.ipynb docs/examples/.",
+    "mkdocs serve",
+]
+build = "mkdocs build"
+
+# extras
+
 [project.scripts]
 segysak = "segysak._cli:cli"
 
 [project.entry-points."xarray.backends"]
 sgy_engine = "segysak.segy._xarray:SgyBackendEntrypoint"
 
-[build-system]
-requires = ["setuptools", "wheel", "setuptools_scm>=6.2"]
+# build config
 
-[tool.setuptools]
+[build-system]
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.build.hooks.vcs]
+version-file = "segysak/_version.py"
+
+[tool.hatch.version.raw-options]
+local_scheme = "no-local-verison"
+
+[tool.hatch.build.targets.sdist]
+only-include = ["segysak", "tests"]
+
+[tool.hatch.build.target.wheel]
 packages = ["segysak"]
 
-[tool.setuptools_scm]
-write_to = "segysak/_version.py"
-local_scheme = "no-local-version"
+[tool.hatch.build.targets.wheel]
+only-packages = true
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
