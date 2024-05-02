@@ -179,7 +179,7 @@ def _clean_texthead(text_dict, n=75):
             line_str = text_dict[line]
             if len(line_str) > n:
                 line_str = line_str[0:n]
-        except IndexError:
+        except KeyError:
             line_str = ""
         output[line] = line_str
     return output
