@@ -28,7 +28,9 @@ _version.py
 
 # created docs
 docs/examples
+docs/.snippets/cli
 examples/*.ipynb
+
 
 # don't commit auto-generated version.py
 segysak/version.py

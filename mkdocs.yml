@@ -1,8 +1,16 @@
-site_name: segysak Documentation
+site_name: SEGY-SAK Documentation
+site_description: SEGY file loading in Python using Xarray
 site_author: Tony Hallam
+site_url: https://segysak.readthedocs.io/
+repo_name: trhallam/segysak
+repo_url: https://github.com/trhallam/segysak
+edit_uri: edit/main/docs
+copyright: "Tony Hallam"
+
 docs_dir: docs
 theme:
   name: material
+  custom_dir: docs/overrides
   language: "en"
   features:
     - navigations.instant
@@ -14,24 +22,17 @@ theme:
     primary: teal
   icon:
     repo: fontawesome/brands/github
-  custom_dir: docs/overrides
 use_directory_urls: false
-repo_url: https://github.com/trhallam/segysak
-repo_name: trhallam/segysak
-edit_uri: edit/main/docs
-
-copyright: "Tony Hallam"
 
 markdown_extensions:
-  - admonition
-  - footnotes
-  - tables
+  - markdown.extensions.admonition:
+  - markdown.extensions.footnotes:
+  - markdown.extensions.md_in_html:
+  - markdown.extensions.tables:
   - codehilite:
       guess_lang: false
-  - toc:
+  - markdown.extensions.toc:
       permalink: false
-  # - pymdownx.snippets:
-  #     auto_append: ["docs/hyperlinks.md"]
   - pymdownx.betterem
   - pymdownx.caret
   - pymdownx.mark
@@ -42,6 +43,12 @@ markdown_extensions:
       auto_title: true
   - pymdownx.superfences
   - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      check_paths: true
+      base_path:
+        - docs/.snippets
+      auto_append:
+        - links.txt
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -61,8 +68,7 @@ plugins:
       execute: false
       kernel_name: python3
       include_source: True
-      include: ["examples/example*.py", "examples/QuickOverview.py"]
-      ignore: ["*.ipynb"]
+      include: ["examples/*.ipynb"]
   - mkdocstrings:
       default_handler: python
   - include-markdown
@@ -70,48 +76,40 @@ plugins:
 nav:
   - Home:
       - About: index.md
-  - Walkthrough:
-      - Installation: installation.md
-  - Learn:
-      - Why SEGYSAK: why-segysak.md
-  - Community:
-      - Issue Tracker: https://github.com/trhallam/segysak/issues
-
+      - Walkthrough:
+          - Installation: installation.md
+          - Quickstart: quickstart.md
+      - Learn:
+          - Why SEGYSAK: why-segysak.md
+          - Xarray SEISNC: seisnc.md
+          - History: history.md
+      - Community:
+          - Issue Tracker: https://github.com/trhallam/segysak/issues
   - Examples:
-      - "Quick Overview": examples/QuickOverview.py
-      - "Segysak Basics": examples/example_segysak_basics.py
-      - "SEGY Headers": examples/example_segysak_headers.py
-      - "Arbitrary Line": examples/example_arbitrary_line.py
-      - "Amplitude Extraction": examples/example_amplitude_extraction_displays.py
-      - "Data on a Horizon": examples/example_extract_data_on_a_horizon.py
-      - "Vectorize SEGY for ML": examples/example_segysak_segy_vectorization.py
-      - "Working with Gathers": example/example_working_with_3d_gathers.py
-      - "Merge two surveys": example/example_merge_surveys.py
-      - "Lazy operations with Dask": example/example_segysak_dask.py
+      - About: examples_about.md
+      - Quick Overview: examples/QuickOverview.ipynb
+      - Segysak Basics: examples/example_segysak_basics.ipynb
+      - SEG-Y Headers: examples/example_segy_headers.ipynb
+      - Arbitrary Line: examples/example_extract_arbitrary_line.ipynb
+      - Amplitude Extraction: examples/example_amplitude_extraction_displays.ipynb
+      - Data on a Horizon: examples/example_extract_data_on_a_horizon.ipynb
+      - Vectorize SEG-Y for ML: examples/example_segysak_segy_vectorisation.ipynb
+      - Working with Gathers: examples/example_working_with_3d_gathers.ipynb
+      - Merge two surveys: examples/example_merge_surveys.ipynb
+      - Lazy operations with Dask: examples/example_segysak_dask.ipynb
   - CLI:
       - About: cli/about.md
       - Reference: cli/command-line-ref.md
   - Tutorial: tutorial.md
   - Meta:
-      - FAQ: faq.md
-
+      - FAQ: meta/faq.md
   - Reference:
       - About: api.md
-      - "Inspecting SEGY": api/segy_inspecting.md
-      - "SEGY via Xarray": api/segy_xarray.md
-      - "Loading SEGY": api/segy_loading.md
-      - "Writing SEGY": api/segy_writing.md
-      - "SEGY text header operations": api/segy_text.md
-      - "Xarray Accessor modules": api/xarray_accessor.md
-      - "New Xarray datasets": api/xarray_new.md
-
-  #   - "Fluids": api/fluid_classes.md
-  #   - "Fluid Blending": api/fluid_blend.md
-  #   - "Minerals": api/minerals.md
-  #   - "Rock Frame": api/rock_frame_classes.md
-  #   - "Porosity Adjustment Models": api/poro_adjust_classes.md
-  #   - "Vertical Stress Models": api/stress_classes.md
-  #   - "Stress Adjustment Models": api/stress_adjust.md
-  #   - "Models": api/model_methods.md
-  #   - "Elastic": api/elastic.md
-  #   - "Base Classes": api/base_classes.md
+      - SEISNC standards: seisnc-standard.md
+      - Inspecting SEG-Y: api/segy_inspecting.md
+      - SEG-Y via Xarray: api/segy_xarray.md
+      - Loading SEG-Y: api/segy_loading.md
+      - Writing SEG-Y: api/segy_writing.md
+      - SEG-Y text header operations: api/segy_text.md
+      - Xarray Accessor modules: api/xarray_accessor.md
+      - New Xarray datasets: api/xarray_new.md

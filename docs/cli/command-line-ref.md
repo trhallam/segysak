@@ -1,25 +1,35 @@
-segysak - CLI
-===============
+# CLI Reference
 
-segysak offers an interface on the command line to inspect SEG-Y files and to
-convert between data formats.
-
+## Base command
 **segysak**
 
-.. program-output:: segysak
+```shell
+--8<-- "cli/segysak.txt"
+```
 
+## EBCIDC headers
 **segysak ebcidc**
 
-.. program-output:: segysak ebcidc --help
+```shell
+--8<-- "cli/ebcidc.txt"
+```
 
+## Trace Headers
 **segysak scan**
 
-.. program-output:: segysak scan --help
+```shell
+--8<-- "cli/scan.txt"
+```
 
 **segysak scrape**
 
-.. program-output:: segysak scrape --help
+```shell
+--8<-- "cli/scrape.txt"
+```
 
+## File format conversion
 **segysak convert**
 
-.. program-output:: segysak convert --help
+```shell
+--8<-- "cli/convert.txt"
+```
