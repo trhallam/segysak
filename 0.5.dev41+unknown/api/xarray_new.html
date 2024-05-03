@@ -1755,16 +1755,7 @@ One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.</p>
 
           <details class="quote">
             <summary>Source code in <code>segysak/_seismic_dataset.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Python</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
+            <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Python</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
 <span class="normal">157</span>
@@ -1844,7 +1835,16 @@ One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.</p>
 <span class="normal">231</span>
 <span class="normal">232</span>
 <span class="normal">233</span>
-<span class="normal">234</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create3d_dataset</span><span class="p">(</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create3d_dataset</span><span class="p">(</span>
     <span class="n">dims</span><span class="p">,</span>
     <span class="n">first_sample</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="n">sample_rate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -2102,16 +2102,7 @@ One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.</p>
 
           <details class="quote">
             <summary>Source code in <code>segysak/_seismic_dataset.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Python</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span>
-<span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
+            <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Python</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">246</span>
 <span class="normal">247</span>
 <span class="normal">248</span>
 <span class="normal">249</span>
@@ -2161,7 +2152,16 @@ One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.</p>
 <span class="normal">293</span>
 <span class="normal">294</span>
 <span class="normal">295</span>
-<span class="normal">296</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create2d_dataset</span><span class="p">(</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create2d_dataset</span><span class="p">(</span>
     <span class="n">dims</span><span class="p">,</span>
     <span class="n">first_sample</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
     <span class="n">sample_rate</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
@@ -2233,7 +2233,7 @@ One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.</p>
 
 
 <h3 id="segysak.create_seismic_dataset" class="doc doc-heading">
-          <code class="highlight language-python"><span class="n">create_seismic_dataset</span><span class="p">(</span><span class="n">twt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cdp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">iline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">dim_args</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">create_seismic_dataset</span><span class="p">(</span><span class="n">twt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cdp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">iline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">segysak_attr</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">dim_args</span><span class="p">)</span></code>
 
 </h3>
 
@@ -2345,6 +2345,20 @@ Use for pre-stack data. Defaults to None.</p>
           </td>
           <td>
                 <code>None</code>
+          </td>
+        </tr>
+        <tr class="doc-section-item">
+          <td><code>segysak_attr</code></td>
+          <td>
+                <code>bool</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Add SEGYSAK attributes to the Dataset</p>
+            </div>
+          </td>
+          <td>
+                <code>True</code>
           </td>
         </tr>
         <tr class="doc-section-item">
@@ -2472,8 +2486,24 @@ Use for pre-stack data. Defaults to None.</p>
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_seismic_dataset</span><span class="p">(</span>
-    <span class="n">twt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cdp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">iline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">dim_args</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_seismic_dataset</span><span class="p">(</span>
+    <span class="n">twt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cdp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">iline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">xline</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">offset</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">segysak_attr</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">dim_args</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a blank seismic dataset by setting the dimension sizes (d#) or by passing</span>
 <span class="sd">    arrays for known dimensions.</span>
@@ -2493,6 +2523,7 @@ Use for pre-stack data. Defaults to None.</p>
 <span class="sd">            used with cdp argument. Use for 3D seismic data. Defaults to None.</span>
 <span class="sd">        offset (int/array-like, optional): The offset. This will fill dimension d4.</span>
 <span class="sd">            Use for pre-stack data. Defaults to None.</span>
+<span class="sd">        segysak_attr (bool, optional): Add SEGYSAK attributes to the Dataset</span>
 <span class="sd">        dim_args (int/array-like): Other dimensions you would like in your dataset. The key will be the dimension name.</span>
 
 <span class="sd">    Returns:</span>
@@ -2548,12 +2579,13 @@ Use for pre-stack data. Defaults to None.</p>
 
     <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">coords</span><span class="o">=</span><span class="n">dimensions</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">twt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">AttrKeyField</span><span class="o">.</span><span class="n">ns</span><span class="p">]</span> <span class="o">=</span> <span class="n">twt</span><span class="o">.</span><span class="n">size</span>
-    <span class="k">elif</span> <span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">AttrKeyField</span><span class="o">.</span><span class="n">ns</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">if</span> <span class="n">segysak_attr</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">twt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">AttrKeyField</span><span class="o">.</span><span class="n">ns</span><span class="p">]</span> <span class="o">=</span> <span class="n">twt</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">elif</span> <span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">AttrKeyField</span><span class="o">.</span><span class="n">ns</span><span class="p">]</span> <span class="o">=</span> <span class="n">depth</span><span class="o">.</span><span class="n">size</span>
 
-    <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">AttrKeyField</span><span class="p">})</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">AttrKeyField</span><span class="p">})</span>
 
     <span class="k">return</span> <span class="n">ds</span>
 </code></pre></div></td></tr></table></div>

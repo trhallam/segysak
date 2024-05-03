@@ -1830,10 +1830,7 @@ This reduces the maximum content per line to 76 chars.</p>
 
           <details class="quote">
             <summary>Source code in <code>segysak/segy/_segy_text.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Python</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
+            <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Python</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
@@ -1879,7 +1876,10 @@ This reduces the maximum content per line to 76 chars.</p>
 <span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
-<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">put_segy_texthead</span><span class="p">(</span><span class="n">segyfile</span><span class="p">,</span> <span class="n">ebcidc</span><span class="p">,</span> <span class="n">line_counter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">segyio_kwargs</span><span class="p">):</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">put_segy_texthead</span><span class="p">(</span><span class="n">segyfile</span><span class="p">,</span> <span class="n">ebcidc</span><span class="p">,</span> <span class="n">line_counter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">segyio_kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Puts a text header (ebcidc) into a segyfile.</span>
 
 <span class="sd">    Args:</span>
@@ -2036,10 +2036,7 @@ empty.</p>
 </details>
           <details class="quote">
             <summary>Source code in <code>segysak/segy/_segy_text.py</code></summary>
-            <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Python</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
+            <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Python</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">188</span>
 <span class="normal">189</span>
 <span class="normal">190</span>
 <span class="normal">191</span>
@@ -2083,7 +2080,10 @@ empty.</p>
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span>
-<span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_default_texthead</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">create_default_texthead</span><span class="p">(</span><span class="n">override</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns a simple default textual header dictionary.</span>
 
 <span class="sd">    Basic fields are auto populated and a dictionary indexing lines 1-40 can</span>
