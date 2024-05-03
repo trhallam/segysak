@@ -2,9 +2,7 @@
   {
     "version": "0.5.dev42+unknown",
     "title": "0.5.dev42+unknown",
-    "aliases": [
-      "dev"
-    ]
+    "aliases": []
   },
   {
     "version": "0.5.dev41+unknown",
@@ -16,6 +14,13 @@
     "title": "0.5.dev40",
     "aliases": [
       "latest"
+    ]
+  },
+  {
+    "version": "0.5.dev38+unknown",
+    "title": "0.5.dev38+unknown",
+    "aliases": [
+      "dev"
     ]
   }
 ]
