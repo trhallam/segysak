@@ -25,14 +25,16 @@ TQDM_ARGS = dict(unit=" traces", desc="Writing to SEG-Y")
 
 
 def chunked_index_iterator(chunks: Tuple[int], index):
+    # yields a tuple pair of the origin dims chunk islice and chunk labels
     cur_index = 0
     for chunk_size in chunks:
-        yield index[cur_index : cur_index + chunk_size]
+        chk_slc = slice(cur_index, cur_index + chunk_size)
+        yield chk_slc, index[cur_index : cur_index + chunk_size]
         cur_index += chunk_size
 
 
 def chunk_iterator(da: xr.DataArray):
-    # get the chunk selection labels
+    # get the chunk islice and selection labels
     if da.chunks:
         chunks = da.chunksizes
     else:
@@ -43,113 +45,6 @@ def chunk_iterator(da: xr.DataArray):
     )
     for chunk_index in product(*chunk_iterables):
         yield {key: ci for key, ci in zip(chunks.keys(), chunk_index)}
-
-
-def _segy_freewriter(
-    seisnc,
-    segyfile,
-    data_array="data",
-    trace_header_map=None,
-    silent=False,
-    use_text=False,
-    dead_trace_key=None,
-    vert_dimension="twt",
-    **dim_kwargs,
-):
-    """"""
-    try:
-        coord_scalar = seisnc.coord_scalar
-    except AttributeError:
-        coord_scalar = 0
-        seisnc.attrs["coord_scalar"] = coord_scalar
-    coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar) * -1)
-    seisnc.attrs["coord_scalar_mult"] = coord_scalar_mult
-
-    # remove duplicate dim_kwargs from trace_header_map
-    for key in dim_kwargs:
-        trace_header_map[key] = dim_kwargs[key]
-    thm_vars = tuple(trace_header_map.keys())
-    if dead_trace_key:
-        thm_vars += (dead_trace_key,)
-
-    dim_order = tuple(dim_kwargs.keys())
-
-    # scale coords
-    if CoordKeyField.cdp_x in trace_header_map:
-        trace_headers[CoordKeyField.cdp_x] = (
-            trace_headers[CoordKeyField.cdp_x] * seisnc.coord_scalar_mult
-        )
-    if CoordKeyField.cdp_y in trace_header_map:
-        trace_headers[CoordKeyField.cdp_y] = (
-            trace_headers[CoordKeyField.cdp_y] * seisnc.coord_scalar_mult
-        )
-
-    msys = _ISEGY_MEASUREMENT_SYSTEM[seisnc.seis.get_measurement_system()]
-
-    if dead_trace_key:
-        dead = ~trace_headers[dead_trace_key].astype(bool)
-        live_index = trace_headers.where(dead).dropna().index
-        tracen = pd.Series(
-            index=live_index, data=np.arange(live_index.size), name="tracen"
-        )
-    else:
-        tracen = pd.Series(
-            index=trace_headers.index,
-            name="tracen",
-            data=np.arange(trace_headers.index.size),
-        )
-
-    seisnc["tracen"] = trace_headers.set_index(list(dim_order))["tracen"].to_xarray()
-    trace_headers = trace_headers.dropna(subset=["tracen"])
-    trace_headers["tracen"] = trace_headers["tracen"].astype(np.int32)
-    trace_headers = trace_headers.set_index("tracen")
-    trace_headers = trace_headers[list(trace_header_map.keys())].rename(
-        columns=trace_header_map
-    )
-
-    # write out to segy
-    with segyio.create(segyfile, spec) as segyf:
-        pbar = tqdm(total=spec.tracecount, disable=silent)  # , **TQDM_ARGS )
-        for chk in _chunk_iterator(seisnc):
-            _ = chk.pop(vert_dimension)
-            # set order
-            data = seisnc.sel(**chk).transpose(*dim_order, vert_dimension)
-            # create missing trace mask and slicing tools
-            mask = ~data.tracen.isnull().values.ravel()
-            trace_locs = data.tracen.values.ravel()[mask].astype(int)
-            trace_locs = tuple(
-                map(
-                    lambda x: slice(x[0], x[-1] + 1),
-                    split_when(trace_locs, lambda x, y: y != x + 1),
-                )
-            )
-            if data[data_array].size > 0:
-                npdata = (
-                    data[data_array].values.reshape(-1, ns)[mask, :].astype(np.float32)
-                )
-                n1 = 0
-                for slc_set in trace_locs:
-                    segyf.header[slc_set] = trace_headers[slc_set].to_dict(
-                        orient="records"
-                    )
-                    n2 = n1 + slc_set.stop - slc_set.start
-                    segyf.trace[slc_set] = npdata[n1:n2]
-                    n1 = n2
-                    pbar.update(slc_set.stop - slc_set.start)
-        pbar.close()
-
-        segyf.bin.update(
-            # tsort=segyio.TraceSortingFormat.INLINE_SORTING,
-            hdt=int(seisnc.sample_rate * 1000),
-            hns=ns,
-            mfeet=msys,
-            jobid=1,
-            lino=1,
-            reno=1,
-            ntrpr=ntraces,
-            nart=ntraces,
-            fold=1,
-        )
 
 
 class SegyWriter:
@@ -280,6 +175,7 @@ class SegyWriter:
         vert_dimension: str = "samples",
         dead_trace_var: Union[str, None] = None,
         trace_header_map: Dict[str, int] = None,
+        silent: bool = False,
         chunk_spec=None,
         **dim_kwargs,
     ):
@@ -366,7 +262,7 @@ class SegyWriter:
 
         with (
             segyio.create(self.segy_file, spec) as segyf,
-            tqdm(total=trace_count) as pbar,
+            tqdm(total=trace_count, disable=silent) as pbar,
         ):
 
             segyf.bin.update(
@@ -381,7 +277,16 @@ class SegyWriter:
                 nart=trace_count,
                 fold=1,
             )
-            for chunk_labels in chunk_iterator(ds[data_var]):
+            # keep trace of how many traces have been written using a segy-file
+            # slice, this iterates as we iterate chunks and contiguous slices within
+            # chunks (the contiguous slices may be different due to dead traces)
+            for chunk_selectors in chunk_iterator(ds[data_var]):
+                chunk_labels = {
+                    dim: labels for dim, (_, labels) in chunk_selectors.items()
+                }
+                chunk_slices = {
+                    dim: slice for dim, (slice, _) in chunk_selectors.items()
+                }
                 data = (
                     ds[data_var]
                     .sel(**chunk_labels)
@@ -391,7 +296,8 @@ class SegyWriter:
                 if data.size < 1:
                     continue
 
-                chunk_labels.pop(vert_dimension)
+                vert_chunk = chunk_labels.pop(vert_dimension)
+                vert_slice = chunk_slices[vert_dimension]
                 head = (
                     trace_headers.sel(**chunk_labels)
                     .transpose(*dim_order)
@@ -399,27 +305,34 @@ class SegyWriter:
                 )
 
                 # get blocks of contiguous traces as slice representation
-                trace_locs = head["tracen"].values.astype(int)
-                trace_locs = tuple(
-                    map(
-                        lambda x: slice(x[0], x[-1] + 1),
-                        split_when(trace_locs, lambda x, y: y != x + 1),
-                    )
-                )
-                for slc_set in trace_locs:
-                    segyf.header[slc_set] = (
-                        head.isel(ravel=slc_set)
-                        .to_dataframe()[trace_headers_variables]
-                        .to_dict(orient="records")
-                    )
-                    segyf.trace[slc_set] = (
-                        data.isel(ravel=slc_set)
-                        .transpose("ravel", vert_dimension)
-                        .values.astype(np.float32)
-                    )
-                    pbar.update(slc_set.stop - slc_set.start)
+                # trace_locs = head["tracen"].values.astype(int)
+                # trace_locs = tuple(
+                #     map(
+                #         lambda x: slice(x[0], x[-1] + 1),
+                #         split_when(trace_locs, lambda x, y: y != x + 1),
+                #     )
+                # )
+                # for slc_set in trace_locs:
+                # updates the segy-file slice which is different to the ds slc_set
+                with segyf.trace.ref as tref:
+                    for i, tn in enumerate(head.tracen.values):
+                        tref[tn][vert_slice] = data.isel(ravel=i).values.astype(
+                            np.float32
+                        )
+                        if vert_slice.start == 0:
+                            # only need to do this once per trace dimension
+                            segyf.header[tn].update(
+                                {
+                                    var: head.isel(ravel=i)[var].values.item()
+                                    for var in trace_headers_variables
+                                }
+                            )
+
+                pbar.update(head.tracen.size)
 
         # Write out a text header if available, else default header is used
         if self.use_text:
             text = ds[data_var].attrs.get("text")
+            if text is None:
+                text = self._default_text_header(trace_header_map=trace_header_map)
             self.write_text_header(text, line_numbers=True)
