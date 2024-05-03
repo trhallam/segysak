@@ -70,7 +70,9 @@ def test_SegyWriter_write_text_header_no_file():
     params=[
         {"iline": slice(0, 25), "xline": slice(0, 20), "twt": slice(0, 100)},
         {"iline": slice(10, 11), "xline": slice(0, 20), "twt": slice(0, 100)},
+        {"iline": 10, "xline": slice(0, 20), "twt": slice(0, 100)},
         {"iline": slice(0, 25), "xline": slice(10, 11), "twt": slice(0, 100)},
+        {"iline": slice(0, 25), "xline": 10, "twt": slice(0, 100)},
         {"iline": slice(0, 5), "xline": slice(10, 15), "twt": slice(0, 30)},
         {"iline": slice(0, 25), "xline": slice(0, 20), "twt": slice(10, 12)},
         {"iline": slice(0, 25), "xline": slice(0, 20), "twt": slice(20, 50)},
@@ -79,7 +81,9 @@ def test_SegyWriter_write_text_header_no_file():
     ids=[
         "full",
         "single-iline",
+        "single-iline-int",
         "single-xline",
+        "single-xline-int",
         "sub-volume",
         "single-slice",
         "trim-time",
@@ -97,7 +101,7 @@ def f3_dataset_slicing(request):
         {"iline": 2, "xline": 2, "twt": 20},
         {},
     ],
-    ids=["xline2-chunk", "iline2-chunk", "dual-trunk", "sub-chunk", "no-chunk"],
+    ids=["xline2-chunk", "iline2-chunk", "dual-chunk", "sub-chunk", "no-chunk"],
     scope="module",
 )
 def f3_dataset_chunks(request):
@@ -110,7 +114,7 @@ def test_SegyWriter_f3(
     slices = f3_dataset_slicing
     chunks = f3_dataset_chunks
     if chunks:
-        ds = f3_dataset.isel(**slices).chunk(chunks)
+        ds = f3_dataset.chunk(chunks).isel(**slices)
     else:
         ds = f3_dataset.isel(**slices)
     id = request.node.callspec.id
@@ -136,8 +140,11 @@ def test_SegyWriter_f3(
         .rename_vars({"samples": "twt"})
     )
 
-    assert ds.dims == ds_out.dims
     for dim in ds.dims:
         assert np.array_equal(ds[dim].values, ds_out[dim].values)
 
+    if any(isinstance(slc, int) for slc in slices.values()):
+        ds_out = ds_out.squeeze()
+
+    assert ds.dims == ds_out.dims
     assert np.allclose(ds["data"], ds_out["data"])

@@ -65,6 +65,21 @@ class SegyWriter:
         self.shape = None
         self.coord_scalar = coord_scalar
 
+    def _process_dimensions(
+        self, da_dims: Tuple[str], vert_dimension: str, dim_kwargs: Dict[str, int]
+    ) -> Tuple[Tuple[str], Dict[str, int]]:
+        """Processes a list of dims against the dim_kwrags to A. check they are adequate, and B. strip any dim_kwargs that
+        should be trace_header_map key:values. This might happen if the user does ds.sel(iline=100) instead of ds.sel(iline=[100]).
+        Using the former will drop the dimension from the DataArray which causes problems for the writer.
+        """
+
+        # The order of the keys determines the order of the segyfile trace numbering.
+        trace_order = tuple(dim for dim in dim_kwargs)  # i.e. ('iline', 'xline')
+        full_dim_order = trace_order + (vert_dimension,)
+        extra_dims = tuple(dim for dim in full_dim_order if dim not in da_dims)
+
+        return trace_order, extra_dims
+
     def _create_byte_fields(self, *fields: Union[dict, None]):
         # add the header byte locations to a check list
         self.byte_fields = []
@@ -77,17 +92,17 @@ class SegyWriter:
         self,
         da: xr.DataArray,
         vert_dimension: str,
-        dim_order: Tuple[str],
+        trace_order: Tuple[str],
         header_vars: Dict[str, xr.DataArray],
     ) -> pd.DataFrame:
         """Takes the DataArray to output and optional dead_traces DataArray to
         calculate output trace numbering and coordinate mapping.
         """
-        trace_headers = xr.Dataset(coords={key: da[key] for key in dim_order})
+        trace_headers = xr.Dataset(coords={key: da[key] for key in trace_order})
         shape = tuple(trace_headers.sizes.values())
         ntraces = np.prod(shape)
         trace_headers["tracen"] = xr.Variable(
-            dim_order, np.arange(0, ntraces, 1).reshape(shape)
+            trace_order, np.arange(0, ntraces, 1).reshape(shape)
         )
         # add header values
         for header_var, header_da in header_vars.items():
@@ -206,37 +221,55 @@ class SegyWriter:
         # test for bad args
         assert data_var in ds
 
-        # The order of the keys determines the order of the segyfile trace numbering.
-        dim_order = tuple(dim_kwargs.keys())  # i.e. ('iline', 'xline')
-        full_dim_order = dim_order + (vert_dimension,)  # ('iline', 'xline', 'twt')
+        # process dimension arguments
+        da_dims = tuple(ds[data_var].dims)
+        trace_order, extra_dims = self._process_dimensions(
+            da_dims, vert_dimension, dim_kwargs
+        )
+        full_dim_order = trace_order + (vert_dimension,)
 
         # check the dims specified match the data_var
-        for dim in ds[data_var].dims:
-            assert dim in full_dim_order
+        for dim in da_dims:
+            try:
+                assert dim in full_dim_order
+            except AssertionError:
+                raise AssertionError(
+                    f'{dim} not in xr.Dataset["{data_var}"] dims {ds[data_var].dims}'
+                )
 
-        if trace_header_map:
-            # check the header map vars are in the dataset
-            for th in trace_header_map:
-                assert th in ds
-        else:
+        # check the extra dims can be used to expand the input coords
+        # this happens because dimensions get squeezed in certain indexing methods.
+        for dim in extra_dims:
+            try:
+                assert dim in ds[data_var].coords
+                ds.expand_dims(dim)
+            except AssertionError:
+                raise AssertionError(f"Cannot expand dims for {dim}, does not exist.")
+
+        # create an internal expanded dataset to use from here on
+        _dse = ds.expand_dims(extra_dims)
+
+        if not trace_header_map:
             trace_header_map = dict()
+        for th in trace_header_map:
+            assert th in _dse
 
         header_vars = {
-            byte: ds[var]
+            byte: _dse[var]
             for var, byte in chain(dim_kwargs.items(), trace_header_map.items())
         }
 
         # combine and check header field lists
         self._create_byte_fields(trace_header_map, dim_kwargs)
-        self._extract_attributes(ds[data_var])
+        self._extract_attributes(_dse[data_var])
         #
-        self.shape = ds[data_var].shape
+        self.shape = _dse[data_var].shape
 
         # create the trace numbering and headers
         trace_headers = self._create_output_trace_headers(
-            ds[data_var],
+            _dse[data_var],
             vert_dimension,
-            dim_order,
+            trace_order,
             header_vars,
         )
 
@@ -246,7 +279,7 @@ class SegyWriter:
             trace_count = trace_headers["tracen"].size
 
         # get the spec of the segy file
-        samples = ds[data_var][vert_dimension].values
+        samples = _dse[data_var][vert_dimension].values
         spec = self._create_segyio_spec(samples, trace_count)  # the number of samples
 
         # add default header values if not specified by user
@@ -280,7 +313,7 @@ class SegyWriter:
             # keep trace of how many traces have been written using a segy-file
             # slice, this iterates as we iterate chunks and contiguous slices within
             # chunks (the contiguous slices may be different due to dead traces)
-            for chunk_selectors in chunk_iterator(ds[data_var]):
+            for chunk_selectors in chunk_iterator(_dse[data_var]):
                 chunk_labels = {
                     dim: labels for dim, (_, labels) in chunk_selectors.items()
                 }
@@ -288,10 +321,10 @@ class SegyWriter:
                     dim: slice for dim, (slice, _) in chunk_selectors.items()
                 }
                 data = (
-                    ds[data_var]
+                    _dse[data_var]
                     .sel(**chunk_labels)
-                    .transpose(*dim_order, vert_dimension)
-                    .stack({"ravel": dim_order})
+                    .transpose(*trace_order, vert_dimension)
+                    .stack({"ravel": trace_order})
                 )
                 if data.size < 1:
                     continue
@@ -300,8 +333,8 @@ class SegyWriter:
                 vert_slice = chunk_slices[vert_dimension]
                 head = (
                     trace_headers.sel(**chunk_labels)
-                    .transpose(*dim_order)
-                    .stack({"ravel": dim_order})
+                    .transpose(*trace_order)
+                    .stack({"ravel": trace_order})
                 )
 
                 # get blocks of contiguous traces as slice representation
@@ -332,7 +365,7 @@ class SegyWriter:
 
         # Write out a text header if available, else default header is used
         if self.use_text:
-            text = ds[data_var].attrs.get("text")
+            text = _dse[data_var].attrs.get("text")
             if text is None:
                 text = self._default_text_header(trace_header_map=trace_header_map)
             self.write_text_header(text, line_numbers=True)
