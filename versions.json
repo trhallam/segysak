@@ -17,10 +17,15 @@
     ]
   },
   {
-    "version": "0.5.dev38+unknown",
-    "title": "0.5.dev38+unknown",
+    "version": "0.5.dev39+unknown",
+    "title": "0.5.dev39+unknown",
     "aliases": [
       "dev"
     ]
+  },
+  {
+    "version": "0.5.dev38+unknown",
+    "title": "0.5.dev38+unknown",
+    "aliases": []
   }
 ]
