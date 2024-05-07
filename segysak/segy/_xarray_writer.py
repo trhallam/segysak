@@ -91,19 +91,35 @@ class SegyWriter:
     def _create_output_trace_headers(
         self,
         da: xr.DataArray,
-        vert_dimension: str,
         trace_order: Tuple[str],
         header_vars: Dict[str, xr.DataArray],
+        dead_trace_da: Union[xr.DataArray, None] = None,
     ) -> pd.DataFrame:
         """Takes the DataArray to output and optional dead_traces DataArray to
         calculate output trace numbering and coordinate mapping.
+
+        Dead traces are numbered as -1 using a boolean dtype DataArray for an array mask.
         """
         trace_headers = xr.Dataset(coords={key: da[key] for key in trace_order})
         shape = tuple(trace_headers.sizes.values())
         ntraces = np.prod(shape)
-        trace_headers["tracen"] = xr.Variable(
-            trace_order, np.arange(0, ntraces, 1).reshape(shape)
-        )
+
+        # full numbering
+        trace_numbers = np.arange(0, ntraces, 1)
+
+        # change numbering if dead traces
+        if dead_trace_da is not None:
+            assert dead_trace_da.dtype == bool
+            n_dead = dead_trace_da.sum()
+            trace_numbers[:] = -1
+            # use the dead_trace_da as a mask to assign trace numbering (skipping dead traces)
+            # squeeze is needed here to accommodate slices of data (twt length is 1)
+            trace_numbers[
+                ~dead_trace_da.stack({"ravel": trace_order}).values.squeeze()
+            ] = np.arange(0, ntraces - n_dead, 1)
+
+        trace_headers["tracen"] = xr.Variable(trace_order, trace_numbers.reshape(shape))
+
         # add header values
         for header_var, header_da in header_vars.items():
             trace_headers[header_var] = header_da.astype("int32")
@@ -191,14 +207,12 @@ class SegyWriter:
         dead_trace_var: Union[str, None] = None,
         trace_header_map: Dict[str, int] = None,
         silent: bool = False,
-        chunk_spec=None,
         **dim_kwargs,
     ):
         """Output xarray dataset to SEG-Y format.
 
         Args:
             ds: The input dataset
-            segy_file: The output SEG-Y file and path
             data_var: The Dataset variable name for the output volume.
             vert_dimension: Data dimension to output as vertical trace, defaults to 'samples'.
             dead_trace_var: A variable in the Dataset which signifies dead traces.
@@ -206,13 +220,6 @@ class SegyWriter:
                 and byte locations. The variable will be written to the trace headers in the
                 assigned byte location. By default CMP=23, cdp_x=181, cdp_y=185, iline=189,
                 xline=193.
-            use_text (book, optional): Use the seisnc text for the EBCIDC output. This text usally comes from
-                the loaded SEG-Y file and may not match the segysak SEG-Y output. Defaults to False and writes
-                the default segysak EBCIDC
-            write_dead_traces: Traces that are all nan will be counted as dead. If true, writes traces as
-                value zero to file.
-
-            chunk_spec: Xarray chunking spec, may improve writing performance or optimize lazy reads of large data.
             silent: Turn off progress reporting. Defaults to False.
             dim_kwargs: The dimension/byte location pairs to output dimensions to. The number of dim_kwargs should be
                 equal to the number of dimensions on the output data_array. The sort order will be as per the order passed
@@ -268,13 +275,14 @@ class SegyWriter:
         # create the trace numbering and headers
         trace_headers = self._create_output_trace_headers(
             _dse[data_var],
-            vert_dimension,
             trace_order,
             header_vars,
+            dead_trace_da=_dse[dead_trace_var] if dead_trace_var else None,
         )
 
         if dead_trace_var:
-            pass
+            n_dead_traces = np.sum(_dse["dead_traces"]).compute()
+            trace_count = trace_headers["tracen"].size - n_dead_traces.item()
         else:
             trace_count = trace_headers["tracen"].size
 
@@ -297,7 +305,6 @@ class SegyWriter:
             segyio.create(self.segy_file, spec) as segyf,
             tqdm(total=trace_count, disable=silent) as pbar,
         ):
-
             segyf.bin.update(
                 # tsort=segyio.TraceSortingFormat.INLINE_SORTING,
                 # hdt=int(seisnc.sample_rate * 1000),
@@ -310,16 +317,22 @@ class SegyWriter:
                 nart=trace_count,
                 fold=1,
             )
+
             # keep trace of how many traces have been written using a segy-file
             # slice, this iterates as we iterate chunks and contiguous slices within
             # chunks (the contiguous slices may be different due to dead traces)
             for chunk_selectors in chunk_iterator(_dse[data_var]):
+                # split the chunk selectors into labels for ds.sel
+                # and index slices of ds.isel, this will help us keep trace of
+                # where we are on a given axis when we sub-chunk the volume.
                 chunk_labels = {
                     dim: labels for dim, (_, labels) in chunk_selectors.items()
                 }
                 chunk_slices = {
                     dim: slice for dim, (slice, _) in chunk_selectors.items()
                 }
+
+                # create the working chunk and stack the horizontal axis (not vert_dimension)
                 data = (
                     _dse[data_var]
                     .sel(**chunk_labels)
@@ -331,24 +344,23 @@ class SegyWriter:
 
                 vert_chunk = chunk_labels.pop(vert_dimension)
                 vert_slice = chunk_slices[vert_dimension]
+
+                # create the work chunk headers
                 head = (
                     trace_headers.sel(**chunk_labels)
                     .transpose(*trace_order)
                     .stack({"ravel": trace_order})
                 )
 
-                # get blocks of contiguous traces as slice representation
-                # trace_locs = head["tracen"].values.astype(int)
-                # trace_locs = tuple(
-                #     map(
-                #         lambda x: slice(x[0], x[-1] + 1),
-                #         split_when(trace_locs, lambda x, y: y != x + 1),
-                #     )
-                # )
-                # for slc_set in trace_locs:
-                # updates the segy-file slice which is different to the ds slc_set
+                # update the trace header and values in the actual file
+                # tref auto flushes updates to disk
                 with segyf.trace.ref as tref:
                     for i, tn in enumerate(head.tracen.values):
+                        if tn < 0:
+                            continue  # skip dead traces
+                        # initialise traces if not already -> else no data on disk
+                        tref[tn] = tref[tn]
+                        # write trace data to tref -> updates on disk
                         tref[tn][vert_slice] = data.isel(ravel=i).values.astype(
                             np.float32
                         )
@@ -361,7 +373,7 @@ class SegyWriter:
                                 }
                             )
 
-                pbar.update(head.tracen.size)
+                        pbar.update(1)
 
         # Write out a text header if available, else default header is used
         if self.use_text:
