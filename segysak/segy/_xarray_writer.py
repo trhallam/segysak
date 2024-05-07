@@ -47,6 +47,20 @@ def chunk_iterator(da: xr.DataArray):
         yield {key: ci for key, ci in zip(chunks.keys(), chunk_index)}
 
 
+def contiguous_iterator(ar, step=1):
+    """Return contiguous indexes as slices, contiguous where step is size 1 (default)"""
+    i = 0
+    for split in split_when(ar, lambda x, y: y != x + step):
+        yield slice(i, i + len(split)), slice(split[0], split[-1] + step)
+        i += len(split)
+
+
+def header_iterator(ds: xr.Dataset, iter_dim: str):
+    data_vars = ds.data_vars
+    for _, sub_ds in ds.groupby(iter_dim, squeeze=False):
+        yield {var: sub_ds[var].item() for var in data_vars}
+
+
 class SegyWriter:
 
     def __init__(
@@ -301,9 +315,15 @@ class SegyWriter:
         trace_headers_variables = list(trace_headers.var())
         trace_headers_variables.remove("tracen")
 
+        # calculate the number of chunks
+        if _dse[data_var].chunks:
+            n_chunks = np.prod(tuple(map(len, _dse[data_var].chunks)))
+        else:
+            n_chunks = 1
+
         with (
             segyio.create(self.segy_file, spec) as segyf,
-            tqdm(total=trace_count, disable=silent) as pbar,
+            tqdm(total=n_chunks, disable=silent, unit="chunks") as pbar,
         ):
             segyf.bin.update(
                 # tsort=segyio.TraceSortingFormat.INLINE_SORTING,
@@ -317,6 +337,17 @@ class SegyWriter:
                 nart=trace_count,
                 fold=1,
             )
+
+            # pre-allocate space for file 10_000 traces at a time
+            pre_allocate_chunks = 10_000
+            for start in range(0, trace_count, pre_allocate_chunks):
+                end = start + pre_allocate_chunks
+                end = end if end < trace_count else trace_count
+                segyf.trace[start:end] = np.zeros(
+                    (end - start, samples.size), dtype=np.float32
+                )
+
+            segyf.mmap()
 
             # keep trace of how many traces have been written using a segy-file
             # slice, this iterates as we iterate chunks and contiguous slices within
@@ -352,28 +383,27 @@ class SegyWriter:
                     .stack({"ravel": trace_order})
                 )
 
-                # update the trace header and values in the actual file
-                # tref auto flushes updates to disk
-                with segyf.trace.ref as tref:
-                    for i, tn in enumerate(head.tracen.values):
-                        if tn < 0:
-                            continue  # skip dead traces
-                        # initialise traces if not already -> else no data on disk
-                        tref[tn] = tref[tn]
-                        # write trace data to tref -> updates on disk
-                        tref[tn][vert_slice] = data.isel(ravel=i).values.astype(
-                            np.float32
-                        )
-                        if vert_slice.start == 0:
-                            # only need to do this once per trace dimension
-                            segyf.header[tn].update(
-                                {
-                                    var: head.isel(ravel=i)[var].values.item()
-                                    for var in trace_headers_variables
-                                }
-                            )
+                head_nd = head.sel(ravel=head.tracen >= 0)
+                data_nd = data.sel(ravel=head.tracen >= 0)
 
-                        pbar.update(1)
+                for chk_slice, trc_slice in contiguous_iterator(head_nd.tracen.values):
+                    if vert_slice.start == 0:
+                        segyf.header[trc_slice] = header_iterator(
+                            head_nd.isel(ravel=chk_slice).drop_vars("tracen").compute(),
+                            "ravel",
+                        )
+                    # read in trace_data, then modify in memory before write back out
+                    # would be better to modify on disk but this isn't feasible with
+                    # segyio, segfast might be better when it has a writer
+                    trace_data = segyf.trace.raw[trc_slice]
+                    trace_data[:, vert_slice] = (
+                        data_nd.isel(ravel=chk_slice)
+                        .transpose(..., vert_dimension)
+                        .values
+                    )
+                    segyf.trace.raw[trc_slice] = trace_data
+
+                pbar.update(1)
 
         # Write out a text header if available, else default header is used
         if self.use_text:
