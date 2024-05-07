@@ -1,7 +1,7 @@
-from typing import Union, Tuple, Dict, List
+from typing import Union, Tuple, Dict
 import os
 import pathlib
-from more_itertools import split_into, split_when
+from more_itertools import split_when
 from itertools import product, chain
 
 import numpy as np
@@ -12,16 +12,12 @@ import segyio
 
 from ._segy_core import tqdm, check_tracefield
 
-from .._keyfield import CoordKeyField
 from ._segy_text import (
     create_default_texthead,
     put_segy_texthead,
     _clean_texthead,
     trace_header_map_to_text,
 )
-from ._segy_globals import _ISEGY_MEASUREMENT_SYSTEM
-
-TQDM_ARGS = dict(unit=" traces", desc="Writing to SEG-Y")
 
 
 def chunked_index_iterator(chunks: Tuple[int], index):
@@ -69,7 +65,7 @@ class SegyWriter:
         use_text: bool = True,
         write_dead_traces: bool = False,
         coord_scalar: Union[float, None] = None,
-        silent=False,
+        silent: bool = False,
     ):
         self.segy_file = segy_file
         self.use_text = use_text
@@ -220,7 +216,6 @@ class SegyWriter:
         vert_dimension: str = "samples",
         dead_trace_var: Union[str, None] = None,
         trace_header_map: Dict[str, int] = None,
-        silent: bool = False,
         **dim_kwargs,
     ):
         """Output xarray dataset to SEG-Y format.
@@ -234,7 +229,6 @@ class SegyWriter:
                 and byte locations. The variable will be written to the trace headers in the
                 assigned byte location. By default CMP=23, cdp_x=181, cdp_y=185, iline=189,
                 xline=193.
-            silent: Turn off progress reporting. Defaults to False.
             dim_kwargs: The dimension/byte location pairs to output dimensions to. The number of dim_kwargs should be
                 equal to the number of dimensions on the output data_array. The sort order will be as per the order passed
                 to the function.
@@ -323,7 +317,7 @@ class SegyWriter:
 
         with (
             segyio.create(self.segy_file, spec) as segyf,
-            tqdm(total=n_chunks, disable=silent, unit="chunks") as pbar,
+            tqdm(total=n_chunks, disable=self.silent, unit="chunks") as pbar,
         ):
             segyf.bin.update(
                 # tsort=segyio.TraceSortingFormat.INLINE_SORTING,

@@ -3,9 +3,9 @@
 data manipulation.
 
 """
-from cmath import isnan
+from typing import Union, Dict
+import os
 from collections.abc import Iterable
-from multiprocessing.sharedctypes import Value
 from more_itertools import windowed
 
 import xarray as xr
@@ -25,6 +25,37 @@ from .tools import get_uniform_spacing, halfsample, plane
 class SeisIO:
     def __init__(self, xarray_obj):
         self._obj = xarray_obj
+
+    def to_segy(
+        self,
+        segy_file: Union[str, os.PathLike],
+        use_text: bool = True,
+        write_dead_traces: bool = False,
+        coord_scalar: Union[float, None] = None,
+        silent: bool = False,
+        data_var: str = "data",
+        vert_dimension: str = "samples",
+        dead_trace_var: Union[str, None] = None,
+        trace_header_map: Dict[str, int] = None,
+        **dim_kwargs,
+    ):
+        from .segy._xarray_writer import SegyWriter
+
+        with SegyWriter(
+            segy_file,
+            use_text=use_text,
+            write_dead_traces=write_dead_traces,
+            coord_scalar=coord_scalar,
+            silent=silent,
+        ) as writer:
+            writer.to_segy(
+                self._obj,
+                data_var=data_var,
+                vert_dimension=vert_dimension,
+                dead_trace_var=dead_trace_var,
+                trace_header_map=trace_header_map,
+                **dim_kwargs,
+            )
 
     def to_netcdf(self, seisnc, **kwargs):
         """Output to netcdf4 with specs for seisnc.

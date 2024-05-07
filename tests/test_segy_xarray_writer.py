@@ -133,7 +133,6 @@ def test_SegyWriter_f3(
             trace_header_map={"cdp_x": 181, "cdp_y": 185},
             iline=189,
             xline=193,
-            silent=True,
         )
 
     ds_out = (
@@ -188,7 +187,6 @@ def test_SegyWriter_f3_withdead(
             dead_trace_var=dead_traces,
             iline=189,
             xline=193,
-            silent=True,
         )
 
     ds_out = (
