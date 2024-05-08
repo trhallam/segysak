@@ -1,7 +1,8 @@
-from typing import Union
+from typing import Union, List
 import importlib
 import numpy as np
 import segyio
+import segyio.trace
 
 try:
     has_ipywidgets = importlib.util.find_spec("ipywidgets") is not None
@@ -42,6 +43,28 @@ def check_tracefield(byte_list: Union[list, None] = None) -> bool:
     failed = [byte_loc for byte_loc in byte_list if byte_loc not in tracefield_bytes]
     if failed:
         raise ValueError(f"Invalid byte locations: {failed}")
+
+    return True
+
+
+def check_tracefield_names(field_list: Union[List[str], None] = None) -> bool:
+    """Check that tracefield names match segyio TraceField names.
+
+    Args:
+        field_list: List of field names.
+
+    Returns:
+        True if valid field_list.
+
+    Raises:
+        ValueError:
+    """
+    if field_list is None:
+        return True
+
+    failed = [field for field in field_list if field not in segyio.tracefield.keys]
+    if failed:
+        raise ValueError(f"Invalid field names: {failed}")
 
     return True
 
