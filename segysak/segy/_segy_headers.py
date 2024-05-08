@@ -167,7 +167,7 @@ def segy_bin_scrape(segyfile: str, **segyio_kwargs) -> Dict:
 
 
 def segy_header_scrape(
-    segyfile: str,
+    segy_file: Union[str, os.PathLike],
     partial_scan: Union[int, None] = None,
     silent: bool = False,
     bytes_filter: Union[List[int], None] = None,
@@ -187,50 +187,19 @@ def segy_header_scrape(
     Returns:
         pandas.DataFrame: Raw header information in table for scanned traces.
     """
-    check_tracefield(bytes_filter)
-
-    assert (chunk > 0) and isinstance(chunk, int)
-    header_keys = _active_tracefield_segyio()
-    enum_byte_index = {
-        int(byte_loc): i for i, byte_loc in enumerate(header_keys.values())
-    }
-
-    if bytes_filter:
-        for byte_loc in bytes_filter:
-            assert byte_loc in enum_byte_index
-        bytes_filter_index = [enum_byte_index[byte_loc] for byte_loc in bytes_filter]
-    else:
-        bytes_filter_index = list(enum_byte_index.values())
-
-    columns = [list(header_keys.keys())[i] for i in bytes_filter_index]
-    segyio_kwargs["ignore_geometry"] = True
-
-    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
-        segyf_hgen = segyf.header[:]
-        ntraces = segyf.tracecount
+    with TraceHeaders(segy_file, bytes_filter=bytes_filter, **segyio_kwargs) as headers:
         if partial_scan is not None:
-            ntraces = min(ntraces, int(partial_scan))
+            ntraces = partial_scan
+        else:
+            ntraces = headers.ntraces
 
-        head_df = pd.DataFrame(index=pd.Index(range(ntraces)), columns=columns)
-        slc_end = chunk
-        with tqdm(total=ntraces, disable=silent, **TQDM_ARGS) as pbar:
-            while slc_end <= ntraces + chunk - 1:
-                slc = slice(slc_end - chunk, min(slc_end, ntraces), 1)
-                # take headers returned from segyio and create lists for a dataframe
-                head_df.iloc[slc, :] = np.vstack(
-                    [
-                        list(next(segyf_hgen).values())
-                        for _ in range(slc.stop - slc.start)
-                    ]
-                )[:, bytes_filter_index]
-                slc_end += chunk
-                pbar.update(slc.stop - slc.start)
+        chunks = ntraces // chunk + min(ntraces % chunk, 1)
+        _dfs = []
+        for chk in tqdm(range(0, chunks), unit=" trace-chunks"):
+            chk_slc = slice(chk * chunk, min((chk + 1) * chunk, ntraces), None)
+            _dfs.append(headers.to_dataframe(selection=chk_slc))
 
-    head_df.replace(to_replace=-2147483648, value=np.nan, inplace=True)
-
-    for col in head_df:
-        head_df[col] = pd.to_numeric(head_df[col], downcast="unsigned")
-
+    head_df = pd.concat(_dfs)
     return head_df
 
 
