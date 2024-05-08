@@ -10,7 +10,7 @@ import xarray as xr
 
 import segyio
 
-from ._segy_core import tqdm, check_tracefield
+from ._segy_core import check_tracefield
 
 from ._segy_text import (
     create_default_texthead,
@@ -18,6 +18,8 @@ from ._segy_text import (
     _clean_texthead,
     trace_header_map_to_text,
 )
+
+from ..progress import Progress
 
 
 def chunked_index_iterator(chunks: Tuple[int], index):
@@ -317,7 +319,7 @@ class SegyWriter:
 
         with (
             segyio.create(self.segy_file, spec) as segyf,
-            tqdm(total=n_chunks, disable=self.silent, unit="chunks") as pbar,
+            Progress(total=n_chunks, unit=" chunks", position=0) as pbar,
         ):
             segyf.bin.update(
                 # tsort=segyio.TraceSortingFormat.INLINE_SORTING,

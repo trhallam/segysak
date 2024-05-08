@@ -4,7 +4,6 @@ import pathlib
 import xarray as xr
 import numpy as np
 
-from segysak.segy._xarray import SgyBackendArray, SgyBackendEntrypoint
 from segysak.segy._xarray_writer import (
     SegyWriter,
     chunk_iterator,
@@ -126,7 +125,7 @@ def test_SegyWriter_f3(
 
     id = request.node.callspec.id
     out_file = temp_dir / f"f3-out-{id}.segy"
-    with SegyWriter(out_file, use_text=True, silent=True) as writer:
+    with SegyWriter(out_file, use_text=True) as writer:
         writer.to_segy(
             ds,
             vert_dimension="twt",
@@ -138,7 +137,6 @@ def test_SegyWriter_f3(
     ds_out = (
         xr.open_dataset(
             out_file,
-            silent=True,
             dim_byte_fields={"iline": 189, "xline": 193},
             extra_byte_fields={"cdp_x": 181, "cdp_y": 185},
         )
@@ -179,7 +177,7 @@ def test_SegyWriter_f3_withdead(
 
     id = request.node.callspec.id
     out_file = temp_dir / f"f3dead-out-{id}.segy"
-    with SegyWriter(out_file, use_text=True, silent=True) as writer:
+    with SegyWriter(out_file, use_text=True) as writer:
         writer.to_segy(
             ds,
             vert_dimension="twt",
@@ -192,7 +190,6 @@ def test_SegyWriter_f3_withdead(
     ds_out = (
         xr.open_dataset(
             out_file,
-            silent=True,
             dim_byte_fields={"iline": 189, "xline": 193},
             extra_byte_fields={"cdp_x": 181, "cdp_y": 185},
         )

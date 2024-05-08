@@ -25,9 +25,7 @@ def split_segyio_kwargs(segyio_kwargs):
 def test_SegyBackendEntrypoint_3d(segyio3d_test_files):
     path, segyio_kwargs = segyio3d_test_files
     dims, segyio_kwargs = split_segyio_kwargs(segyio_kwargs)
-    ds = xr.open_dataset(
-        path, dim_byte_fields=dims, silent=True, segyio_kwargs=segyio_kwargs
-    )
+    ds = xr.open_dataset(path, dim_byte_fields=dims, segyio_kwargs=segyio_kwargs)
     assert isinstance(ds, xr.Dataset)
     for dim in dims:
         assert dim in ds.sizes
@@ -39,9 +37,7 @@ def test_SegyBackendEntrypoint_3d(segyio3d_test_files):
 def test_SegyBackendEntrypoint_3dps(segyio3dps_test_files):
     path, segyio_kwargs = segyio3dps_test_files
     dims, segyio_kwargs = split_segyio_kwargs(segyio_kwargs)
-    ds = xr.open_dataset(
-        path, dim_byte_fields=dims, silent=True, segyio_kwargs=segyio_kwargs
-    )
+    ds = xr.open_dataset(path, dim_byte_fields=dims, segyio_kwargs=segyio_kwargs)
     assert isinstance(ds, xr.Dataset)
     for dim in dims:
         assert dim in ds.sizes
@@ -50,9 +46,7 @@ def test_SegyBackendEntrypoint_3dps(segyio3dps_test_files):
 def test_SegyBackendEntrypoint_3dps_subsel(segyio3dps_test_files):
     path, segyio_kwargs = segyio3dps_test_files
     dims, segyio_kwargs = split_segyio_kwargs(segyio_kwargs)
-    ds = xr.open_dataset(
-        path, dim_byte_fields=dims, silent=True, segyio_kwargs=segyio_kwargs
-    )
+    ds = xr.open_dataset(path, dim_byte_fields=dims, segyio_kwargs=segyio_kwargs)
     assert isinstance(ds, xr.Dataset)
     for dim in dims:
         assert dim in ds.sizes
@@ -66,7 +60,6 @@ def test_SegyBackendEntrypoint_variable_nbytes():
         TEST_DATA_SEGYIO / "f3.sgy",
         dim_byte_fields={"iline": 189, "xline": 193},
         extra_byte_fields={"cdp_x": 181, "cdp_y": 185},
-        silent=True,
     )
     for var, v in ds.variables.items():
         assert v.nbytes
@@ -85,7 +78,6 @@ def test_SegyBackendEntrypoint_isel(file, shape):
         file,
         dim_byte_fields={"iline": 189, "xline": 193},
         extra_byte_fields={"cdp_x": 181, "cdp_y": 185},
-        silent=True,
     )
     iline = ds.isel(iline=10).data
     assert iline.sizes["xline"] == nxl
@@ -126,7 +118,6 @@ def test_SegyBackendEntrypoint_transpose(file, shape):
         file,
         dim_byte_fields={"iline": 189, "xline": 193},
         extra_byte_fields={"cdp_x": 181, "cdp_y": 185},
-        silent=True,
     )
     iline = ds.isel(iline=10).data
     assert iline.sizes["xline"] == nxl
@@ -159,7 +150,6 @@ def test_SegyBackendEntrypoint_extra_byte_fields():
         TEST_DATA_SEGYIO / "f3.sgy",
         dim_byte_fields={"iline": 189, "xline": 193},
         extra_byte_fields={"cdp_x": 181, "cdp_y": 185},
-        silent=True,
     )
     assert "cdp_x" in ds
     assert "cdp_y" in ds

@@ -15,6 +15,8 @@ import segyio
 
 from .._keyfield import AttrKeyField, VerticalKeyDim
 from .._seismic_dataset import create_seismic_dataset
+
+
 from . import (
     segy_header_scrape,
     segy_bin_scrape,
@@ -22,9 +24,8 @@ from . import (
     get_segy_texthead,
 )
 from ._segy_globals import _SEGY_MEASUREMENT_SYSTEM
-from ._segy_core import tqdm, sample_range, check_tracefield
-
-TQDM_ARGS = dict(unit_scale=True, unit=" traces")
+from ._segy_core import sample_range, check_tracefield
+from ..progress import Progress
 
 
 class SgyBackendArray(BackendArray):
@@ -35,7 +36,6 @@ class SgyBackendArray(BackendArray):
         lock,
         sgy_file: os.PathLike,
         trace_map: Dataset,
-        silent: bool = False,
         segyio_kwargs: Dict = None,
     ):
         self.dnames = dnames
@@ -45,7 +45,6 @@ class SgyBackendArray(BackendArray):
         self.lock = lock
         self.trace_map = trace_map
         self.segyio_kwargs = segyio_kwargs
-        self._silent = silent
         self.batch = 10_000
 
     def __getitem__(self, key: indexing.ExplicitIndexer) -> np.typing.ArrayLike:
@@ -100,11 +99,10 @@ class SgyBackendArray(BackendArray):
         # extract the data from the segyfile into a flat trace x sample format
         with (
             segyio.open(str(self.sgy_file), "r", **self.segyio_kwargs) as segyf,
-            tqdm(
+            Progress(
                 total=tracen_slice_df.shape[0],
                 desc="Loading Traces",
-                disable=self._silent,
-                **TQDM_ARGS,
+                unit=" traces",
             ) as pb,
         ):
             segyf.mmap()
@@ -167,7 +165,13 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         if self._head_df is None:
             # Start by scraping the headers.
             self._head_df = segy_header_scrape(
-                self.filename_or_obj, silent=self._silent, **self.segyio_kwargs
+                self.filename_or_obj,
+                bytes_filter=(
+                    list(self.dim_byte_fields.values())
+                    + list(self.extra_byte_fields.values())
+                    + [segyio.tracefield.TraceField.DelayRecordingTime]
+                ),
+                **self.segyio_kwargs,
             )
         else:
             # don't modify the external df
@@ -241,7 +245,6 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         dim_byte_fields: Dict[str, int],
         drop_variables: Union[tuple[str], None] = None,
         head_df: Union[pd.DataFrame, None] = None,
-        silent: bool = False,
         extra_byte_fields: Union[Dict[str, int], None] = None,
         segyio_kwargs: Union[dict, None] = None,
     ):
@@ -255,7 +258,6 @@ class SgyBackendEntrypoint(BackendEntrypoint):
             head_df: The DataFrame output from `segy_header_scrape`.
                 This DataFrame can be filtered by the user
                 to load select trace sets. Trace loading is based upon the DataFrame index.
-            silent: Turn off progress bars. Defaults to False.
             extra_byte_fields (dict, optional): Additional header information to
                 load into the Dataset. Defaults to None.
             segyio_kwargs: Extra keyword arguments for segyio.open
@@ -266,7 +268,6 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         self.filename_or_obj = str(filename_or_obj)
         self.dim_byte_fields = dim_byte_fields
         self._head_df = head_df
-        self._silent = silent
         self.extra_byte_fields = extra_byte_fields if extra_byte_fields else dict()
         self.segyio_kwargs = segyio_kwargs if segyio_kwargs else dict()
         self.segyio_kwargs.update({"ignore_geometry": True})
@@ -285,7 +286,6 @@ class SgyBackendEntrypoint(BackendEntrypoint):
             None,
             filename_or_obj,
             self.trace_index,
-            silent=self._silent,
             segyio_kwargs=self.segyio_kwargs,
         )
         data = indexing.LazilyIndexedArray(backend_array)

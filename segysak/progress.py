@@ -23,6 +23,7 @@ class Progress:
     _segysak_tqdm_kwargs = {
         "disable": False,
         "leave": False,
+        "unit_scale": True,
     }
 
     def __init__(self, tqdm_func: Union[str, None] = None, **tqdm_kwargs):
