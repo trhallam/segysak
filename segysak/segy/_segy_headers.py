@@ -7,13 +7,11 @@ import segyio
 from ._segy_core import (
     _active_tracefield_segyio,
     _active_binfield_segyio,
-    tqdm,
     check_tracefield,
     check_tracefield_names,
 )
 
-
-TQDM_ARGS = dict(unit_scale=True, unit=" traces")
+from ..progress import Progress
 
 
 class TraceHeaders:
@@ -86,8 +84,10 @@ class TraceHeaders:
             silent = False
             n = len(range(*i.indices(self.ntraces)))
 
-        for header in tqdm(self.fh.header[i], total=n, disable=silent, leave=False):
-            yield {key: header[key] for key in self.filter}
+        with Progress(unit=" traces", total=n) as pbar:
+            for header in self.fh.header[i]:
+                pbar.update(1)
+                yield {key: header[key] for key in self.filter}
 
     def to_dataframe(self, selection: Union[int, slice, None] = None) -> pd.DataFrame:
         """Return the Trace Headers as a DataFrame
@@ -196,9 +196,11 @@ def segy_header_scrape(
 
         chunks = ntraces // chunk + min(ntraces % chunk, 1)
         _dfs = []
-        for chk in tqdm(range(0, chunks), unit=" trace-chunks"):
-            chk_slc = slice(chk * chunk, min((chk + 1) * chunk, ntraces), None)
-            _dfs.append(headers.to_dataframe(selection=chk_slc))
+        with Progress(unit=" trace-chunks", total=chunks) as pbar:
+            for chk in range(0, chunks):
+                chk_slc = slice(chk * chunk, min((chk + 1) * chunk, ntraces), None)
+                _dfs.append(headers.to_dataframe(selection=chk_slc))
+                pbar.update(1)
 
     head_df = pd.concat(_dfs)
     return head_df
