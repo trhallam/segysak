@@ -1,4 +1,4 @@
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Generator, Any
 import numpy as np
 import pandas as pd
 import segyio
@@ -8,10 +8,113 @@ from ._segy_core import (
     _active_binfield_segyio,
     tqdm,
     check_tracefield,
+    check_tracefield_names,
 )
 
 
 TQDM_ARGS = dict(unit_scale=True, unit=" traces")
+
+
+class TraceHeaders:
+
+    def __init__(
+        self,
+        segy_file: Union[str, os.PathLike],
+        bytes_filter: Union[List[int], None] = None,
+        tracefield_filter: Union[List[str], None] = None,
+        **segyio_kwargs,
+    ):
+
+        check_tracefield(bytes_filter)
+        check_tracefield_names(tracefield_filter)
+
+        self.filter = self._combine_filters(bytes_filter, tracefield_filter)
+
+        self.bytes_filter = bytes_filter
+
+        self.segy_file = segy_file
+        _segyio_kwargs = segyio_kwargs.copy()
+        _segyio_kwargs.update({"ignore_geometry": True})
+        self.fh = segyio.open(self.segy_file, "r", **_segyio_kwargs)
+        self.ntraces = self.fh.tracecount
+
+    def _combine_filters(
+        self,
+        bytes_filter: Union[List[int], None],
+        tracefield_filter: Union[List[str], None],
+    ) -> List[segyio.tracefield.TraceField]:
+
+        filter_list = []
+        if bytes_filter is not None:
+            filter_list += [
+                segyio.tracefield.TraceField(byte_loc) for byte_loc in bytes_filter
+            ]
+
+        if tracefield_filter is not None:
+            filter_list += [
+                segyio.tracefield.TraceField(segyio.tracefield.keys[key])
+                for key in tracefield_filter
+            ]
+
+        if filter_list:
+            filter_list = list(set(filter_list))
+        else:
+            filter_list = [
+                segyio.tracefield.TraceField(byte)
+                for byte in segyio.tracefield.keys.values()
+            ]
+
+        return filter_list
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.fh.close()
+
+    def __iter__(self) -> Generator[Dict[str, Any], None, None]:
+        return self[:]
+
+    def __getitem__(
+        self, i: Union[int, slice]
+    ) -> Generator[Dict[str, Any], None, None]:
+        if isinstance(i, int):
+            silent = True
+            n = 1
+        else:
+            silent = False
+            n = len(range(*i.indices(self.ntraces)))
+
+        for header in tqdm(self.fh.header[i], total=n, disable=silent, leave=False):
+            yield {key: header[key] for key in self.filter}
+
+    def to_dataframe(self, selection: Union[int, slice, None] = None) -> pd.DataFrame:
+        """Return the Trace Headers as a DataFrame
+
+        Args:
+            selection: A subset of trace headers will be returned based on trace numbering.
+        """
+        if isinstance(selection, int):
+            index = pd.Index(range(i, i + 1))
+        elif isinstance(selection, slice):
+            index = pd.Index(range(*selection.indices(self.ntraces)))
+        else:
+            index = pd.Index(range(self.ntraces))
+            selection = slice(None, None, None)
+
+        columns = tuple(str(f) for f in self.filter)
+
+        head_df = pd.DataFrame(index=index, columns=columns)
+        # This is slightly faster than building from dicts
+        head_df.iloc[:, :] = np.vstack([list(h.values()) for h in self[selection]])
+
+        # fix bad values
+        head_df = head_df.replace(to_replace=-2147483648, value=np.nan)
+        # convert numeric
+        for col in head_df:
+            head_df[col] = pd.to_numeric(head_df[col], downcast="unsigned")
+
+        return head_df
 
 
 def segy_header_scan(
@@ -74,12 +177,12 @@ def segy_header_scrape(
     """Scape all data from segy trace headers
 
     Args:
-        segyfile (str): SEG-Y File path
-        partial_scan (int): Setting partial scan to a positive int will scan only
+        segyfile: SEG-Y File path
+        partial_scan: Setting partial scan to a positive int will scan only
             that many traces. Defaults to None.
-        silent (bool): Disable progress bar.
-        bytes_filter (list): List of byte locations to load exclusively.
-        chunk (int): Number of traces to read in one go.
+        silent: Disable progress bar.
+        bytes_filter: List of byte locations to load exclusively.
+        chunk: Number of traces to read in one go.
 
     Returns:
         pandas.DataFrame: Raw header information in table for scanned traces.
