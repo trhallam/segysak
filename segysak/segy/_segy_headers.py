@@ -1,4 +1,5 @@
 from typing import Dict, Union, List, Generator, Any
+import os
 import numpy as np
 import pandas as pd
 import segyio
@@ -145,7 +146,7 @@ def segy_header_scan(
 
     header_keys = head_df.describe().T
     pre_cols = list(header_keys.columns)
-    header_keys["byte_loc"] = list(_active_tracefield_segyio().values())
+    header_keys["byte_loc"] = [segyio.tracefield.keys[key] for key in header_keys.index]
     header_keys = header_keys[["byte_loc"] + pre_cols]
     header_keys.nscan = head_df.shape[0]
     return header_keys

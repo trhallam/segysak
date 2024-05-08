@@ -108,7 +108,7 @@ def test_segy_bin_scrape(temp_dir, temp_segy):
 def test_segy_header_scrape(temp_dir, temp_segy):
     header = segy_header_scrape(temp_segy, silent=True)
     assert isinstance(header, pd.DataFrame)
-    assert header.shape == (TEST_SEGY_SIZE**2, 89)
+    assert header.shape == (TEST_SEGY_SIZE**2, 91)
 
 
 def test_header_as_dimensions(temp_dir, temp_segy):
@@ -116,55 +116,6 @@ def test_header_as_dimensions(temp_dir, temp_segy):
     assert isinstance(header, pd.DataFrame)
     dims = header_as_dimensions(header, ("INLINE_3D", "CROSSLINE_3D"))
     assert len(dims) == 2
-
-
-# def test_segy2ncdf_3D(temp_dir, temp_segy):
-#     temp_seisnc = temp_segy.with_suffix(".SEISNC")
-#     segy_loader(temp_segy, temp_seisnc, silent=True)
-
-
-# def test_segy2ncdf_3D_cropH(temp_dir, temp_segy, cropping_limits):
-#     temp_seisnc = temp_segy.with_suffix(".SEISNC")
-
-#     crop, _ = cropping_limits
-#     min_il, max_il, min_xl, max_xl = crop
-
-#     segy2ncdf(temp_segy, temp_seisnc, silent=True, crop=crop)
-
-#     ds = xr.open_dataset(temp_seisnc)
-#     assert tuple(ds.sizes.values()) == (
-#         max_il - min_il + 1,
-#         max_xl - min_xl + 1,
-#         TEST_SEGY_SIZE,
-#     )
-
-
-# def test_segy2ncdf_3D_cropZ(temp_dir, temp_segy, cropping_limits):
-#     temp_seisnc = temp_segy.with_suffix(".SEISNC")
-
-#     _, cropz = cropping_limits
-#     min_z, max_z = cropz
-
-#     segy2ncdf(temp_segy, temp_seisnc, silent=True, zcrop=[min_z, max_z])
-
-#     ds = xr.open_dataset(temp_seisnc)
-#     assert tuple(ds.sizes.values())[2] == max_z - min_z + 1
-
-
-# def test_segy2ncdf_3D_crop(temp_dir, temp_segy, cropping_limits):
-#     temp_seisnc = temp_segy.with_suffix(".SEISNC")
-#     crop, cropz = cropping_limits
-#     min_il, max_il, min_xl, max_xl = crop
-#     min_z, max_z = cropz
-
-#     segy2ncdf(temp_segy, temp_seisnc, silent=True, crop=crop, zcrop=cropz)
-
-#     ds = xr.open_dataset(temp_seisnc)
-#     assert tuple(ds.sizes.values()) == (
-#         max_il - min_il + 1,
-#         max_xl - min_xl + 1,
-#         max_z - min_z + 1,
-#     )
 
 
 def test_segyiotests_2ncdf(temp_dir, segyio3d_test_files):
