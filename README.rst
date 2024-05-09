@@ -2,7 +2,7 @@
 **SEGY-SAK** - |latest-version|
 ================================
 
-|build-status| |python-version| |code-style| |license| |docs| |slack|
+|build-status| |python-version| |code-style| |license| |docs|
 
 .. image:: https://img.shields.io/badge/swung-slack-blueviolet?link=https://softwareunderground.org/&link=swung.slack.com/
 
@@ -16,7 +16,9 @@ Access the full documentation for SEGY-SAK from `readthedocs <https://segysak.re
 To do this *SEGY-SAK* offers two things; a commandline interface (CLI) for
 inspecting and converting SEG-Y data to a more friendly format called
 NETCDF4, and by providing convenience functions for the data using
-`xarray <http://xarray.pydata.org/en/stable/>`_.
+`xarray <http://xarray.pydata.org/en/stable/>`_. This includes lazy loading and
+streaming of data via the Xarray backend engine provided by SEGY-SAK.
+
 We try hard to load the data the same way every time so your functions will
 work no-matter which cube/line you load. The `xarray` conventions we use are
 outlined in the documentation.
@@ -38,15 +40,16 @@ Current Capabilities
   - Convert 2D, 3D and gathers type SEG-Y to NETCDF4 and back. The NETCDF4 files
     are one line open with ``xarray.open_dataset``.
 
-  - Extract sub-volumes via cropping xline and inline.
+  - Extract sub-volumes via cropping operations.
 
-  - Read EBCIDC header.
+  - Read the EBCIDC/text header of the seismic file.
 
   - Perform a limited header scan.
 
 * **Xarray and Python API**:
 
-  * Load 2D, 3D and gathers type SEG-Y to a ``xarray.Dataset``.
+  * Load SEG-Y data to a ``xarray.Dataset``, dimensions are created by analysing trace header byte
+    locations provided by the user.
 
   * Access header information and text headers in Python with convenience
     functions.
@@ -56,8 +59,7 @@ Current Capabilities
 Installation
 -------------
 
-*SEGY-SAK* can be installed by using pip or python setuptools, we also provide an ``environment.yml`` for use
-with conda.
+*SEGY-SAK* can be installed by using pip. Dependencies are specified in the `pyproject.toml`.
 
 Python Package Index via ``pip``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -66,16 +68,16 @@ From the command line run the ``pip`` package manager
 
 .. code-block:: shell
 
-   pip install segysak
+   python -m pip install segysak
 
 Install from source
 ^^^^^^^^^^^^^^^^^^^
 
-Clone the SEGY-SAK Github repository and in the top level directory run setuptools via
+Clone the SEGY-SAK Github repository and in the top level directory run
 
 .. code-block:: shell
 
-   python setup.py install
+   python -m pip install
 
 
 CLI Quick Start
@@ -108,7 +110,7 @@ Complete Documentation
 ----------------------
 
 The complete documentation for *SEGY-SAK* can be found at
-`readthedocs <https://segysak.readthedocs.io/en/latest/>`__
+`readthedocs <https://trhallam.github.io/segysak/>`__
 
 .. |latest-version| image:: https://img.shields.io/pypi/v/segysak?color=2d5016&label=pypi_version&logo=Python&logoColor=white
    :alt: Latest version on PyPi
@@ -129,10 +131,6 @@ The complete documentation for *SEGY-SAK* can be found at
    :alt: license
    :target: https://github.com/trhallam/segysak/blob/main/LICENSE
 
-.. |docs| image:: https://readthedocs.org/projects/segysak/badge/?version=latest
-   :target: https://segysak.readthedocs.io/en/latest/?badge=latest
+.. |docs| image:: https://img.shields.io/endpoint?url=https%3A%2F%2Ftrhallam.github.io%2Fsegysak%2Flatest%2Fbadge-mkdocs.json
+   :target: https://trhallam.github.io/segysak/
    :alt: Documentation Status
-
-.. |slack| image:: https://img.shields.io/badge/slack-help-blueviolet?logo=slack
-   :alt: help
-   :target: https://swung.slack.com/messages/segysak/
