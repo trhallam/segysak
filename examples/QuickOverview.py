@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -16,19 +16,14 @@
 # %% [markdown]
 # # Quick Overview
 #
-# Here you can find some quick examples of what you can do with segysak. For more details refer to the [examples](../examples.html).
+# Here you can find some quick examples of what you can do with SEGY-SAK. For more details refer to the [examples](../examples.html).
 
 # %% [markdown]
 # The library is imported as *segysak* and the loaded `xarray` objects are compatible with *numpy* and *matplotlib*.
 #
 # The cropped volume from the Volve field in the North Sea (made available by Equinor) is used for this example, and
 # all the examples and data in this documentation are available from the `examples` folder of the
-# [Github](https://github.com/trhallam/segysak) respository.
-
-# %% nbsphinx="hidden"
-import warnings
-
-warnings.filterwarnings("ignore")
+# [Github](https://github.com/trhallam/segysak/examples/) respository.
 
 # %%
 import matplotlib.pyplot as plt
@@ -44,7 +39,7 @@ print("3D", V3D_path, V3D_path.exists())
 
 # %% [markdown]
 # A basic operation would be to check the text header included in the SEG-Y file. The *get_segy_texthead*
-# function accounts for common encoding issues and returns the header as a text string.
+# function accounts for common encoding issues and returns the header as a text string. It is important to check the text header if you are unfamiliar with your data, it may provide important information about the contents/location of trace header values which are needed by SEGY-SAK to successfully load your data into a `xarray.Dataset`.
 
 # %%
 from segysak.segy import get_segy_texthead
@@ -59,9 +54,13 @@ get_segy_texthead(V3D_path)
 
 # %%
 from segysak.segy import segy_header_scan
+import pandas as pd
 
 scan = segy_header_scan(V3D_path)
-scan
+
+with pd.option_context('display.max_rows', 100, 'display.max_columns', 10):
+    # drop byte locations where the mean is zero, these are likely empty.
+    display(scan)
 
 # %% [markdown]
 # The header report can also be reduced by filtering blank byte locations. Here we use the standard deviation `std`
@@ -71,10 +70,10 @@ scan
 # can also see the byte positions of the **local grid** for INLINE_3D in byte *189* and for CROSSLINE_3D in byte *193*.
 
 # %%
-scan[scan["std"] > 0]
+scan[scan["mean"] > 0]
 
 # %% [markdown]
-# To retreive the raw header content use `segy_header_scrape`. Setting `partial_scan=None` will return the
+# To retreive the raw header content (values) use `segy_header_scrape`. Setting `partial_scan=None` will return the
 # full dataframe of trace header information.
 
 # %%
@@ -87,16 +86,27 @@ scrape
 # ## Load SEG-Y data
 
 # %% [markdown]
-# All SEG-Y (2D, 2D gathers, 3D & 3D gathers) are ingested into `xarray.Dataset` objects through the
-# `segy_loader` function. It is best to be explicit about the byte locations of key information but
-# `segy_loader` can attempt to guess the shape of your dataset. Some standard byte positions are
-# defined in the `well_known_bytes` function and others can be added via pull requests to the Github
-# repository if desired.
+# All SEG-Y (2D, 2D gathers, 3D & 3D gathers) are ingested into `xarray.Dataset` using the Xarray SEGY engine provided by
+# segysak. The engine recognizes the '.segy' and `.sgy' extensions automatically when passed to `xr.open_dataset()`.
+# It is important to provide the `dim_bytes_fields` and if required the `extra_bytes_fields` variables.
+#
+# `dim_byte_fields` specifies the byte locations which determine the orthogonal geometry of your data. This could be CDP for 2D data,
+# iline and xline for 3D data, or iline, xline and offset for pre-stack gathers over 3D data. UTM coordinates are not usually valid dimensions, 
+# because if a survey is rotated relative to the UTM grid, you do not get orthogonal dimensions.
+#
+# UTM coordinates and other trace header information you require can be loaded via the `extra_bytes_fields` argument.
+#
+# > Note that the keys you use to label byte fields will be the keys of the dimensions and variables loaded into the dataset.
+#
+# > Since v0.5 of SEGY-SAK, the vertical dimension is always labelled as `samples`.
 
 # %%
-from segysak.segy import segy_loader, well_known_byte_locs
-
-V3D = segy_loader(V3D_path, iline=189, xline=193, cdp_x=73, cdp_y=77, vert_domain="TWT")
+import xarray as xr
+V3D = xr.open_dataset(
+    V3D_path,
+    dim_byte_fields={"iline":189, "xline":193},
+    extra_byte_fields={"cdp_x":73, "cdp_y":77}
+)
 V3D
 
 # %% [markdown]
@@ -110,7 +120,7 @@ V3D
 # %%
 fig, ax1 = plt.subplots(ncols=1, figsize=(15, 8))
 iline_sel = 10093
-V3D.data.transpose("twt", "iline", "xline", transpose_coords=True).sel(
+V3D.data.transpose("samples", "iline", "xline", transpose_coords=True).sel(
     iline=iline_sel
 ).plot(yincrease=False, cmap="seismic_r")
 plt.grid("grey")
@@ -120,21 +130,24 @@ plt.xlabel("XLINE")
 # %% [markdown]
 # ## Saving data to NetCDF4
 #
-# SEGYSAK offers a convenience utility to make saving to NetCDF4 simple. This is accesssed through the `seisio` accessor on the loaded
-# SEG-Y or SEISNC volume. The `to_netcdf` method accepts the same arguments as the `xarray` version.
+# SEGYSAK now loads data in a way that is compatable with the standard `to_netcdf` method of an `xarray.Dataset`. To output data to NetCDF4, simply specify the output file and Xarray should take care of the rest. If you have a particularly large SEG-Y file, that will not fit into memory, then you may need to chunk the dataset first prior to output. This will ensure lazy loading and output of data.
 
 # %%
-V3D.seisio.to_netcdf("V3D.SEISNC")
+V3D.to_netcdf("data/V3D.nc")
+
+# %%
+# Here the seismic volume to process one INLINE at a time to the NetCDF4 file.
+V3D.chunk({'iline':1, 'xline':-1, 'samples':-1}).to_netcdf("data/V3D_chks.nc")
 
 # %% [markdown]
 # ## Saving data to SEG-Y
 #
-# To return data to SEG-Y after modification use the `segy_writer` function. `segy_writer` takes as argument a SEISNC dataset which
-# requires certain attributes be set. You can also specify the byte locations to write header information.
+# To return data to SEG-Y after modification use the `seisio` accessor provided by SEGY-SAK. Unlike the `to_netcdf` method. Additional arguments are required by `to_segy` to successfuly write a SEG-Y file with appropriate header information. At a minimum, this should include byte locations for each dimension in the Dataset, but additional variables can be written to trace headers as required.
 
-# %% tags=[]
-from segysak.segy import segy_writer
-
-segy_writer(
-    V3D, "V3D.segy", trace_header_map=dict(iline=5, xline=21)
-)  # Petrel Locations
+# %%
+V3D.seisio.to_segy(
+    "data/V3D-out.segy",
+    trace_header_map={"cdp_x":73, "cdp_y":77},
+    iline=189,
+    xline=193,
+)

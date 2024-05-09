@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -24,11 +24,6 @@
 #
 # `segy_header_scan` is primarily designed to help quickly asscertain the byte locations of key header information for loading or converting the full SEG-Y file. It does this by just looking at the first *N* traces (1000 by default) and returns the byte location and statistics related to the file.
 
-# %% nbsphinx="hidden"
-import warnings
-
-warnings.filterwarnings("ignore")
-
 # %%
 from segysak.segy import segy_header_scan
 
@@ -44,7 +39,7 @@ scan
 import pandas as pd
 from IPython.display import display
 
-with pd.option_context("display.max_rows", 89):
+with pd.option_context("display.max_rows", 91):
     display(scan)
 
 # %% [markdown]
@@ -87,7 +82,7 @@ plot = scrape.hist(bins=25, figsize=(20, 10))
 # %% [markdown]
 # We can also just plot up the geometry to check that everything looks ok, here the line numbering and coordinates seem to match up, great!
 
-# %% tags=[]
+# %%
 fig, axs = plt.subplots(nrows=2, figsize=(12, 10), sharex=True, sharey=True)
 
 scrape.plot(

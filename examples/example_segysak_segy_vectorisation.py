@@ -6,14 +6,12 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
-
-# %%
 
 # %% [markdown]
 # # SEG-Y to Vector DataFrames and Back
@@ -26,13 +24,13 @@
 
 # %%
 import pathlib
+import xarray as xr
 from IPython.display import display
-from segysak.segy import segy_loader, well_known_byte_locs, segy_writer
 
 volve_3d_path = pathlib.Path("data/volve10r12-full-twt-sub3d.sgy")
 print("3D", volve_3d_path.exists())
 
-volve_3d = segy_loader(volve_3d_path, **well_known_byte_locs("petrel_3d"))
+volve_3d = xr.open_dataset(volve_3d_path, dim_byte_fields={'iline': 5, 'xline': 21}, extra_byte_fields={'cdp_x': 73, 'cdp_y': 77})
 
 # %% [markdown]
 # ## Vectorisation
@@ -56,7 +54,7 @@ display(volve_3d_df_reindex)
 # It is possible to return the DataFrame to the Dataset for output to SEGY. To do this the multi-index must be reset. Afterward, `pandas` provides the `to_xarray` method.
 
 # %%
-volve_3d_df_multi = volve_3d_df_reindex.set_index(["iline", "xline", "twt"])
+volve_3d_df_multi = volve_3d_df_reindex.set_index(["iline", "xline", "samples"])
 display(volve_3d_df_multi)
 volve_3d_ds = volve_3d_df_multi.to_xarray()
 display(volve_3d_ds)
@@ -73,13 +71,23 @@ display(volve_3d_ds.attrs)
 # The `cdp_x` and `cdp_y` positions must be reduced to 2D along the vertical axis "twt" and set as coordinates.
 
 # %%
-volve_3d_ds["cdp_x"] = volve_3d_ds["cdp_x"].mean(dim=["twt"])
-volve_3d_ds["cdp_y"] = volve_3d_ds["cdp_y"].mean(dim=["twt"])
+volve_3d_ds["cdp_x"]
+
+# %%
+volve_3d_ds["cdp_x"] = volve_3d_ds["cdp_x"].mean(dim=["samples"])
+volve_3d_ds["cdp_y"] = volve_3d_ds["cdp_y"].mean(dim=["samples"])
 volve_3d_ds = volve_3d_ds.set_coords(["cdp_x", "cdp_y"])
 volve_3d_ds
 
 # %% [markdown]
-# Afterwards, use the `segy_writer` utility as normal to return to SEGY.
+# Afterwards, use the `to_segy` method as normal to return to SEGY.
 
-# %% tags=[]
-segy_writer(volve_3d_ds, "test.segy")
+# %%
+volve_3d_ds.seisio.to_segy("data/test.segy", iline=189, xline=193, trace_header_map={'cdp_x':181, 'cdp_y':185})
+
+# %% [markdown]
+# ## Very large datasets
+#
+# If you have a very large dataset (SEG-Y file), it may be possible to use `ds.to_dask_dataframe()` which can perform operations, including the writing of data in a lazy manner.
+
+# %%

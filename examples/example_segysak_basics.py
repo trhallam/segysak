@@ -6,14 +6,12 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.16.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
-
-# %%
 
 # %% [markdown]
 # # SEGY-SAK Basics
@@ -160,5 +158,5 @@ img = map_data.plot()
 # %% [markdown]
 # Sometimes we need to modify the dimensions because they were read wrong or to scale them. Modify your dimension from the seisnc and then put it back using `assign_coords`.
 
-# %% tags=[]
+# %%
 new_seisnc.assign_coords(iline=new_seisnc.iline * 10, twt=new_seisnc.twt + 1500)
