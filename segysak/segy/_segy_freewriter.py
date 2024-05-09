@@ -1,3 +1,5 @@
+from warnings import warn
+
 import xarray as xr
 import segyio
 import numpy as np
@@ -256,6 +258,12 @@ def segy_freewriter(
             equal to the number of dimensions on the output data_array. The sort order will be as per the order passed
             to the function.
     """
+    warn(
+        "segyfree_writer will be removed in v0.6, please use the accessor ds.seisio.to_segy method instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     kwargs = dict(
         data_array=data_array,
         trace_header_map=trace_header_map,

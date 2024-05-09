@@ -2,6 +2,7 @@
 """Functions to interact with segy data
 """
 import pathlib
+from warnings import warn
 
 # import netCDF
 import h5netcdf
@@ -90,9 +91,10 @@ def _segy3d_ncdf(
     else:
         raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
-    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf, h5netcdf.File(
-        ncfile, "a"
-    ) as seisnc:
+    with (
+        segyio.open(segyfile, "r", **segyio_kwargs) as segyf,
+        h5netcdf.File(ncfile, "a") as seisnc,
+    ):
 
         segyf.mmap()
 
@@ -160,9 +162,10 @@ def _segy3dps_ncdf(
     else:
         raise ValueError(f"Unknown vert_domain: {vert_domain}")
 
-    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf, h5netcdf.File(
-        ncfile, "a"
-    ) as seisnc:
+    with (
+        segyio.open(segyfile, "r", **segyio_kwargs) as segyf,
+        h5netcdf.File(ncfile, "a") as seisnc,
+    ):
 
         segyf.mmap()
 
@@ -926,6 +929,11 @@ def segy_freeloader(
         segyio_kwargs (dict, optional): Extra keyword arguments for segyio.open
         **dim_kwargs: Dimension names and byte location pairs.
     """
+    warn(
+        "segy_loader will be removed in v0.6, please use the Xarray engine ds = xr.open_dataset(segy_file) method instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if segyio_kwargs is None:
         segyio_kwargs = dict()
 
@@ -1101,6 +1109,12 @@ def segy_loader(
             otherwise the data in memory. If return_geometry is True does not load trace data and
             returns headers in geometry.
     """
+    warn(
+        "segy_loader will be removed in v0.6, please use the Xarray engine ds = xr.open_dataset(segy_file) method instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     extra_byte_fields = _loader_converter_checks(cdp, iline, xline, extra_byte_fields)
 
     head_df, head_bin, head_loc = _loader_converter_header_handling(
@@ -1259,6 +1273,11 @@ def segy_converter(
         **segyio_kwargs: Extra keyword arguments for segyio.open
 
     """
+    warn(
+        "segy_converter will be removed in v0.6, please use Xarray engine ds = xr.open_dataset(file) and then accessor ds.seisio.to_segy method instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     # Input sanity checks
     extra_byte_fields = _loader_converter_checks(cdp, iline, xline, extra_byte_fields)
     byte_loc = [

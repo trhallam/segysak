@@ -762,6 +762,11 @@ def segy_writer(
             the loaded SEG-Y file and may not match the segysak SEG-Y output. Defaults to False and writes
             the default segysak EBCIDC
     """
+    warn(
+        "segy_writer will be removed in v0.6, please use the accessor ds.seisio.to_segy() method instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     if trace_header_map:
         check_tracefield(trace_header_map.values())
 
