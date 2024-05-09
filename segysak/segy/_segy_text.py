@@ -78,6 +78,8 @@ def get_segy_texthead(
             print(err)
             print("The segy text header could not be decoded.")
 
+    text = _text_fixes(text)
+
     if no_richstr:
         return text
     else:

@@ -69,7 +69,7 @@ def test_well_known_byte_locs_fail():
 
 @pytest.mark.parametrize("header", GOOD_HEADER, ids=["str", "dict", "bytes"])
 def test_put_segy_texthead_ok(temp_dir, temp_segy, header):
-    put_segy_texthead(temp_segy, header)
+    put_segy_texthead(temp_segy, header, line_counter=False)
 
 
 @pytest.mark.parametrize("header", BAD_HEADER, ids=["str", "adict", "bytes"])
