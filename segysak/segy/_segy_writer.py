@@ -1,4 +1,5 @@
-from numpy.core.fromnumeric import trace
+from warnings import warn
+
 import xarray as xr
 import segyio
 import numpy as np
