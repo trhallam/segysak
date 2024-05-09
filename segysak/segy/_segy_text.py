@@ -1,4 +1,7 @@
+from typing import Dict, List, Union, ByteString, Any
 from warnings import warn
+import os
+import re
 import textwrap
 from functools import reduce
 from collections import defaultdict
@@ -25,36 +28,46 @@ def _isascii(txt):
         return True
 
 
-def get_segy_texthead(segyfile, ext_headers=False, no_richstr=False, **segyio_kwargs):
-    """Return the ebcidc
+def get_segy_texthead(
+    segy_file: Union[str, os.PathLike],
+    ext_headers: bool = False,
+    no_richstr: bool = False,
+    **segyio_kwargs: Dict[str, Any],
+):
+    """Return the ebcidc header as a Python string. New lines are separated by the `\n` char.
 
     Args:
-        segyfile (str): Segy File Path
-        ext_headers (bool): Return EBCIDC and extended headers in list.
-            Defaults to False
-        no_richstr (bool, optional): Defaults to False. If true the returned string
+        segy_file: Segy File Path
+        ext_headers: Return EBCIDC and extended headers in list. Defaults to False
+        no_richstr: Defaults to False. If true the returned string
             will not be updated for pretty HTML printing.
         segyio_kwargs: Key word arguments to pass to segyio.open
+
     Returns:
-        str: Returns the EBCIDC text as a formatted paragraph.
+        text: Returns the EBCIDC text as a formatted paragraph.
     """
 
-    with open(segyfile, mode="rb") as f:
+    with open(segy_file, mode="rb") as f:
         f.seek(0, 0)  # Locate our position to first byte of file
         data = f.read(3200)  # Read the first 3200 byte from our position
 
     if _isascii(data) and ext_headers == False:
-        text = data.decode("ascii")  # EBCDIC encoding
-        text = _text_fixes(text)
-        text = segyio.tools.wrap(text)
+        encoding = "ascii"
     elif ext_headers == False:
-        text = data.decode("cp500")  # text is ebcidc
-        text = _text_fixes(text)
-        text = segyio.tools.wrap(text)
+        encoding = "cp500"  # text is ebcidc
+    else:
+        encoding = "ebcidc"
+
+    if encoding in ["ascii", "cp500"]:
+        lines = []
+        # doing it this way ensure we split the bytes appropriately across the 40 lines.
+        for i in range(0, 3200, 80):
+            lines.append(data[i : i + 80].decode("cp500"))
+            text = "\n".join(lines)
     else:
         segyio_kwargs["ignore_geometry"] = True
         try:  # pray that the encoding is ebcidc
-            with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
+            with segyio.open(segy_file, "r", **segyio_kwargs) as segyf:
                 text = segyf.text[0].decode("ascii", "replace")
                 text = _text_fixes(text)
                 text = segyio.tools.wrap(text)
@@ -71,12 +84,13 @@ def get_segy_texthead(segyfile, ext_headers=False, no_richstr=False, **segyio_kw
         return _upgrade_txt_richstr(text)
 
 
-def _process_string_texthead(string, n, nlines=40):
+def _process_string_texthead(string: str, n: int, nlines: int = 40) -> List[str]:
     """New lines are preserved.
 
     Args:
-        string (str): The textheader as a string.
-        n (int): The number of allowable chars per line.
+        string: The textheader as a string.
+        n: The number of allowable chars per line.
+        nlines: The number of allowable lines in the text header. Use for for extended text headers.
 
     Returns:
         list: The string broken into lines and pre-padded for line breaks.
@@ -90,37 +104,64 @@ def _process_string_texthead(string, n, nlines=40):
     return txt
 
 
-def _process_dict_texthead(strdict, n, nlines=40):
-    """Pads each str to n
+def _process_dict_texthead(
+    strdict: Dict[int, str], n: int, nlines: int = 40
+) -> List[str]:
+    """Left justifies each value of the dictionary with padding to length n
+    Ensures there are values for all line numbers (1-n)
 
     Args:
-        strdict (dict): The textheader as a dict with numeric keys for line numbers e.g. {1: 'line 1'}.
-        n (int): The number of allowable chars per line.
-        nlines
+        strdict: The text header as a dict with numeric keys for line numbers e.g. {1: 'line 1'}.
+        n: The number of allowable chars per line.
+        nlines: The number of allowable lines in the text header. Use for for extended text headers.
 
     Returns:
-        list: The string broken into lines and pre-padded for line breaks.
+        lines: The string broken into lines and pre-padded for line breaks.
     """
     tdict = defaultdict(lambda: "")
     tdict.update(strdict)
     return [tdict[i].ljust(n) for i in range(1, nlines + 1)]
 
 
-def put_segy_texthead(segyfile, ebcidc, line_counter=True, **segyio_kwargs):
-    """Puts a text header (ebcidc) into a segyfile.
+def _process_line(line: str, i: int, line_counter: bool = True) -> str:
+
+    # trim the right white space
+    line = line.rstrip()
+
+    # add a counter to start of line like `C 1`, `C 2` ... `C40` if not already.
+    if line_counter:
+        counter = f"C{i+1:2d}"
+        if not re.match(r"C[\s|\d]\d.*$", line):
+            line = f"{counter} {line:s}"
+
+    # check line length
+    if len(line) > 81:
+        warn(f"EBCIDC line {line} is too long - truncating", UserWarning)
+
+    line = line.ljust(80)
+    return line
+
+
+def put_segy_texthead(
+    segy_file: Union[str, os.PathLike],
+    ebcidc: Union[str, List[str], Dict[int, str], ByteString],
+    line_counter: bool = True,
+    **segyio_kwargs,
+):
+    """Puts a text header (ebcidc) into a SEG-Y file.
 
     Args:
-        segyfile (str): The path to the file to update.
-        ebcidc (str, list, dict, bytes):
+        segy_file: The path to the file to update.
+        ebcidc:
            A standard string, new lines will be preserved.
            A list or lines to add.
            A dict with numeric keys for line numbers e.g. {1: 'line 1'}.
-           A pre-encoded byte header to add to the segyfile directly.
-        line_counter (bool, opt): Add a line counter with format "CXX " to the start of each line.
+           A pre-encoded byte header to add to the SEG-Y file directly.
+        line_counter: Add a line counter with format "CXX " to the start of each line.
             This reduces the maximum content per line to 76 chars.
     """
     header = ""
-    n = 76 if line_counter else 80
+    n = 80
 
     if not isinstance(ebcidc, (str, list, dict, bytes)):
         raise ValueError(f"Unknown type for ebcidc: {type(ebcidc)}")
@@ -135,16 +176,13 @@ def put_segy_texthead(segyfile, ebcidc, line_counter=True, **segyio_kwargs):
         lines = []
 
     if not isinstance(ebcidc, bytes):
-        if line_counter:
-            lines = [f"C{i+1:2d} {line:s}" for i, line in enumerate(lines)]
-
-        # check lengths
-        for i, line in enumerate(lines):
-            if len(line) > 80:
-                lines[i] = line[:80]
-                warn(f"EBCIDC line {line} is too long - truncating", UserWarning)
-        # convert to bytes
-        header = bytes("".join(lines), "utf8")
+        lines = [
+            _process_line(line, i, line_counter=line_counter)
+            for i, line in enumerate(lines)
+        ]
+        # convert to bytes line by line to ensure end lines don't get pushed,
+        # truncate lines with bad chars instead
+        header = b"".join([ln.encode("utf-8")[:n] for ln in lines])
     else:
         header = ebcidc
 
@@ -154,24 +192,24 @@ def put_segy_texthead(segyfile, ebcidc, line_counter=True, **segyio_kwargs):
         header = header[:3200]
 
     segyio_kwargs["ignore_geometry"] = True
-    with segyio.open(segyfile, "r+", **segyio_kwargs) as segyf:
+    with segyio.open(segy_file, "r+", **segyio_kwargs) as segyf:
         segyf.text[0] = header
 
 
-def _clean_texthead(text_dict, n=75):
+def _clean_texthead(text_dict: Dict[int, str], n: int = 75) -> Dict[int, str]:
     """Reduce texthead dictionary to 75 characters per line.
 
     The first 4 Characters of a segy EBCIDC should have the form "C01 " which
-    is then follwed by 75 ascii characters.
+    is then followed by 75 ascii characters.
 
-    Input should have interger keys. Other keys will be ignored.
+    Input should have integer keys. Other keys will be ignored.
     Missing keys will be filled by blank lines.
 
     Args:
-        text_dict (dict): line no and string pairs
+        text_dict: line no and string pairs
 
     Returns:
-        (dict): line no and string pairs ready for ebcidc input
+        text_dict: line no and string pairs ready for ebcidc input
     """
     output = dict()
     for line in range(1, 41, 1):
@@ -185,7 +223,9 @@ def _clean_texthead(text_dict, n=75):
     return output
 
 
-def create_default_texthead(override=None):
+def create_default_texthead(
+    override: Union[Dict[int, str], None] = None
+) -> Dict[int, str]:
     """Returns a simple default textual header dictionary.
 
     Basic fields are auto populated and a dictionary indexing lines 1-40 can
@@ -193,10 +233,10 @@ def create_default_texthead(override=None):
     empty.
 
     Args:
-        override (dict, optional): Overide any line . Defaults to None.
+        override: Overide any line with custom values. Defaults to None.
 
     Returns:
-        (dict): Dictionary with keys 1-40 for textual header of segy file
+        text_header: Dictionary with keys 1-40 for textual header of SEG-Y file
 
     Example:
         >>> create_default_texthead(override={7:'Hello', 8:'World!'})
@@ -235,15 +275,15 @@ def create_default_texthead(override=None):
     return _clean_texthead(text_dict)
 
 
-def trace_header_map_to_text(trace_header_map):
+def trace_header_map_to_text(trace_header_map: Dict[str, int]) -> List[str]:
     """Convert a trace header map to lines of text to say where header info was
     put in a file.
 
     Args:
-        trace_header_map (dict): Header byte locations.
+        trace_header_map: Header byte locations.
 
     Returns:
-        list: List of lines to output.
+        description: List of lines to output.
     """
     header_locs_text = [f"{key}: {value}," for key, value in trace_header_map.items()]
 
