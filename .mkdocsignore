@@ -1,2 +1,4 @@
 tests
-examples
+segysak
+.pytest_cache
+examples/.ipynb*

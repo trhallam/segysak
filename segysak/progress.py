@@ -1,6 +1,7 @@
 """Shared progress bar class for SEGY-SAK"""
 
 from typing import Any, Dict, Union
+import sys
 import warnings
 import inspect
 

@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -17,6 +17,11 @@
 # # SEGY-SAK Basics
 #
 # **segysak** offers a number of utilities to create and load seismic data using `xarray` and `segyio`. In general **segysak** uses `xarray.Dataset` to store the data and provides an interface to additional seismic specific functionality by adding the `.seis` and `.seisio` names-spaces to an `xarray.Dataset` (just `dataset` from now on). That sounds complicated but let us walk through some examples together.
+
+# %% editable=true slideshow={"slide_type": ""} tags=["hide-code"]
+# Disable progress bars for small examples
+from segysak.progress import Progress
+Progress.set_defaults(disable=True)
 
 # %% [markdown]
 # ## Creating empty 3D geometry

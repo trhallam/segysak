@@ -29,6 +29,13 @@ extra:
   version:
     provider: mike
 
+extra_css:
+  - stylesheets/fix-xarray-rep.css
+
+watch:
+  - docs
+  - examples
+
 markdown_extensions:
   - markdown.extensions.admonition:
   - markdown.extensions.footnotes:
@@ -47,6 +54,8 @@ markdown_extensions:
       use_pygments: true
       auto_title: true
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.smartsymbols
   - pymdownx.snippets:
       check_paths: true
@@ -67,13 +76,18 @@ markdown_extensions:
 
 plugins:
   - search
-  - simple
+  - simple:
+      include: [".md", ".cff", "LICENSE", ".ipynb"]
   - autorefs
   - mkdocs-jupyter:
       execute: false
       kernel_name: python3
       include_source: True
       include: ["examples/*.ipynb"]
+      remove_tag_config:
+        remove_input_tags:
+          - hide-code
+      # execute_ignore:
   - mkdocstrings:
       default_handler: python
   - mike:

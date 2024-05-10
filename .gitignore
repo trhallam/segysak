@@ -29,6 +29,7 @@ _version.py
 # created docs
 docs/examples
 docs/.snippets/cli
+docs/.snippets/cff
 examples/*.ipynb
 
 

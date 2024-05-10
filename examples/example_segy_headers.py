@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.16.1
+#       jupytext_version: 1.16.2
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -18,6 +18,11 @@
 #
 # Headers in SEG-Y data are additional meta information associated with each trace. In SEG-Y these are not pooled in a common data block but interleaved with the seismic trace data so we need to do some work to extract it. **segysak** has two helper methods for extracting information from a SEG-Y file. These are `segy_header_scan` and `segy_header_scrape`. Both of these functions return `pandas.DataFrame` objects containing header or header related information which can be used in QC, analysis and plotting.
 
+
+# %% editable=true slideshow={"slide_type": ""} tags=["hide-code"]
+# Disable progress bars for small examples
+from segysak.progress import Progress
+Progress.set_defaults(disable=True)
 
 # %% [markdown]
 # ## Scanning the headers

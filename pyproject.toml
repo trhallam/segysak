@@ -47,6 +47,7 @@ docs = [
     "jupytext",
     "pyvista",
     "jupyterlab",
+    "ipywidgets",
     "wellpathpy",
     "pyshp",
     "mkdocs",
@@ -59,6 +60,7 @@ docs = [
     "mkdocs-include-markdown-plugin",
     "mkautodoc",
     "mike",
+    "cffconvert",
     # "pyzgy", re-enable when working merge
 ]
 
@@ -81,12 +83,15 @@ features = [
 
 [tool.hatch.envs.docs.env-vars]
 CLI_SNIPPETS = "docs/.snippets/cli"
+CFF_SNIPPETS = "docs/.snippets/cff"
 DOC_EXAMPLES = "docs/examples"
+JUPYTER_PLATFORM_DIRS = "1"
 
 [tool.hatch.envs.docs.scripts]
 clean = [
   "if [ -d docs/examples ]; then rm -rf $DOC_EXAMPLES; fi",
   "if [ -d docs/.snippets/cli ]; then rm -rf docs/.snippets/cli; fi",
+  "if [ -d docs/.snippets/cff ]; then rm -rf docs/.snippets/cff; fi",
 ]
 build-examples = [
     "jupytext --to ipynb --execute examples/*.py",
@@ -102,6 +107,12 @@ cli-snippets = [
     "segysak scrape --help > $CLI_SNIPPETS/scrape.txt",
     "segysak convert --help > $CLI_SNIPPETS/convert.txt",
 ]
+cff-snippets = [
+    "echo $CFF_SNIPPETS",
+    "mkdir -p $CFF_SNIPPETS",
+    "cffconvert -i CITATION.cff -f apalike -o $CFF_SNIPPETS/apalike.txt",
+    "cffconvert -i CITATION.cff -f bibtex -o $CFF_SNIPPETS/bibtex.txt",
+]
 
 serve = [
     """if [ ! -d $DOC_EXAMPLES ]; then
@@ -110,6 +121,7 @@ serve = [
         mv examples/*.ipynb $DOC_EXAMPLES/.;
     fi""",
     "cli-snippets",
+    "cff-snippets",
     "mkdocs serve",
 ]
 build = "mkdocs build -v"
@@ -117,6 +129,7 @@ deploy = [
     "clean",
     "build-examples",
     "cli-snippets",
+    "cff-snippets",
     "mike deploy --update-aliases $(hatch version) dev"
 ]
 

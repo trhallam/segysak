@@ -125,3 +125,18 @@ Segysak use the GPL-3 license.
 The GNU General Public License is a free, copyleft license for
 software and other kinds of works.
 
+## Citations
+
+If you use this software, please cite it.
+
+=== "APA Like"
+
+    ```
+    --8<-- "cff/apalike.txt"
+    ```
+
+=== "Bibtex"
+
+    ```
+    --8<-- "cff/bibtex.txt"
+    ```
