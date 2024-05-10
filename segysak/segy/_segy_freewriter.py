@@ -10,7 +10,7 @@ from itertools import product
 from ._segy_core import tqdm, check_tracefield
 
 from .._accessor import open_seisnc
-from .._keyfield import CoordKeyField
+from .._keyfield import CoordKeyField, DimKeyField
 from ._segy_text import (
     create_default_texthead,
     put_segy_texthead,

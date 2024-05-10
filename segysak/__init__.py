@@ -6,3 +6,5 @@ from ._seismic_dataset import (
     create3d_dataset,
     create2d_dataset,
 )
+
+from ._keyfield import CoordKeyField, VerticalKeyDim, DimKeyField

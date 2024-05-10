@@ -9,7 +9,7 @@ import warnings
 from ._segy_core import tqdm, check_tracefield
 
 from .._accessor import open_seisnc
-from .._keyfield import CoordKeyField
+from .._keyfield import CoordKeyField, DimKeyField
 from ._segy_text import create_default_texthead, put_segy_texthead, _clean_texthead
 from ._segy_globals import _ISEGY_MEASUREMENT_SYSTEM
 from ._segy_knownbytes import OUTPUT_BYTES
@@ -266,18 +266,18 @@ def _ncdf2segy_3d(
             keys for thm_args must be variables or coordinates or dimensions in seisnc.
     """
 
-    thm_args[CoordKeyField.iline] = iline
-    thm_args[CoordKeyField.xline] = xline
+    thm_args[DimKeyField.iline] = iline
+    thm_args[DimKeyField.xline] = xline
     thm_args[CoordKeyField.cdp_x] = cdp_x
     thm_args[CoordKeyField.cdp_y] = cdp_y
 
     z0 = int(ds[dimension].values[0])
     ni, nj, nk = (
-        ds.sizes[CoordKeyField.iline],
-        ds.sizes[CoordKeyField.xline],
+        ds.sizes[DimKeyField.iline],
+        ds.sizes[DimKeyField.xline],
         ds.sizes[dimension],
     )
-    order = (CoordKeyField.iline, CoordKeyField.xline)
+    order = (DimKeyField.iline, DimKeyField.xline)
     msys = _ISEGY_MEASUREMENT_SYSTEM[ds.seis.get_measurement_system()]
     spec = segyio.spec()
 
@@ -306,7 +306,7 @@ def _ncdf2segy_3d(
     # to records
     trace_headers = trace_headers.to_dict(orient="records")
 
-    il_bags = _bag_slices(ds[CoordKeyField.iline].values, n=il_chunks)
+    il_bags = _bag_slices(ds[DimKeyField.iline].values, n=il_chunks)
     with segyio.create(segyfile, spec) as segyf:
         pbar = tqdm(total=ni * nj, disable=silent, **TQDM_ARGS)
         for ilb in il_bags:
@@ -383,20 +383,20 @@ def _ncdf2segy_3dgath(
             keys for thm_args must be variables or coordinates or dimensions in seisnc.
     """
 
-    thm_args[CoordKeyField.iline] = iline
-    thm_args[CoordKeyField.xline] = xline
+    thm_args[DimKeyField.iline] = iline
+    thm_args[DimKeyField.xline] = xline
     thm_args[CoordKeyField.cdp_x] = cdp_x
     thm_args[CoordKeyField.cdp_y] = cdp_y
-    thm_args[CoordKeyField.offset] = offset
+    thm_args[DimKeyField.offset] = offset
 
     z0 = int(ds[dimension].values[0])
     ni, nj, nk, nl = (
-        ds.sizes[CoordKeyField.iline],
-        ds.sizes[CoordKeyField.xline],
+        ds.sizes[DimKeyField.iline],
+        ds.sizes[DimKeyField.xline],
         ds.sizes[dimension],
-        ds.sizes[CoordKeyField.offset],
+        ds.sizes[DimKeyField.offset],
     )
-    order = (CoordKeyField.iline, CoordKeyField.xline, CoordKeyField.offset)
+    order = (DimKeyField.iline, DimKeyField.xline, DimKeyField.offset)
     msys = _ISEGY_MEASUREMENT_SYSTEM[ds.seis.get_measurement_system()]
     spec = segyio.spec()
 
@@ -408,9 +408,9 @@ def _ncdf2segy_3dgath(
     spec.iline = iline
     spec.xline = xline
     spec.samples = ds[dimension].astype(int).values
-    spec.ilines = ds[CoordKeyField.iline].astype(int).values
-    spec.xlines = ds[CoordKeyField.xline].astype(int).values
-    spec.offsets = ds[CoordKeyField.offset].astype(int).values
+    spec.ilines = ds[DimKeyField.iline].astype(int).values
+    spec.xlines = ds[DimKeyField.xline].astype(int).values
+    spec.offsets = ds[DimKeyField.offset].astype(int).values
 
     trace_headers = _build_trace_headers(ds, dimension, order, thm_args, cdp_x, cdp_y)
 
@@ -427,7 +427,7 @@ def _ncdf2segy_3dgath(
 
     # print(len(trace_headers))
 
-    il_bags = _bag_slices(ds[CoordKeyField.iline].values, n=il_chunks)
+    il_bags = _bag_slices(ds[DimKeyField.iline].values, n=il_chunks)
     with segyio.create(segyfile, spec) as segyf:
         pbar = tqdm(total=nj * nl * ni, disable=silent, **TQDM_ARGS)
         for ilb in il_bags:
@@ -600,15 +600,15 @@ def _ncdf2segy_2d_gath(
     thm_args[CoordKeyField.cdp] = cdp
     thm_args[CoordKeyField.cdp_x] = cdp_x
     thm_args[CoordKeyField.cdp_y] = cdp_y
-    thm_args[CoordKeyField.offset] = offset
+    thm_args[DimKeyField.offset] = offset
 
     z0 = int(ds[dimension].values[0])
     ni, nk, nl = (
         ds.sizes[CoordKeyField.cdp],
         ds.sizes[dimension],
-        ds.sizes[CoordKeyField.offset],
+        ds.sizes[DimKeyField.offset],
     )
-    order = (CoordKeyField.cdp, CoordKeyField.offset)
+    order = (CoordKeyField.cdp, DimKeyField.offset)
     msys = _ISEGY_MEASUREMENT_SYSTEM[ds.seis.get_measurement_system()]
     spec = segyio.spec()
 

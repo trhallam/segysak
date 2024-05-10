@@ -6,6 +6,7 @@ import more_itertools
 
 import numpy as np
 import pandas as pd
+import segyio.trace
 import xarray as xr
 from xarray import Dataset, Variable
 from xarray.backends import BackendEntrypoint, BackendArray
@@ -13,7 +14,7 @@ from xarray.core import indexing
 
 import segyio
 
-from .._keyfield import AttrKeyField, VerticalKeyDim
+from .._keyfield import AttrKeyField, VerticalKeyDim, DimKeyField
 from .._seismic_dataset import create_seismic_dataset
 
 
@@ -169,7 +170,10 @@ class SgyBackendEntrypoint(BackendEntrypoint):
                 bytes_filter=(
                     list(self.dim_byte_fields.values())
                     + list(self.extra_byte_fields.values())
-                    + [segyio.tracefield.TraceField.DelayRecordingTime]
+                    + [
+                        segyio.tracefield.TraceField.DelayRecordingTime,
+                        segyio.tracefield.TraceField.SourceGroupScalar,
+                    ]
                 ),
                 **self.segyio_kwargs,
             )
@@ -212,17 +216,25 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         shape = tuple(ds.sizes[dn] for dn in dnames)
         return dnames, shape, ds
 
-    def _add_dataarray_attr(self, da):
+    def _add_dataarray_attr(self, da: xr.DataArray) -> None:
 
         # get segy file attributes
         text = get_segy_texthead(self.filename_or_obj, **self.segyio_kwargs)
         msys = _SEGY_MEASUREMENT_SYSTEM[self._head_bin["MeasurementSystem"]]
         sample_rate = self._head_bin["Interval"] / 1000.0
 
-        da.attrs[AttrKeyField.source_file] = self.filename_or_obj
+        da.segysak[AttrKeyField.source_file] = self.filename_or_obj
+        da.segysak[AttrKeyField.measurement_system] = msys
+        da.segysak[AttrKeyField.sample_rate] = sample_rate
+
+        # set this to the top level (serialising looses pretty print),
+        # but might move to seisnc
         da.attrs[AttrKeyField.text] = text
-        da.attrs[AttrKeyField.measurement_system] = msys
-        da.attrs[AttrKeyField.sample_rate] = sample_rate
+
+    def _add_dataset_attr(self, ds: xr.Dataset) -> None:
+        coord_scalar = self._head_df.SourceGroupScalar.median()
+        ds.segysak[AttrKeyField.coord_scalar] = coord_scalar
+        ds.segysak[AttrKeyField.coord_scaled] = False
 
     def _determine_preferred_chunks(
         self, dnames: Tuple[str], dshape: Tuple[int]
@@ -291,6 +303,7 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         data = indexing.LazilyIndexedArray(backend_array)
         ds["data"] = Variable(ds.dims, data, encoding=encoding)
         self._add_dataarray_attr(ds["data"])
+        self._add_dataset_attr(ds)
         return ds
 
     def guess_can_open(self, filename_or_obj: Union[str, os.PathLike]):

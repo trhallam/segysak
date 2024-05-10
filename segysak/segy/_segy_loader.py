@@ -13,7 +13,6 @@ from addict import Dict
 import numpy as np
 import xarray as xr
 
-from .._keyfield import CoordKeyField
 from ._segy_core import tqdm, check_tracefield
 from ._segy_knownbytes import KNOWN_BYTES
 
@@ -23,6 +22,7 @@ PERCENTILES = [0, 0.1, 10, 50, 90, 99.9, 100]
 
 
 from segysak._keyfield import (
+    DimKeyField,
     CoordKeyField,
     AttrKeyField,
     VariableKeyField,

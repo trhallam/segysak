@@ -9,11 +9,10 @@ other tools and file format converters in segysak library.
 import numpy as np
 
 from ._keyfield import (
-    CoordKeyField,
+    DimKeyField,
     VerticalUnits,
     AttrKeyField,
     VerticalKeyField,
-    DimensionKeyField,
 )
 from ._accessor import xr
 
@@ -90,21 +89,21 @@ def create_seismic_dataset(
     dimensions = dict()
     # create dimension d1
     if cdp is not None:
-        dimensions[CoordKeyField.cdp] = ([CoordKeyField.cdp], cdp)
+        dimensions[DimKeyField.cdp] = ([DimKeyField.cdp], cdp)
     elif iline is not None:  # 3d data
-        dimensions[CoordKeyField.iline] = ([CoordKeyField.iline], iline)
-        dimensions[CoordKeyField.xline] = ([CoordKeyField.xline], xline)
+        dimensions[DimKeyField.iline] = ([DimKeyField.iline], iline)
+        dimensions[DimKeyField.xline] = ([DimKeyField.xline], xline)
 
     # create dimension d3
     if twt is not None:
-        dimensions[CoordKeyField.twt] = ([CoordKeyField.twt], twt)
+        dimensions[DimKeyField.twt] = ([DimKeyField.twt], twt)
     if depth is not None:
-        dimensions[CoordKeyField.depth] = ([CoordKeyField.depth], depth)
+        dimensions[DimKeyField.depth] = ([DimKeyField.depth], depth)
 
     # create dimension d4
     if offset is not None:
-        dimensions[CoordKeyField.offset] = (
-            [CoordKeyField.offset],
+        dimensions[DimKeyField.offset] = (
+            [DimKeyField.offset],
             offset,
         )
 

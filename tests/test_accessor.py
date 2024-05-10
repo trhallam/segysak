@@ -33,29 +33,122 @@ from segysak._keyfield import DimensionKeyField
 from segysak._accessor import coordinate_df
 
 
-# class TestSeisIO:
-#     def test_to_subsurface_3d(self, empty3d):
-#         if sys.version_info >= (3, 8):
-#             assert isinstance(empty3d.seisio.to_subsurface(), StructuredData)
-#         else:
-#             print("Python <=3.7 not support by subsurface")
-#             assert True
+@pytest.fixture(
+    params=[
+        (xr.Dataset(),),
+        (xr.DataArray(),),
+    ],
+    ids=["dset", "darray"],
+)
+def xrd(request):
+    (ds,) = request.param
+    return ds
 
-#     def test_to_subsurface_3dgath(self, empty3d_gath):
-#         if sys.version_info >= (3, 8):
-#             with pytest.raises(NotImplementedError):
-#                 empty3d_gath.seisio.to_subsurface()
-#         else:
-#             print("Python <=3.7 not support by subsurface")
-#             assert True
 
-#     def test_to_subsurface_2dgath(self, empty2d_gath):
-#         if sys.version_info >= (3, 8):
-#             with pytest.raises(NotImplementedError):
-#                 empty2d_gath.seisio.to_subsurface()
-#         else:
-#             print("Python <=3.7 not support by subsurface")
-#             assert True
+@pytest.fixture(
+    params=[
+        (
+            "test-data-segyio/f3.sgy",
+            {"iline": 189, "xline": 193},
+            {"cdp_x": 181, "cdp_y": 185},
+        ),
+        (
+            "test-data-segysak/f3-withdead.sgy",
+            {"iline": 189, "xline": 193},
+            {"cdp_x": 181, "cdp_y": 185},
+        ),
+    ],
+    ids=["f3", "f3dead"],
+)
+def segy_datasets(request, tests_path):
+    segy_file, dim_bytes, extra_bytes = request.param
+    ds = xr.open_dataset(
+        tests_path / segy_file,
+        dim_byte_fields=dim_bytes,
+        extra_byte_fields=extra_bytes,
+    )
+    return ds
+
+
+def test_get_blank_segysak_attrs(xrd):
+    attrs = xrd.segysak.attrs
+    assert attrs == dict()
+
+
+def test_segysak_store_attributes(xrd):
+    attrs = dict(a=1, b="text", c=2.0, d=[1, 2, 3], e=True, f=False)
+    xrd.segysak.store_attributes(**attrs)
+
+    assert attrs == xrd.segysak.attrs
+
+
+def test_segysak_set_attributes(xrd):
+    attrs = dict(a=1, b="text", c=2.0, d=[1, 2, 3], e=True, f=False)
+    for key, value in attrs.items():
+        xrd.segysak[key] = value
+
+    assert attrs == xrd.segysak.attrs
+
+
+def test_segysak_get_attributes(xrd):
+    attrs = dict(a=1, b="text", c=2.0, d=[1, 2, 3], e=True, f=False)
+    for key, value in attrs.items():
+        xrd.segysak[key] = value
+
+    for key, value in attrs.items():
+        assert value == xrd.segysak[key]
+
+
+def test_segysak_humanbytes(xrd):
+    assert isinstance(xrd.segysak.humanbytes, str)
+
+
+def test_segysak_infer_dimensions(segy_datasets):
+    dims = segy_datasets.segysak.infer_dimensions()
+    dims_da = segy_datasets.data.segysak.infer_dimensions()
+
+    assert dims == {
+        "iline": "iline",
+        "xline": "xline",
+    }
+    assert dims_da == {
+        "iline": "iline",
+        "xline": "xline",
+    }
+
+
+def test_segysak_get_dimensions(segy_datasets):
+    dims = segy_datasets.segysak.get_dimensions()
+    dims_da = segy_datasets.data.segysak.get_dimensions()
+
+    assert dims == {
+        "iline": "iline",
+        "xline": "xline",
+    }
+    assert dims_da == {
+        "iline": "iline",
+        "xline": "xline",
+    }
+
+    alt_dims = {"iline": "inlines", "xline": "crosslines"}
+    segy_datasets = segy_datasets.rename_dims(alt_dims)
+    segy_datasets.segysak.set_dimensions(alt_dims)
+    segy_datasets.data.segysak.set_dimensions(alt_dims)
+
+    dims = segy_datasets.segysak.get_dimensions()
+    dims_da = segy_datasets.data.segysak.get_dimensions()
+    assert dims == alt_dims
+    assert dims_da == alt_dims
+
+
+def test_scale_coords(segy_datasets):
+    ds = segy_datasets
+    with pytest.raises(ValueError):
+        ds.segysak.scale_coords()
+    # ds.segysak.set_coords({"cdp_x": "cdp_x", "cdp_y": "cdp_y"})
+    ds.segysak.infer_coords()
+    ds.segysak.scale_coords()
+    assert ds.segysak["coord_scaled"]
 
 
 @pytest.mark.parametrize(
@@ -110,7 +203,7 @@ def test_surface_from_points_df(f3_dataset, f3_horizon_shift):
 
 def test_subsample_dims(f3_dataset):
     ss = f3_dataset.seis.subsample_dims(twt=2, xline=1)
-    assert ss["twt"].size == (f3_dataset.twt.values.size * 2 ** 2 - 3)
+    assert ss["twt"].size == (f3_dataset.twt.values.size * 2**2 - 3)
     assert ss["xline"].size == (f3_dataset.xline.values.size * 2 - 1)
 
 

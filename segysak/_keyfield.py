@@ -7,15 +7,44 @@ from ._core import MetaDataClass
 
 
 @dataclass(order=True, frozen=True)
-class _CoordKeyField(MetaDataClass):
-    """Coordinate Keys to use for naming key components of the Dataset"""
+class _HorDimKeyField(MetaDataClass):
+    """Horizontal Dimensions of seismic data."""
 
     cdp: str = "cdp"
     iline: str = "iline"
     xline: str = "xline"
-    offset: str = "offset"
+
+
+HorDimKeyField = _HorDimKeyField()
+
+
+@dataclass(order=True, frozen=True)
+class _VerDimKeyField(MetaDataClass):
+    """Vertical Dimensions of seismic data."""
+
     depth: str = "depth"
     twt: str = "twt"
+    samples: str = "samples"
+
+
+VerDimKeyField = _VerDimKeyField()
+
+
+@dataclass(order=True, frozen=True)
+class _DimKeyField(_HorDimKeyField, _VerDimKeyField):
+    """Dimension keys to use for naming."""
+
+    offset: str = "offset"
+    angle: str = "angle"
+
+
+DimKeyField = _DimKeyField()
+
+
+@dataclass(order=True, frozen=True)
+class _CoordKeyField(MetaDataClass):
+    """Coordinate Keys to use for naming key components of the Dataset"""
+
     cdp_x: str = "cdp_x"
     cdp_y: str = "cdp_y"
     lat: str = "lat"
@@ -29,58 +58,91 @@ CoordKeyField = _CoordKeyField()
 class _DimensionKeyField(MetaDataClass):
     """Dimensionality Keys to use for naming components of the Dataset"""
 
-    cdp_3d: Tuple[str] = (CoordKeyField.iline, CoordKeyField.xline)
-    cdp_2d: Tuple[str] = (CoordKeyField.cdp,)
+    cdp_3d: Tuple[str] = (DimKeyField.iline, DimKeyField.xline)
+    cdp_2d: Tuple[str] = (DimKeyField.cdp,)
     threed_twt: Tuple[str] = (
-        CoordKeyField.iline,
-        CoordKeyField.xline,
-        CoordKeyField.twt,
+        DimKeyField.iline,
+        DimKeyField.xline,
+        DimKeyField.twt,
     )
-    threed_xline_twt: Tuple[str] = (CoordKeyField.iline, CoordKeyField.twt)
-    threed_iline_twt: Tuple[str] = (CoordKeyField.xline, CoordKeyField.twt)
+    threed_xline_twt: Tuple[str] = (DimKeyField.iline, DimKeyField.twt)
+    threed_iline_twt: Tuple[str] = (DimKeyField.xline, DimKeyField.twt)
     threed_depth: Tuple[str] = (
-        CoordKeyField.iline,
-        CoordKeyField.xline,
-        CoordKeyField.depth,
+        DimKeyField.iline,
+        DimKeyField.xline,
+        DimKeyField.depth,
     )
-    threed_xline_depth: Tuple[str] = (CoordKeyField.iline, CoordKeyField.depth)
-    threed_iline_depth: Tuple[str] = (CoordKeyField.xline, CoordKeyField.depth)
-    threed_head: Tuple[str] = (CoordKeyField.iline, CoordKeyField.xline)
+    threed_xline_depth: Tuple[str] = (DimKeyField.iline, DimKeyField.depth)
+    threed_iline_depth: Tuple[str] = (DimKeyField.xline, DimKeyField.depth)
+    threed_head: Tuple[str] = (DimKeyField.iline, DimKeyField.xline)
     threed_ps_twt: Tuple[str] = (
-        CoordKeyField.iline,
-        CoordKeyField.xline,
-        CoordKeyField.twt,
-        CoordKeyField.offset,
+        DimKeyField.iline,
+        DimKeyField.xline,
+        DimKeyField.twt,
+        DimKeyField.offset,
     )
     threed_ps_depth: Tuple[str] = (
-        CoordKeyField.iline,
-        CoordKeyField.xline,
-        CoordKeyField.depth,
-        CoordKeyField.offset,
+        DimKeyField.iline,
+        DimKeyField.xline,
+        DimKeyField.depth,
+        DimKeyField.offset,
     )
 
     threed_ps_head: Tuple[str] = (
-        CoordKeyField.iline,
-        CoordKeyField.xline,
-        CoordKeyField.offset,
+        DimKeyField.iline,
+        DimKeyField.xline,
+        DimKeyField.offset,
     )
-    twod_twt: Tuple[str] = (CoordKeyField.cdp, CoordKeyField.twt)
-    twod_depth: Tuple[str] = (CoordKeyField.cdp, CoordKeyField.depth)
-    twod_head: Tuple[str] = (CoordKeyField.cdp,)
+    twod_twt: Tuple[str] = (DimKeyField.cdp, DimKeyField.twt)
+    twod_depth: Tuple[str] = (DimKeyField.cdp, DimKeyField.depth)
+    twod_head: Tuple[str] = (DimKeyField.cdp,)
     twod_ps_twt: Tuple[str] = (
-        CoordKeyField.cdp,
-        CoordKeyField.twt,
-        CoordKeyField.offset,
+        DimKeyField.cdp,
+        DimKeyField.twt,
+        DimKeyField.offset,
     )
     twod_ps_depth: Tuple[str] = (
-        CoordKeyField.cdp,
-        CoordKeyField.depth,
-        CoordKeyField.offset,
+        DimKeyField.cdp,
+        DimKeyField.depth,
+        DimKeyField.offset,
     )
-    twod_ps_head: Tuple[str] = (CoordKeyField.cdp, CoordKeyField.offset)
+    twod_ps_head: Tuple[str] = (DimKeyField.cdp, DimKeyField.offset)
 
 
 DimensionKeyField = _DimensionKeyField()
+
+
+@dataclass(order=True, frozen=True)
+class _CardinalityKeyField(MetaDataClass):
+    """Cardinality Keys to use for naming seisnc Data
+
+    This is the type of data in terms of horizontal coordinates like iline/xline, or iline/xline/offset.
+    This avoids the vertical dimension which is handled separately.
+    """
+
+    seisnc_3d: Tuple[str] = (DimKeyField.iline, DimKeyField.xline)
+    seisnc_3doff: Tuple[str] = (
+        DimKeyField.iline,
+        DimKeyField.xline,
+        DimKeyField.offset,
+    )
+    seisnc_3dang: Tuple[str] = (
+        DimKeyField.iline,
+        DimKeyField.xline,
+        DimKeyField.angle,
+    )
+    seisnc_2d: Tuple[str] = (DimKeyField.cdp,)
+    seisnc_2doff: Tuple[str] = (
+        DimKeyField.cdp,
+        DimKeyField.offset,
+    )
+    seisnc_2dang: Tuple[str] = (
+        DimKeyField.cdp,
+        DimKeyField.angle,
+    )
+
+
+CardinalityKeyField = _CardinalityKeyField()
 
 
 @dataclass(frozen=True)
@@ -106,6 +168,10 @@ class _AttrKeyField(MetaDataClass):
     datatype: str = "datatype"
     percentiles: str = "percentiles"
     coord_scalar: str = "coord_scalar"
+    coord_scaled: str = "coord_scaled"
+    dimensions: str = "dimensions"
+    vert_dimension: str = "vert_dimension"
+    vert_domain: str = "vert_domain"
 
 
 AttrKeyField = _AttrKeyField()

@@ -3,10 +3,12 @@
 data manipulation.
 
 """
-from typing import Union, Dict
+from typing import Union, Dict, Tuple, Any, Type, List
+from warnings import warn
 import os
 from collections.abc import Iterable
 from more_itertools import windowed
+import json
 
 import xarray as xr
 import numpy as np
@@ -16,7 +18,17 @@ from scipy.optimize import curve_fit, OptimizeWarning
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Affine2D
 
-from ._keyfield import AttrKeyField, DimensionKeyField, CoordKeyField, VariableKeyField
+from ._keyfield import (
+    HorDimKeyField,
+    DimKeyField,
+    AttrKeyField,
+    DimensionKeyField,
+    CoordKeyField,
+    _CoordKeyField,
+    VariableKeyField,
+    VerticalKeyField,
+    _VerticalKeyField,
+)
 from ._richstr import _upgrade_txt_richstr
 from .tools import get_uniform_spacing, halfsample, plane
 
@@ -57,11 +69,11 @@ class SeisIO:
                 **dim_kwargs,
             )
 
-    def to_netcdf(self, seisnc, **kwargs):
+    def to_netcdf(self, file_path: Union[str, os.PathLike], **kwargs):
         """Output to netcdf4 with specs for seisnc.
 
         Args:
-            seisnc (string/path-like): The output file path. Preferably with .seisnc extension.
+            file_path: The output file path.
             **kwargs: As per xarray function to_netcdf.
         """
         # First remove all None attr.
@@ -80,7 +92,7 @@ class SeisIO:
 
         kwargs["engine"] = "h5netcdf"
 
-        self._obj.to_netcdf(seisnc, **kwargs)
+        self._obj.to_netcdf(file_path, **kwargs)
 
     def to_subsurface(self):
         """Convert seismic data to a subsurface StructuredData Object
@@ -92,6 +104,11 @@ class SeisIO:
         Returns:
             subsurface.structs.base_structures.StructuredData: subsurface struct
         """
+        warn(
+            "to_subsurface will be removed in v0.6.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         try:
             from subsurface.structs.base_structures import StructuredData
         except ImportError as err:
@@ -146,73 +163,82 @@ def open_seisnc(seisnc, **kwargs):
     return ds
 
 
-def coordinate_df(seisnc, coord=True, extras=None, linear_fillna=True):
-    """From an xarray seisnc quickly create iline and xline df. If coords is True
-    also return cdp_x and cdp_y.
+def coordinate_df(
+    ds: xr.Dataset,
+    dims: Tuple[str, str],
+    coords: Tuple[str, str],
+    extra_vars: Union[Tuple[str], None] = None,
+    linear_fillna: bool = True,
+):
+    """From a Dataset of 3d+ seismic, quickly create an dimensions DataFrame. `coords` are the X and Y UTM coordinate
+    variable names.
 
     Filling blank cdp_x and cdp_y spaces is particularly useful for using the
     xarray.plot option with x=cdp_x and y=cdp_y for geographic plotting.
 
     Args:
-        seisnc (xarray.Dataset): The seisnc file.
-        coord (bool, optional): Include cdp_x and cdp_y in putput.
-        extras (list, optional): Any extra keywords to include in the dataframe
-            from the seisnc variables.
-        linear_fillna (bool, optional): Defaults to True. This will use a planar
-            fitting function to fill blank cdp_x and cdp_y spaces.
+        ds: The seismic dataset.
+        dims: A length two tuple of the INLINE and CROSSLINE variable names in ds.
+        coord: A length two tuple of the X and Y UTM coordinate variable names in ds.
+        extra_vars: Any extra ds variables to include in the DataFrame.
+        linear_fillna: Defaults to True. This will use a planar fitting function to fill blank cdp_x and cdp_y spaces.
 
     Returns:
-        pandas.DataFrame
+        dataframe: The coordinate DataFrame
 
     """
-    if coord:
-        req_atr = ["iline", "xline", "cdp_x", "cdp_y"]
-    else:
-        req_atr = ["iline", "xline"]
+    for dim in dims:
+        assert dim in ds.dims
+    iline, xline = dims
 
-    if extras is not None:
-        req_atr += extras
+    for coord in coords:
+        assert coord in ds
+        for dim in dims:
+            assert dim in ds[coord].dims
+    cdpx, cdpy = coords
 
-    seisnc_coord = seisnc[req_atr].to_dataframe().reset_index()
-    seisnc_coord_nona = seisnc_coord.dropna()
+    for var in extra_vars:
+        assert var in ds
+        for dim in dims:
+            assert dim in ds[var].dims
+
+    req_vars = list(dims) + list(coords)
+    if extra_vars is not None:
+        req_atr += extra_vars
+
+    df = ds[extra_vars].to_dataframe().reset_index()
+    df_nona = df.dropna(subset=coords)
 
     if not linear_fillna:
-        return seisnc_coord_nona
+        return df_nona
 
     # create fits to surface for target x from il/xl
     fitx = curve_fit(
         plane,
-        (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
-        seisnc_coord_nona.cdp_x,
+        (df_nona[iline], df_nona[xline]),
+        df_nona[cdpx],
         p0=(0, 0, 0),
     )
     x_from_ix = lambda xy: plane(xy, *fitx[0])
     # create fits to surface for target y from il/xl
     fity = curve_fit(
         plane,
-        (seisnc_coord_nona.iline, seisnc_coord_nona.xline),
-        seisnc_coord_nona.cdp_y,
+        (df_nona[iline], df_nona[xline]),
+        df_nona[cdpy],
         p0=(0, 0, 0),
     )
     y_from_ix = lambda xy: plane(xy, *fity[0])
 
-    filled_x = x_from_ix((seisnc_coord.iline, seisnc_coord.xline))
-    filled_y = y_from_ix((seisnc_coord.iline, seisnc_coord.xline))
+    filled_x = x_from_ix((df[iline], df[xline]))
+    filled_y = y_from_ix((df[iline], df[xline]))
 
-    seisnc_coord.loc[seisnc_coord.cdp_x.isna(), "cdp_x"] = filled_x[
-        seisnc_coord.cdp_x.isna()
-    ].astype(np.float32)
-    seisnc_coord.loc[seisnc_coord.cdp_y.isna(), "cdp_y"] = filled_y[
-        seisnc_coord.cdp_y.isna()
-    ].astype(np.float32)
+    df.loc[df[cdpx].isna(), cdpx] = filled_x[df[cdpx].isna()].astype(np.float32)
+    df.loc[df[cdpy].isna(), cdpy] = filled_y[df[cdpy].isna()].astype(np.float32)
 
-    return seisnc_coord
+    return df
 
 
-@xr.register_dataset_accessor("seis")
-class SeisGeom:
-    def __init__(self, xarray_obj):
-        self._obj = xarray_obj
+class TemplateAccessor:
 
     @property
     def humanbytes(self):
@@ -231,6 +257,259 @@ class SeisGeom:
             i += 1
         f = f"{nbytes:.2f}".rstrip("0").rstrip(".")
         return "{} {}".format(f, suffixes[i])
+
+    def store_attributes(self, **kwargs: Dict[str, Any]):
+        """Store attributes in for seisnc. NetCDF attributes are a little limited, so we expand the capabilities by
+        serializing and deserializing from JSON text.
+        """
+        if attrs := self.attrs:
+            attrs.update(kwargs)
+            seisnc_attrs_json = json.dumps(attrs)
+        else:
+            seisnc_attrs_json = json.dumps(kwargs)
+
+        self._obj.attrs["seisnc"] = seisnc_attrs_json
+
+    def __getitem__(self, key):
+        """Return an attribute key"""
+        try:
+            return self.attrs[key]
+        except KeyError:
+            raise KeyError(f"{key} is not a key of the seisnc attributes.")
+
+    def get(self, key, default=None):
+        try:
+            return self[key]
+        except KeyError:
+            return default
+
+    def __setitem__(self, key, value):
+        """Set an attribute i"""
+        self.store_attributes(**{key: value})
+
+    @property
+    def attrs(self) -> Dict[str, Any]:
+        """Return the seisnc attributes for this Xarray object"""
+        seisnc_attrs_json = self._obj.attrs.get("seisnc")
+        if seisnc_attrs_json is None:
+            return {}
+        else:
+            return json.loads(seisnc_attrs_json)
+
+    def set_dimensions(
+        self,
+        seisnc_dims: Dict[str, str] = None,
+        seisnc_vert_dim: Union[str, None] = None,
+    ):
+        """Set the dimensions of the DataArray/Dataset. This is required to ensure that other
+        functions in this module can interpret the DataArray correctly.
+
+        Args:
+            seisnc_dims: Pairs from segysak.CoordKeyField and dimension vars.
+            seisnc_vert_dim: The variable name for the vertical dimension.
+        """
+        attrs = {}
+        for key, value in seisnc_dims.items():
+            assert key in DimKeyField
+            assert value in self._obj.dims
+
+        if seisnc_dims is not None:
+            attrs[AttrKeyField.dimensions] = seisnc_dims
+
+        if seisnc_vert_dim is not None:
+            assert seisnc_vert_dim in self._obj.dims
+            attrs[DimKeyField.samples] = seisnc_vert_dim
+
+        self.store_attributes(**attrs)
+
+    def get_dimensions(self):
+        """Returns attrs['dimensions'] if available. Else use infer_dimensions."""
+        dims = self.attrs.get(AttrKeyField.dimensions)
+        if not dims:
+            dims = self.infer_dimensions()
+        return dims
+
+    def infer_dimensions(self, ignore: List[str] = None):
+        """Infer the dimensions from those available in the dataset/array. They
+        should match good seisnc dimension names from CoordKeyField
+
+        Args:
+            ignore: A list of dimensions to ignore when considering mappings.
+        """
+        inferred_dims = {}
+        unknown_dims = []
+        for dim in HorDimKeyField:
+            if dim in self._obj.dims:
+                inferred_dims[dim] = dim
+            else:
+                unknown_dims.append(dim)
+        return inferred_dims
+
+    def is_3d(self):
+        dims = self.get_dimensions()
+        if DimKeyField.iline in dims and DimensionKeyField.xline in dims:
+            return True
+        else:
+            return False
+
+
+@xr.register_dataarray_accessor("segysak")
+class SegysakDataArrayAccessor(TemplateAccessor):
+    def __init__(self, xarray_obj: xr.DataArray):
+        self._obj = xarray_obj
+
+    def set_vertical_domain(self, vert_domain: _VerticalKeyField):
+        """Set the vertical domain of the DataArray, usually twt or depth."""
+        self.store_attributes({AttrKeyField.vert_domain: vert_domain})
+
+
+@xr.register_dataset_accessor("segysak")
+class SegysakDatasetAccessor(TemplateAccessor):
+    def __init__(self, xarray_obj: xr.Dataset):
+        self._obj = xarray_obj
+
+    def set_coords(self, seisnc_coords: Dict[Union[_CoordKeyField, str], str]):
+        """Set the seisnc coordinate mapping. This maps coordinate variable names
+        to known seisnc coordinates.
+        """
+        attrs = {}
+        for key, value in seisnc_coords.items():
+            assert key in CoordKeyField
+            assert value in self._obj.data_vars
+
+        self.store_attributes(**seisnc_coords)
+
+    def infer_coords(self, ignore: List[str] = None):
+        """ """
+        inferred_coords = {}
+        unknown_coords = []
+        for coord in CoordKeyField:
+            if coord in self._obj.data_vars:
+                inferred_coords[coord] = coord
+            else:
+                unknown_coords.append(coord)
+        self.set_coords(inferred_coords)
+
+    def scale_coords(self, coord_scalar: float = None):
+        """Scale the coordinates using a SEG-Y coord_scalar
+
+        The coordinate multiplier is given by:
+
+            coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar))
+
+        Or
+        | scalar | multiplier |
+        | ------ | ---------- |
+        | 1000   | 1000       |
+        | 100    | 100        |
+        | 10     | 10         |
+        | 1      | 1          |
+        | 0      | 1          |
+        | -1     | 1          |
+        | -10    | 0.1        |
+        | -100   | 0.01       |
+        | -1000  | 0.001      |
+        """
+        if self.attrs.get(AttrKeyField.coord_scaled):
+            raise UserWarning("Coordinates already scaled.")
+
+        if coord_scalar is None:
+            coord_scalar = self.attrs.get(AttrKeyField.coord_scalar, None)
+
+        # if no specified coord_scalar then set to 1
+        if coord_scalar is None:
+            coord_scalar = 1.0
+
+        coord_scalar = float(coord_scalar)
+        coord_multiplier = np.power(abs(coord_scalar), np.sign(coord_scalar))
+
+        iline_var = self.get(CoordKeyField.cdp_x)
+        xline_var = self.get(CoordKeyField.cdp_y)
+
+        if iline_var and xline_var:
+            self._obj[iline_var] = self._obj[iline_var] * coord_multiplier
+            self._obj[xline_var] = self._obj[xline_var] * coord_multiplier
+        else:
+            raise ValueError(
+                "Specify coordinate dimensions first using ds.segysak.set_coords()"
+            )
+
+        self.store_attributes(
+            **{AttrKeyField.coord_scalar: coord_scalar, AttrKeyField.coord_scaled: True}
+        )
+
+    def calc_corner_points(self):
+        """Calculate the corner points of the geometry or end points of a 2D line.
+
+        This puts two properties in the seisnc attrs with the calculated il/xl and
+        cdp_x and cdp_y if available.
+
+        Args:
+
+        Attr:
+            da.segysak.attrs['corner_points']
+            ds.segysak.attrs['corner_points_xy']
+        """
+        try:
+            dims = self.attrs[AttrKeyField.dimensions]
+        except KeyError:
+            raise KeyError(
+                "Set seisnc dimensions for this DataArray before calculating corner points. da.segysak.set_dimensions(...)"
+            )
+
+        corner_points = False
+        corner_points_xy = False
+
+        if self.is_3d() or self.is_3dgath():
+            il, xl = DimensionKeyField.cdp_3d
+            ilines = self._obj[il].values
+            xlines = self._obj[xl].values
+            corner_points = (
+                (ilines[0], xlines[0]),
+                (ilines[0], xlines[-1]),
+                (ilines[-1], xlines[-1]),
+                (ilines[-1], xlines[0]),
+            )
+
+            cdp_x, cdp_y = CoordKeyField.cdp_x, CoordKeyField.cdp_y
+
+            if set((cdp_x, cdp_y)).issubset(self._obj.variables):
+                xs = self._obj[cdp_x].values
+                ys = self._obj[cdp_y].values
+                corner_points_xy = (
+                    (xs[0, 0], ys[0, 0]),
+                    (xs[0, -1], ys[0, -1]),
+                    (xs[-1, -1], ys[-1, -1]),
+                    (xs[-1, 0], ys[-1, 0]),
+                )
+
+        elif self.is_2d() or self.is_2dgath():
+            cdp = DimensionKeyField.cdp_2d[0]
+            cdps = self._obj[cdp].values
+            corner_points = (cdps[0], cdps[-1])
+
+            cdp_x, cdp_y = CoordKeyField.cdp_x, CoordKeyField.cdp_y
+
+            if set((cdp_x, cdp_y)).issubset(self._obj.variables):
+                xs = self._obj[cdp_x].values
+                ys = self._obj[cdp_y].values
+                corner_points_xy = (
+                    (xs[0], ys[0]),
+                    (xs[0], ys[0]),
+                    (xs[-1], ys[1]),
+                    (xs[-1], ys[1]),
+                )
+
+        if corner_points:
+            self._obj.attrs[AttrKeyField.corner_points] = corner_points
+        if corner_points_xy:
+            self._obj.attrs[AttrKeyField.corner_points_xy] = corner_points_xy
+
+
+@xr.register_dataset_accessor("seis")
+class SeisGeom(TemplateAccessor):
+    def __init__(self, xarray_obj):
+        self._obj = xarray_obj
 
     def _coord_as_dimension(self, points, drop):
         """Convert x and y points to iline and xline. If the affine transform
@@ -337,8 +616,8 @@ class SeisGeom:
             #         break
 
             # none_replace[VariableKeyField.data][:] = np.nan
-            # none_replace[CoordKeyField.iline] = np.nan
-            # none_replace[CoordKeyField.xline] = np.nan
+            # none_replace[DimKeyField.iline] = np.nan
+            # none_replace[DimKeyField.xline] = np.nan
 
             # for i, (point, xloc, yloc) in enumerate(zip(cdp_ds, cdp_x, cdp_y)):
             #     if point is None:
@@ -436,10 +715,7 @@ class SeisGeom:
         return self._has_dims(dim_options)
 
     def _check_multi_z(self):
-        if (
-            CoordKeyField.depth in self._obj.sizes
-            and CoordKeyField.twt in self._obj.sizes
-        ):
+        if DimKeyField.depth in self._obj.sizes and DimKeyField.twt in self._obj.sizes:
             raise ValueError(
                 "seisnc cannot determine domain both twt and depth dimensions found"
             )
@@ -447,12 +723,12 @@ class SeisGeom:
     def is_twt(self):
         """Check if seisnc volume is in twt"""
         self._check_multi_z()
-        return True if CoordKeyField.twt in self._obj.sizes else False
+        return True if DimKeyField.twt in self._obj.sizes else False
 
     def is_depth(self):
         """Check if seisnc volume is in depth"""
         self._check_multi_z()
-        return True if CoordKeyField.depth in self._obj.sizes else False
+        return True if DimKeyField.depth in self._obj.sizes else False
 
     def is_empty(self):
         """Check if empty"""
@@ -694,6 +970,7 @@ class SeisGeom:
             matplotlib axis used
 
         """
+        self.calc_corner_points()
         xy = self._obj.attrs["corner_points_xy"]
 
         if xy is None:
@@ -838,9 +1115,9 @@ class SeisGeom:
         """
 
         if self.is_twt():
-            vdom = CoordKeyField.twt
+            vdom = DimKeyField.twt
         else:
-            vdom = CoordKeyField.depth
+            vdom = DimKeyField.depth
 
         if scan:
             nan_map = (

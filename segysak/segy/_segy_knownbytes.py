@@ -3,13 +3,13 @@
 
 from dataclasses import dataclass, field
 from .._core import MetaDataClass
-from .._keyfield import CoordKeyField
+from .._keyfield import CoordKeyField, DimKeyField
 
 
 def standard_3d():
     return {
-        CoordKeyField.iline: 189,
-        CoordKeyField.xline: 193,
+        DimKeyField.iline: 189,
+        DimKeyField.xline: 193,
         CoordKeyField.cdp_x: 181,
         CoordKeyField.cdp_y: 185,
     }
@@ -17,17 +17,17 @@ def standard_3d():
 
 def standard_3d_gath():
     return {
-        CoordKeyField.iline: 189,
-        CoordKeyField.xline: 193,
+        DimKeyField.iline: 189,
+        DimKeyField.xline: 193,
         CoordKeyField.cdp_x: 181,
         CoordKeyField.cdp_y: 185,
-        CoordKeyField.offset: 37,
+        DimKeyField.offset: 37,
     }
 
 
 def standard_2d():
     return {
-        CoordKeyField.cdp: 21,
+        DimKeyField.cdp: 21,
         CoordKeyField.cdp_x: 181,
         CoordKeyField.cdp_y: 185,
     }
@@ -35,17 +35,17 @@ def standard_2d():
 
 def standard_2d_gath():
     return {
-        CoordKeyField.cdp: 21,
+        DimKeyField.cdp: 21,
         CoordKeyField.cdp_x: 181,
         CoordKeyField.cdp_y: 185,
-        CoordKeyField.offset: 37,
+        DimKeyField.offset: 37,
     }
 
 
 def petrel_3d():
     return {
-        CoordKeyField.iline: 5,
-        CoordKeyField.xline: 21,
+        DimKeyField.iline: 5,
+        DimKeyField.xline: 21,
         CoordKeyField.cdp_x: 73,
         CoordKeyField.cdp_y: 77,
     }
@@ -53,7 +53,7 @@ def petrel_3d():
 
 def petrel_2d():
     return {
-        CoordKeyField.cdp: 21,
+        DimKeyField.cdp: 21,
         CoordKeyField.cdp_x: 73,
         CoordKeyField.cdp_y: 77,
     }
