@@ -16,6 +16,7 @@ import pandas as pd
 from scipy.interpolate import griddata
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Affine2D
+from matplotlib.axis import Axis
 
 from ._keyfield import (
     HorDimKeyField,
@@ -419,8 +420,11 @@ class SegysakDatasetAccessor(TemplateAccessor):
         """
         cdp_x, cdp_y = self.get_coords()
 
-        assert self._obj[cdp_x].dims == self._obj[cdp_y].dims
-        dims = self._obj[cdp_x].dims
+        assert (
+            self._obj[cdp_x].segysak.get_dimensions()
+            == self._obj[cdp_y].segysak.get_dimensions()
+        )
+        dims = self._obj[cdp_x].segysak.get_dimensions()
         assert len(dims) <= 2
 
         # 3d or 2d selection (polygon vs line)
@@ -431,7 +435,7 @@ class SegysakDatasetAccessor(TemplateAccessor):
 
         corner_points = []
         for sel in selection:
-            corner = self._obj.isel({d: s for d, s in zip(dims, sel)})
+            corner = self._obj.isel({dims[d]: s for d, s in zip(dims, sel)})
             corner_points.append(
                 (
                     corner[cdp_x].item(),
@@ -463,9 +467,17 @@ class SegysakDatasetAccessor(TemplateAccessor):
     def coordinate_df(
         self,
         linear_fillna: bool = True,
+        three_d_only: bool = False,
     ) -> pd.DataFrame:
         """Return the coordinates of a Dataset as a DataFrame. Optionally do-not fill the missing coordinates."""
-        return coordinate_df(self._obj, linear_fillna=linear_fillna)
+        if three_d_only:
+            dims = self.get_dimensions()
+            invalid_dims = tuple(dim for dim in self._obj.dims if dim not in dims)
+            selector = {dim: 0 for dim in invalid_dims}
+            ds = self._obj.isel(**selector)
+        else:
+            ds = self._obj
+        return coordinate_df(ds, linear_fillna=linear_fillna)
 
     def get_affine_transform(self, force_recalc: bool = False) -> Affine2D:
         """Returns a matplotlib Affine forward transform dims -> (cdp_x, cdp_y)
@@ -484,12 +496,12 @@ class SegysakDatasetAccessor(TemplateAccessor):
         if (affine_coeff := self.attrs.get("affine")) is not None:
             return Affine2D.from_values(*affine_coeff)
 
-        df = self.coordinate_df()
+        df = self.coordinate_df(three_d_only=True)
         cdp_x, cdp_y = self.get_coords()
-        dims = self._obj[cdp_x].dims
+        dims = self._obj[cdp_x].segysak.get_dimensions()
 
         f_transform, _ = lsq_affine_transform(
-            df[list(dims)].values, df[[cdp_x, cdp_y]].values
+            df[list(dims.values())].values, df[[cdp_x, cdp_y]].values
         )
 
         self.store_attributes(affine=f_transform.to_values())
@@ -511,17 +523,42 @@ class SegysakDatasetAccessor(TemplateAccessor):
         n_points = points.shape[0]
         new_coords = {sample_dim_name: range(n_points)}
 
-        cdp_x, cdp_y = self.get_coords()
+        iline, xline = self.get_dimensions()
         r_transform = self.get_affine_transform().inverted()
 
         ilxlp = r_transform.transform(points)
 
-        sampling_arrays = dict(
-            iline=xr.DataArray(ilxlp[:, 0], coords=new_coords),
-            xline=xr.DataArray(ilxlp[:, 1], coords=new_coords),
-        )
+        sampling_arrays = {
+            iline: xr.DataArray(ilxlp[:, 0], coords=new_coords),
+            xline: xr.DataArray(ilxlp[:, 1], coords=new_coords),
+        }
         output_ds = self._obj.interp(**sampling_arrays, method=method)
         return output_ds
+
+    def plot_bounds(self, ax: Axis = None) -> Axis:
+        """Plot survey bounding box to a new or existing matplotlib.Axis.
+
+        Args:
+            ax: Axis to plot onto.
+
+        Returns:
+            matplotlib Axis
+
+        """
+        xy = self.calc_corner_points()
+
+        if not ax:
+            _, ax = plt.subplots(1, 1)
+
+        x = [x for x, _ in xy]
+        y = [y for _, y in xy]
+        ax.scatter(x, y)
+        ax.plot(x + [x[0]], y + [y[0]], "k:")
+
+        ax.set_xlabel("cdp x")
+        ax.set_ylabel("cdp y")
+
+        return ax
 
 
 @xr.register_dataset_accessor("seis")

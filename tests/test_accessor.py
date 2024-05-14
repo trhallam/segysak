@@ -172,6 +172,21 @@ def test_scale_nocoords(segy_datasets_nocoords):
         ds.segysak.scale_coords()
 
 
+def test_calc_corner_points_3dps():
+    dims = (5, 3, 15, 4)
+    dataset, trsfm = create_xy_dataset(
+        dims,
+        (4044.32, 2321.32),
+        1500.4,
+        (0.45, 0.9),
+        20,
+        first_offset=1,
+        offset_step=10,
+    )
+    cp = dataset.isel(offset=0).segysak.calc_corner_points()
+    assert len(cp) == 5
+
+
 def test_calc_corner_points_3d(segy_datasets):
     ds = segy_datasets
     cp = ds.segysak.calc_corner_points()
@@ -191,6 +206,11 @@ def test_calc_corner_points_2d(volve_2d_dataset):
         ),
         rtol=0.1,
     )
+
+
+def test_segysak_coordinate_df(f3_dataset):
+    cdf = f3_dataset.segysak.coordinate_df(three_d_only=True)
+    pass
 
 
 def test_segysak_fill_cdpna(f3_dataset):
@@ -578,9 +598,9 @@ class TestCreate_xysel_segysak:
 
         xys = trsfm.transform(test_points)
 
-        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="linear")
+        res = dataset.segysak.xysel(xys, method="linear")
         assert isinstance(res, xr.Dataset)
-        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="nearest")
+        res = dataset.segysak.xysel(xys, method="nearest")
         assert isinstance(res, xr.Dataset)
 
     @given(
@@ -614,7 +634,7 @@ class TestCreate_xysel_segysak:
 
         xys = trsfm.transform(test_points)
 
-        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="linear")
+        res = dataset.segysak.xysel(xys, method="linear")
         assert isinstance(res, xr.Dataset)
-        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="nearest")
+        res = dataset.segysak.xysel(xys, method="nearest")
         assert isinstance(res, xr.Dataset)
