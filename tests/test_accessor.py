@@ -202,6 +202,21 @@ def test_segysak_fill_cdpna(f3_dataset):
     assert np.allclose(f3_dataset.cdp_y.values, ds.cdp_y.values, atol=0.01)
 
 
+def test_segysak_get_affine_t(f3_dataset):
+    assert f3_dataset.segysak.attrs.get("affine") is None
+
+    t = f3_dataset.segysak.get_affine_transform()
+
+    # check reuse
+    t2 = f3_dataset.segysak.get_affine_transform()
+
+    assert np.allclose(t2.get_matrix(), t.get_matrix())
+
+    sub_sel = f3_dataset.isel(iline=[2]).segysak.coordinate_df()
+    iprime = t.transform(sub_sel[["iline", "xline"]].values)
+    assert np.allclose(iprime, sub_sel[["cdp_x", "cdp_y"]].values)
+
+
 @pytest.mark.parametrize(
     "linear_fillna,expected_shape",
     [

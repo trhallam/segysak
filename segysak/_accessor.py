@@ -29,7 +29,7 @@ from ._keyfield import (
     _VerticalKeyField,
 )
 from ._richstr import _upgrade_txt_richstr
-from .geometry import fit_plane
+from .geometry import fit_plane, lsq_affine_transform, orthogonal_point_affine_transform
 from .tools import get_uniform_spacing, halfsample
 
 
@@ -459,6 +459,53 @@ class SegysakDatasetAccessor(TemplateAccessor):
                 ("iline", "xline"),
                 coord_df[cdp_y].values.reshape(self._obj[cdp_y].shape),
             )
+
+    def coordinate_df(
+        self,
+        linear_fillna: bool = True,
+    ) -> pd.DataFrame:
+        """Return the coordinates of a Dataset as a DataFrame. Optionally do-not fill the missing coordinates."""
+        return coordinate_df(self._obj, linear_fillna=linear_fillna)
+
+    def get_affine_transform(self, force_recalc: bool = False) -> Affine2D:
+        """Returns a matplotlib Affine forward transform dims -> (cdp_x, cdp_y)
+
+        The matrix is only calculated once and then stored in the Dataset attributes as the matrix
+        coefficients. To recalculate the matrix set `force_recalc=True`.
+
+        The reverse transform (cdp_x, cdp_y) is provided by `get_affine_transform().inverted()`.
+
+        Args:
+            force_recalc: Force recalculation of affine transform matrix.
+
+        Returns:
+            The forward affine transform.
+        """
+        if (affine_coeff := self.attrs.get("affine")) is not None:
+            return Affine2D.from_values(*affine_coeff)
+
+        df = self.coordinate_df()
+        cdp_x, cdp_y = self.get_coords()
+        dims = self._obj[cdp_x].dims
+
+        f_transform, _ = lsq_affine_transform(
+            df[list(dims)].values, df[[cdp_x, cdp_y]].values
+        )
+
+        self.store_attributes(affine=f_transform.to_values())
+
+        return f_transform
+
+    def xysel(self, points: np.array, sample_dim_name: str = "cdp") -> xr.Dataset:
+        """Perform selection on the dataset based upon `cdp_x` and `cdp_y` coordinates.
+
+        Args:
+            points:
+            sample_dim_name: The output dimension name.
+
+        Returns:
+        """
+        pass
 
 
 @xr.register_dataset_accessor("seis")
@@ -1008,12 +1055,8 @@ class SeisGeom(TemplateAccessor):
         # direct solve for affine transform via equation substitution
         # https://cdn.sstatic.net/Sites/math/img/site-background-image.png?v=09a720444763
         # ints for iline xline will often overflow
-        (x0p, y0p), (x1p, y1p), (x2p, y2p) = np.array(
-            self._obj.corner_points_xy[:3], dtype=float
-        )
-        (x0, y0), (x1, y1), (x2, y2) = np.array(
-            self._obj.corner_points[:3], dtype=float
-        )
+        y = np.array(self._obj.corner_points_xy[:3], dtype=float)
+        x = np.array(self._obj.corner_points[:3], dtype=float)
 
         xs = np.array([v[0] for v in self._obj.corner_points_xy])
         ys = np.array([v[0] for v in self._obj.corner_points_xy])
@@ -1021,37 +1064,10 @@ class SeisGeom(TemplateAccessor):
             raise ValueError(
                 "The coordinates cannot be transformed, check self.seis.corner_points_xy"
             )
-        a = (x1p * y0 - x2p * y0 - x0p * y1 + x2p * y1 + x0p * y2 - x1p * y2) / (
-            x1 * y0 - x2 * y0 - x0 * y1 + x2 * y1 + x0 * y2 - x1 * y2
-        )
-        c = (x1p * x0 - x2p * x0 - x0p * x1 + x2p * x1 + x0p * x2 - x1p * x2) / (
-            -x1 * y0 + x2 * y0 + x0 * y1 - x2 * y1 - x0 * y2 + x1 * y2
-        )
-        b = (y1p * y0 - y2p * y0 - y0p * y1 + y2p * y1 + y0p * y2 - y1p * y2) / (
-            x1 * y0 - x2 * y0 - x0 * y1 + x2 * y1 + x0 * y2 - x1 * y2
-        )
-        d = (y1p * x0 - y2p * x0 - y0p * x1 + y2p * x1 + y0p * x2 - y1p * x2) / (
-            -x1 * y0 + x2 * y0 + x0 * y1 - x2 * y1 - x0 * y2 + x1 * y2
-        )
-        e = (
-            x2p * x1 * y0
-            - x1p * x2 * y0
-            - x2p * x0 * y1
-            + x0p * x2 * y1
-            + x1p * x0 * y2
-            - x0p * x1 * y2
-        ) / (x1 * y0 - x2 * y0 - x0 * y1 + x2 * y1 + x0 * y2 - x1 * y2)
-        f = (
-            y2p * x1 * y0
-            - y1p * x2 * y0
-            - y2p * x0 * y1
-            + y0p * x2 * y1
-            + y1p * x0 * y2
-            - y0p * x1 * y2
-        ) / (x1 * y0 - x2 * y0 - x0 * y1 + x2 * y1 + x0 * y2 - x1 * y2)
-        values = (v if ~np.isnan(v) else 0.0 for v in (a, b, c, d, e, f))
-        affine_grid2loc = Affine2D.from_values(*values)
-        return affine_grid2loc
+
+        transform, _ = orthogonal_point_affine_transform(x, y)
+
+        return transform
 
     def get_dead_trace_map(self, scan=None, zeros_as_nan=False):
         """Scan the vertical axis of a volume to find traces that are all NaN
