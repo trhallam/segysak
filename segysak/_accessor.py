@@ -440,72 +440,35 @@ class SegysakDatasetAccessor(TemplateAccessor):
             **{AttrKeyField.coord_scalar: coord_scalar, AttrKeyField.coord_scaled: True}
         )
 
-    def calc_corner_points(self):
-        """Calculate the corner points of the geometry or end points of a 2D line.
+    def calc_corner_points(self) -> List[Tuple[str, str]]:
+        """Calculate the corner points of the 3d geometry or end points of a 2D line.
 
-        This puts two properties in the seisnc attrs with the calculated il/xl and
-        cdp_x and cdp_y if available.
-
-        Args:
-
-        Attr:
-            da.segysak.attrs['corner_points']
-            ds.segysak.attrs['corner_points_xy']
+        Returns:
+            corner_points: A list of cdp_x, cdp_y pairs for the corner points of the dataset.
         """
-        try:
-            dims = self.attrs[AttrKeyField.dimensions]
-        except KeyError:
-            raise KeyError(
-                "Set seisnc dimensions for this DataArray before calculating corner points. da.segysak.set_dimensions(...)"
+        cdp_x, cdp_y = self.get_coords()
+
+        assert self._obj[cdp_x].dims == self._obj[cdp_y].dims
+        dims = self._obj[cdp_x].dims
+        assert len(dims) <= 2
+
+        # 3d or 2d selection (polygon vs line)
+        if len(dims) == 2:
+            selection = [(0, 0), (0, -1), (-1, -1), (-1, 0), (0, 0)]
+        else:
+            selection = [(0,), (-1,)]
+
+        corner_points = []
+        for sel in selection:
+            corner = self._obj.isel({d: s for d, s in zip(dims, sel)})
+            corner_points.append(
+                (
+                    corner[cdp_x].item(),
+                    corner[cdp_y].item(),
+                )
             )
 
-        corner_points = False
-        corner_points_xy = False
-
-        if self.is_3d() or self.is_3dgath():
-            il, xl = DimensionKeyField.cdp_3d
-            ilines = self._obj[il].values
-            xlines = self._obj[xl].values
-            corner_points = (
-                (ilines[0], xlines[0]),
-                (ilines[0], xlines[-1]),
-                (ilines[-1], xlines[-1]),
-                (ilines[-1], xlines[0]),
-            )
-
-            cdp_x, cdp_y = CoordKeyField.cdp_x, CoordKeyField.cdp_y
-
-            if set((cdp_x, cdp_y)).issubset(self._obj.variables):
-                xs = self._obj[cdp_x].values
-                ys = self._obj[cdp_y].values
-                corner_points_xy = (
-                    (xs[0, 0], ys[0, 0]),
-                    (xs[0, -1], ys[0, -1]),
-                    (xs[-1, -1], ys[-1, -1]),
-                    (xs[-1, 0], ys[-1, 0]),
-                )
-
-        elif self.is_2d() or self.is_2dgath():
-            cdp = DimensionKeyField.cdp_2d[0]
-            cdps = self._obj[cdp].values
-            corner_points = (cdps[0], cdps[-1])
-
-            cdp_x, cdp_y = CoordKeyField.cdp_x, CoordKeyField.cdp_y
-
-            if set((cdp_x, cdp_y)).issubset(self._obj.variables):
-                xs = self._obj[cdp_x].values
-                ys = self._obj[cdp_y].values
-                corner_points_xy = (
-                    (xs[0], ys[0]),
-                    (xs[0], ys[0]),
-                    (xs[-1], ys[1]),
-                    (xs[-1], ys[1]),
-                )
-
-        if corner_points:
-            self._obj.attrs[AttrKeyField.corner_points] = corner_points
-        if corner_points_xy:
-            self._obj.attrs[AttrKeyField.corner_points_xy] = corner_points_xy
+        return corner_points
 
 
 @xr.register_dataset_accessor("seis")
