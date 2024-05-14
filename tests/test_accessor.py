@@ -70,6 +70,19 @@ def segy_datasets(request, tests_path):
     return ds
 
 
+@pytest.fixture()
+def segy_datasets_nocoords(segy_datasets):
+    return segy_datasets.drop_vars(["cdp_x", "cdp_y"])
+
+
+@pytest.fixture()
+def segy_datasets_altcoords(segy_datasets):
+    new_labels = {"cdp_x": "cdpx", "cdp_y": "cdpy"}
+    ds = segy_datasets.rename_vars(new_labels)
+    ds.segysak.set_coords(new_labels)
+    return ds
+
+
 def test_get_blank_segysak_attrs(xrd):
     attrs = xrd.segysak.attrs
     assert attrs == dict()
@@ -143,12 +156,41 @@ def test_segysak_get_dimensions(segy_datasets):
 
 def test_scale_coords(segy_datasets):
     ds = segy_datasets
-    with pytest.raises(ValueError):
-        ds.segysak.scale_coords()
-    # ds.segysak.set_coords({"cdp_x": "cdp_x", "cdp_y": "cdp_y"})
-    ds.segysak.infer_coords()
     ds.segysak.scale_coords()
     assert ds.segysak["coord_scaled"]
+
+
+def test_scale_altcoords(segy_datasets_altcoords):
+    ds = segy_datasets_altcoords
+    ds.segysak.scale_coords()
+    assert ds.segysak["coord_scaled"]
+
+
+def test_scale_nocoords(segy_datasets_nocoords):
+    ds = segy_datasets_nocoords
+    with pytest.raises(KeyError):
+        ds.segysak.scale_coords()
+
+
+def test_calc_corner_points_3d(segy_datasets):
+    ds = segy_datasets
+    cp = ds.segysak.calc_corner_points()
+    assert len(cp) == 5
+
+
+def test_calc_corner_points_2d(volve_2d_dataset):
+    cp = volve_2d_dataset.segysak.calc_corner_points()
+    assert len(cp) == 2
+    assert np.allclose(
+        np.array(cp),
+        np.array(
+            [
+                (436482.16, 6477774.5),
+                (434044.3, 6477777.0),
+            ]
+        ),
+        rtol=0.1,
+    )
 
 
 @pytest.mark.parametrize(

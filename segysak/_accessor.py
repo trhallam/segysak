@@ -345,13 +345,6 @@ class TemplateAccessor:
                 unknown_dims.append(dim)
         return inferred_dims
 
-    def is_3d(self):
-        dims = self.get_dimensions()
-        if DimKeyField.iline in dims and DimensionKeyField.xline in dims:
-            return True
-        else:
-            return False
-
 
 @xr.register_dataarray_accessor("segysak")
 class SegysakDataArrayAccessor(TemplateAccessor):
@@ -379,16 +372,31 @@ class SegysakDatasetAccessor(TemplateAccessor):
 
         self.store_attributes(**seisnc_coords)
 
+    def get_coords(self):
+        """Returns attrs['cdp_x'], attrs['cdp_y'] if exist else user infer_coords()"""
+        cdp_x = self.attrs.get(CoordKeyField.cdp_x)
+        cdp_y = self.attrs.get(CoordKeyField.cdp_y)
+
+        if cdp_x is None and cdp_y is None:
+            try:
+                cdp_x, cdp_y = self.infer_coords()
+            except ValueError:
+                raise KeyError(
+                    "Could not find or infer coordinates. Use set_coords() to set map coordinate name mapping for 'cdp_x' and 'cdp_y'"
+                )
+
+        return cdp_x, cdp_y
+
     def infer_coords(self, ignore: List[str] = None):
         """ """
         inferred_coords = {}
         unknown_coords = []
         for coord in CoordKeyField:
-            if coord in self._obj.data_vars:
+            if coord in self._obj:
                 inferred_coords[coord] = coord
             else:
                 unknown_coords.append(coord)
-        self.set_coords(inferred_coords)
+        return inferred_coords
 
     def scale_coords(self, coord_scalar: float = None):
         """Scale the coordinates using a SEG-Y coord_scalar
@@ -416,6 +424,8 @@ class SegysakDatasetAccessor(TemplateAccessor):
         if coord_scalar is None:
             coord_scalar = self.attrs.get(AttrKeyField.coord_scalar, None)
 
+        cdp_x, cdp_y = self.get_coords()
+
         # if no specified coord_scalar then set to 1
         if coord_scalar is None:
             coord_scalar = 1.0
@@ -423,16 +433,8 @@ class SegysakDatasetAccessor(TemplateAccessor):
         coord_scalar = float(coord_scalar)
         coord_multiplier = np.power(abs(coord_scalar), np.sign(coord_scalar))
 
-        iline_var = self.get(CoordKeyField.cdp_x)
-        xline_var = self.get(CoordKeyField.cdp_y)
-
-        if iline_var and xline_var:
-            self._obj[iline_var] = self._obj[iline_var] * coord_multiplier
-            self._obj[xline_var] = self._obj[xline_var] * coord_multiplier
-        else:
-            raise ValueError(
-                "Specify coordinate dimensions first using ds.segysak.set_coords()"
-            )
+        self._obj[cdp_x] = self._obj[cdp_x] * coord_multiplier
+        self._obj[cdp_y] = self._obj[cdp_y] * coord_multiplier
 
         self.store_attributes(
             **{AttrKeyField.coord_scalar: coord_scalar, AttrKeyField.coord_scaled: True}
