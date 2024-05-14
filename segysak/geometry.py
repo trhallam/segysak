@@ -12,7 +12,7 @@ def plane(xy: Tuple[float, float], a: float, b: float, c: float) -> float:
     return a * x + b * y + c
 
 
-def fit_plane(x: np.array, y: np.array, z: np.array, p0=(0, 0, 0)) -> Callable:
+def fit_plane(x: np.array, y: np.array, z: np.array, p0=(1.0, 1.0, 1.0)) -> Callable:
     """Calculate the plane function coefficients for input data and return a partial plane function."""
 
     fit, _ = curve_fit(plane, (x, y), z, p0=p0)

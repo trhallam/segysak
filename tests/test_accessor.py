@@ -533,3 +533,88 @@ class TestCreate_xysel:
         assert isinstance(res, xr.Dataset)
         res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="nearest")
         assert isinstance(res, xr.Dataset)
+
+
+def create_xy_dataset(dims, translate, scale, shear, rotate, **dim_kwargs):
+    dataset = create3d_dataset(dims=dims, **dim_kwargs)
+    il_grid, xl_grid = xr.broadcast(dataset.iline, dataset.xline)
+    dataset["empty"] = xr.zeros_like(il_grid)
+    df = dataset.drop_dims("twt").to_dataframe()
+
+    transform = (
+        Affine2D().translate(*translate).scale(scale).skew(*shear).rotate(rotate)
+    )
+    df[["cdp_x", "cdp_y"]] = transform.transform(df.reset_index()[["iline", "xline"]])
+    dataset = df.to_xarray().drop_vars("empty")
+    return dataset, transform
+
+
+class TestCreate_xysel_segysak:
+    """
+    Test using segysak.xysel accessor
+    """
+
+    @given(
+        tuples(integers(3, 10), integers(3, 10), integers(3, 10)),
+        tuples(floats(-1000, 1000), floats(-1000, 1000)),
+        floats(0.1, 10000),
+        tuples(floats(0, 45), floats(0, 45)),
+        floats(-180, 180),
+        integers(1, 20),
+    )
+    @settings(deadline=None, max_examples=5)
+    def test_full_stack_dataset_xysel(self, d, translate, scale, shear, rotate, samp):
+        dataset, trsfm = create_xy_dataset(d, translate, scale, shear, rotate)
+        dataset["data"] = (DimensionKeyField.threed_twt, np.random.rand(*d))
+
+        test_points = np.dstack(
+            [
+                np.random.random(samp) * (d[0] - 0.1) + 0.1,
+                np.random.random(samp) * (d[1] - 0.1) + 0.1,
+            ]
+        )[0]
+        # make sure at least one point is in the box
+        test_points[0, :] = d[0] / 2, d[1] / 2
+
+        xys = trsfm.transform(test_points)
+
+        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="linear")
+        assert isinstance(res, xr.Dataset)
+        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="nearest")
+        assert isinstance(res, xr.Dataset)
+
+    @given(
+        integers(15, 60),
+        floats(0, 15),
+        floats(1, 15),
+        tuples(floats(-1000, 1000), floats(-1000, 1000)),
+        floats(0.1, 10000),
+        tuples(floats(0, 45), floats(0, 45)),
+        floats(-180, 180),
+        integers(5, 10),
+    )
+    @settings(deadline=None, max_examples=2, print_blob=True)
+    def test_angle_stack_dataset_xysel(
+        self, o, f, s, translate, scale, shear, rotate, samp
+    ):
+        dims = (50, 30, 5, o)
+        dataset, trsfm = create_xy_dataset(
+            dims, translate, scale, shear, rotate, first_offset=f, offset_step=s
+        )
+        dataset["data"] = (("iline", "xline", "twt", "offset"), np.random.rand(*dims))
+
+        test_points = np.dstack(
+            [
+                np.random.random(samp) * (dims[0] - 0.1) + 0.1,
+                np.random.random(samp) * (dims[1] - 0.1) + 0.1,
+            ]
+        )[0]
+        # make sure at least one point is in the box
+        test_points[0, :] = dims[0] / 2, dims[1] / 2
+
+        xys = trsfm.transform(test_points)
+
+        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="linear")
+        assert isinstance(res, xr.Dataset)
+        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="nearest")
+        assert isinstance(res, xr.Dataset)

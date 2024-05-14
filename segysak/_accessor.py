@@ -496,16 +496,32 @@ class SegysakDatasetAccessor(TemplateAccessor):
 
         return f_transform
 
-    def xysel(self, points: np.array, sample_dim_name: str = "cdp") -> xr.Dataset:
+    def xysel(
+        self, points: np.array, method: str = "nearest", sample_dim_name: str = "cdp"
+    ) -> xr.Dataset:
         """Perform selection on the dataset based upon `cdp_x` and `cdp_y` coordinates.
 
         Args:
-            points:
+            points: [M, 2] array of cdp_x and cdp_y points to select.
+            method: Sampling interpolation method, as per xr.Dataset.interp().
             sample_dim_name: The output dimension name.
 
         Returns:
         """
-        pass
+        n_points = points.shape[0]
+        new_coords = {sample_dim_name: range(n_points)}
+
+        cdp_x, cdp_y = self.get_coords()
+        r_transform = self.get_affine_transform().inverted()
+
+        ilxlp = r_transform.transform(points)
+
+        sampling_arrays = dict(
+            iline=xr.DataArray(ilxlp[:, 0], coords=new_coords),
+            xline=xr.DataArray(ilxlp[:, 1], coords=new_coords),
+        )
+        output_ds = self._obj.interp(**sampling_arrays, method=method)
+        return output_ds
 
 
 @xr.register_dataset_accessor("seis")
