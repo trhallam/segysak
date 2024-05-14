@@ -14,7 +14,6 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
-from scipy.optimize import curve_fit, OptimizeWarning
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Affine2D
 
@@ -30,7 +29,8 @@ from ._keyfield import (
     _VerticalKeyField,
 )
 from ._richstr import _upgrade_txt_richstr
-from .tools import get_uniform_spacing, halfsample, plane
+from .geometry import fit_plane
+from .tools import get_uniform_spacing, halfsample
 
 
 @xr.register_dataset_accessor("seisio")
@@ -165,11 +165,8 @@ def open_seisnc(seisnc, **kwargs):
 
 def coordinate_df(
     ds: xr.Dataset,
-    dims: Tuple[str, str],
-    coords: Tuple[str, str],
-    extra_vars: Union[Tuple[str], None] = None,
     linear_fillna: bool = True,
-):
+) -> pd.DataFrame:
     """From a Dataset of 3d+ seismic, quickly create an dimensions DataFrame. `coords` are the X and Y UTM coordinate
     variable names.
 
@@ -177,63 +174,37 @@ def coordinate_df(
     xarray.plot option with x=cdp_x and y=cdp_y for geographic plotting.
 
     Args:
-        ds: The seismic dataset.
-        dims: A length two tuple of the INLINE and CROSSLINE variable names in ds.
-        coord: A length two tuple of the X and Y UTM coordinate variable names in ds.
-        extra_vars: Any extra ds variables to include in the DataFrame.
+        ds: The seismic dataset, requires `cdp_x` and `cdp_y` variables, or mapping via set_coords().
         linear_fillna: Defaults to True. This will use a planar fitting function to fill blank cdp_x and cdp_y spaces.
 
     Returns:
         dataframe: The coordinate DataFrame
 
     """
-    for dim in dims:
-        assert dim in ds.dims
-    iline, xline = dims
+    cdp_x, cdp_y = ds.segysak.get_coords()
 
-    for coord in coords:
-        assert coord in ds
-        for dim in dims:
-            assert dim in ds[coord].dims
-    cdpx, cdpy = coords
+    assert ds[cdp_x].dims == ds[cdp_y].dims
+    dims = ds[cdp_x].dims
+    assert len(dims) == 2
 
-    for var in extra_vars:
-        assert var in ds
-        for dim in dims:
-            assert dim in ds[var].dims
-
-    req_vars = list(dims) + list(coords)
-    if extra_vars is not None:
-        req_atr += extra_vars
-
-    df = ds[extra_vars].to_dataframe().reset_index()
-    df_nona = df.dropna(subset=coords)
+    df = ds[[cdp_x, cdp_y]].to_dataframe().reset_index()
+    df_nona = df.dropna()
 
     if not linear_fillna:
         return df_nona
 
+    d1 = df_nona[dims[0]].values
+    d2 = df_nona[dims[1]].values
+
     # create fits to surface for target x from il/xl
-    fitx = curve_fit(
-        plane,
-        (df_nona[iline], df_nona[xline]),
-        df_nona[cdpx],
-        p0=(0, 0, 0),
-    )
-    x_from_ix = lambda xy: plane(xy, *fitx[0])
-    # create fits to surface for target y from il/xl
-    fity = curve_fit(
-        plane,
-        (df_nona[iline], df_nona[xline]),
-        df_nona[cdpy],
-        p0=(0, 0, 0),
-    )
-    y_from_ix = lambda xy: plane(xy, *fity[0])
+    x_plane = fit_plane(d1, d2, df_nona[cdp_x])
+    y_plane = fit_plane(d1, d2, df_nona[cdp_y])
 
-    filled_x = x_from_ix((df[iline], df[xline]))
-    filled_y = y_from_ix((df[iline], df[xline]))
+    filled_x = x_plane((df[dims[0]].values, df[dims[1]].values))
+    filled_y = y_plane((df[dims[0]].values, df[dims[1]].values))
 
-    df.loc[df[cdpx].isna(), cdpx] = filled_x[df[cdpx].isna()].astype(np.float32)
-    df.loc[df[cdpy].isna(), cdpy] = filled_y[df[cdpy].isna()].astype(np.float32)
+    df.loc[df[cdp_x].isna(), cdp_x] = filled_x[df[cdp_x].isna()].astype(np.float32)
+    df.loc[df[cdp_y].isna(), cdp_y] = filled_y[df[cdp_y].isna()].astype(np.float32)
 
     return df
 
@@ -469,6 +440,25 @@ class SegysakDatasetAccessor(TemplateAccessor):
             )
 
         return corner_points
+
+    def fill_cdpna(self, method: str = "linear"):
+        """Fills NaN cdp_x and cdp_y locations, usually caused by dead traces.
+
+        Args:
+            method: One of 'linear', 'affine'. Linear uses a planar linear transform, whilst affine uses
+                the derived affine transformation.
+        """
+        if method == "linear":
+            cdp_x, cdp_y = self.get_coords()
+            coord_df = coordinate_df(self._obj)
+            self._obj[cdp_x] = (
+                ("iline", "xline"),
+                coord_df[cdp_x].values.reshape(self._obj[cdp_x].shape),
+            )
+            self._obj[cdp_y] = (
+                ("iline", "xline"),
+                coord_df[cdp_y].values.reshape(self._obj[cdp_y].shape),
+            )
 
 
 @xr.register_dataset_accessor("seis")

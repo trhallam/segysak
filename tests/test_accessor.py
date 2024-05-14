@@ -193,27 +193,30 @@ def test_calc_corner_points_2d(volve_2d_dataset):
     )
 
 
+def test_segysak_fill_cdpna(f3_dataset):
+    ds = f3_dataset.copy(deep=True)
+    ds.cdp_x[:, 5:10] = np.nan
+    ds.cdp_y[:, 5:10] = np.nan
+    ds.segysak.fill_cdpna()
+    assert np.allclose(f3_dataset.cdp_x.values, ds.cdp_x.values, atol=0.01)
+    assert np.allclose(f3_dataset.cdp_y.values, ds.cdp_y.values, atol=0.01)
+
+
 @pytest.mark.parametrize(
-    "coord,extras,linear_fillna,expected_shape",
+    "linear_fillna,expected_shape",
     [
-        (True, None, True, (414, 4)),
-        (False, None, True, (414, 4)),
-        (False, None, False, (414, 4)),
+        (True, (414, 4)),
+        (True, (414, 4)),
+        (False, (414, 4)),
         (
             True,
-            [
-                "extra",
-            ],
-            True,
-            (414, 5),
+            (414, 4),
         ),
     ],
 )
-def test_coordinate_df(f3_dataset, coord, extras, linear_fillna, expected_shape):
+def test_coordinate_df(f3_dataset, linear_fillna, expected_shape):
     print(f3_dataset)
-    df = coordinate_df(
-        f3_dataset, coord=coord, extras=extras, linear_fillna=linear_fillna
-    )
+    df = coordinate_df(f3_dataset, linear_fillna=linear_fillna)
     assert df.shape == expected_shape
 
 
