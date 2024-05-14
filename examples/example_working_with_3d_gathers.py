@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.16.2
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -47,6 +47,9 @@ with pd.option_context("display.max_rows", 100):
 penobscot_3d_gath = xr.open_dataset(
     segy_file, dim_byte_fields={"iline":189, "xline":193, "offset":37}, extra_byte_fields={"cdp_x":181, "cdp_y":185}
 )
+
+# coordinates are not scaled automatically, to use the coordinate scalar found in the trace headers, we run scale_coords()
+penobscot_3d_gath.segysak.scale_coords()
 
 # %% [markdown] editable=true slideshow={"slide_type": ""}
 # Note that the loaded Dataset has four dimensions with the additional dimension labeled offset. There are 61 offsets in this dataset or 61 traces per inline and xline location.
@@ -105,19 +108,31 @@ axs.imshow(
 #
 # Arbitrary line slicing of gathers based upon coordinates is also possible. Lets create a line that crosses the 3D.
 
-# %% editable=true slideshow={"slide_type": ""}
-arb_line = np.array([(733600, 733850), (4895180.0, 4895180.0)])
+# %% tags=[]
+penobscot_3d_gath
 
-# ax = penobscot_3d_gath.seis.plot_bounds()
-ax.plot(arb_line[0, :], arb_line[1, :], label="arb_line")
+# %% tags=[]
+penobscot_3d_gath.drop_dims('offset')
+
+# %% tags=[]
+penobscot_3d_gath.isel(offset=0).segysak.calc_corner_points()
+
+# %% editable=true slideshow={"slide_type": ""}
+arb_line = np.array([(733600, 4895180.0), (733850, 4895180.0)])
+
+# we must drop the offset axis somehow, xy locations were loaded for each header position but
+# they must be reduced, we could take the mean over the dimension but here we just select the 
+# first value using `offset=0`
+ax = penobscot_3d_gath.isel(offset=0).segysak.plot_bounds()
+ax.plot(arb_line[:, 0], arb_line[:, 1], label="arb_line")
 plt.legend()
 
 # %% [markdown] editable=true slideshow={"slide_type": ""}
 # Here we need to think carefully about the `bin_spacing_hint`. We also don't want to interpolate the gathers, so we use `xysel_method="nearest"`.
 
 # %% editable=true slideshow={"slide_type": ""}
-penobscot_3d_gath_arb = penobscot_3d_gath.seis.interp_line(
-    arb_line[0, :], arb_line[1, :], bin_spacing_hint=30, xysel_method="nearest"
+penobscot_3d_gath_arb = penobscot_3d_gath.segysak.xysel(
+    arb_line, method="nearest"
 )
 
 # %%
