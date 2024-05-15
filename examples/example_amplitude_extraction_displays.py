@@ -16,33 +16,37 @@
 # %% [markdown]
 # # Working with seismic and interpreted horizons
 
+# %% tags=["hide-code"]
+# Disable progress bars for small examples
+from segysak.progress import Progress
+
+Progress.set_defaults(disable=True)
+
 # %%
 import pathlib
 import numpy as np
 import pandas as pd
+import xarray as xr
 import matplotlib.pyplot as plt
-import warnings
-
-warnings.filterwarnings("ignore")
 
 # %%
 from segysak.segy import (
-    segy_loader,
     get_segy_texthead,
     segy_header_scan,
     segy_header_scrape,
-    well_known_byte_locs,
 )
 
 # %%
 segy_file = pathlib.Path("data/volve10r12-full-twt-sub3d.sgy")
-cube = segy_loader(segy_file.absolute(), **well_known_byte_locs("petrel_3d"))
+cube = xr.open_dataset(
+    segy_file,
+    dim_byte_fields={"iline": 5, "xline": 21},
+    extra_byte_fields={"cdp_x": 73, "cdp_y": 77},
+)
+cube.segysak.scale_coords()
 
 # %%
-print("Loaded cube size: {}".format(cube.seis.humanbytes))
-
-# %%
-print("Is it two-way-time? {}".format(cube.seis.is_twt()))
+print("Loaded cube size: {}".format(cube.segysak.humanbytes))
 
 # %% [markdown]
 # ## Load horizon data
@@ -62,8 +66,9 @@ hrz.head()
 # First we use **segysak** built-in `calc_corner_points()` method to calculate the corner points of the loaded cube and copy them to a numpy array to be used for the plot:
 
 # %%
-cube.seis.calc_corner_points()
-corners = np.array(cube.attrs["corner_points_xy"])
+cp = cube.segysak.calc_corner_points()
+corners = np.array(cp)
+corners
 
 # %% [markdown]
 # To display the horizon we need to grid the raw data first:
@@ -72,9 +77,9 @@ corners = np.array(cube.attrs["corner_points_xy"])
 from scipy.interpolate import griddata
 
 xi = np.linspace(hrz.cdp_x.min(), hrz.cdp_x.max(), 250)
-yi = np.linspace(hrz.cdp_y.min(), hrz.cdp_y.max(), 2500)
+yi = np.linspace(hrz.cdp_y.min(), hrz.cdp_y.max(), 250)
 X, Y = np.meshgrid(xi, yi)
-Z = griddata((hrz.cdp_x, hrz.cdp_y), hrz.twt, (X, Y))
+Z = griddata((hrz.cdp_x, hrz.cdp_y), hrz.twt, (X, Y), rescale=True)
 
 # %% [markdown]
 # And this is the resulting plot with the extent of the loaded cube displayed as a thick red outline:
@@ -100,6 +105,7 @@ ax.set_title("Top Hugin fm.")
 # This is where the magic of segysak comes in. We use `surface_from_points` to map the loaded horizon imported in tabular format to each seismic bin. The input horizon in this case is defined in geographical coordinates but it would also have worked if it was defined in inlines and crosslines:
 
 # %%
+cube = cube.set_coords(('cdp_x', 'cdp_y'))
 hrz_mapped = cube.seis.surface_from_points(hrz, "twt", right=("cdp_x", "cdp_y"))
 
 # %% [markdown]
@@ -107,14 +113,14 @@ hrz_mapped = cube.seis.surface_from_points(hrz, "twt", right=("cdp_x", "cdp_y"))
 
 # %%
 amp = cube.data.interp(
-    {"iline": hrz_mapped.iline, "xline": hrz_mapped.xline, "twt": hrz_mapped.twt}
+    {"iline": hrz_mapped.iline, "xline": hrz_mapped.xline, "samples": hrz_mapped.twt}
 )
 
 # %% [markdown]
 # For the next plot we use another attribute automatically calculated by **segysak** during loading to squeeze the colormap used when displaying amplitudes:
 
 # %%
-minamp, maxamp = cube.attrs["percentiles"][1], cube.attrs["percentiles"][-2]
+#minamp, maxamp = cube.attrs["percentiles"][1], cube.attrs["percentiles"][-2]
 
 # %% [markdown]
 # ...and we calculate the minimum and maximum X and Y coordinates using the `corners` array described above to set the figure extent and zoom in the area covered by the seismic cube:
@@ -136,7 +142,7 @@ ax[0].pcolormesh(X, Y, Z, cmap="terrain_r")
 ax[0].add_patch(survey_limits)
 for aa in ax:
     hh = aa.pcolormesh(
-        amp.cdp_x, amp.cdp_y, amp.data, cmap="RdYlBu", vmin=minamp, vmax=maxamp
+        amp.cdp_x, amp.cdp_y, amp.data, cmap="RdYlBu", #vmin=minamp, vmax=maxamp
     )
     aa.axis("equal")
 ax[0].legend()
@@ -163,7 +169,7 @@ ax.invert_xaxis()
 # %%
 opt = dict(
     x="xline",
-    y="twt",
+    y="samples",
     add_colorbar=True,
     interpolation="spline16",
     robust=True,
@@ -175,7 +181,7 @@ inl_sel = [10130, 10100]
 
 f, ax = plt.subplots(nrows=2, figsize=(10, 6), sharey=True, constrained_layout=True)
 for i, val in enumerate(inl_sel):
-    cube.data.sel(iline=val, twt=slice(2300, 3000)).plot.imshow(ax=ax[i], **opt)
+    cube.data.sel(iline=val, samples=slice(2300, 3000)).plot.imshow(ax=ax[i], **opt)
     x, t = hrz_mapped.sel(iline=val).xline, hrz_mapped.sel(iline=val).twt
     ax[i].plot(x, t, color="r")
     ax[i].invert_xaxis()
@@ -190,7 +196,7 @@ f, ax = plt.subplots(nrows=2, figsize=(10, 6), sharey=True, constrained_layout=T
 
 for i, val in enumerate(inl_sel):
     axz = ax[i].twinx()
-    x, t = amp.sel(iline=val).xline, amp.sel(iline=val).twt
+    x, t = amp.sel(iline=val).xline, amp.sel(iline=val).samples
     a = amp.sel(iline=val).data
     ax[i].plot(x, a, color="r")
     axz.plot(x, t, color="k")
@@ -208,8 +214,8 @@ for i, val in enumerate(inl_sel):
 # To create windows map extraction it is necessary to first mask the seisnc cube and then to collapse it along the chosen axis using a prefered method. In this case we are just going to calculate the mean amplitude in a 100ms window below our horizon.
 
 # %%
-mask_below = cube.where(cube.twt < hrz_mapped.twt + 100)
-mask_above = cube.where(cube.twt > hrz_mapped.twt)
+mask_below = cube.where(cube.samples < hrz_mapped.twt + 100)
+mask_above = cube.where(cube.samples > hrz_mapped.twt)
 masks = [mask_above, mask_below]
 
 # %% [markdown]
@@ -218,7 +224,7 @@ masks = [mask_above, mask_below]
 # %%
 opt = dict(
     x="xline",
-    y="twt",
+    y="samples",
     add_colorbar=True,
     interpolation="spline16",
     robust=True,
@@ -232,7 +238,7 @@ f, ax = plt.subplots(nrows=2, figsize=(10, 6), sharey=True, constrained_layout=T
 for i, val in enumerate(
     inl_sel,
 ):
-    masks[i].data.sel(iline=val, twt=slice(2300, 3000)).plot.imshow(ax=ax[i], **opt)
+    masks[i].data.sel(iline=val, samples=slice(2300, 3000)).plot.imshow(ax=ax[i], **opt)
     x, t = hrz_mapped.sel(iline=val).xline, hrz_mapped.sel(iline=val).twt
     ax[i].plot(x, t, color="r")
     ax[i].invert_xaxis()
@@ -243,7 +249,7 @@ for i, val in enumerate(
 # %%
 opt = dict(
     x="xline",
-    y="twt",
+    y="samples",
     add_colorbar=True,
     interpolation="spline16",
     robust=True,
@@ -257,7 +263,7 @@ f, ax = plt.subplots(nrows=1, figsize=(10, 3), sharey=True, constrained_layout=T
 
 masked_data = 0.5 * (mask_below + mask_above)
 
-masked_data.data.sel(iline=val, twt=slice(2300, 3000)).plot.imshow(ax=ax, **opt)
+masked_data.data.sel(iline=val, samples=slice(2300, 3000)).plot.imshow(ax=ax, **opt)
 x, t = hrz_mapped.sel(iline=val).xline, hrz_mapped.sel(iline=val).twt
 ax.plot(x, t, color="r")
 ax.invert_xaxis()
@@ -267,7 +273,7 @@ ax.invert_xaxis()
 # we can use the `np.apply_along_axis` function to apply a custom function to our masked cube.
 
 # %% tags=[]
-summed_amp = masked_data.sum(dim="twt")
+summed_amp = masked_data.sum(dim="samples")
 
 f, ax = plt.subplots(figsize=(12, 4))
 summed_amp.data.plot.imshow(

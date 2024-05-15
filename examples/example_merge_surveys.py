@@ -13,6 +13,12 @@
 #     name: python3
 # ---
 
+# %% nbsphinx="hidden" tags=["hide-code"]
+# Disable progress bars for small examples
+from segysak.progress import Progress
+
+Progress.set_defaults(disable=True)
+
 # %% [markdown]
 # # Merging Seismic Data Cubes
 
