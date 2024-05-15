@@ -18,53 +18,125 @@ TEST_SEGY_SKEW = "test_skew.segy"
 TEST_DATA_PATH = pathlib.Path(__file__).parent.absolute()
 TEST_DATA_SEGYIO = TEST_DATA_PATH / "test-data-segyio"
 TEST_DATA_SEGYSAK = TEST_DATA_PATH / "test-data-segysak"
+TEST_DATA_VOLVE = TEST_DATA_PATH / "test-data-volve"
 
+# fname, dim_byte_fiekds, extra_byte_fields, segyio_kwargs
 TEST_FILES_SEGYIO_3D = [
-    ("acute-small.sgy", {"iline": 189, "xline": 193}),
-    ("f3-lsb.sgy", {"endian": "little", "iline": 189, "xline": 193}),
-    ("f3.sgy", {"iline": 189, "xline": 193, "cdp_x": 181, "cdp_y": 185}),
-    ("inv-acute-small.sgy", {"iline": 189, "xline": 193}),
-    ("left-small.sgy", {"iline": 189, "xline": 193}),
-    ("normal-small.sgy", {"iline": 189, "xline": 193}),
-    ("obtuse-small.sgy", {"iline": 189, "xline": 193}),
-    ("reflex-small.sgy", {"iline": 189, "xline": 193}),
-    ("right-small.sgy", {"iline": 189, "xline": 193}),
-    ("small.sgy", {"iline": 189, "xline": 193}),
-    ("left-small.sgy", {"iline": 189, "xline": 193, "cdp_x": 181, "cdp_y": 185}),
-    ("small-lsb.sgy", {"iline": 189, "xline": 193, "endian": "little"}),
-    ("straight-small.sgy", {"iline": 189, "xline": 193}),
-    ("text-embed-null.sgy", {"iline": 189, "xline": 193}),
+    (TEST_DATA_SEGYIO / "acute-small.sgy", {"iline": 189, "xline": 193}, None, {}),
+    (
+        TEST_DATA_SEGYIO / "f3-lsb.sgy",
+        {"iline": 189, "xline": 193},
+        None,
+        {"endian": "little"},
+    ),
+    (
+        TEST_DATA_SEGYIO / "f3.sgy",
+        {"iline": 189, "xline": 193},
+        {"cdp_x": 181, "cdp_y": 185},
+        {},
+    ),
+    (TEST_DATA_SEGYIO / "inv-acute-small.sgy", {"iline": 189, "xline": 193}, None, {}),
+    (TEST_DATA_SEGYIO / "left-small.sgy", {"iline": 189, "xline": 193}, None, {}),
+    (TEST_DATA_SEGYIO / "normal-small.sgy", {"iline": 189, "xline": 193}, None, {}),
+    (TEST_DATA_SEGYIO / "obtuse-small.sgy", {"iline": 189, "xline": 193}, None, {}),
+    (TEST_DATA_SEGYIO / "reflex-small.sgy", {"iline": 189, "xline": 193}, None, {}),
+    (TEST_DATA_SEGYIO / "right-small.sgy", {"iline": 189, "xline": 193}, None, {}),
+    (TEST_DATA_SEGYIO / "small.sgy", {"iline": 189, "xline": 193}, None, {}),
+    (
+        TEST_DATA_SEGYIO / "left-small.sgy",
+        {"iline": 189, "xline": 193},
+        {"cdp_x": 181, "cdp_y": 185},
+        {},
+    ),
+    (
+        TEST_DATA_SEGYIO / "small-lsb.sgy",
+        {"iline": 189, "xline": 193},
+        None,
+        {"endian": "little"},
+    ),
+    (TEST_DATA_SEGYIO / "straight-small.sgy", {"iline": 189, "xline": 193}, None, {}),
+    (TEST_DATA_SEGYIO / "text-embed-null.sgy", {"iline": 189, "xline": 193}, None, {}),
 ]
 
+# fname, dim_byte_fiekds, extra_byte_fields, segyio_kwargs
 TEST_FILES_SEGYIO_3DG = [
-    ("small-ps-dec-il-inc-xl-off.sgy", {"iline": 189, "xline": 193, "offset": 37}),
-    ("small-ps-dec-il-off-inc-xl.sgy", {"iline": 189, "xline": 193, "offset": 37}),
-    ("small-ps-dec-il-xl-inc-off.sgy", {"iline": 189, "xline": 193, "offset": 37}),
-    ("small-ps-dec-il-xl-off.sgy", {"iline": 189, "xline": 193, "offset": 37}),
-    ("small-ps-dec-off-inc-il-xl.sgy", {"iline": 189, "xline": 193, "offset": 37}),
-    ("small-ps-dec-xl-inc-il-off.sgy", {"iline": 189, "xline": 193, "offset": 37}),
-    ("small-ps-dec-xl-off-inc-il.sgy", {"iline": 189, "xline": 193, "offset": 37}),
-    ("small-ps.sgy", {"iline": 189, "xline": 193, "offset": 37}),
+    (
+        TEST_DATA_SEGYIO / "small-ps-dec-il-inc-xl-off.sgy",
+        {"iline": 189, "xline": 193, "offset": 37},
+        None,
+        {},
+    ),
+    (
+        TEST_DATA_SEGYIO / "small-ps-dec-il-off-inc-xl.sgy",
+        {"iline": 189, "xline": 193, "offset": 37},
+        None,
+        {},
+    ),
+    (
+        TEST_DATA_SEGYIO / "small-ps-dec-il-xl-inc-off.sgy",
+        {"iline": 189, "xline": 193, "offset": 37},
+        None,
+        {},
+    ),
+    (
+        TEST_DATA_SEGYIO / "small-ps-dec-il-xl-off.sgy",
+        {"iline": 189, "xline": 193, "offset": 37},
+        None,
+        {},
+    ),
+    (
+        TEST_DATA_SEGYIO / "small-ps-dec-off-inc-il-xl.sgy",
+        {"iline": 189, "xline": 193, "offset": 37},
+        None,
+        {},
+    ),
+    (
+        TEST_DATA_SEGYIO / "small-ps-dec-xl-inc-il-off.sgy",
+        {"iline": 189, "xline": 193, "offset": 37},
+        None,
+        {},
+    ),
+    (
+        TEST_DATA_SEGYIO / "small-ps-dec-xl-off-inc-il.sgy",
+        {"iline": 189, "xline": 193, "offset": 37},
+        None,
+        {},
+    ),
+    (
+        TEST_DATA_SEGYIO / "small-ps.sgy",
+        {"iline": 189, "xline": 193, "offset": 37},
+        None,
+        {},
+    ),
 ]
 
-TEST_FILES_SEGYIO_2D = [
-    None,
-]
+# fname, dim_byte_fiekds, extra_byte_fields, segyio_kwargs
+TEST_FILES_SEGYIO_2D = []
 
-TEST_FILES_SEGYIO_2DG = [
-    None,
-]
+# fname, dim_byte_fiekds, extra_byte_fields, segyio_kwargs
+TEST_FILES_SEGYIO_2DG = []
 
+# fname, dim_byte_fiekds, extra_byte_fields, segyio_kwargs
 TEST_FILES_SEGYIO_BLANKHEAD = [
-    ("1x1.sgy", {}),
-    ("1xN.sgy", {}),
-    ("Mx1.sgy", {}),
-    ("shot-gather.sgy", {}),
+    (TEST_DATA_SEGYIO / "1x1.sgy", {}, None, {}),
+    (TEST_DATA_SEGYIO / "1xN.sgy", {}, None, {}),
+    (TEST_DATA_SEGYIO / "Mx1.sgy", {}, None, {}),
+    (TEST_DATA_SEGYIO / "shot-gather.sgy", {}, None, {}),
 ]
 
 TEST_FILES_SEGYIO_ALL = (
     TEST_FILES_SEGYIO_BLANKHEAD + TEST_FILES_SEGYIO_3D + TEST_FILES_SEGYIO_3DG
 )
+
+# fname, dim_byte_fiekds, extra_byte_fields, segyio_kwargs
+TEST_FILES_VOLVE_2D = [
+    (
+        TEST_DATA_VOLVE / "volve10r12-full-z-il10117sub.sgy",
+        {"cdp": 21},
+        {"cdp_x": 73, "cdp_y": 77},
+        {},
+    ),
+]
 
 
 def create_temp_segy(n, test_file, skew=False):
@@ -143,54 +215,38 @@ def temp_segy(temp_dir, request):
 
 @pytest.fixture(
     scope="session",
-    params=[
-        (TEST_DATA_SEGYIO / file, segyio_kwargs)
-        for file, segyio_kwargs in TEST_FILES_SEGYIO_ALL
-    ],
-    ids=[file for file, _ in TEST_FILES_SEGYIO_ALL],
+    params=TEST_FILES_SEGYIO_ALL,
+    ids=[file[0].stem for file in TEST_FILES_SEGYIO_ALL],
 )
 def segyio_all_test_files(request):
-    file, segyio_kwargs = request.param
-    return (file, segyio_kwargs)
+    return request.param
 
 
 @pytest.fixture(
     scope="session",
-    params=[
-        (TEST_DATA_SEGYIO / file, segyio_kwargs)
-        for file, segyio_kwargs in TEST_FILES_SEGYIO_3D
-    ],
-    ids=[file for file, _ in TEST_FILES_SEGYIO_3D],
+    params=TEST_FILES_SEGYIO_3D,
+    ids=[file[0].stem for file in TEST_FILES_SEGYIO_3D],
 )
 def segyio3d_test_files(request):
-    file, segyio_kwargs = request.param
-    return (file, segyio_kwargs)
+    return request.param
 
 
 @pytest.fixture(
     scope="session",
-    params=[
-        (TEST_DATA_SEGYIO / file, segyio_kwargs)
-        for file, segyio_kwargs in TEST_FILES_SEGYIO_3DG
-    ],
-    ids=[file for file, _ in TEST_FILES_SEGYIO_3DG],
+    params=TEST_FILES_SEGYIO_3DG,
+    ids=[file[0].stem for file in TEST_FILES_SEGYIO_3DG],
 )
 def segyio3dps_test_files(request):
-    file, segyio_kwargs = request.param
-    return (file, segyio_kwargs)
+    return request.param
 
 
 @pytest.fixture(
     scope="session",
-    params=[
-        (TEST_DATA_SEGYIO / file, segyio_kwargs)
-        for file, segyio_kwargs in TEST_FILES_SEGYIO_BLANKHEAD
-    ],
-    ids=[file for file, _ in TEST_FILES_SEGYIO_BLANKHEAD],
+    params=TEST_FILES_SEGYIO_BLANKHEAD,
+    ids=[file[0].stem for file in TEST_FILES_SEGYIO_BLANKHEAD],
 )
 def segyio_nohead_test_files(request):
-    file, segyio_kwargs = request.param
-    return (file, segyio_kwargs)
+    return request.param
 
 
 @pytest.fixture(
@@ -198,3 +254,12 @@ def segyio_nohead_test_files(request):
 )
 def segy_with_nonascii_text():
     return TEST_DATA_SEGYSAK / "f3-ebcidctest.sgy"
+
+
+@pytest.fixture(
+    scope="session",
+    params=TEST_FILES_VOLVE_2D,
+    ids=[file[0].stem for file in TEST_FILES_VOLVE_2D],
+)
+def volve_segy2d(request):
+    return request.param
