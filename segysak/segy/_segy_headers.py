@@ -87,6 +87,7 @@ class TraceHeaders:
     def __getitem__(
         self, i: Union[int, slice]
     ) -> Generator[Dict[str, Any], None, None]:
+        silent = Progress._segysak_tqdm_kwargs["disable"]
         if isinstance(i, int):
             silent = True
             n = 1

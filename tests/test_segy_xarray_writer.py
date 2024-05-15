@@ -57,16 +57,6 @@ def test_SegyWriter_write_text_header_no_file():
             text = writer.write_text_header("some text")
 
 
-# def test_SegyWriter_empty3d(temp_dir, empty3d):
-#     shape = tuple(size for size in empty3d.sizes.values())
-#     empty3d["data"] = xr.Variable(empty3d.dims, np.zeros(shape))
-#     with SegyWriter(temp_dir / "empty3d.segy", use_text=True, silent=True) as writer:
-#         writer.to_segy(
-#             empty3d,
-#             vert_dimension="twt",
-#         )
-
-
 @pytest.fixture(
     params=[
         {"iline": slice(0, 25), "xline": slice(0, 20), "twt": slice(0, 100)},

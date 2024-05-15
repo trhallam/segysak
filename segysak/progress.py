@@ -27,6 +27,10 @@ class Progress:
         "unit_scale": True,
     }
 
+    @classmethod
+    def silent(cls):
+        return cls._segysak_tqdm_kwargs["disable"]
+
     def __init__(self, tqdm_func: Union[str, None] = None, **tqdm_kwargs):
         if tqdm_func == "a":
             self.tqdm_func = tqdm_auto

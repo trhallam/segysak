@@ -78,12 +78,10 @@ class SegyWriter:
         use_text: bool = True,
         write_dead_traces: bool = False,
         coord_scalar: Union[float, None] = None,
-        silent: bool = False,
     ):
         self.segy_file = segy_file
         self.use_text = use_text
         self.write_dead_traces = write_dead_traces
-        self.silent = silent
         self.byte_fields = []
         self.shape = None
         self.coord_scalar = coord_scalar

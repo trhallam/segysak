@@ -83,20 +83,20 @@ def test_segy_header_scan(temp_dir, temp_segy):
     scanned = head.nscan
     assert scanned == TEST_SEGY_SIZE**2
     # assert isinstance(head, dict) now a dataframe
-    head = segy_header_scan(temp_segy, max_traces_scan=TEST_SEGY_SIZE, silent=True)
+    head = segy_header_scan(temp_segy, max_traces_scan=TEST_SEGY_SIZE)
     scanned = head.nscan
     assert scanned == TEST_SEGY_SIZE
     # assert isinstance(head, dict) now a dataframe
 
     with pytest.raises(ValueError):
-        header = segy_header_scan("", max_traces_scan=23.9, silent=True)
+        header = segy_header_scan("", max_traces_scan=23.9)
 
 
 def test_segy_header_scan_all(temp_dir, temp_segy):
-    _ = segy_header_scan(temp_segy, max_traces_scan=0, silent=True)
+    _ = segy_header_scan(temp_segy, max_traces_scan=0)
     scanned = _.nscan
     assert scanned == TEST_SEGY_SIZE**2
-    _ = segy_header_scan(temp_segy, max_traces_scan=-1, silent=True)
+    _ = segy_header_scan(temp_segy, max_traces_scan=-1)
     scanned = _.nscan
     assert scanned == TEST_SEGY_SIZE**2
 
@@ -106,13 +106,13 @@ def test_segy_bin_scrape(temp_dir, temp_segy):
 
 
 def test_segy_header_scrape(temp_dir, temp_segy):
-    header = segy_header_scrape(temp_segy, silent=True)
+    header = segy_header_scrape(temp_segy)
     assert isinstance(header, pd.DataFrame)
     assert header.shape == (TEST_SEGY_SIZE**2, 91)
 
 
 def test_header_as_dimensions(temp_dir, temp_segy):
-    header = segy_header_scrape(temp_segy, silent=True)
+    header = segy_header_scrape(temp_segy)
     assert isinstance(header, pd.DataFrame)
     dims = header_as_dimensions(header, ("INLINE_3D", "CROSSLINE_3D"))
     assert len(dims) == 2
@@ -128,14 +128,14 @@ def process_segy_fixture(fixture):
 def test_segyiotests_2ncdf(temp_dir, segyio3d_test_files):
     file, segyio_kwargs = process_segy_fixture(segyio3d_test_files)
     seisnc = temp_dir / file.with_suffix(".siesnc").name
-    segy_converter(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    segy_converter(str(file), ncfile=seisnc, **segyio_kwargs)
     ds = open_seisnc(seisnc)
     assert isinstance(ds, xr.Dataset)
 
 
 def test_segyiotests_2ds(segyio3d_test_files):
     file, segyio_kwargs = process_segy_fixture(segyio3d_test_files)
-    ds = segy_loader(str(file), silent=True, **segyio_kwargs)
+    ds = segy_loader(str(file), **segyio_kwargs)
     assert isinstance(ds, xr.Dataset)
 
 
@@ -146,29 +146,29 @@ def test_segyiotests_2ds_wheaderscrap(segyio3d_test_files):
         scrape_args["endian"] = segyio_kwargs["endian"]
     except KeyError:
         pass
-    header = segy_header_scrape(str(file), silent=True, **scrape_args)
-    ds = segy_loader(str(file), silent=True, **segyio_kwargs, head_df=header)
+    header = segy_header_scrape(str(file), **scrape_args)
+    ds = segy_loader(str(file), **segyio_kwargs, head_df=header)
     assert isinstance(ds, xr.Dataset)
 
 
 def test_segyiotests_ps_2ncdf(temp_dir, segyio3dps_test_files):
     file, segyio_kwargs = process_segy_fixture(segyio3dps_test_files)
     seisnc = temp_dir / file.with_suffix(".siesnc").name
-    segy_converter(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    segy_converter(str(file), ncfile=seisnc, **segyio_kwargs)
     ds = open_seisnc(seisnc)
     assert isinstance(ds, xr.Dataset)
 
 
 def test_segyiotests_ps_2ds(segyio3dps_test_files):
     file, segyio_kwargs = process_segy_fixture(segyio3dps_test_files)
-    ds = segy_loader(str(file), silent=True, **segyio_kwargs)
+    ds = segy_loader(str(file), **segyio_kwargs)
     assert isinstance(ds, xr.Dataset)
 
 
 def test_segyiotests_nohead_2ncdf(temp_dir, segyio_nohead_test_files):
     file, segyio_kwargs = process_segy_fixture(segyio_nohead_test_files)
     seisnc = temp_dir / file.with_suffix(".siesnc").name
-    segy_converter(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    segy_converter(str(file), ncfile=seisnc, **segyio_kwargs)
     ds = open_seisnc(seisnc)
     assert isinstance(ds, xr.Dataset)
 
@@ -187,45 +187,41 @@ def test_output_byte_locs_fail():
 @settings(max_examples=1, deadline=None)
 def test_segyiotests_writer_from_ds(temp_dir, segyio3d_test_files, il_chunks):
     file, segyio_kwargs = process_segy_fixture(segyio3d_test_files)
-    ds = segy_loader(str(file), silent=True, **segyio_kwargs)
+    ds = segy_loader(str(file), **segyio_kwargs)
     outfile = temp_dir / file.name
     segy_writer(ds, outfile, il_chunks=il_chunks)
     del ds
-    ds = segy_loader(str(outfile), silent=True, **well_known_byte_locs("standard_3d"))
+    ds = segy_loader(str(outfile), **well_known_byte_locs("standard_3d"))
     assert isinstance(ds, xr.Dataset)
 
 
 def test_segyiotests_writer_from_seisnc(temp_dir, segyio3d_test_files):
     file, segyio_kwargs = process_segy_fixture(segyio3d_test_files)
     seisnc = temp_dir / file.with_suffix(".siesnc").name
-    segy_converter(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    segy_converter(str(file), ncfile=seisnc, **segyio_kwargs)
     outfile = temp_dir / file.name
     segy_writer(seisnc, outfile)
-    ds = segy_loader(str(outfile), silent=True, **well_known_byte_locs("standard_3d"))
+    ds = segy_loader(str(outfile), **well_known_byte_locs("standard_3d"))
     assert isinstance(ds, xr.Dataset)
 
 
 def test_segyiotests_ps_writer_from_ds(temp_dir, segyio3dps_test_files):
     file, segyio_kwargs = process_segy_fixture(segyio3dps_test_files)
-    ds = segy_loader(str(file), silent=True, **segyio_kwargs)
+    ds = segy_loader(str(file), **segyio_kwargs)
     outfile = temp_dir / file.name
     segy_writer(ds, outfile, use_text=True)
     del ds
-    ds = segy_loader(
-        str(outfile), silent=True, **well_known_byte_locs("standard_3d_gath")
-    )
+    ds = segy_loader(str(outfile), **well_known_byte_locs("standard_3d_gath"))
     assert isinstance(ds, xr.Dataset)
 
 
 def test_segyiotests_ps_writer_from_ds(temp_dir, segyio3dps_test_files):
     file, segyio_kwargs = process_segy_fixture(segyio3dps_test_files)
     seisnc = temp_dir / file.with_suffix(".siesnc").name
-    segy_converter(str(file), ncfile=seisnc, silent=True, **segyio_kwargs)
+    segy_converter(str(file), ncfile=seisnc, **segyio_kwargs)
     outfile = temp_dir / file.name
     segy_writer(seisnc, outfile, use_text=True)
-    ds = segy_loader(
-        str(outfile), silent=True, **well_known_byte_locs("standard_3d_gath")
-    )
+    ds = segy_loader(str(outfile), **well_known_byte_locs("standard_3d_gath"))
     assert isinstance(ds, xr.Dataset)
 
 

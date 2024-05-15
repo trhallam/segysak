@@ -179,6 +179,12 @@ def open_seisnc(seisnc, **kwargs):
     Returns:
         xarray dataset
     """
+    warn(
+        "open_seisnc will be removed in v0.6, please use the Xarray engine ds = xr.open_dataset(netcdf_file) method instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     kwargs["engine"] = "h5netcdf"
     ds = xr.open_dataset(seisnc, **kwargs)
 

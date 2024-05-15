@@ -13,7 +13,6 @@ def f3_dataset():
     ds = segy_loader(
         TEST_DATA_SEGYIO / "f3.sgy",
         **{"iline": 189, "xline": 193, "cdp_x": 181, "cdp_y": 185},
-        silent=True
     )
 
     ds["extra"] = ds.cdp_x * 0.0
@@ -38,7 +37,7 @@ def f3_horizon_shift(f3_dataset):
 
 @pytest.fixture(scope="session")
 def geometry_dataset():
-    ds = segy_loader(TEST_DATA_SEGYSAK / "test-geometry.sgy", silent=True)
+    ds = segy_loader(TEST_DATA_SEGYSAK / "test-geometry.sgy")
     return ds
 
 
@@ -47,7 +46,6 @@ def f3_withdead_dataset():
     ds = segy_loader(
         TEST_DATA_SEGYSAK / "f3-withdead.sgy",
         **{"iline": 189, "xline": 193, "cdp_x": 181, "cdp_y": 185},
-        silent=True
     )
     return ds
 
@@ -56,7 +54,6 @@ def f3_withdead_dataset():
 def volve_2d_dataset():
     ds = segy_loader(
         TEST_DATA_VOLVE / "volve10r12-full-z-il10117sub.sgy",
-        silent=True,
         cdp=21,
         cdp_x=73,
         cdp_y=77,

@@ -47,6 +47,8 @@ from ._segy_headers import (
 from ._segy_text import get_segy_texthead
 from ._segy_globals import _SEGY_MEASUREMENT_SYSTEM
 
+from segysak.progress import Progress
+
 
 class SegyLoadError(Exception):
     def __init__(self, message, errors):
@@ -780,7 +782,7 @@ def _loader_converter_header_handling(
     if head_df is None:
         # Start by scraping the headers.
         head_df = segy_header_scrape(
-            segyfile, silent=silent, bytes_filter=scrape_bytes, **segyio_kwargs
+            segyfile, bytes_filter=scrape_bytes, **segyio_kwargs
         )
 
     head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
@@ -900,7 +902,6 @@ def segy_freeloader(
     vert_domain="TWT",
     data_type="AMP",
     return_geometry=False,
-    silent=False,
     extra_byte_fields=None,
     head_df=None,
     segyio_kwargs=None,
@@ -920,7 +921,6 @@ def segy_freeloader(
         data_type (str, optional): Defaults to "AMP".
         return_geometry (bool, optional): If true, just returned the empty
             dataset based upon the calcuated header geometry. Defaults to False.
-        silent (bool, optional): Turn off progress bars. Defaults to False.
         extra_byte_fields (dict, optional): Additional header information to
             load into the Dataset. Defaults to None.
         head_df (pandas.DataFrame): The DataFrame output from `segy_header_scrape`.
@@ -939,7 +939,7 @@ def segy_freeloader(
 
     if head_df is None:
         # Start by scraping the headers.
-        head_df = segy_header_scrape(segyfile, silent=silent, **segyio_kwargs)
+        head_df = segy_header_scrape(segyfile, **segyio_kwargs)
 
     head_bin = segy_bin_scrape(segyfile, **segyio_kwargs)
 
@@ -1047,7 +1047,6 @@ def segy_loader(
     xy_crop=None,
     z_crop=None,
     return_geometry=False,
-    silent=False,
     extra_byte_fields=None,
     head_df=None,
     **segyio_kwargs,
@@ -1098,7 +1097,6 @@ def segy_loader(
             Has the form '[min, max]'.
         return_geometry (bool, optional): If true returns an xarray.dataset which doesn't contain data but mirrors
             the input volume header information.
-        silent (bool): Disable progress bar.
         extra_byte_fields (list/mapping): A list of int or mapping of byte fields that should be returned as variables in the dataset.
         head_df (pandas.DataFrame): The DataFrame output from `segy_header_scrape`. This DataFrame can be filtered by the user
             to load select trace sets. Trace loading is based upon the DataFrame index.
@@ -1132,7 +1130,7 @@ def segy_loader(
         xy_crop=xy_crop,
         z_crop=z_crop,
         return_geometry=return_geometry,
-        silent=silent,
+        silent=Progress.silent(),
         extra_byte_fields=extra_byte_fields,
         head_df=head_df,
         **segyio_kwargs,
@@ -1152,7 +1150,7 @@ def segy_loader(
         vert_domain=vert_domain,
         data_type=data_type,
         return_geometry=return_geometry,
-        silent=silent,
+        silent=Progress.silent(),
     )
 
     # 3d data needs iline and xline
@@ -1216,7 +1214,6 @@ def segy_converter(
     xy_crop=None,
     z_crop=None,
     return_geometry=False,
-    silent=False,
     extra_byte_fields=None,
     **segyio_kwargs,
 ):
@@ -1302,7 +1299,7 @@ def segy_converter(
         xy_crop=xy_crop,
         z_crop=z_crop,
         return_geometry=return_geometry,
-        silent=silent,
+        silent=Progress.silent(),
         extra_byte_fields=extra_byte_fields,
         optimised_load=True,
         **segyio_kwargs,
@@ -1316,7 +1313,7 @@ def segy_converter(
         vert_domain=vert_domain,
         data_type=data_type,
         return_geometry=return_geometry,
-        silent=silent,
+        silent=Progress.silent(),
     )
 
     # 3d data needs iline and xline
