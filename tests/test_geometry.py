@@ -6,6 +6,7 @@ from segysak.geometry import (
     fit_plane,
     lsq_affine_transform,
     orthogonal_point_affine_transform,
+    get_uniform_spacing,
 )
 
 
@@ -72,3 +73,16 @@ def test_op_affine_transform(geometry_dataset):
     assert np.allclose(X, r_transform.transform(Y))
 
     assert np.allclose(f_transform.inverted().get_matrix(), r_transform.get_matrix())
+
+
+@pytest.mark.parametrize(
+    "points,bin_spacing_hint,expectedn",
+    (
+        ([[0, 0], [0, 100]], 10, 11),
+        ([[0, 0], [10, 100]], 10, 11),
+        ([[0, 0], [0, 100], [100, 100]], 20, 11),
+    ),
+)
+def test_get_uniform_spacing(points, bin_spacing_hint, expectedn):
+    uniform, _ = get_uniform_spacing(points, bin_spacing_hint=bin_spacing_hint)
+    assert uniform.shape[0] == expectedn

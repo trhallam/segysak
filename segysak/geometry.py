@@ -1,8 +1,9 @@
 """Functions and utilities related to SEG-Y/Seismic Geometry"""
 
-from typing import Tuple, Callable
+from typing import Tuple, Callable, List, Union
 import numpy as np
 from scipy.optimize import curve_fit, OptimizeWarning
+from scipy.interpolate import interp1d
 from matplotlib.transforms import Affine2D
 
 
@@ -130,3 +131,52 @@ def orthogonal_point_affine_transform(
         return transform, (error.mean(), error.max())
     else:
         return transform, None
+
+
+def get_uniform_spacing(
+    points: np.array,
+    extra: List[np.array] = None,
+    bin_spacing_hint: float = 10,
+    method: str = "linear",
+) -> Tuple[np.array, Union[List[np.array], None]]:
+    """Interpolate the cdp_x, cdp_y arrays uniformly while staying close to the
+    requested bin spacing
+
+    Assumes no gaps in the points.
+
+    Args:
+        points: cdp_x, cdp_y point pairs [M, 2] defining the path segments.
+        extra: a list of 1D arrays [M] to also interpolate along the path.
+        bin_spacing_hint: A bin spacing to stay close to, in cdp world units. Default: 10
+        method: The scipy interp1d interpolation method between points.
+
+    Returns:
+        Interpolated points, Interpolated extra vars: Uniform sampling using the bin_spacing hint.
+    """
+    points = np.asarray(points)
+    assert len(points.shape) == 2
+    assert points.shape[1] == 2
+
+    segment_lengths = np.insert(np.linalg.norm(np.diff(points, axis=0), axis=1), 0, 0.0)
+    segments_cum_lengths = np.cumsum(segment_lengths)
+    path_length = segments_cum_lengths[-1]
+
+    num_pts = int(path_length / bin_spacing_hint) + 1
+    uniform_sampled_path = np.linspace(0, path_length, num_pts)
+
+    cdp_x_i = interp1d(segments_cum_lengths, points[:, 0], kind=method)(
+        uniform_sampled_path
+    )
+    cdp_y_i = interp1d(segments_cum_lengths, points[:, 1], kind=method)(
+        uniform_sampled_path
+    )
+
+    if extra is not None:
+        extras_i = [
+            interp1d(segments_cum_lengths, ex, kind=method)(uniform_sampled_path)
+            for ex in extra
+        ]
+    else:
+        extras_i = None
+
+    return np.column_stack((cdp_x_i, cdp_y_i)), extras_i

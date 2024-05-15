@@ -30,8 +30,13 @@ from ._keyfield import (
     _VerticalKeyField,
 )
 from ._richstr import _upgrade_txt_richstr
-from .geometry import fit_plane, lsq_affine_transform, orthogonal_point_affine_transform
-from .tools import get_uniform_spacing, halfsample
+from .geometry import (
+    fit_plane,
+    lsq_affine_transform,
+    orthogonal_point_affine_transform,
+    get_uniform_spacing,
+)
+from . import tools
 
 
 @xr.register_dataset_accessor("seisio")
@@ -561,6 +566,34 @@ class SegysakDatasetAccessor(TemplateAccessor):
         return ax
 
 
+    def interp_line(
+        self,
+        points: np.array,
+        bin_spacing_hint: float = 10.0,
+        line_method="slinear",
+        xysel_method="linear",
+    ) -> xr.Dataset:
+        """Select data at regular intervals along a set of path segments in X, Y defined by points.
+
+        Args:
+            points:
+            bin_spacing_hint: A bin spacing to stay close to, in cdp world units. Default: 10
+            line_method: Valid values for the *kind* argument in scipy.interpolate.interp1d
+            xysel_method: Valid values for DataArray.interp for the data interpolation to the path.
+
+        Returns:
+            Interpolated dataset on points: Interpolated traces along the arbitrary line
+        """
+
+        cdp_i, _ = get_uniform_spacing(
+            points,
+            bin_spacing_hint=bin_spacing_hint,
+            method=line_method,
+        )
+        ds = self._obj.segysak.xysel(cdp_i, method=xysel_method)
+        return ds
+
+
 @xr.register_dataset_accessor("seis")
 class SeisGeom(TemplateAccessor):
     def __init__(self, xarray_obj):
@@ -1001,7 +1034,7 @@ class SeisGeom(TemplateAccessor):
         """
         extra = dict() if extra is None else extra
 
-        cdp_x_i, cdp_y_i, _, extra_i = get_uniform_spacing(
+        cdp_x_i, cdp_y_i, _, extra_i = tools.get_uniform_spacing(
             cdp_x,
             cdp_y,
             bin_spacing_hint=bin_spacing_hint,
@@ -1058,7 +1091,7 @@ class SeisGeom(TemplateAccessor):
         for dim in dim_kwargs:
             ar = self._obj[dim].values
             while dim_kwargs[dim] > 0:  # only for 3.8
-                ar = halfsample(ar)
+                ar = tools.halfsample(ar)
                 dim_kwargs[dim] = dim_kwargs[dim] - 1
             output[dim] = ar
         return output
