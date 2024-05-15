@@ -7,41 +7,6 @@
     ]
   },
   {
-    "version": "0.5.dev80",
-    "title": "0.5.dev80",
-    "aliases": []
-  },
-  {
-    "version": "0.5.dev60",
-    "title": "0.5.dev60",
-    "aliases": []
-  },
-  {
-    "version": "0.5.dev52+unknown",
-    "title": "0.5.dev52+unknown",
-    "aliases": []
-  },
-  {
-    "version": "0.5.dev46+unknown",
-    "title": "0.5.dev46+unknown",
-    "aliases": []
-  },
-  {
-    "version": "0.5.dev45+unknown",
-    "title": "0.5.dev45+unknown",
-    "aliases": []
-  },
-  {
-    "version": "0.5.dev42+unknown",
-    "title": "0.5.dev42+unknown",
-    "aliases": []
-  },
-  {
-    "version": "0.5.dev41+unknown",
-    "title": "0.5.dev41+unknown",
-    "aliases": []
-  },
-  {
     "version": "0.5.dev40",
     "title": "0.5.dev40",
     "aliases": [
