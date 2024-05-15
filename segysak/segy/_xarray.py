@@ -271,7 +271,7 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         head_df: Union[pd.DataFrame, None] = None,
         extra_byte_fields: Union[Dict[str, int], None] = None,
         segyio_kwargs: Union[dict, None] = None,
-    ):
+    ) -> xr.Dataset:
         """Open a SEGY file with a native Xarray front end.
 
         Args:
@@ -288,6 +288,28 @@ class SgyBackendEntrypoint(BackendEntrypoint):
 
         Returns
             Lazy segy file Dataset
+
+        !!! Example
+            This backend is registered within Xarray and is accessed automatically when using the
+            `xr.open_dataset` method for files with extensions of `.segy` and `.sgy`.
+
+            Ensure the  byte locations are correct for your data.
+
+            ```python
+            # 3D data
+            ds3d = xr.open_dataset(
+                segyfile_path,
+                dim_byte_fields={'iline':189, 'xline':193},
+                extra_byte_fields={'cdp_x':181, 'cdp_y':185},
+            )
+
+            # 2D data
+            ds2d = xr.open_dataset(
+                segyfile_path,
+                dim_byte_fields={'cdp':22},
+                extra_byte_fields={'cdp_x':181, 'cdp_y':185},
+            )
+            ```
         """
         self.filename_or_obj = str(filename_or_obj)
         self.dim_byte_fields = dim_byte_fields

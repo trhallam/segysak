@@ -1,5 +1,4 @@
 from ._version import version as __version__
-from ._accessor import SeisIO, SeisGeom, open_seisnc, coordinate_df
 
 from ._seismic_dataset import (
     create_seismic_dataset,
@@ -7,4 +6,12 @@ from ._seismic_dataset import (
     create2d_dataset,
 )
 
-from ._keyfield import CoordKeyField, VerticalKeyDim, DimKeyField
+from ._keyfield import (
+    HorDimKeyField,
+    VerDimKeyField,
+    DimKeyField,
+    CoordKeyField,
+    VariableKeyField,
+    AttrKeyField,
+    VerticalKeyDim,
+)

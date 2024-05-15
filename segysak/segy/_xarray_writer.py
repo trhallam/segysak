@@ -60,6 +60,17 @@ def header_iterator(ds: xr.Dataset, iter_dim: str):
 
 
 class SegyWriter:
+    """Handles the writing of SEG-Y files from compatible Datasets. Usually this
+    class would not be used and SEGY-SAK users can write SEG-Y file via the `seisio` accessor.
+
+    !!! example
+        Writing data with the `seisio` accessor.
+
+        ```python
+        ds.seisio.to_segy()
+        ```
+
+    """
 
     def __init__(
         self,
@@ -179,7 +190,7 @@ class SegyWriter:
         """Write the text header for the file. The line length limit is 80 characters.
 
         Args:
-            text: The text to write, new lines have newline character `\n`. Long lines will be
+            text: The text to write, new lines have newline character `\\n`. Long lines will be
                 truncated.
             line_numbers: Add line numbers to the output text header.
         """

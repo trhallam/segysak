@@ -70,16 +70,18 @@ def orthogonal_point_affine_transform(
     x: Tuple, y: np.array, estimate_error: bool = False
 ) -> Tuple[Affine2D, Tuple[float, float]]:
     """Calculate an affine transform using orthogonal points. This assumes an orthogonal survey. If you have a
-    skewed goemetry, use `least_squares_affine_transform`.
+    skewed goemetry, use [`lsq_affine_transform`][segysak.geometry.lsq_affine_transform].
 
-        ^ (2, 2)
-        |
-        |
-        |
-        |
-        |_
-        |_|____________>
-       (0, 0)         (1, 1)
+    ```
+    ^ (2, 2)
+    |
+    |
+    |
+    |
+    |_
+    |_|____________>
+    (0, 0)         (1, 1)
+    ```
 
     Args:
         x: The input coordinates as pairs [3, 2]. E.g. [[iline, xline], ...]

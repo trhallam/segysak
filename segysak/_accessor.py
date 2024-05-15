@@ -1,9 +1,6 @@
 # pylint: disable=invalid-name,no-member
-"""Xarray data accessor methods and functions to help with seismic analysis and
-data manipulation.
 
-"""
-from typing import Union, Dict, Tuple, Any, Type, List
+from typing import Union, Dict, Tuple, Any, Type, List, TypeAlias
 from warnings import warn
 import os
 from collections.abc import Iterable
@@ -38,6 +35,8 @@ from .geometry import (
 )
 from . import tools
 
+JSON: TypeAlias = Union[Dict[str, "JSON"], List["JSON"], str, int, float, bool, None]
+
 
 @xr.register_dataset_accessor("seisio")
 class SeisIO:
@@ -48,15 +47,46 @@ class SeisIO:
         self,
         segy_file: Union[str, os.PathLike],
         use_text: bool = True,
-        write_dead_traces: bool = False,
         coord_scalar: Union[float, None] = None,
-        silent: bool = False,
         data_var: str = "data",
         vert_dimension: str = "samples",
+        write_dead_traces: bool = False,
         dead_trace_var: Union[str, None] = None,
         trace_header_map: Dict[str, int] = None,
-        **dim_kwargs,
+        **dim_kwargs: int,
     ):
+        """Output Xarray Dataset to SEG-Y format.
+
+        Args:
+            segy_file: The output file to write to.
+            use_text: Write the `text` attribute from the dataset to the text header.
+            coord_scalar: A SEG-Y compatible coordinate scalar.
+            data_var: The variable name of the trace data in the Dataset.
+            vert_dimension: The vertical (samples) dimension of the data_var.
+            write_dead_traces: Write dead traces as zeros to the SEG-Y file.
+            dead_trace_var: A dataset variable containing boolean values that identifies dead traces on the non-vertical
+                dimension.
+            trace_header_map: Defaults to None. A dictionary of Dataset variables
+                and byte locations. The variable will be written to the trace headers in the
+                assigned byte location. By default CMP=23, cdp_x=181, cdp_y=185, iline=189,
+                xline=193.
+            dim_kwargs: The dimension/byte location pairs to output dimensions to. The number of dim_kwargs should be
+                equal to the number of dimensions on the output data_array. The trace sort order will be as per the order passed
+                to the function.
+
+        !!! example
+
+            ```python
+            ds3d.seisio.to_segy(
+                "output_file.segy",
+                use_text = True,
+                vert_dimension = "samples",
+                trace_header_map = {'cdp_x':181, 'cdp_y':185}
+                iline = 189,
+                xline = 193,
+            )
+            ```
+        """
         from .segy._xarray_writer import SegyWriter
 
         with SegyWriter(
@@ -64,7 +94,6 @@ class SeisIO:
             use_text=use_text,
             write_dead_traces=write_dead_traces,
             coord_scalar=coord_scalar,
-            silent=silent,
         ) as writer:
             writer.to_segy(
                 self._obj,
@@ -218,7 +247,7 @@ def coordinate_df(
 class TemplateAccessor:
 
     @property
-    def humanbytes(self):
+    def humanbytes(self) -> str:
         """Prints Human Friendly size of Dataset to return the bytes as an
         int use ``xarray.Dataset.nbytes``
 
@@ -235,9 +264,12 @@ class TemplateAccessor:
         f = f"{nbytes:.2f}".rstrip("0").rstrip(".")
         return "{} {}".format(f, suffixes[i])
 
-    def store_attributes(self, **kwargs: Dict[str, Any]):
+    def store_attributes(self, **kwargs: Dict[str, JSON]) -> None:
         """Store attributes in for seisnc. NetCDF attributes are a little limited, so we expand the capabilities by
         serializing and deserializing from JSON text.
+
+        Args:
+            kwargs: name and JSON compatible values to store in ``ds.segysak.attrs``
         """
         if attrs := self.attrs:
             attrs.update(kwargs)
@@ -247,26 +279,44 @@ class TemplateAccessor:
 
         self._obj.attrs["seisnc"] = seisnc_attrs_json
 
-    def __getitem__(self, key):
-        """Return an attribute key"""
+    def __getitem__(self, key: str) -> Any:
+        """Return an attribute key from ds.segysak.attrs"""
         try:
             return self.attrs[key]
         except KeyError:
             raise KeyError(f"{key} is not a key of the seisnc attributes.")
 
     def get(self, key, default=None):
+        """Returns the value of key else default from ds.segysak.attrs similar to `dict.get`"""
         try:
             return self[key]
         except KeyError:
             return default
 
-    def __setitem__(self, key, value):
-        """Set an attribute i"""
+    def __setitem__(self, key: str, value: JSON):
+        """Set an attribute key to value in ds.segysak.attrs
+
+        !!! note
+            The value must be a JSON compatible object such as an int, string or list.
+        """
         self.store_attributes(**{key: value})
 
     @property
     def attrs(self) -> Dict[str, Any]:
-        """Return the seisnc attributes for this Xarray object"""
+        """Return the seisnc attributes for this Xarray object
+
+        !!! note
+            The `ds.segysak.attrs` object is stored as a JSON string in ds.attrs['seisnc'].
+            Doing this allows for normal methods to export the seisnc values. Accessing the
+            `ds.segysak.attrs` automatically deserialises the string into a Python dict.
+
+        !!! example
+
+            ```python
+            >>> ds.segysak.attrs
+            {'coord_scalar':-100}
+            ```
+        """
         seisnc_attrs_json = self._obj.attrs.get("seisnc")
         if seisnc_attrs_json is None:
             return {}
@@ -300,7 +350,7 @@ class TemplateAccessor:
         self.store_attributes(**attrs)
 
     def get_dimensions(self):
-        """Returns attrs['dimensions'] if available. Else use infer_dimensions."""
+        """Returns ``ds.segysak.attrs['dimensions']`` if available. Else use `ds.segysak.infer_dimensions()`."""
         dims = self.attrs.get(AttrKeyField.dimensions)
         if not dims:
             dims = self.infer_dimensions()
@@ -329,7 +379,11 @@ class SegysakDataArrayAccessor(TemplateAccessor):
         self._obj = xarray_obj
 
     def set_vertical_domain(self, vert_domain: _VerticalKeyField):
-        """Set the vertical domain of the DataArray, usually twt or depth."""
+        """Set the vertical domain of the DataArray, usually twt or depth.
+
+        Args:
+            vert_domain: The vertical domain key to use (i.e. twt or depth)
+        """
         self.store_attributes({AttrKeyField.vert_domain: vert_domain})
 
 
@@ -341,6 +395,9 @@ class SegysakDatasetAccessor(TemplateAccessor):
     def set_coords(self, seisnc_coords: Dict[Union[_CoordKeyField, str], str]):
         """Set the seisnc coordinate mapping. This maps coordinate variable names
         to known seisnc coordinates.
+
+        Args:
+            seisnc_coords: A mapping of coordinates to known seisnc standard Keyfields.
         """
         attrs = {}
         for key, value in seisnc_coords.items():
@@ -564,7 +621,6 @@ class SegysakDatasetAccessor(TemplateAccessor):
         ax.set_ylabel("cdp y")
 
         return ax
-
 
     def interp_line(
         self,

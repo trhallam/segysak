@@ -131,11 +131,12 @@ nav:
       - FAQ: meta/faq.md
   - Reference:
       - About: api.md
-      - SEISNC standards: seisnc-standard.md
+      - SEISNC conventions: seisnc-standard.md
       - Inspecting SEG-Y: api/segy_inspecting.md
-      - SEG-Y via Xarray: api/segy_xarray.md
-      - Loading SEG-Y: api/segy_loading.md
-      - Writing SEG-Y: api/segy_writing.md
       - SEG-Y text header operations: api/segy_text.md
-      - Xarray Accessor modules: api/xarray_accessor.md
-      - New Xarray datasets: api/xarray_new.md
+      - SEG-Y via Xarray: api/segy_xarray.md
+      - Xarray Accessor modules: api/xarray_new.md
+      - Survey Geometry: api/geometry.md
+      - Depreciated Loading SEG-Y: api/segy_loading.md
+      - Depreciated Writing SEG-Y: api/segy_writing.md
+      - Depreciated Xarray Accessor modules: api/xarray_accessor.md

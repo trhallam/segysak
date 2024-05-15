@@ -15,13 +15,23 @@ from ..progress import Progress
 
 
 class TraceHeaders:
+    """A convenience class for accessing and iterating over a SEG-Y files trace
+    headers. This class should be used with a context manager.
+
+    Examples:
+
+        >>> with TraceHeaders(segy_file, bytes_filter=bytes_filter, **segyio_kwargs) as headers:
+                ntraces = headers.ntraces
+                df = headers.to_dataframe(selection=slice(0, 100)))
+
+    """
 
     def __init__(
         self,
         segy_file: Union[str, os.PathLike],
         bytes_filter: Union[List[int], None] = None,
         tracefield_filter: Union[List[str], None] = None,
-        **segyio_kwargs,
+        **segyio_kwargs: Any,
     ):
 
         check_tracefield(bytes_filter)
@@ -119,17 +129,18 @@ class TraceHeaders:
 
 
 def segy_header_scan(
-    segyfile: str, max_traces_scan: int = 1000, silent: bool = False, **segyio_kwargs
+    segy_file: Union[str, os.PathLike],
+    max_traces_scan: int = 1000,
+    **segyio_kwargs: Any,
 ) -> pd.DataFrame:
     """Perform a scan of the segy file headers and return ranges.
 
     To get the complete raw header values see `segy_header_scrape`
 
     Args:
-        segyfile: Segy File Path
-        max_traces_scan: Number of traces to scan.
-            For scan all traces set to <= 0. Defaults to 1000.
-        silent: Disable progress bar.
+        segy_file: SEG-Y file path
+        max_traces_scan: Number of traces to scan. For scan all traces set to <= 0. Defaults to 1000.
+        segyio_kwargs: Arguments passed to segyio.open
 
     Returns:
         Uses pandas describe to return statistics of your headers.
@@ -140,9 +151,7 @@ def segy_header_scan(
         if not isinstance(max_traces_scan, int):
             raise ValueError("max_traces_scan must be int")
 
-    head_df = segy_header_scrape(
-        segyfile, max_traces_scan, silent=silent, **segyio_kwargs
-    )
+    head_df = segy_header_scrape(segy_file, max_traces_scan, **segyio_kwargs)
 
     header_keys = head_df.describe().T
     pre_cols = list(header_keys.columns)
@@ -152,38 +161,38 @@ def segy_header_scan(
     return header_keys
 
 
-def segy_bin_scrape(segyfile: str, **segyio_kwargs) -> Dict:
+def segy_bin_scrape(segy_file: Union[str, os.PathLike], **segyio_kwargs: Any) -> Dict:
     """Scrape binary header
 
     Args:
-        segyfile: SEG-Y File path
+        segy_file: SEG-Y file path
+        segyio_kwargs: Arguments passed to segyio.open
 
     Returns:
-        Binary header
+        Binary header key value pairs
     """
     bk = _active_binfield_segyio()
     segyio_kwargs["ignore_geometry"] = True
-    with segyio.open(segyfile, "r", **segyio_kwargs) as segyf:
+    with segyio.open(segy_file, "r", **segyio_kwargs) as segyf:
         return {key: segyf.bin[item] for key, item in bk.items()}
 
 
 def segy_header_scrape(
     segy_file: Union[str, os.PathLike],
     partial_scan: Union[int, None] = None,
-    silent: bool = False,
     bytes_filter: Union[List[int], None] = None,
     chunk: int = 100_000,
-    **segyio_kwargs,
+    **segyio_kwargs: Any,
 ) -> pd.DataFrame:
     """Scape all data from segy trace headers
 
     Args:
-        segyfile: SEG-Y File path
+        segy_file: SEG-Y File path
         partial_scan: Setting partial scan to a positive int will scan only
             that many traces. Defaults to None.
-        silent: Disable progress bar.
         bytes_filter: List of byte locations to load exclusively.
         chunk: Number of traces to read in one go.
+        segyio_kwargs: Arguments passed to segyio.open
 
     Returns:
         pandas.DataFrame: Raw header information in table for scanned traces.
@@ -207,12 +216,15 @@ def segy_header_scrape(
 
 
 def header_as_dimensions(head_df: pd.DataFrame, dims: tuple) -> Dict[str, np.array]:
-    """Convert dim_kwargs to a diction of dimensions. Also useful for checking
+    """Convert dim_kwargs to a dictionary of dimensions. Also useful for checking
     geometry is correct and unique for each trace in a segy file header.
 
     Args:
         head_df: The header DataFrame from `segy_header_scrape`.
-        dims: Dimension names (str) as per head_df.
+        dims: Dimension names as per head_df column names.
+
+    Returns:
+        dims: Dimension name and label pairs.
     """
     unique_dims = dict()
     for dim in dims:

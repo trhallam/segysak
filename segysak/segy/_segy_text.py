@@ -11,14 +11,14 @@ from segysak._richstr import _upgrade_txt_richstr
 from segysak.tools import _get_userid, _get_datetime
 
 
-def _text_fixes(text):
+def _text_fixes(text: str) -> str:
     # hacky fixes for software
     text = text.replace("�Cro", "    ")
     text = text.replace("\x00", " ")
     return text
 
 
-def _isascii(txt):
+def _isascii(txt: str) -> str:
     # really want to use b"".isascii() but this is Python 3.7+
     try:
         txt.decode("ascii")
@@ -33,8 +33,8 @@ def get_segy_texthead(
     ext_headers: bool = False,
     no_richstr: bool = False,
     **segyio_kwargs: Dict[str, Any],
-):
-    """Return the ebcidc header as a Python string. New lines are separated by the `\n` char.
+) -> str:
+    """Return the ebcidc header as a Python string. New lines are separated by the `\\n` char.
 
     Args:
         segy_file: Segy File Path
@@ -155,10 +155,10 @@ def put_segy_texthead(
     Args:
         segy_file: The path to the file to update.
         ebcidc:
-           A standard string, new lines will be preserved.
-           A list or lines to add.
-           A dict with numeric keys for line numbers e.g. {1: 'line 1'}.
-           A pre-encoded byte header to add to the SEG-Y file directly.
+            A standard string, new lines will be preserved.
+            A list or lines to add.
+            A dict with numeric keys for line numbers e.g. {1: 'line 1'}.
+            A pre-encoded byte header to add to the SEG-Y file directly.
         line_counter: Add a line counter with format "CXX " to the start of each line.
             This reduces the maximum content per line to 76 chars.
     """
@@ -234,13 +234,18 @@ def create_default_texthead(
     be passed to override keyword for adjustment. By default lines 6-34 are
     empty.
 
+    Line length rules apply, so overrides will be truncated if they have >80 chars.
+
     Args:
-        override: Overide any line with custom values. Defaults to None.
+        override: Override any line with custom values. Defaults to None.
 
     Returns:
         text_header: Dictionary with keys 1-40 for textual header of SEG-Y file
 
-    Example:
+    !!! example
+        Override lines 7 and 8 of the default text header.
+
+        ```python
         >>> create_default_texthead(override={7:'Hello', 8:'World!'})
         {1: 'segysak SEG-Y Output',
         2: 'Data created by: username ',
@@ -259,6 +264,8 @@ def create_default_texthead(
         38: '',
         39: '',
         40: 'END TEXTUAL HEADER'}
+        ```
+
     """
     user = _get_userid()
     today, time = _get_datetime()

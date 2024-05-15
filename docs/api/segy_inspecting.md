@@ -7,5 +7,6 @@
         - segy_header_scan
         - get_segy_texthead
         - header_as_dimensions
+        - TraceHeaders
       heading_level: 3
       show_root_toc_entry: false
