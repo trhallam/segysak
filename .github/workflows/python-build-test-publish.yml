@@ -57,7 +57,7 @@ jobs:
       - name: Upload wheel as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.os }} Python ${{ matrix.python }} wheel
+          name: ${{ matrix.os }} Python ${{ matrix.python-version }} wheel
           path: dist/*
 
   publish:
