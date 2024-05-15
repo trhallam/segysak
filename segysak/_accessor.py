@@ -1,6 +1,6 @@
 # pylint: disable=invalid-name,no-member
 
-from typing import Union, Dict, Tuple, Any, Type, List, TypeAlias
+from typing import Union, Dict, Tuple, Any, Type, List  # , TypeAlias
 from warnings import warn
 import os
 from collections.abc import Iterable
@@ -34,6 +34,9 @@ from .geometry import (
     get_uniform_spacing,
 )
 from . import tools
+
+# TODO(trhallam): use typing.TypeAlias directly when Python 3.9 is deprecated
+from typing_extensions import TypeAlias
 
 JSON: TypeAlias = Union[Dict[str, "JSON"], List["JSON"], str, int, float, bool, None]
 

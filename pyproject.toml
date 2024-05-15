@@ -20,6 +20,7 @@ dependencies = [
     "h5netcdf",
     "addict",
     "more-itertools>=8.0",
+    "typing-extensions",
 ]
 requires-python = ">=3.9"
 license = {file = "LICENSE"}
