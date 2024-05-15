@@ -3,7 +3,8 @@
     "version": "0.5.dev82",
     "title": "0.5.dev82",
     "aliases": [
-      "dev"
+      "dev",
+      "latest"
     ]
   }
 ]
