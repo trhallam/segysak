@@ -9,22 +9,19 @@ TEST_DATA_SEGYIO = TESTS_PATH / "test-data-segyio"
 TEST_DATA_SEGYSAK = TESTS_PATH / "test-data-segysak"
 
 
-def split_segyio_kwargs(segyio_kwargs):
-    valid_dims = ("iline", "xline", "offset", "cdp")
-    valid_kwargs = ("endian",)
-    dims = dict()
-    other = dict()
-    for kwarg, value in segyio_kwargs.items():
-        if kwarg in valid_dims:
-            dims[kwarg] = value
-        elif kwarg in valid_kwargs:
-            other[kwarg] = value
-    return dims, other
-
-
 def test_SegyBackendEntrypoint_3d(segyio3d_test_files):
-    path, segyio_kwargs = segyio3d_test_files
-    dims, segyio_kwargs = split_segyio_kwargs(segyio_kwargs)
+    path, dims, extra, segyio_kwargs = segyio3d_test_files
+    ds = xr.open_dataset(path, dim_byte_fields=dims, segyio_kwargs=segyio_kwargs)
+    assert isinstance(ds, xr.Dataset)
+    for dim in dims:
+        assert dim in ds.sizes
+
+    data = ds.data.compute()
+    pass
+
+
+def test_SegyBackendEntrypoint_2d(volve_segy2d):
+    path, dims, extra, segyio_kwargs = volve_segy2d
     ds = xr.open_dataset(path, dim_byte_fields=dims, segyio_kwargs=segyio_kwargs)
     assert isinstance(ds, xr.Dataset)
     for dim in dims:
@@ -35,8 +32,7 @@ def test_SegyBackendEntrypoint_3d(segyio3d_test_files):
 
 
 def test_SegyBackendEntrypoint_3dps(segyio3dps_test_files):
-    path, segyio_kwargs = segyio3dps_test_files
-    dims, segyio_kwargs = split_segyio_kwargs(segyio_kwargs)
+    path, dims, extra, segyio_kwargs = segyio3dps_test_files
     ds = xr.open_dataset(path, dim_byte_fields=dims, segyio_kwargs=segyio_kwargs)
     assert isinstance(ds, xr.Dataset)
     for dim in dims:
@@ -44,8 +40,7 @@ def test_SegyBackendEntrypoint_3dps(segyio3dps_test_files):
 
 
 def test_SegyBackendEntrypoint_3dps_subsel(segyio3dps_test_files):
-    path, segyio_kwargs = segyio3dps_test_files
-    dims, segyio_kwargs = split_segyio_kwargs(segyio_kwargs)
+    path, dims, extra, segyio_kwargs = segyio3dps_test_files
     ds = xr.open_dataset(path, dim_byte_fields=dims, segyio_kwargs=segyio_kwargs)
     assert isinstance(ds, xr.Dataset)
     for dim in dims:

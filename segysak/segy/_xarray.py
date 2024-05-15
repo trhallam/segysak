@@ -136,13 +136,25 @@ class SgyBackendArray(BackendArray):
         for dim in self.dnames[:-1]:
             ds[dim] = Variable(("tracen",), tracen_slice_df[dim].values)
         ds["sgy"] = Variable(("tracen", VerticalKeyDim.samples), volume)
-        ds = ds.set_index(tracen=list(self.dnames[:-1]))
-        data = (
-            ds["sgy"]
-            .unstack("tracen")
-            .transpose(*self.dnames)
-            .values.squeeze(axis=squeeze_me)
-        )
+
+        unstack_dims = list(self.dnames[:-1])
+        if len(unstack_dims) <= 1:
+            # this is usually 2d data
+            data = (
+                ds["sgy"]
+                .swap_dims({"tracen": unstack_dims[0]})
+                .drop("tracen")
+                .transpose(*self.dnames)
+                .values
+            )
+        else:
+            ds = ds.set_index(tracen=unstack_dims)
+            data = (
+                ds["sgy"]
+                .unstack("tracen")
+                .transpose(*self.dnames)
+                .values.squeeze(axis=squeeze_me)
+            )
         return data
 
 
