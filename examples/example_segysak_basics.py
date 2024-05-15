@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.16.2
+#       jupytext_version: 1.14.4
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -16,11 +16,12 @@
 # %% [markdown]
 # # SEGY-SAK Basics
 #
-# **segysak** offers a number of utilities to create and load seismic data using `xarray` and `segyio`. In general **segysak** uses `xarray.Dataset` to store the data and provides an interface to additional seismic specific functionality by adding the `.seis` and `.seisio` names-spaces to an `xarray.Dataset` (just `dataset` from now on). That sounds complicated but let us walk through some examples together.
+# **SEGY-SAK** offers a number of utilities to create and load seismic data using `xarray` and `segyio`. In general **SEGY-SAK** uses `xarray.Dataset` to store the data and provides an interface to additional seismic specific functionality by adding the `.segysak` and `.seisio` names-spaces to an `xarray.Dataset` (just `dataset` from now on). That sounds complicated but let us walk through some examples together.
 
 # %% editable=true slideshow={"slide_type": ""} tags=["hide-code"]
 # Disable progress bars for small examples
 from segysak.progress import Progress
+
 Progress.set_defaults(disable=True)
 
 # %% [markdown]
@@ -85,7 +86,7 @@ xarray_selection
 # %% [markdown]
 # ## Coordinates Selection
 #
-# Usually for seismic the X and Y coordinates labelled `cdp_x` and `cdp_y` in seisnc are rotated and scaled relative to the grid geometry and now seisnc dimensions `iline`, `xline` and `twt`. For `xarray` this means you cannot use the `.sel` and `.isel` methods to select data for `cdp_x` and `cdp_y`. **segysak** is developing more natural interfaces to access data using X and Y coordinates and this is available through the `seisnc.seis` namespace, covered in other examples.
+# Usually for seismic the X and Y coordinates labelled `cdp_x` and `cdp_y` in seisnc are rotated and scaled relative to the grid geometry and now seisnc dimensions `iline`, `xline` and `twt`. For `xarray` this means you cannot use the `.sel` and `.isel` methods to select data for `cdp_x` and `cdp_y`. **SEGY-SAK** supplies more natural interfaces to access data using X and Y coordinates and this is available through the `.segysak.xysel` method, covered in other examples.
 
 # %% [markdown]
 # ## Adding data to an empty seisnc
