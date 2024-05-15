@@ -20,92 +20,61 @@ to [NetCDF4][] files for better on disk
 and large file performance using [Dask][].
 Tools to help users create new volumes and to return data to SEG-Y are also included.
 
-## Feature
+## Features
 
-**Loading Assistance**
+Here are some of the features of SEGY-SAK
 
-   * Loading of nDimensional SEG-Y data
-   * Header editing
-   * Loading of seismic data with missing traces
+<div class="grid cards" markdown>
 
-**Cube geometry functions**
+-   :material-file-swap-outline:{ .lg .middle } __Loading and Writing SEG-Y data__
 
-  - Generate cube affine transform
-  - Fill cdp_x and cdp_y
+    ---
 
-**Arbitrary slicing and extration**
+    Conveniently load or write all types of SEG-Y data into or from an easy to use Xarray Dataset.
 
-  - Label based slicing
-  - Arbitrary line slicing
-  - Horizon extraction and sculpting
-  - Well path extraction
+      - Any number of dimensions.
+      - Data with with missing traces.
 
-**Integrates with the existing Python scientific stack**
+    [:octicons-arrow-right-24: Example](./examples/QuickOverview.ipynb)
 
-  - Leverage [Xarray][] for easy coordinate management merging and plotting
-  - Inherited compatibility with core Python libraries (
-    [NumPy][], [Scipy][] and [Pandas][]).
-  - Works well with [matplotlib][] and [Pyvista][]
+-   :material-head-check-outline:{ .lg .middle } __Interact with SEG-Y headers and text__
 
- - Experimental baked in ZGY support via [PyZgy][] and Open-ZGY
+    ---
 
-**Scalability**
+     - Scan or extract the trace headers.
+     - Extract the file text header.
 
-  - Lazy loading of SEGY data (do not load the full volume into memory) for large files.
-  - NetCDF4 files work with Dask to scale your Python code to multi-core and
-    distributed memory computing
+    [:octicons-arrow-right-24: Example](./examples/example_segy_headers.ipynb)
+
+-   :material-selection-multiple:{ .lg .middle } __Select and Extract__
+
+     - Label based slicing (iline, xline, sample)
+     - Arbitrary line slicing
+     - Horizon amplitude extraction and sculpting
+     - Well path extraction
+
+    [:octicons-arrow-right-24: Slicing, arbitrary lines](./examples/example_extract_arbitrary_line.ipynb)
+
+    [:octicons-arrow-right-24: Horizon extraction and sculpting](./examples/example_amplitude_extraction_displays.ipynb)
 
 
-## Documentation
+-   :material-ruler-square-compass:{ .lg .middle } __Seismic Geometry Tools__
 
-**Getting Started**
+    ---
 
- * Why Segysak?why-segysak`
-* :doc:`installation`
-* :doc:`tutorial`
+     - Generate cube affine transform
+     - Fill missing trace X and Y coords.
 
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Getting Started
+-   :material-table-large-plus:{ .lg .middle } __Scale with the Python stack__
 
-   why-segysak
-   installation
-   examples/QuickOverview
-   tutorial
+    ---
 
-**User Guide**
+     - Dask integration
+     - Lazy loading of SEG-Y by default.
 
-* :doc:`seisnc-standard`
-* :doc:`examples`
-* :doc:`command-line-tool`
-* :doc:`faq`
+    [:octicons-arrow-right-24: Dask example](./examples/example_segysak_dask.ipynb)
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Contents
-   :hidden:
-
-   seisnc-standard
-   examples
-   command-line-tool
-   faq
-
-**Help & Reference**
-
-* :doc:`_temp/contributing`
-* :doc:`api`
-
-.. * :doc:`related-projects`
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Help & reference
-   :hidden:
-
-   _temp/contributing
-   api
-
+</div>
 
 ## See also
 
@@ -115,8 +84,6 @@ and [Xarray][].
 Many of the examples in this documentation use a subset of the the full Volve
 dataset which was published by Equinor and you can [read](https://www.equinor.com/en/news/14jun2018-disclosing-volve-data.html)
 about it or get a copy of it [here](https://data.equinor.com/authenticate).
-
-
 
 ## License
 

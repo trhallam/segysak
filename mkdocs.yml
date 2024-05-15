@@ -37,6 +37,7 @@ watch:
   - examples
 
 markdown_extensions:
+  - markdown.extensions.attr_list:
   - markdown.extensions.admonition:
   - markdown.extensions.footnotes:
   - markdown.extensions.md_in_html:
