@@ -2,10 +2,8 @@
 """
 
 import os
-import logging
 import pathlib
 import click
-from tqdm import tqdm
 
 try:
     from ._version import version as VERSION
@@ -28,10 +26,10 @@ from segysak.segy import (
     get_segy_texthead,
 )
 from segysak.tools import fix_bad_chars
+from segysak.progress import Progress
 
 # configuration setup
 NAME = "segysak"
-LOGGER = logging.getLogger(NAME)
 
 
 def check_file(input_files):
@@ -41,7 +39,7 @@ def check_file(input_files):
     """
 
     if input_files is None:
-        LOGGER.error("Require input file/s")
+        click.secho("Require input file/s", fg="red", color=True)
         raise SystemExit
 
     checked_files = list()
@@ -60,7 +58,7 @@ def check_file(input_files):
         if ifile.exists():
             checked_files.append(ifile)
         else:
-            LOGGER.error("Cannot find input {segyfile}")
+            click.secho("Cannot find input {segyfile}", fg="red", color=True)
             raise SystemExit
 
     return checked_files
@@ -70,7 +68,9 @@ def _action_ebcidc_out(arg, input_file):
     try:
         ebcidc = get_segy_texthead(input_file)
     except IOError:
-        LOGGER.error("Input SEG-Y file was not found - check name and path")
+        click.secho(
+            "Input SEG-Y file was not found - check name and path", fg="red", color=True
+        )
         raise SystemExit
 
     if arg is None:
@@ -111,10 +111,10 @@ def cli(version):
     The SEG-Y Swiss Army Knife (segysak) is a tool for managing segy data.
     It can read and dump ebcidc headers, scan trace headers, convert SEG-Y to SEISNC and vice versa
     """
-    LOGGER.info(f"segysak v{VERSION}")
     if version:
         click.echo(f"{NAME} {VERSION}")
-        raise SystemExit
+    else:
+        click.echo(f"segysak v{VERSION}")
 
 
 @cli.command(help="Print SEG-Y EBCIDC header")
@@ -163,23 +163,25 @@ def scrape(filename, ebcidc=False, trace_headers=False):
     The trace headers can be read back into Python using
     pandas.read_csv(<filename>.csv, index_col=0)
     """
-    for file in tqdm(filename, desc="File"):
-        file = pathlib.Path(file)
-        ebcidc_name = file.with_suffix(".txt")
-        header_name = file.with_suffix(".csv")
+    with Progress(desc="File", total=len(filename)) as pbar:
+        for file in filename:
+            file = pathlib.Path(file)
+            ebcidc_name = file.with_suffix(".txt")
+            header_name = file.with_suffix(".csv")
 
-        if ebcidc == False and trace_headers == False:
-            ebcidc = True
-            trace_headers = True
+            if ebcidc == False and trace_headers == False:
+                ebcidc = True
+                trace_headers = True
 
-        if ebcidc:
-            txt = get_segy_texthead(file)
-            with open(ebcidc_name, "w") as txtfile:
-                txtfile.writelines(txt)
+            if ebcidc:
+                txt = get_segy_texthead(file)
+                with open(ebcidc_name, "w") as txtfile:
+                    txtfile.writelines(txt)
 
-        if trace_headers:
-            head_df = segy_header_scrape(file)
-            head_df.to_csv(header_name)
+            if trace_headers:
+                head_df = segy_header_scrape(file)
+                head_df.to_csv(header_name)
+            pbar.update(1)
 
     return 0
 
@@ -214,7 +216,7 @@ def scrape(filename, ebcidc=False, trace_headers=False):
     "--output-type",
     type=click.Choice(["SEG-Y", "NETCDF"], case_sensitive=False),
     default=None,
-    help="Explicitly state the desired output file type by chosing one of the options",
+    help="Explicitly state the desired output file type by choosing one of the options",
 )
 @click.option(
     "--dimension",
@@ -273,7 +275,7 @@ def convert(
                 cdp_y=cdp_y,
             )
             click.echo(f"Converted file saved as {output_file_loc}")
-            LOGGER.info(f"NetCDF output written to {output_file_loc}")
+            click.echo(f"NetCDF output written to {output_file_loc}")
         elif output_type == "SEG-Y":
             if output_file is None:
                 output_file_loc = input_file.stem + ".segy"
@@ -296,7 +298,7 @@ def convert(
                 dimension=dimension,
             )
             click.echo(f"Converted file saved as {output_file_loc}")
-            LOGGER.info(f"SEG-Y output written to {output_file_loc}")
+            click.echo(f"SEG-Y output written to {output_file_loc}")
         else:
             click.echo(
                 f"Conversion to output-type {output_type} is not implemented yet"
