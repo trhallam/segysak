@@ -286,7 +286,7 @@ class SgyBackendEntrypoint(BackendEntrypoint):
                 load into the Dataset. Defaults to None.
             segyio_kwargs: Extra keyword arguments for segyio.open
 
-        Returns
+        Returns:
             Lazy segy file Dataset
 
         !!! Example
