@@ -348,4 +348,4 @@ class SgyBackendEntrypoint(BackendEntrypoint):
         return ext in {".sgy", ".segy"}
 
     description = "Open SEGY files (.sgy, .segy) using segysak in Xarray"
-    url = ""
+    url = "https://trhallam.github.io/segysak/latest/api/segy_xarray.html#opening-seg-y-data"
