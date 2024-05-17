@@ -69,6 +69,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "nbsphinx",
     "sphinx_copybutton",
+    "versionwarning.extension",
 ]
 
 autosummary_generate = True
@@ -187,4 +188,9 @@ intersphinx_mapping = {
     "https://docs.scipy.org/doc/scipy/reference/": None,
     "http://xarray.pydata.org/en/stable/": None,
     "https://pandas.pydata.org/docs/": None,
+}
+
+versionwarning_default_message = "from v0.5, the documentation for SEGY-SAK has migrated to `Gh-pages https://trhallam.github.io/segysak/latest/`_ ."
+versionwarning_messages = {
+    "latest": "from v0.5, the documentation for SEGY-SAK has migrated to `Gh-pages https://trhallam.github.io/segysak/latest/`_ .",
 }
