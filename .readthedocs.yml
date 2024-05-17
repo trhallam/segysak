@@ -9,6 +9,11 @@ version: 2
 sphinx:
   configuration: docs/conf.py
 
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.10"
+
 # Build documentation with MkDocs
 #mkdocs:
 #  configuration: mkdocs.yml
@@ -26,7 +31,6 @@ sphinx:
 python:
   version: 3.8
   install:
-    - requirements: docs/requirements.txt
     - method: pip
       path: .
       extra_requirements:
