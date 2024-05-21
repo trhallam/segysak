@@ -121,10 +121,10 @@ class TraceHeaders:
         head_df.iloc[:, :] = np.vstack([list(h.values()) for h in self[selection]])
 
         # fix bad values
-        head_df = head_df.replace(to_replace=-2147483648, value=np.nan)
+        # head_df = head_df.replace(to_replace=-2147483648, value=np.nan)
         # convert numeric
         for col in head_df:
-            head_df[col] = pd.to_numeric(head_df[col], downcast="unsigned")
+            head_df[col] = pd.to_numeric(head_df[col], downcast="integer")
 
         return head_df
 
