@@ -4,9 +4,7 @@
 
 |build-status| |python-version| |code-style| |license| |docs|
 
-.. image:: https://img.shields.io/badge/swung-slack-blueviolet?link=https://softwareunderground.org/&link=swung.slack.com/
-
-Access the full documentation for SEGY-SAK from `readthedocs <https://segysak.readthedocs.io/en/latest/>`__
+Access the full documentation for SEGY-SAK from `Gh-pages <https://segysak.readthedocs.io/en/latest/>`__
 
 .. image:: https://github.com/trhallam/segysak/raw/main/docs/_static/logo_small.png
   :alt: LOGO
@@ -110,13 +108,13 @@ Complete Documentation
 ----------------------
 
 The complete documentation for *SEGY-SAK* can be found at
-`readthedocs <https://trhallam.github.io/segysak/>`__
+`Gh-Pages <https://trhallam.github.io/segysak/>`__
 
 .. |latest-version| image:: https://img.shields.io/pypi/v/segysak?color=2d5016&label=pypi_version&logo=Python&logoColor=white
    :alt: Latest version on PyPi
    :target: https://pypi.org/project/segysak/
 
-.. |build-status| image:: https://github.com/trhallam/segysak/workflows/python_build_test/badge.svg
+.. |build-status| image:: https://github.com/trhallam/segysak/actions/workflows/python-build-test-publish.yml/badge.svg
    :alt: Build status
    :target: https://github.com/trhallam/segysak/actions
 
