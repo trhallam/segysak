@@ -151,3 +151,12 @@ def test_SegyBackendEntrypoint_extra_byte_fields():
 
     for dim in ("iline", "xline"):
         assert dim in ds["cdp_x"].coords
+
+
+def test_SegyBackendEntrypoint_multi_dataset():
+    iline_files = tuple(TEST_DATA_SEGYSAK.glob("f3-iline*.sgy"))
+    mds = xr.open_mfdataset(
+        iline_files,
+        dim_byte_fields={"iline": 189, "xline": 193},
+        extra_byte_fields={"cdp_x": 181, "cdp_y": 185},
+    )
