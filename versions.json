@@ -3,14 +3,13 @@
     "version": "0.5.dev85",
     "title": "0.5.dev85",
     "aliases": [
+      "latest",
       "dev"
     ]
   },
   {
     "version": "0.5.dev82",
     "title": "0.5.dev82",
-    "aliases": [
-      "latest"
-    ]
+    "aliases": []
   }
 ]
