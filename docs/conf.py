@@ -53,6 +53,11 @@ version = version
 release = release
 today_fmt = "%d %B %Y"
 
+rst_prolog = """.. attention::
+    From version v0.5, SEGY-SAK has migrated the documentation to https://trhallam.github.io/segysak/latest/.
+
+    This documentation will be archived from v0.6.
+"""
 
 # -- General configuration ---------------------------------------------------
 
@@ -69,7 +74,6 @@ extensions = [
     "sphinx.ext.mathjax",
     "nbsphinx",
     "sphinx_copybutton",
-    "versionwarning.extension",
 ]
 
 autosummary_generate = True
@@ -188,9 +192,4 @@ intersphinx_mapping = {
     "https://docs.scipy.org/doc/scipy/reference/": None,
     "http://xarray.pydata.org/en/stable/": None,
     "https://pandas.pydata.org/docs/": None,
-}
-
-versionwarning_default_message = "from v0.5, the documentation for SEGY-SAK has migrated to `Gh-pages https://trhallam.github.io/segysak/latest/`_ ."
-versionwarning_messages = {
-    "latest": "from v0.5, the documentation for SEGY-SAK has migrated to `Gh-pages https://trhallam.github.io/segysak/latest/`_ .",
 }
