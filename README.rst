@@ -4,9 +4,9 @@
 
 |build-status| |python-version| |code-style| |license| |docs|
 
-Access the full documentation for SEGY-SAK from `Gh-pages <https://segysak.readthedocs.io/en/latest/>`__
+Access the full documentation for SEGY-SAK from `Gh-pages <https://trhallam.github.io/segysak/>`__
 
-.. image:: https://github.com/trhallam/segysak/raw/main/docs/_static/logo_small.png
+.. image:: https://github.com/trhallam/segysak/raw/main/docs/figures/logo.png
   :alt: LOGO
 
 *SEGY-SAK* aims to be your Python Swiss Army Knife for Seismic Data.
