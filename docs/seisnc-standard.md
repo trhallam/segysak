@@ -1,15 +1,16 @@
 # SEISNC conventions for `xarray`
 
-The `xarray` seismic specification termed `seisnc` can be used by SEGY-SAK to
-output NETCDF4 files is more performant for Python operations than standard SEG-Y.
-Unlike SEG-Y, `xarray` compatible files fit neatly into the Python scientific
+The SEGY-SAK Xarray seismic specification termed SEISNC can be used by SEGY-SAK to
+create and manage Xarray Datasets with details and attributes common to seismic data.
+Xarray uses NetCDF4 as its standard representation and this fits neatly with regularly 
+sampled seismic data (e.g. 3D data).
+Moreover, unlike SEG-Y, `xarray` compatible formats fit neatly into the Python scientific
 stack providing more performant operations like lazy loading, easy slicing, 
 compatibility with multi-core and multi-node operations using `dask` as well 
 as important features such as labelled axes and coordinates.
 
 This specification is not meant to be prescriptive but outlines some basic
 requirements for `xarray` datasets to work effectively with *SEGY-SAK* functionality.
-
 
 ## 3D data dimensions
 
@@ -119,10 +120,10 @@ The frozen `dataclass` are prefixed by `_` while instantiated dataclasses for ge
 
 ### Frozen base classes
 
-!!! note
+!!! info
 
-   These classes are referenced here to show the standard seisnc variable names.
-   Use the [instantiated classes](#instantiated-classes) if including these keyfields in your code.
+    These classes are referenced here to show the standard seisnc variable names.
+    Use the [instantiated classes](#instantiated-classes) if including these keyfields in your code.
 
 ::: segysak._keyfield
     handler: python
