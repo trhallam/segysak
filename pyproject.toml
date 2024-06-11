@@ -67,6 +67,11 @@ docs = [
 
 # testing config
 
+[tool.pytest.ini_options]
+testpaths = [
+    "tests"
+]
+
 [tool.hatch.envs.hatch-test]
 features = [
     "test"
@@ -165,4 +170,3 @@ packages = ["segysak"]
 
 [tool.hatch.build.targets.wheel]
 only-packages = true
-
