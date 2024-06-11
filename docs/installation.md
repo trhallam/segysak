@@ -24,3 +24,7 @@ To run the tests install the test dependencies and run `pytest`
 python -m pip install .[test]
 pytest
 ```
+
+!!! info
+
+    If you wish to develop SEGY-SAK please follow the [contributing guide](./contributing.md).
