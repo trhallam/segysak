@@ -18,6 +18,9 @@ theme:
     - navigation.tabs
     - navigation.sections
     - navigation.expand
+    - content.action.edit
+    - content.action.view
+    - content.code.copy
   palette:
     primary: teal
   icon:
@@ -106,12 +109,14 @@ nav:
       - Walkthrough:
           - Installation: installation.md
           - Quickstart: quickstart.md
+          - Upgrading to v0.5: upgrading.md
       - Learn:
           - Why SEGYSAK: why-segysak.md
           - Xarray SEISNC: seisnc.md
           - History: history.md
       - Community:
           - Issue Tracker: https://github.com/trhallam/segysak/issues
+          - Contributing: contributing.md
   - Examples:
       - About: examples_about.md
       - Quick Overview: examples/QuickOverview.ipynb
@@ -138,6 +143,7 @@ nav:
       - SEG-Y via Xarray: api/segy_xarray.md
       - Xarray Accessor modules: api/xarray_new.md
       - Survey Geometry: api/geometry.md
+      - Package Utils: api/utils.md
       - Depreciated Loading SEG-Y: api/segy_loading.md
       - Depreciated Writing SEG-Y: api/segy_writing.md
       - Depreciated Xarray Accessor modules: api/xarray_accessor.md

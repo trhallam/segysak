@@ -55,6 +55,14 @@ class Progress:
 
     @classmethod
     def set_defaults(cls, **tqdm_kwargs: Dict[str, Any]) -> None:
+        """Set the default arguments for tqdm progress reporting in SEGY-SAK.
+
+        The defaults are Global and affect all tqdm reporting in the active Python
+        session.
+
+        Args:
+            tqdm_kwargs: Any valid [`tqdm.tqdm` argument](https://tqdm.github.io/docs/tqdm/).
+        """
         valid_args = inspect.signature(tqdm.__init__).parameters
         for kwarg in tqdm_kwargs:
             try:
