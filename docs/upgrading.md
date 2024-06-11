@@ -212,3 +212,34 @@ For instance, to disable progress reporting for all subsequent SEGY-SAK commands
         silent=True
     )
     ```
+
+## Removing ZGY
+
+SEGY-SAK has removed ZGY tools which have been migrated to and improved in the 
+[PyZGY](https://github.com/equinor/pyzgy/tree/master) package. Please use the ZGY tools and
+new Xarray backend provided by PyZGY.
+
+=== "`v0.5`"
+
+    Until a new release is created, please install PyZgy from Github
+
+    ```bash
+    pip install git+https://github.com/equinor/pyzgy.git
+    ```
+
+    ```python
+    # open a zgy file
+    zgy = xr.open_dataset('zgyfile.zgy')
+
+    # write to a zgy file
+    zgy.pyzgy.to_zgy('out_zgyfile.zgy')
+    ```
+
+=== "`v0.4.x`"
+
+    ```python
+    from segysak.openzgy import zgy_loader, zgy_writer
+    ds_zgy = zgy_loader("zgyfile.zgy")
+
+    zgy_writer(ds, "out_zgyfile.zgy")
+    ```
