@@ -60,7 +60,7 @@ jobs:
         run: |
           git checkout gh-pages
           if [ ! -d ${MKDOCS_VERSION} ]; then mkdir ${MKDOCS_VERSION}; fi
-          echo '{"schemaVersion":1,"label":"Docs","message":"${{ env.BADGE_MSG }}","color":"${{ env.BADGE_COLOUR }}","namedLogo":"materialformkdocs","logoColor":"white"}' | tee ./${HATCH_VERSION}/badge-mkdocs.json
+          echo '{"schemaVersion":1,"label":"Docs","message":"${{ env.BADGE_MSG }}","color":"${{ env.BADGE_COLOUR }}","namedLogo":"materialformkdocs","logoColor":"white"}' | tee ./${MKDOCS_VERSION}/badge-mkdocs.json
           git add ./${MKDOCS_VERSION}/badge-mkdocs.json
           git commit -m "github-actions update badge ${MKDOCS_VERSION}"
           git push origin gh-pages
