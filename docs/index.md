@@ -74,6 +74,13 @@ Here are some of the features of SEGY-SAK
 
     [:octicons-arrow-right-24: Dask example](./examples/example_segysak_dask.ipynb)
 
+-   :material-lifebuoy:{ .lg .middle } __Help__
+
+    ---
+
+     - Questions on the [discussion board](https://github.com/trhallam/segysak/discussions)
+     - [Submit a bug](https://github.com/trhallam/segysak/issues)
+
 </div>
 
 ## See also

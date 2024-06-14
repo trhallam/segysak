@@ -43,6 +43,7 @@ Everyone must abide by our [Code of Conduct](https://github.com/trhallam/segysak
 ## How Can I Talk to You?
 
 Discussion often happens in the repository [issues](https://github.com/trhallam/segysak/issues) tracker and individual pull requests.
+For questions and general chat, please use the [Discussions](https://github.com/trhallam/segysak/discussions) board.
 
 ## Reporting a Bug
 
