@@ -34,11 +34,13 @@ jobs:
         run: |
           if [ "${GITHUB_REF_NAME}" == "main" ]; then
             echo "MIKE_ALIAS=latest" >> $GITHUB_ENV
+            echo "MKDOCS_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
           else
             echo "MIKE_ALIAS=dev" >> $GITHUB_ENV
+            echo "MKDOCS_VERSION=$(hatch version | grep -Po '.+dev')" >> $GITHUB_ENV
           fi
-          echo "HATCH_VERSION=$(hatch version)" >> $GITHUB_ENV
-          echo "${HATCH_VERSION} ${MIKE_ALIAS}"
+          
+          echo "${MKDOCS_VERSION} ${MIKE_ALIAS}"
 
           echo "BADGE_MSG=fail" >> $GITHUB_ENV
           echo "BADGE_COLOUR=red" >> $GITHUB_ENV
@@ -49,7 +51,7 @@ jobs:
           hatch run docs:build-examples
           hatch run docs:cli-snippets
           hatch run docs:cff-snippets
-          hatch run docs:mike deploy --update-aliases --push ${HATCH_VERSION} ${MIKE_ALIAS}
+          hatch run docs:mike deploy --update-aliases --push ${MKDOCS_VERSION} ${MIKE_ALIAS}
           echo "BADGE_MSG=pass" >> $GITHUB_ENV
           echo "BADGE_COLOUR=green" >> $GITHUB_ENV
 
@@ -57,8 +59,8 @@ jobs:
         if: always()
         run: |
           git checkout gh-pages
-          if [ ! -d ${HATCH_VERSION} ]; then mkdir ${HATCH_VERSION}; fi
+          if [ ! -d ${MKDOCS_VERSION} ]; then mkdir ${MKDOCS_VERSION}; fi
           echo '{"schemaVersion":1,"label":"Docs","message":"${{ env.BADGE_MSG }}","color":"${{ env.BADGE_COLOUR }}","namedLogo":"materialformkdocs","logoColor":"white"}' | tee ./${HATCH_VERSION}/badge-mkdocs.json
-          git add ./${HATCH_VERSION}/badge-mkdocs.json
-          git commit -m "github-actions update badge ${HATCH_VERSION}"
+          git add ./${MKDOCS_VERSION}/badge-mkdocs.json
+          git commit -m "github-actions update badge ${MKDOCS_VERSION}"
           git push origin gh-pages
