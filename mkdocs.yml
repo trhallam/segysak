@@ -126,6 +126,7 @@ nav:
       - Arbitrary Line: examples/example_extract_arbitrary_line.ipynb
       - Amplitude Extraction: examples/example_amplitude_extraction_displays.ipynb
       - Data on a Horizon: examples/example_extract_data_on_a_horizon.ipynb
+      - Depth Conversion: examples/example_depth_conversion.ipynb
       - Vectorize SEG-Y for ML: examples/example_segysak_segy_vectorisation.ipynb
       - Working with Gathers: examples/example_working_with_3d_gathers.ipynb
       - Merge two surveys: examples/example_merge_surveys.ipynb
