@@ -236,7 +236,7 @@ z_plot.axes.set_title(f"Depth w/IntVel {z_plot.axes.get_title()}")
 # fig.tight_layout()
 
 # %% [markdown]
-# # Saving the depth converted volume
+# ## Saving the depth converted volume
 #
 # Now, we haven't actually performed depth conversion of the whole cube. To do this we need to use the `to_segy` method, although you could write to any of the other Xarray supported data storage types. `segyio` the library that
 # SEGY-SAK uses for writing seismic data works better on contiguous chunks of seismic data. Therefore we are going to rechunk our data to one crossline `xline` at a time. Before we write it to disk.
