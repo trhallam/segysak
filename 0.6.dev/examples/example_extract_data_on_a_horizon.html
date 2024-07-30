@@ -18,11 +18,11 @@
         <link rel="prev" href="example_amplitude_extraction_displays.html">
       
       
-        <link rel="next" href="example_depth_conversion.html">
+        <link rel="next" href="example_segysak_segy_vectorisation.html">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.28">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.30">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.3cba04c6.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -184,7 +184,7 @@ You're not viewing the latest version.
         <a href="https://github.com/trhallam/segysak" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
   </div>
   <div class="md-source__repository">
     trhallam/segysak
@@ -350,7 +350,7 @@ You're not viewing the latest version.
       <a href="https://github.com/trhallam/segysak" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
   </div>
   <div class="md-source__repository">
     trhallam/segysak
@@ -1023,27 +1023,6 @@ You're not viewing the latest version.
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="example_depth_conversion.html" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Cube interpolation and depth conversion
-  </span>
-  
-
-      </a>
     </li>
   
 
@@ -2128,10 +2107,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 <!-- End of mermaid configuration --><div class="jupyter-wrapper">
 <div class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs celltag_hide-code">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs celltag_hide-code" id="cell-id=5a2dfefe">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs celltag_hide-code" id="cell-id=bfbbd845">
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=add53fb0">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=569f2246">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2142,7 +2121,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=99d4bdbf">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=c39ab304">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2191,7 +2170,7 @@ from os import path</div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d1af6f94">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=19090a6b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2202,7 +2181,7 @@ from os import path</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2f35e42d">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4b287580">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2244,7 +2223,7 @@ print("3D", volve_3d_path, path.exists(volve_3d_path))</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a52fe307">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=111b8772">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2283,7 +2262,7 @@ print("3D", volve_3d_path, path.exists(volve_3d_path))</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=72d1ca90">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=eb5de579">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2698,28 +2677,28 @@ Coordinates:
   * samples  (samples) float32 3kB 4.0 8.0 12.0 ... 3.392e+03 3.396e+03 3.4e+03
 Attributes:
     seisnc:   {"source_file": "data/volve10r12-full-twt-sub3d.sgy", "measurem...
-    text:     C 1 SEGY OUTPUT FROM Petrel 2017.2 Saturday, June 06 2020 10:15...</pre><div class="xr-wrap" style="display:none"><div class="xr-header"><div class="xr-obj-type">xarray.DataArray</div><div class="xr-array-name">'data'</div><ul class="xr-dim-list"><li><span class="xr-has-index">iline</span>: 61</li><li><span class="xr-has-index">xline</span>: 202</li><li><span class="xr-has-index">samples</span>: 850</li></ul></div><ul class="xr-sections"><li class="xr-section-item"><div class="xr-array-wrap"><input checked="" class="xr-array-in" id="section-ba444022-4599-4fd7-bc7a-3c8437272ca6" type="checkbox"/><label for="section-ba444022-4599-4fd7-bc7a-3c8437272ca6" title="Show/hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-array-preview xr-preview"><span>...</span></div><div class="xr-array-data"><pre>[10473700 values with dtype=float32]</pre></div></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-d52551b1-eba3-4640-80e4-c6ad0e359295" type="checkbox"/><label class="xr-section-summary" for="section-d52551b1-eba3-4640-80e4-c6ad0e359295">Coordinates: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">iline</span></div><div class="xr-var-dims">(iline)</div><div class="xr-var-dtype">int16</div><div class="xr-var-preview xr-preview">10090 10091 10092 ... 10149 10150</div><input class="xr-var-attrs-in" disabled="" id="attrs-0b8cebc4-5684-40f2-9ad1-c3bb2dd32339" type="checkbox"/><label for="attrs-0b8cebc4-5684-40f2-9ad1-c3bb2dd32339" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-235398cb-c3cb-4249-9ebb-93e64c69fd53" type="checkbox"/><label for="data-235398cb-c3cb-4249-9ebb-93e64c69fd53" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([10090, 10091, 10092, 10093, 10094, 10095, 10096, 10097, 10098, 10099,
+    text:     C 1 SEGY OUTPUT FROM Petrel 2017.2 Saturday, June 06 2020 10:15...</pre><div class="xr-wrap" style="display:none"><div class="xr-header"><div class="xr-obj-type">xarray.DataArray</div><div class="xr-array-name">'data'</div><ul class="xr-dim-list"><li><span class="xr-has-index">iline</span>: 61</li><li><span class="xr-has-index">xline</span>: 202</li><li><span class="xr-has-index">samples</span>: 850</li></ul></div><ul class="xr-sections"><li class="xr-section-item"><div class="xr-array-wrap"><input checked="" class="xr-array-in" id="section-cf6a1845-d6ad-4d3e-981f-f8d2a0e27f06" type="checkbox"/><label for="section-cf6a1845-d6ad-4d3e-981f-f8d2a0e27f06" title="Show/hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-array-preview xr-preview"><span>...</span></div><div class="xr-array-data"><pre>[10473700 values with dtype=float32]</pre></div></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-485f7017-bbb0-4475-a647-7fce34676120" type="checkbox"/><label class="xr-section-summary" for="section-485f7017-bbb0-4475-a647-7fce34676120">Coordinates: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">iline</span></div><div class="xr-var-dims">(iline)</div><div class="xr-var-dtype">int16</div><div class="xr-var-preview xr-preview">10090 10091 10092 ... 10149 10150</div><input class="xr-var-attrs-in" disabled="" id="attrs-3a61b0f7-b146-426e-b320-cabd70a4cd69" type="checkbox"/><label for="attrs-3a61b0f7-b146-426e-b320-cabd70a4cd69" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-e7c04705-5544-4511-9f7f-5ef637c5aa12" type="checkbox"/><label for="data-e7c04705-5544-4511-9f7f-5ef637c5aa12" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([10090, 10091, 10092, 10093, 10094, 10095, 10096, 10097, 10098, 10099,
        10100, 10101, 10102, 10103, 10104, 10105, 10106, 10107, 10108, 10109,
        10110, 10111, 10112, 10113, 10114, 10115, 10116, 10117, 10118, 10119,
        10120, 10121, 10122, 10123, 10124, 10125, 10126, 10127, 10128, 10129,
        10130, 10131, 10132, 10133, 10134, 10135, 10136, 10137, 10138, 10139,
        10140, 10141, 10142, 10143, 10144, 10145, 10146, 10147, 10148, 10149,
-       10150], dtype=int16)</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">xline</span></div><div class="xr-var-dims">(xline)</div><div class="xr-var-dtype">int16</div><div class="xr-var-preview xr-preview">2150 2151 2152 ... 2349 2350 2351</div><input class="xr-var-attrs-in" disabled="" id="attrs-6d592cd3-866f-4807-8183-9fa5f1a73177" type="checkbox"/><label for="attrs-6d592cd3-866f-4807-8183-9fa5f1a73177" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-55f5812c-aa74-4f1f-af6a-05f40359b5a0" type="checkbox"/><label for="data-55f5812c-aa74-4f1f-af6a-05f40359b5a0" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([2150, 2151, 2152, ..., 2349, 2350, 2351], dtype=int16)</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">samples</span></div><div class="xr-var-dims">(samples)</div><div class="xr-var-dtype">float32</div><div class="xr-var-preview xr-preview">4.0 8.0 12.0 ... 3.396e+03 3.4e+03</div><input class="xr-var-attrs-in" disabled="" id="attrs-ac0cb081-3f65-4551-882f-7cfe051a2bb8" type="checkbox"/><label for="attrs-ac0cb081-3f65-4551-882f-7cfe051a2bb8" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-584eacec-44be-4c0c-aa6e-6db57f6cd028" type="checkbox"/><label for="data-584eacec-44be-4c0c-aa6e-6db57f6cd028" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([   4.,    8.,   12., ..., 3392., 3396., 3400.], dtype=float32)</pre></div></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-224b08de-1ed4-41b3-aa71-8b157c300d62" type="checkbox"/><label class="xr-section-summary" for="section-224b08de-1ed4-41b3-aa71-8b157c300d62">Indexes: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-index-name"><div>iline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-0e8e597c-405e-46cf-8f14-a1c03628e844" type="checkbox"><label for="index-0e8e597c-405e-46cf-8f14-a1c03628e844" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10090, 10091, 10092, 10093, 10094, 10095, 10096, 10097, 10098, 10099,
+       10150], dtype=int16)</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">xline</span></div><div class="xr-var-dims">(xline)</div><div class="xr-var-dtype">int16</div><div class="xr-var-preview xr-preview">2150 2151 2152 ... 2349 2350 2351</div><input class="xr-var-attrs-in" disabled="" id="attrs-92ab3680-dd12-4afb-9056-b8d5adac64fa" type="checkbox"/><label for="attrs-92ab3680-dd12-4afb-9056-b8d5adac64fa" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-b48d51c7-2b00-403a-ba08-c380cb52645f" type="checkbox"/><label for="data-b48d51c7-2b00-403a-ba08-c380cb52645f" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([2150, 2151, 2152, ..., 2349, 2350, 2351], dtype=int16)</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">samples</span></div><div class="xr-var-dims">(samples)</div><div class="xr-var-dtype">float32</div><div class="xr-var-preview xr-preview">4.0 8.0 12.0 ... 3.396e+03 3.4e+03</div><input class="xr-var-attrs-in" disabled="" id="attrs-d362ff56-d3e1-4f67-b257-445574c1d928" type="checkbox"/><label for="attrs-d362ff56-d3e1-4f67-b257-445574c1d928" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-2518b5b1-656f-4fa8-8cb1-032160037dc4" type="checkbox"/><label for="data-2518b5b1-656f-4fa8-8cb1-032160037dc4" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([   4.,    8.,   12., ..., 3392., 3396., 3400.], dtype=float32)</pre></div></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-ffe71c0d-d956-465e-bc79-a58ebc319358" type="checkbox"/><label class="xr-section-summary" for="section-ffe71c0d-d956-465e-bc79-a58ebc319358">Indexes: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-index-name"><div>iline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-02eb1d1c-7c86-4ddc-98d9-fea149b61598" type="checkbox"><label for="index-02eb1d1c-7c86-4ddc-98d9-fea149b61598" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10090, 10091, 10092, 10093, 10094, 10095, 10096, 10097, 10098, 10099,
        10100, 10101, 10102, 10103, 10104, 10105, 10106, 10107, 10108, 10109,
        10110, 10111, 10112, 10113, 10114, 10115, 10116, 10117, 10118, 10119,
        10120, 10121, 10122, 10123, 10124, 10125, 10126, 10127, 10128, 10129,
        10130, 10131, 10132, 10133, 10134, 10135, 10136, 10137, 10138, 10139,
        10140, 10141, 10142, 10143, 10144, 10145, 10146, 10147, 10148, 10149,
        10150],
-      dtype='int16', name='iline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>xline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-72a7316d-45bb-4b4e-8bad-329d8ad6ffc9" type="checkbox"><label for="index-72a7316d-45bb-4b4e-8bad-329d8ad6ffc9" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([2150, 2151, 2152, 2153, 2154, 2155, 2156, 2157, 2158, 2159,
+      dtype='int16', name='iline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>xline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-89598a81-ba50-4326-9195-ec2a78994a17" type="checkbox"><label for="index-89598a81-ba50-4326-9195-ec2a78994a17" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([2150, 2151, 2152, 2153, 2154, 2155, 2156, 2157, 2158, 2159,
        ...
        2342, 2343, 2344, 2345, 2346, 2347, 2348, 2349, 2350, 2351],
-      dtype='int16', name='xline', length=202))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>samples</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-f3395919-37be-413e-af2b-5a784da1dbf1" type="checkbox"><label for="index-f3395919-37be-413e-af2b-5a784da1dbf1" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([   4.0,    8.0,   12.0,   16.0,   20.0,   24.0,   28.0,   32.0,   36.0,
+      dtype='int16', name='xline', length=202))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>samples</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-2afef204-7073-43d0-af18-4d0ba7807e4f" type="checkbox"><label for="index-2afef204-7073-43d0-af18-4d0ba7807e4f" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([   4.0,    8.0,   12.0,   16.0,   20.0,   24.0,   28.0,   32.0,   36.0,
          40.0,
        ...
        3364.0, 3368.0, 3372.0, 3376.0, 3380.0, 3384.0, 3388.0, 3392.0, 3396.0,
        3400.0],
-      dtype='float32', name='samples', length=850))</pre></div></input></li></ul></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-049185f7-6739-4a92-8c5d-25e07d33b038" type="checkbox"/><label class="xr-section-summary" for="section-049185f7-6739-4a92-8c5d-25e07d33b038">Attributes: <span>(2)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><dl class="xr-attrs"><dt><span>seisnc :</span></dt><dd>{"source_file": "data/volve10r12-full-twt-sub3d.sgy", "measurement_system": "m", "sample_rate": 4.0}</dd><dt><span>text :</span></dt><dd>C 1 SEGY OUTPUT FROM Petrel 2017.2 Saturday, June 06 2020 10:15:00              
+      dtype='float32', name='samples', length=850))</pre></div></input></li></ul></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-e78109da-507a-4486-93be-5972e5a77eb0" type="checkbox"/><label class="xr-section-summary" for="section-e78109da-507a-4486-93be-5972e5a77eb0">Attributes: <span>(2)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><dl class="xr-attrs"><dt><span>seisnc :</span></dt><dd>{"source_file": "data/volve10r12-full-twt-sub3d.sgy", "measurement_system": "m", "sample_rate": 4.0}</dd><dt><span>text :</span></dt><dd>C 1 SEGY OUTPUT FROM Petrel 2017.2 Saturday, June 06 2020 10:15:00              
 C 2 Name: ST10010ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534 ÝCro
 C 3                                                                             
 C 4 First inline: 10090  Last inline: 10150                                     
@@ -2765,7 +2744,7 @@ C40 END EBCDIC                                                                  
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2c08c8c4">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a68ac731">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2776,7 +2755,7 @@ C40 END EBCDIC                                                                  
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=1f5a08c9">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=1fe0c259">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2818,7 +2797,7 @@ print("Top Hugin", top_hugin_path, path.exists(top_hugin_path))</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ef6f329f">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f8de7f42">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2919,7 +2898,7 @@ top_hugin_df.head()</div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=9e158f14">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1a5dc202">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2930,7 +2909,7 @@ top_hugin_df.head()</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=f8c50ba5">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=3d48a0fc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2963,7 +2942,7 @@ top_hugin_df.head()</div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=950ee549">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=61146692">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2974,7 +2953,7 @@ top_hugin_df.head()</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=5750666c">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ba7af0b4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3384,13 +3363,13 @@ Coordinates:
 Data variables:
     *empty*
 Attributes:
-    seisnc:   {"coord_scalar": -100.0, "coord_scaled": true}</pre><div class="xr-wrap" style="display:none"><div class="xr-header"><div class="xr-obj-type">xarray.Dataset</div></div><ul class="xr-sections"><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-a3a4062f-489a-46f9-8ce7-8d1c48e50638" type="checkbox"/><label class="xr-section-summary" for="section-a3a4062f-489a-46f9-8ce7-8d1c48e50638" title="Expand/collapse section">Dimensions:</label><div class="xr-section-inline-details"><ul class="xr-dim-list"><li><span class="xr-has-index">iline</span>: 61</li><li><span class="xr-has-index">xline</span>: 202</li></ul></div><div class="xr-section-details"></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-5b2c4a94-a5c4-488f-8df8-7ea518572601" type="checkbox"/><label class="xr-section-summary" for="section-5b2c4a94-a5c4-488f-8df8-7ea518572601">Coordinates: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">iline</span></div><div class="xr-var-dims">(iline)</div><div class="xr-var-dtype">int16</div><div class="xr-var-preview xr-preview">10090 10091 10092 ... 10149 10150</div><input class="xr-var-attrs-in" disabled="" id="attrs-e08082c9-890b-419f-a898-77a37172a5f0" type="checkbox"/><label for="attrs-e08082c9-890b-419f-a898-77a37172a5f0" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-49fafe99-5369-4809-87bf-322e72ddf4d8" type="checkbox"/><label for="data-49fafe99-5369-4809-87bf-322e72ddf4d8" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([10090, 10091, 10092, 10093, 10094, 10095, 10096, 10097, 10098, 10099,
+    seisnc:   {"coord_scalar": -100.0, "coord_scaled": true}</pre><div class="xr-wrap" style="display:none"><div class="xr-header"><div class="xr-obj-type">xarray.Dataset</div></div><ul class="xr-sections"><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-73293b8d-bca1-4c91-8733-c5184afff993" type="checkbox"/><label class="xr-section-summary" for="section-73293b8d-bca1-4c91-8733-c5184afff993" title="Expand/collapse section">Dimensions:</label><div class="xr-section-inline-details"><ul class="xr-dim-list"><li><span class="xr-has-index">iline</span>: 61</li><li><span class="xr-has-index">xline</span>: 202</li></ul></div><div class="xr-section-details"></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-9b493085-2ff7-48a2-b35b-0921e98bd102" type="checkbox"/><label class="xr-section-summary" for="section-9b493085-2ff7-48a2-b35b-0921e98bd102">Coordinates: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">iline</span></div><div class="xr-var-dims">(iline)</div><div class="xr-var-dtype">int16</div><div class="xr-var-preview xr-preview">10090 10091 10092 ... 10149 10150</div><input class="xr-var-attrs-in" disabled="" id="attrs-677752e5-e218-4707-aeaf-a018e59fc054" type="checkbox"/><label for="attrs-677752e5-e218-4707-aeaf-a018e59fc054" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-1195cdbd-7c60-433d-9aff-09bd7585506b" type="checkbox"/><label for="data-1195cdbd-7c60-433d-9aff-09bd7585506b" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([10090, 10091, 10092, 10093, 10094, 10095, 10096, 10097, 10098, 10099,
        10100, 10101, 10102, 10103, 10104, 10105, 10106, 10107, 10108, 10109,
        10110, 10111, 10112, 10113, 10114, 10115, 10116, 10117, 10118, 10119,
        10120, 10121, 10122, 10123, 10124, 10125, 10126, 10127, 10128, 10129,
        10130, 10131, 10132, 10133, 10134, 10135, 10136, 10137, 10138, 10139,
        10140, 10141, 10142, 10143, 10144, 10145, 10146, 10147, 10148, 10149,
-       10150], dtype=int16)</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">xline</span></div><div class="xr-var-dims">(xline)</div><div class="xr-var-dtype">int16</div><div class="xr-var-preview xr-preview">2150 2151 2152 ... 2349 2350 2351</div><input class="xr-var-attrs-in" disabled="" id="attrs-0a405688-30c9-42a8-8fe4-dd455abd2dbd" type="checkbox"/><label for="attrs-0a405688-30c9-42a8-8fe4-dd455abd2dbd" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-19fdc6fe-4e19-4095-bc13-424b6ccd3e7e" type="checkbox"/><label for="data-19fdc6fe-4e19-4095-bc13-424b6ccd3e7e" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([2150, 2151, 2152, ..., 2349, 2350, 2351], dtype=int16)</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span>samples</span></div><div class="xr-var-dims">(iline, xline)</div><div class="xr-var-dtype">float64</div><div class="xr-var-preview xr-preview">2.741e+03 2.742e+03 ... 2.635e+03</div><input class="xr-var-attrs-in" disabled="" id="attrs-86073f1b-ab6b-4a24-b226-ee8f067a592d" type="checkbox"/><label for="attrs-86073f1b-ab6b-4a24-b226-ee8f067a592d" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-0f60b70a-23b7-4e08-85bc-e2e334cd8b1b" type="checkbox"/><label for="data-0f60b70a-23b7-4e08-85bc-e2e334cd8b1b" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([[2740.59485122, 2742.24524139, 2743.93300054, ..., 2595.47726491,
+       10150], dtype=int16)</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">xline</span></div><div class="xr-var-dims">(xline)</div><div class="xr-var-dtype">int16</div><div class="xr-var-preview xr-preview">2150 2151 2152 ... 2349 2350 2351</div><input class="xr-var-attrs-in" disabled="" id="attrs-cf8f1d42-664c-4b09-a697-1603f517f293" type="checkbox"/><label for="attrs-cf8f1d42-664c-4b09-a697-1603f517f293" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-3a37b6d6-13c8-4a21-8960-86e7347da1f1" type="checkbox"/><label for="data-3a37b6d6-13c8-4a21-8960-86e7347da1f1" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([2150, 2151, 2152, ..., 2349, 2350, 2351], dtype=int16)</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span>samples</span></div><div class="xr-var-dims">(iline, xline)</div><div class="xr-var-dtype">float64</div><div class="xr-var-preview xr-preview">2.741e+03 2.742e+03 ... 2.635e+03</div><input class="xr-var-attrs-in" disabled="" id="attrs-52bf327f-8ec2-4e64-a508-114a8d637676" type="checkbox"/><label for="attrs-52bf327f-8ec2-4e64-a508-114a8d637676" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-f319c650-e009-4848-8996-d5ab92f1762e" type="checkbox"/><label for="data-f319c650-e009-4848-8996-d5ab92f1762e" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([[2740.59485122, 2742.24524139, 2743.93300054, ..., 2595.47726491,
         2595.96933417, 2596.44448208],
        [2741.6191921 , 2743.0088903 , 2744.83246656, ..., 2595.38667951,
         2595.8743274 , 2596.34089321],
@@ -3402,24 +3381,24 @@ Attributes:
        [2796.98192079, 2796.95385786, 2796.95774686, ..., 2629.63486248,
         2631.2087454 , 2633.7785019 ],
        [2796.99194158, 2796.92309694, 2796.89424697, ..., 2630.07582204,
-        2631.81238694, 2634.64023552]])</pre></div></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-45aca6a0-3fbe-43d9-9c11-6e068bee8007" type="checkbox"/><label class="xr-section-summary" for="section-45aca6a0-3fbe-43d9-9c11-6e068bee8007" title="Expand/collapse section">Data variables: <span>(0)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-92a7f1d6-df59-483c-bddd-88cbe5c4ca7b" type="checkbox"/><label class="xr-section-summary" for="section-92a7f1d6-df59-483c-bddd-88cbe5c4ca7b">Indexes: <span>(2)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-index-name"><div>iline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-776ddcff-cf0d-46f0-a904-813b0acb8125" type="checkbox"><label for="index-776ddcff-cf0d-46f0-a904-813b0acb8125" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10090, 10091, 10092, 10093, 10094, 10095, 10096, 10097, 10098, 10099,
+        2631.81238694, 2634.64023552]])</pre></div></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-3727b36e-0ccc-43c1-9711-9b1d2028c451" type="checkbox"/><label class="xr-section-summary" for="section-3727b36e-0ccc-43c1-9711-9b1d2028c451" title="Expand/collapse section">Data variables: <span>(0)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-2d514cbb-ae8f-4bbc-bdf3-8df1ef3caeba" type="checkbox"/><label class="xr-section-summary" for="section-2d514cbb-ae8f-4bbc-bdf3-8df1ef3caeba">Indexes: <span>(2)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-index-name"><div>iline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-86fa2914-47c6-4c9e-9da6-8ca3a2922bbc" type="checkbox"><label for="index-86fa2914-47c6-4c9e-9da6-8ca3a2922bbc" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10090, 10091, 10092, 10093, 10094, 10095, 10096, 10097, 10098, 10099,
        10100, 10101, 10102, 10103, 10104, 10105, 10106, 10107, 10108, 10109,
        10110, 10111, 10112, 10113, 10114, 10115, 10116, 10117, 10118, 10119,
        10120, 10121, 10122, 10123, 10124, 10125, 10126, 10127, 10128, 10129,
        10130, 10131, 10132, 10133, 10134, 10135, 10136, 10137, 10138, 10139,
        10140, 10141, 10142, 10143, 10144, 10145, 10146, 10147, 10148, 10149,
        10150],
-      dtype='int16', name='iline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>xline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-5b360ebd-1f56-47d4-b36f-4d514fe1da67" type="checkbox"><label for="index-5b360ebd-1f56-47d4-b36f-4d514fe1da67" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([2150, 2151, 2152, 2153, 2154, 2155, 2156, 2157, 2158, 2159,
+      dtype='int16', name='iline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>xline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-7b067b11-dda8-4069-881c-efad52ecc6b9" type="checkbox"><label for="index-7b067b11-dda8-4069-881c-efad52ecc6b9" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([2150, 2151, 2152, 2153, 2154, 2155, 2156, 2157, 2158, 2159,
        ...
        2342, 2343, 2344, 2345, 2346, 2347, 2348, 2349, 2350, 2351],
-      dtype='int16', name='xline', length=202))</pre></div></input></li></ul></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-c21eb931-36a9-4bf2-aaa1-a84d67f87fe0" type="checkbox"/><label class="xr-section-summary" for="section-c21eb931-36a9-4bf2-aaa1-a84d67f87fe0">Attributes: <span>(1)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><dl class="xr-attrs"><dt><span>seisnc :</span></dt><dd>{"coord_scalar": -100.0, "coord_scaled": true}</dd></dl></div></li></ul></div></div>
+      dtype='int16', name='xline', length=202))</pre></div></input></li></ul></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-efbb3436-d634-4613-ae29-f148f15e0aa3" type="checkbox"/><label class="xr-section-summary" for="section-efbb3436-d634-4613-ae29-f148f15e0aa3">Attributes: <span>(1)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><dl class="xr-attrs"><dt><span>seisnc :</span></dt><dd>{"coord_scalar": -100.0, "coord_scaled": true}</dd></dl></div></li></ul></div></div>
 </div>
 </div>
 </div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e58a7ac7">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=61da634e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3453,7 +3432,7 @@ plt.imshow(top_hugin_ds.samples)</div>
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[10]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>&lt;matplotlib.image.AxesImage at 0x7f4c82887130&gt;</pre>
+<pre>&lt;matplotlib.image.AxesImage at 0x7fd48709b400&gt;</pre>
 </div>
 </div>
 <div class="jp-OutputArea-child">
@@ -3466,7 +3445,7 @@ plt.imshow(top_hugin_ds.samples)</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=22075bd0">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=25b9abc4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3501,7 +3480,7 @@ plt.imshow(top_hugin_ds.samples)</div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4e9d89d1">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=82ededf7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3512,7 +3491,7 @@ plt.imshow(top_hugin_ds.samples)</div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c51bbfaf">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=49886a9c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3523,7 +3502,7 @@ plt.imshow(top_hugin_ds.samples)</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=c296b004">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=4c023d70">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3554,7 +3533,7 @@ plt.imshow(top_hugin_ds.samples)</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=bc0f7969">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a0e74fef">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
