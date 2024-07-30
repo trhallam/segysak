@@ -156,8 +156,8 @@ def get_uniform_spacing(
         Interpolated points, Interpolated extra vars: Uniform sampling using the bin_spacing hint.
     """
     points = np.asarray(points)
-    assert len(points.shape) == 2
-    assert points.shape[1] == 2
+    assert len(points.shape) == 2, f"points must be array of shape [N, 2]"
+    assert points.shape[1] == 2, f"points must be array of shape [N, 2]"
 
     segment_lengths = np.insert(np.linalg.norm(np.diff(points, axis=0), axis=1), 0, 0.0)
     segments_cum_lengths = np.cumsum(segment_lengths)
