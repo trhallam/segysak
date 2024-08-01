@@ -61,7 +61,7 @@ jobs:
           path: dist/*
 
   publish:
-    if: github.event_name == 'push' && contains(github.ref, 'release')
+    if: needs.build-test.result == 'success' && contains(github.ref, 'release')
     name: Publish to test.PyPI and PyPI
     runs-on: ubuntu-latest
     needs: [build-test]
