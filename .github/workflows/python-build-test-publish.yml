@@ -10,8 +10,11 @@ name: segysak actions
 
 on: 
   push:
+    branches: [main]
+    tags-ignore:
+      - v*
   pull_request:
-    types: [review_requested]
+    branches: [main]
   release:
     types: [released]
 
