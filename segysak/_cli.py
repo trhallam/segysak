@@ -1,9 +1,13 @@
 """Command line script for interacting with SEG-Y data.
 """
 
+from typing import Tuple
+
 import os
+import sys
 import pathlib
 import click
+import re
 
 try:
     from ._version import version as VERSION
@@ -24,6 +28,7 @@ from segysak.segy import (
     segy_header_scan,
     segy_header_scrape,
     get_segy_texthead,
+    put_segy_texthead,
 )
 from segysak.tools import fix_bad_chars
 from segysak.progress import Progress
@@ -76,20 +81,80 @@ def guess_file_type(file):
 )
 def cli(version):
     """
-    The SEG-Y Swiss Army Knife (segysak) is a tool for managing segy data.
-    It can read and dump ebcidc headers, scan trace headers, convert SEG-Y to SEISNC and vice versa
+    The SEG-Y Swiss Army Knife (SEGY-SAK) is a tool for managing segy data.
+    It can read and dump ebcidc headers, scan trace headers, convert SEG-Y to SEISNC and vice versa.
     """
     if version:
-        click.echo(f"{NAME} {VERSION}")
+        click.echo(f"{NAME} {VERSION}", err=True)
     else:
-        click.echo(f"segysak v{VERSION}")
+        click.echo(f"segysak v{VERSION}", err=True)
+
+
+# s plit a header line into line counter and text
+ebcidc_line_re = re.compile("^(C[\\s|\\d]\\d)?(.+)$")
+
+
+def get_ebcidc(input_file: os.PathLike, name: bool, colour: bool, new_line: bool):
+    if name:
+        click.secho(f"{input_file}:", color=colour, fg="green")
+    text = get_segy_texthead(input_file)
+    for line in text.split("\n"):
+        c, txt = ebcidc_line_re.findall(line)[0]
+        click.secho(c, color=colour, nl=False, fg="yellow")
+        click.secho(txt, color=colour, nl=True)
+    click.echo(nl=True)
+    if name and new_line:
+        click.echo("")
+
+
+def set_ebcidc(input_file: os.PathLike, txt: str):
+    put_segy_texthead(input_file, txt, line_counter=False)
 
 
 @cli.command(help="Print SEG-Y EBCIDC header")
-@click.argument("filename", type=click.Path(exists=True))
-def ebcidc(filename):
-    input_file = pathlib.Path(filename)
-    click.echo(get_segy_texthead(input_file))
+@click.argument(
+    "files", metavar="FILE ...", type=click.Path(exists=True), nargs=-1, required=True
+)
+@click.option(
+    "-n",
+    "--new-line",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Print a blank line between consecutive header output.",
+)
+@click.option(
+    "--name",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Print the file name before the text header output.",
+)
+@click.option(
+    "--no-colour",
+    is_flag=True,
+    show_default=True,
+    default=False,
+    help="Decolourise output.",
+)
+@click.option(
+    "-s",
+    "--set",
+    "set_txt",
+    metavar="[TXTFILE]",
+    type=click.File("r"),
+    nargs=1,
+    required=False,
+    help="Set the output files to have text from specified file or stdin.",
+)
+def ebcidc(files, new_line, name, no_colour, set_txt):
+    for f in files:
+        input_file = pathlib.Path(f)
+        if set_txt:
+            txt = set_txt.readlines()
+            set_ebcidc(input_file, txt)
+        else:
+            get_ebcidc(input_file, name, (not no_colour), new_line)
 
 
 @cli.command(help="Scan trace headers and print value ranges")
