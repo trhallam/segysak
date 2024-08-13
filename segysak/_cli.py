@@ -32,38 +32,6 @@ from segysak.progress import Progress
 NAME = "segysak"
 
 
-def check_file(input_files):
-    """
-    Function expands a list of files if * wildcards are present. It also verifies the presence of each file.
-    Depreciated since version 0.1.2: The CLI only accepts a single input file and Click performs the verification.
-    """
-
-    if input_files is None:
-        click.secho("Require input file/s", fg="red", color=True)
-        raise SystemExit
-
-    checked_files = list()
-
-    expanded_input = input_files.copy()
-
-    for ifile in input_files:
-        if "*" in ifile:
-            ifile_path = pathlib.Path(ifile)
-            parent = ifile_path.absolute().parent
-            expanded_input += list(parent.glob(ifile_path.name))
-            expanded_input.remove(ifile)
-
-    for ifile in expanded_input:
-        ifile = pathlib.Path(ifile)
-        if ifile.exists():
-            checked_files.append(ifile)
-        else:
-            click.secho("Cannot find input {segyfile}", fg="red", color=True)
-            raise SystemExit
-
-    return checked_files
-
-
 def _action_ebcidc_out(arg, input_file):
     try:
         ebcidc = get_segy_texthead(input_file)
