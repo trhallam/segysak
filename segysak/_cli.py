@@ -1,13 +1,17 @@
 """Command line script for interacting with SEG-Y data.
 """
 
-from typing import Tuple
-
+from typing import Union, List, Callable, Dict, Any, Tuple
+from functools import wraps
+from dataclasses import dataclass
 import os
 import sys
 import pathlib
 import click
 import re
+import xarray as xr
+import pandas as pd
+from loguru import logger
 
 try:
     from ._version import version as VERSION
@@ -37,25 +41,35 @@ from segysak.progress import Progress
 NAME = "segysak"
 
 
-def _action_ebcidc_out(arg, input_file):
-    try:
-        ebcidc = get_segy_texthead(input_file)
-    except IOError:
-        click.secho(
-            "Input SEG-Y file was not found - check name and path", fg="red", color=True
-        )
-        raise SystemExit
+@dataclass
+class Pipeline:
+    input_file: Union[os.PathLike, None] = None
+    output_file: Union[os.PathLike, None] = None
+    end: bool = False  # the pipeline should be terminated
+    ds: Union[xr.Dataset, None] = None  # the loaded dataset
+    dimension: Union[Tuple[Tuple[str, int]], None] = (
+        None  # the dimension name-byte pairs
+    )
+    variable: Union[Tuple[Tuple[str, int]], None] = (
+        None  # the header variable name-byte pairs
+    )
 
-    if arg is None:
-        print(ebcidc)
-    else:
-        ebcidc = fix_bad_chars(ebcidc)
-        with open(arg, "w") as f:
-            f.write(ebcidc)
+    @property
+    def dims(self) -> Dict[str, int]:
+        dd = {}
+        if self.dimension:
+            dd.update({d: b for d, b in self.dimension})
+        return dd
 
+    @property
+    def vars(self) -> Dict[str, int]:
+        vd = {}
+        if self.variable:
+            vd.update({v: b for v, b in self.variable})
+        return vd
 
-def _action_ebcidc_in(input_ebcidc_file, input_file):
-    pass
+    def debug_ds(self):
+        logger.debug(f"pipeline.ds:\n--------------\n{self.ds}\n--------------")
 
 
 def guess_file_type(file):
@@ -71,7 +85,7 @@ def guess_file_type(file):
         return None
 
 
-@click.group(invoke_without_command=True, no_args_is_help=True)
+@click.group(no_args_is_help=True, chain=True)
 @click.option(
     "--version",
     "-v",
@@ -79,22 +93,67 @@ def guess_file_type(file):
     help="Print application version name",
     default=False,
 )
-def cli(version):
+@click.option(
+    "--debug-level", default="INFO", type=click.Choice(["ERROR", "INFO", "DEBUG"])
+)
+@click.argument(
+    "file", metavar="FILE", type=click.Path(exists=True), nargs=1, required=True
+)
+def cli(version: str, debug_level: str, file: str):
     """
     The SEG-Y Swiss Army Knife (SEGY-SAK) is a tool for managing segy data.
     It can read and dump ebcidc headers, scan trace headers, convert SEG-Y to SEISNC and vice versa.
     """
     if version:
         click.echo(f"{NAME} {VERSION}", err=True)
-    else:
-        click.echo(f"segysak v{VERSION}", err=True)
+        raise SystemExit
+    # elif debug_level == "DEBUG":
+    #     click.echo(f"segysak v{VERSION}", err=True)
+
+    logger.remove()
+    logger.add(
+        sys.stderr,
+        format="<d>segysak:{function:<10}</d> <level>{message}</level>",
+        colorize=True,
+        level=debug_level,
+    )
+    logger.debug(f"segysak v{VERSION}")
+    pass
 
 
-# s plit a header line into line counter and text
-ebcidc_line_re = re.compile("^(C[\\s|\\d]\\d)?(.+)$")
+@cli.result_callback(replace=True)
+def pipeline(
+    processors: List[Callable], file: str, *args: Any, **kwargs: Dict[Any, Any]
+):
+    pipe = Pipeline(input_file=pathlib.Path(file))
+
+    logger.debug("Begin process pipeline")
+
+    for processor in processors:
+        pipe = processor(pipe)
+        if pipe.end:
+            # pipeline ends
+            logger.debug("End process pipeline")
+            raise SystemExit()
+
+
+def processor(f: Callable) -> Callable:
+    """Helper decorator to rewrite a function so that it returns another
+    function from it but also accepts the pipeline as first argument.
+    """
+
+    @wraps(f)
+    def new_func(*args: Any, **kwargs: Dict[Any, Any]):
+        def processor(pipeline: Pipeline):
+            return f(pipeline, *args, **kwargs)
+
+        return processor
+
+    return new_func
 
 
 def get_ebcidc(input_file: os.PathLike, name: bool, colour: bool, new_line: bool):
+    ebcidc_line_re = re.compile("^(C[\\s|\\d]\\d)?(.+)$")
     if name:
         click.secho(f"{input_file}:", color=colour, fg="green")
     text = get_segy_texthead(input_file)
@@ -111,10 +170,7 @@ def set_ebcidc(input_file: os.PathLike, txt: str):
     put_segy_texthead(input_file, txt, line_counter=False)
 
 
-@cli.command(help="Print SEG-Y EBCIDC header")
-@click.argument(
-    "files", metavar="FILE ...", type=click.Path(exists=True), nargs=-1, required=True
-)
+@cli.command()
 @click.option(
     "-n",
     "--new-line",
@@ -142,36 +198,47 @@ def set_ebcidc(input_file: os.PathLike, txt: str):
     "--set",
     "set_txt",
     metavar="[TXTFILE]",
-    type=click.File("r"),
+    type=click.Path(
+        exists=True, file_okay=True, dir_okay=False, path_type=pathlib.Path
+    ),
     nargs=1,
     required=False,
     help="Set the output files to have text from specified file or stdin.",
 )
-def ebcidc(files, new_line, name, no_colour, set_txt):
-    for f in files:
-        input_file = pathlib.Path(f)
-        if set_txt:
-            txt = set_txt.readlines()
-            set_ebcidc(input_file, txt)
-        else:
-            get_ebcidc(input_file, name, (not no_colour), new_line)
+@click.pass_context
+@processor
+def ebcidc(pipeline, ctx, new_line, name, no_colour, set_txt):
+    """Print SEG-Y EBCIDC header [chainable DS | FILE -> End]"""
+    logger.debug(f"PARAM: {ctx.params}")
+
+    if set_txt:
+        with open(set_txt) as otxt:
+            txt = otxt.readlines()
+        set_ebcidc(pipeline.input_file, txt)
+    else:
+        get_ebcidc(pipeline.input_file, name, (not no_colour), new_line)
+
+    pipeline.end = True
+    return pipeline
 
 
-@cli.command(help="Scan trace headers and print value ranges")
+@cli.command()
 @click.option(
     "--max-traces", "-m", type=click.INT, default=1000, help="Number of traces to scan"
 )
-@click.argument("filename", type=click.Path(exists=True))
-def scan(max_traces, filename):
-    input_file = pathlib.Path(filename)
-    hscan = segy_header_scan(input_file, max_traces_scan=max_traces)
-    click.echo(f"Traces scanned: {hscan.nscan}")
-    import pandas as pd
+@click.pass_context
+@processor
+def scan(pipeline: Pipeline, ctx: click.Context, max_traces: int) -> Pipeline:
+    "Scan trace headers and print a summary of value ranges [chainable DS | FILE -> End]"
+    logger.debug(f"PARAM: {ctx.params}")
+    hscan = segy_header_scan(pipeline.input_file, max_traces_scan=max_traces)
+    logger.debug(f"Traces scanned: {hscan.nscan}")
 
     pd.set_option("display.max_rows", hscan.shape[0])
     click.echo(hscan[["byte_loc", "min", "max", "mean"]])
 
-    return 0
+    pipeline.end = True
+    return pipeline
 
 
 @cli.command()
@@ -185,9 +252,15 @@ def scan(max_traces, filename):
     default=False,
     help="Output the trace headers to csv",
 )
-@click.argument("filename", nargs=-1, type=click.Path(exists=True))
-def scrape(filename, ebcidc=False, trace_headers=False):
-    """Scrape the file meta information and output it to text file.
+@click.pass_context
+@processor
+def scrape(
+    pipeline: Pipeline,
+    ctx: click.Context,
+    ebcidc: bool = False,
+    trace_headers: bool = False,
+) -> Pipeline:
+    """Scrape the file meta information and output it to text file. [chainable DS | FILE -> FILE]
 
     If no options are specified both will be output. The output file will be
     <filename>.txt for the EBCIDC and <filename>.csv for
@@ -196,27 +269,27 @@ def scrape(filename, ebcidc=False, trace_headers=False):
     The trace headers can be read back into Python using
     pandas.read_csv(<filename>.csv, index_col=0)
     """
-    with Progress(desc="File", total=len(filename)) as pbar:
-        for file in filename:
-            file = pathlib.Path(file)
-            ebcidc_name = file.with_suffix(".txt")
-            header_name = file.with_suffix(".csv")
+    logger.debug(f"PARAM: {ctx.params}")
+    ebcidc_name = pipeline.input_file.with_suffix(".txt")
+    header_name = pipeline.input_file.with_suffix(".csv")
 
-            if ebcidc == False and trace_headers == False:
-                ebcidc = True
-                trace_headers = True
+    if ebcidc == False and trace_headers == False:
+        ebcidc = True
+        trace_headers = True
 
-            if ebcidc:
-                txt = get_segy_texthead(file)
-                with open(ebcidc_name, "w") as txtfile:
-                    txtfile.writelines(txt)
+    if ebcidc:
+        txt = get_segy_texthead(pipeline.input_file)
+        with open(ebcidc_name, "w") as txtfile:
+            txtfile.writelines(txt)
+        logger.debug(f"Wrote ebcidc: {ebcidc_name}")
 
-            if trace_headers:
-                head_df = segy_header_scrape(file)
-                head_df.to_csv(header_name)
-            pbar.update(1)
+    if trace_headers:
+        head_df = segy_header_scrape(pipeline.input_file)
+        head_df.to_csv(header_name)
+        logger.debug(f"Wrote headers: {header_name}")
 
-    return 0
+    pipeline.end = True
+    return pipeline
 
 
 @cli.command(
@@ -339,6 +412,105 @@ def convert(
             raise SystemExit
 
     return 0
+
+
+@cli.command("sgy")
+@click.option(
+    "--dimension",
+    "-d",
+    metavar="NAME BYTE",
+    nargs=2,
+    type=(click.STRING, click.INT),
+    default=None,
+    help="Data dimension NAME and trace header BYTE.",
+    multiple=True,
+)
+@click.option(
+    "--variable",
+    "-v",
+    metavar="NAME BYTE",
+    nargs=2,
+    type=(click.STRING, click.INT),
+    default=None,
+    help="Data header variable NAME and trace header BYTE.",
+    multiple=True,
+)
+@click.option(
+    "-o",
+    "--output",
+    metavar="FILE",
+    nargs=1,
+    type=click.Path(exists=False, path_type=pathlib.Path),
+    help="Output file path",
+)
+@click.pass_context
+@processor
+def sgy(
+    pipeline: Pipeline,
+    ctx: click.Context,
+    dimension: Tuple[Tuple[str, int]],
+    variable: Tuple[Tuple[str, int]],
+    output: Union[pathlib.Path, None],
+) -> Pipeline:
+    """Load or export a SEG-Y file [chainable [DS -> FILE | FILE -> DS]]"""
+    logger.debug(f"PARAM: {ctx.params}")
+
+    if dimension:
+        pipeline.dimension = dimension
+
+    if variable:
+        pipeline.variable = variable
+
+    if output is not None:
+        try:
+            assert pipeline.ds is not None, "SEGY output requires volume input"
+            assert (
+                pipeline.dims is not None
+            ), "SEGY output requires dimensions, set: --dimension"
+        except AssertionError:
+            logger.exception("Poorly formed pipeline for SEG-Y output")
+            raise SystemExit
+
+        pipeline.ds.seisio.to_segy(
+            output, trace_header_map=pipeline.vars, **pipeline.dims
+        )
+        logger.debug(f"Wrote SGY: {output}")
+        pipeline.end = True
+    else:
+        # load the file
+        pipeline.ds = xr.open_dataset(
+            pipeline.input_file,
+            dim_byte_fields=pipeline.dims,
+            extra_byte_fields=pipeline.vars,
+        )
+        pipeline.debug_ds()
+
+    return pipeline
+
+
+@cli.command("crop")
+@click.option(
+    "-c",
+    "--crop",
+    "crops",
+    metavar="DIM MIN MAX ...",
+    nargs=3,
+    type=(click.STRING, click.FLOAT, click.FLOAT),
+    help="The cropping dimension name with min and max values.",
+    multiple=True,
+)
+@click.pass_context
+@processor
+def crop(
+    pipeline: Pipeline, ctx: click.Context, crops: Tuple[Tuple[str, float, float]]
+):
+    """Crop an input volume [chainable DS -> DS]"""
+    logger.debug(f"PARAM: {ctx.params}")
+
+    if crops:
+        pipeline.ds = pipeline.ds.sel(**{d: slice(mi, mx) for d, mi, mx in crops})
+    pipeline.debug_ds()
+    return pipeline
 
 
 if __name__ == "__main__":

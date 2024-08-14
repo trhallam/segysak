@@ -21,6 +21,7 @@ dependencies = [
     "addict",
     "more-itertools>=8.0",
     "typing-extensions",
+    "loguru"
 ]
 requires-python = ">=3.9"
 license = {file = "LICENSE"}
