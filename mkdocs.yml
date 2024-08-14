@@ -132,6 +132,7 @@ nav:
       - Lazy operations with Dask: examples/example_segysak_dask.ipynb
   - CLI:
       - About: cli/about.md
+      - Pipelines: cli/command-pipelines.md
       - Reference: cli/command-line-ref.md
   - Tutorial: tutorial.md
   - Meta:

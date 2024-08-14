@@ -117,7 +117,10 @@ cli-snippets = [
     "segysak ebcidc --help > $CLI_SNIPPETS/ebcidc.txt",
     "segysak scan --help > $CLI_SNIPPETS/scan.txt",
     "segysak scrape --help > $CLI_SNIPPETS/scrape.txt",
-    "segysak convert --help > $CLI_SNIPPETS/convert.txt",
+    "segysak sgy --help > $CLI_SNIPPETS/sgy.txt",
+    "segysak pyzgy --help > $CLI_SNIPPETS/pyzgy.txt",
+    "segysak netcdf --help > $CLI_SNIPPETS/netcdf.txt",
+    "segysak crop --help > $CLI_SNIPPETS/crop.txt",
 ]
 cff-snippets = [
     "echo $CFF_SNIPPETS",

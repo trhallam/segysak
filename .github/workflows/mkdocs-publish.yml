@@ -40,7 +40,7 @@ jobs:
             echo "MKDOCS_VERSION=$(hatch version | grep -Po '.+dev')" >> $GITHUB_ENV
           fi
           
-          echo "$MKDOCS_VERSION $MIKE_ALIAS"
+          echo $MKDOCS_VERSION $MIKE_ALIAS
 
           echo "BADGE_MSG=fail" >> $GITHUB_ENV
           echo "BADGE_COLOUR=red" >> $GITHUB_ENV
