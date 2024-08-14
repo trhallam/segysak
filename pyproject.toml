@@ -44,6 +44,8 @@ test = [
     "pylint",
     "hypothesis",
     "affine",
+    "pyzgy@git+https://github.com/equinor/pyzgy#egg=main",
+    "zfpy",
 ]
 docs = [
     "jupytext",
@@ -72,6 +74,9 @@ docs = [
 testpaths = [
     "tests"
 ]
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.envs.hatch-test]
 features = [

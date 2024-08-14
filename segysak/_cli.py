@@ -40,6 +40,12 @@ from segysak.progress import Progress
 # configuration setup
 NAME = "segysak"
 
+# for openzgy warnings
+if not sys.warnoptions:
+    import warnings
+
+    warnings.simplefilter("ignore")
+
 
 @dataclass
 class Pipeline:
@@ -96,9 +102,7 @@ def guess_file_type(file):
 @click.option(
     "--debug-level", default="INFO", type=click.Choice(["ERROR", "INFO", "DEBUG"])
 )
-@click.argument(
-    "file", metavar="FILE", type=click.Path(exists=True), nargs=1, required=True
-)
+@click.option("-f", "--file", metavar="FILE", type=click.Path(exists=True), nargs=1)
 def cli(version: str, debug_level: str, file: str):
     """
     The SEG-Y Swiss Army Knife (SEGY-SAK) is a tool for managing segy data.
@@ -116,16 +120,29 @@ def cli(version: str, debug_level: str, file: str):
         format="<d>segysak:{function:<10}</d> <level>{message}</level>",
         colorize=True,
         level=debug_level,
+        backtrace=False,
+        diagnose=False,
     )
     logger.debug(f"segysak v{VERSION}")
-    pass
+    logger.debug(f"{file}")
+
+    return 0
 
 
 @cli.result_callback(replace=True)
 def pipeline(
-    processors: List[Callable], file: str, *args: Any, **kwargs: Dict[Any, Any]
+    processors: List[Callable],
+    file: Union[str, None],
+    *args: Any,
+    **kwargs: Dict[Any, Any],
 ):
-    pipe = Pipeline(input_file=pathlib.Path(file))
+    try:
+        pipe = Pipeline(input_file=pathlib.Path(file))
+    except TypeError:
+        logger.exception(
+            f"pipeline requires an input file set: segysak -f <input> <cmd>"
+        )
+        raise SystemExit(0)
 
     logger.debug("Begin process pipeline")
 
@@ -134,7 +151,7 @@ def pipeline(
         if pipe.end:
             # pipeline ends
             logger.debug("End process pipeline")
-            raise SystemExit()
+            raise SystemExit(0)
 
 
 def processor(f: Callable) -> Callable:
@@ -485,6 +502,85 @@ def sgy(
         )
         pipeline.debug_ds()
 
+    return pipeline
+
+
+@cli.command("netcdf")
+@click.option(
+    "-o",
+    "--output",
+    metavar="FILE",
+    nargs=1,
+    type=click.Path(exists=False, path_type=pathlib.Path),
+    help="Output file path",
+)
+@click.pass_context
+@processor
+def netcdf(
+    pipeline: Pipeline,
+    ctx: click.Context,
+    output: Union[pathlib.Path, None],
+) -> Pipeline:
+    """Load or export a NetCDF4 file [chainable [DS -> FILE | FILE -> DS]]"""
+    logger.debug(f"PARAM: {ctx.params}")
+
+    if output is not None:
+        try:
+            assert pipeline.ds is not None, "NetCDF output requires volume input"
+        except AssertionError:
+            logger.exception("Poorly formed pipeline for NetCDF output")
+            raise SystemExit
+        pipeline.ds.to_netcdf(output)
+        pipeline.end = True
+    else:
+        # load the file
+        pipeline.ds = xr.open_dataset(pipeline.input_file)
+        pipeline.debug_ds()
+    return pipeline
+
+
+@cli.command("pyzgy")
+@click.option(
+    "-o",
+    "--output",
+    metavar="FILE",
+    nargs=1,
+    type=click.Path(exists=False, path_type=pathlib.Path),
+    help="Output file path",
+)
+@click.pass_context
+@processor
+def pyzgy(
+    pipeline: Pipeline,
+    ctx: click.Context,
+    output: Union[pathlib.Path, None],
+) -> Pipeline:
+    """Load or export a ZGY file [chainable [DS -> FILE | FILE -> DS]]
+
+    Requires:
+        pyzgy
+        zfpy
+    """
+    logger.debug(f"PARAM: {ctx.params}")
+
+    try:
+        import pyzgy
+    except ImportError:
+        logger.exception("pyzgy package not found, `pip install pyzgy` for zgy support")
+        raise SystemExit
+
+    if output is not None:
+        try:
+            assert pipeline.ds is not None, "NetCDF output requires volume input"
+        except AssertionError:
+            logger.exception("Poorly formed pipeline for NetCDF output")
+            raise SystemExit
+        pipeline.ds.pyzgy.to_zgy(output)
+        pipeline.end = True
+    else:
+        # load the file
+        pipeline.ds = xr.open_dataset(pipeline.input_file)
+        pipeline.debug_ds()
     return pipeline
 
 
