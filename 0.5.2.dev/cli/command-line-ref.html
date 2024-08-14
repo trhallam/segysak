@@ -15,14 +15,14 @@
         <link rel="canonical" href="https://segysak.readthedocs.io/latest/cli/command-line-ref.html">
       
       
-        <link rel="prev" href="about.html">
+        <link rel="prev" href="command-pipelines.html">
       
       
         <link rel="next" href="../tutorial.html">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.6543a935.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.3cba04c6.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
@@ -184,7 +184,7 @@ You're not viewing the latest version.
         <a href="https://github.com/trhallam/segysak" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
   </div>
   <div class="md-source__repository">
     trhallam/segysak
@@ -350,7 +350,7 @@ You're not viewing the latest version.
       <a href="https://github.com/trhallam/segysak" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.6.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
   </div>
   <div class="md-source__repository">
     trhallam/segysak
@@ -1119,6 +1119,27 @@ You're not viewing the latest version.
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="command-pipelines.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pipelines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1174,6 +1195,21 @@ You're not viewing the latest version.
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Base command">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segysak" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1182,6 +1218,21 @@ You're not viewing the latest version.
       EBCIDC headers
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="EBCIDC headers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segysak-ebcidc" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak ebcidc
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1192,14 +1243,95 @@ You're not viewing the latest version.
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Trace Headers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segysak-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak scan
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#segysak-scrape" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak scrape
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#file-format-conversion" class="md-nav__link">
+  <a href="#file-loading-and-conversion" class="md-nav__link">
     <span class="md-ellipsis">
-      File format conversion
+      File loading and conversion
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="File loading and conversion">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segysak-sgy" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak sgy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#segysak-netcdf" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak netcdf
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#segysak-pyzgy" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak pyzgy
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-manipulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data manipulation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data manipulation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segysak-crop" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak crop
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1622,6 +1754,21 @@ You're not viewing the latest version.
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Base command">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segysak" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1630,6 +1777,21 @@ You're not viewing the latest version.
       EBCIDC headers
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="EBCIDC headers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segysak-ebcidc" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak ebcidc
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1640,14 +1802,95 @@ You're not viewing the latest version.
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Trace Headers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segysak-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak scan
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#segysak-scrape" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak scrape
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
-  <a href="#file-format-conversion" class="md-nav__link">
+  <a href="#file-loading-and-conversion" class="md-nav__link">
     <span class="md-ellipsis">
-      File format conversion
+      File loading and conversion
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="File loading and conversion">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segysak-sgy" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak sgy
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#segysak-netcdf" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak netcdf
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#segysak-pyzgy" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak pyzgy
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-manipulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data manipulation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data manipulation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segysak-crop" class="md-nav__link">
+    <span class="md-ellipsis">
+      segysak crop
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1687,92 +1930,113 @@ You're not viewing the latest version.
 
 <h1 id="cli-reference">CLI Reference</h1>
 <h2 id="base-command">Base command</h2>
-<p><strong>segysak</strong></p>
-<div class="highlight"><span class="filename">Bash</span><pre><span></span><code>Usage:<span class="w"> </span>segysak<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND1<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...<span class="w"> </span><span class="o">[</span>COMMAND2<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...<span class="o">]</span>...
+<h3 id="segysak">segysak</h3>
+<div class="highlight"><span class="filename">segysak</span><pre><span></span><code>Usage: segysak [OPTIONS] COMMAND1 [ARGS]... [COMMAND2 [ARGS]...]...
 
-<span class="w">  </span>The<span class="w"> </span>SEG-Y<span class="w"> </span>Swiss<span class="w"> </span>Army<span class="w"> </span>Knife<span class="w"> </span><span class="o">(</span>SEGY-SAK<span class="o">)</span><span class="w"> </span>is<span class="w"> </span>a<span class="w"> </span>tool<span class="w"> </span><span class="k">for</span><span class="w"> </span>managing<span class="w"> </span>segy<span class="w"> </span>data.<span class="w"> </span>It
-<span class="w">  </span>can<span class="w"> </span><span class="nb">read</span><span class="w"> </span>and<span class="w"> </span>dump<span class="w"> </span>ebcidc<span class="w"> </span>headers,<span class="w"> </span>scan<span class="w"> </span>trace<span class="w"> </span>headers,<span class="w"> </span>convert<span class="w"> </span>SEG-Y<span class="w"> </span>to
-<span class="w">  </span>SEISNC<span class="w"> </span>and<span class="w"> </span>vice<span class="w"> </span>versa.
+  The SEG-Y Swiss Army Knife (SEGY-SAK) is a tool for managing segy data. It
+  can read and dump ebcidc headers, scan trace headers, convert SEG-Y to
+  SEISNC and vice versa.
 
 Options:
-<span class="w">  </span>-v,<span class="w"> </span>--version<span class="w">                   </span>Print<span class="w"> </span>application<span class="w"> </span>version<span class="w"> </span>name
-<span class="w">  </span>--debug-level<span class="w"> </span><span class="o">[</span>ERROR<span class="p">|</span>INFO<span class="p">|</span>DEBUG<span class="o">]</span>
-<span class="w">  </span>-f,<span class="w"> </span>--file<span class="w"> </span>FILE
-<span class="w">  </span>--help<span class="w">                          </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
+  -v, --version                   Print application version name
+  --debug-level [ERROR|INFO|DEBUG]
+  -f, --file FILE
+  --help                          Show this message and exit.
 
 Commands:
-<span class="w">  </span>convert<span class="w">  </span>Convert<span class="w"> </span>file<span class="w"> </span>between<span class="w"> </span>SEG-Y<span class="w"> </span>and<span class="w"> </span>NETCDF<span class="w"> </span><span class="o">(</span>direction<span class="w"> </span>is<span class="w"> </span>guessed<span class="w"> </span>or...
-<span class="w">  </span>crop<span class="w">     </span>Crop<span class="w"> </span>an<span class="w"> </span>input<span class="w"> </span>volume<span class="w"> </span><span class="o">[</span>chainable<span class="w"> </span>DS<span class="w"> </span>-&gt;<span class="w"> </span>DS<span class="o">]</span>
-<span class="w">  </span>ebcidc<span class="w">   </span>Print<span class="w"> </span>SEG-Y<span class="w"> </span>EBCIDC<span class="w"> </span>header<span class="w"> </span><span class="o">[</span>chainable<span class="w"> </span>DS<span class="w"> </span><span class="p">|</span><span class="w"> </span>FILE<span class="w"> </span>-&gt;<span class="w"> </span>End<span class="o">]</span>
-<span class="w">  </span>netcdf<span class="w">   </span>Load<span class="w"> </span>or<span class="w"> </span><span class="nb">export</span><span class="w"> </span>a<span class="w"> </span>NetCDF4<span class="w"> </span>file<span class="w"> </span><span class="o">[</span>chainable<span class="w"> </span><span class="o">[</span>DS<span class="w"> </span>-&gt;<span class="w"> </span>FILE<span class="w"> </span><span class="p">|</span><span class="w"> </span>FILE<span class="w"> </span>-&gt;...
-<span class="w">  </span>pyzgy<span class="w">    </span>Load<span class="w"> </span>or<span class="w"> </span><span class="nb">export</span><span class="w"> </span>a<span class="w"> </span>ZGY<span class="w"> </span>file<span class="w"> </span><span class="o">[</span>chainable<span class="w"> </span><span class="o">[</span>DS<span class="w"> </span>-&gt;<span class="w"> </span>FILE<span class="w"> </span><span class="p">|</span><span class="w"> </span>FILE<span class="w"> </span>-&gt;<span class="w"> </span>DS<span class="o">]]</span>
-<span class="w">  </span>scan<span class="w">     </span>Scan<span class="w"> </span>trace<span class="w"> </span>headers<span class="w"> </span>and<span class="w"> </span>print<span class="w"> </span>a<span class="w"> </span>summary<span class="w"> </span>of<span class="w"> </span>value<span class="w"> </span>ranges...
-<span class="w">  </span>scrape<span class="w">   </span>Scrape<span class="w"> </span>the<span class="w"> </span>file<span class="w"> </span>meta<span class="w"> </span>information<span class="w"> </span>and<span class="w"> </span>output<span class="w"> </span>it<span class="w"> </span>to<span class="w"> </span>text<span class="w"> </span>file.
-<span class="w">  </span>sgy<span class="w">      </span>Load<span class="w"> </span>or<span class="w"> </span><span class="nb">export</span><span class="w"> </span>a<span class="w"> </span>SEG-Y<span class="w"> </span>file<span class="w"> </span><span class="o">[</span>chainable<span class="w"> </span><span class="o">[</span>DS<span class="w"> </span>-&gt;<span class="w"> </span>FILE<span class="w"> </span><span class="p">|</span><span class="w"> </span>FILE<span class="w"> </span>-&gt;<span class="w"> </span>DS<span class="o">]]</span>
+  convert  Convert file between SEG-Y and NETCDF (direction is guessed or...
+  crop     Crop an input volume [chainable DS -&gt; DS]
+  ebcidc   Print SEG-Y EBCIDC header [chainable DS | FILE -&gt; End]
+  netcdf   Load or export a NetCDF4 file [chainable [DS -&gt; FILE | FILE -&gt;...
+  pyzgy    Load or export a ZGY file [chainable [DS -&gt; FILE | FILE -&gt; DS]]
+  scan     Scan trace headers and print a summary of value ranges...
+  scrape   Scrape the file meta information and output it to text file.
+  sgy      Load or export a SEG-Y file [chainable [DS -&gt; FILE | FILE -&gt; DS]]
 </code></pre></div>
 <h2 id="ebcidc-headers">EBCIDC headers</h2>
-<p><strong>segysak ebcidc</strong></p>
-<div class="highlight"><span class="filename">Bash</span><pre><span></span><code>Usage:<span class="w"> </span>segysak<span class="w"> </span>ebcidc<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+<h3 id="segysak-ebcidc">segysak ebcidc</h3>
+<div class="highlight"><span class="filename">segysak ebcidc</span><pre><span></span><code>Usage: segysak ebcidc [OPTIONS]
 
-<span class="w">  </span>Print<span class="w"> </span>SEG-Y<span class="w"> </span>EBCIDC<span class="w"> </span>header<span class="w"> </span><span class="o">[</span>chainable<span class="w"> </span>DS<span class="w"> </span><span class="p">|</span><span class="w"> </span>FILE<span class="w"> </span>-&gt;<span class="w"> </span>End<span class="o">]</span>
+  Print SEG-Y EBCIDC header [chainable DS | FILE -&gt; End]
 
 Options:
-<span class="w">  </span>-n,<span class="w"> </span>--new-line<span class="w">       </span>Print<span class="w"> </span>a<span class="w"> </span>blank<span class="w"> </span>line<span class="w"> </span>between<span class="w"> </span>consecutive<span class="w"> </span>header<span class="w"> </span>output.
-<span class="w">  </span>--name<span class="w">               </span>Print<span class="w"> </span>the<span class="w"> </span>file<span class="w"> </span>name<span class="w"> </span>before<span class="w"> </span>the<span class="w"> </span>text<span class="w"> </span>header<span class="w"> </span>output.
-<span class="w">  </span>--no-colour<span class="w">          </span>Decolourise<span class="w"> </span>output.
-<span class="w">  </span>-s,<span class="w"> </span>--set<span class="w"> </span><span class="o">[</span>TXTFILE<span class="o">]</span><span class="w">  </span>Set<span class="w"> </span>the<span class="w"> </span>output<span class="w"> </span>files<span class="w"> </span>to<span class="w"> </span>have<span class="w"> </span>text<span class="w"> </span>from<span class="w"> </span>specified<span class="w"> </span>file
-<span class="w">                       </span>or<span class="w"> </span>stdin.
-<span class="w">  </span>--help<span class="w">               </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
+  -n, --new-line       Print a blank line between consecutive header output.
+  --name               Print the file name before the text header output.
+  --no-colour          Decolourise output.
+  -s, --set [TXTFILE]  Set the output files to have text from specified file
+                       or stdin.
+  --help               Show this message and exit.
 </code></pre></div>
 <h2 id="trace-headers">Trace Headers</h2>
-<p><strong>segysak scan</strong></p>
-<div class="highlight"><span class="filename">Bash</span><pre><span></span><code>Usage:<span class="w"> </span>segysak<span class="w"> </span>scan<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+<h3 id="segysak-scan">segysak scan</h3>
+<div class="highlight"><span class="filename">segysak scan</span><pre><span></span><code>Usage: segysak scan [OPTIONS]
 
-<span class="w">  </span>Scan<span class="w"> </span>trace<span class="w"> </span>headers<span class="w"> </span>and<span class="w"> </span>print<span class="w"> </span>a<span class="w"> </span>summary<span class="w"> </span>of<span class="w"> </span>value<span class="w"> </span>ranges<span class="w"> </span><span class="o">[</span>chainable<span class="w"> </span>DS<span class="w"> </span><span class="p">|</span><span class="w"> </span>FILE
-<span class="w">  </span>-&gt;<span class="w"> </span>End<span class="o">]</span>
+  Scan trace headers and print a summary of value ranges [chainable DS | FILE
+  -&gt; End]
 
 Options:
-<span class="w">  </span>-m,<span class="w"> </span>--max-traces<span class="w"> </span>INTEGER<span class="w">  </span>Number<span class="w"> </span>of<span class="w"> </span>traces<span class="w"> </span>to<span class="w"> </span>scan
-<span class="w">  </span>--help<span class="w">                    </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
+  -m, --max-traces INTEGER  Number of traces to scan
+  --help                    Show this message and exit.
 </code></pre></div>
-<p><strong>segysak scrape</strong></p>
-<div class="highlight"><span class="filename">Bash</span><pre><span></span><code>Usage:<span class="w"> </span>segysak<span class="w"> </span>scrape<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+<h3 id="segysak-scrape">segysak scrape</h3>
+<div class="highlight"><span class="filename">segysak scrape</span><pre><span></span><code>Usage: segysak scrape [OPTIONS]
 
-<span class="w">  </span>Scrape<span class="w"> </span>the<span class="w"> </span>file<span class="w"> </span>meta<span class="w"> </span>information<span class="w"> </span>and<span class="w"> </span>output<span class="w"> </span>it<span class="w"> </span>to<span class="w"> </span>text<span class="w"> </span>file.<span class="w"> </span><span class="o">[</span>chainable<span class="w"> </span>DS<span class="w"> </span><span class="p">|</span>
-<span class="w">  </span>FILE<span class="w"> </span>-&gt;<span class="w"> </span>FILE<span class="o">]</span>
+  Scrape the file meta information and output it to text file. [chainable DS |
+  FILE -&gt; FILE]
 
-<span class="w">  </span>If<span class="w"> </span>no<span class="w"> </span>options<span class="w"> </span>are<span class="w"> </span>specified<span class="w"> </span>both<span class="w"> </span>will<span class="w"> </span>be<span class="w"> </span>output.<span class="w"> </span>The<span class="w"> </span>output<span class="w"> </span>file<span class="w"> </span>will<span class="w"> </span>be
-<span class="w">  </span>&lt;filename&gt;.txt<span class="w"> </span><span class="k">for</span><span class="w"> </span>the<span class="w"> </span>EBCIDC<span class="w"> </span>and<span class="w"> </span>&lt;filename&gt;.csv<span class="w"> </span><span class="k">for</span><span class="w"> </span>trace<span class="w"> </span>headers.
+  If no options are specified both will be output. The output file will be
+  &lt;filename&gt;.txt for the EBCIDC and &lt;filename&gt;.csv for trace headers.
 
-<span class="w">  </span>The<span class="w"> </span>trace<span class="w"> </span>headers<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span><span class="nb">read</span><span class="w"> </span>back<span class="w"> </span>into<span class="w"> </span>Python<span class="w"> </span>using
-<span class="w">  </span>pandas.read_csv<span class="o">(</span>&lt;filename&gt;.csv,<span class="w"> </span><span class="nv">index_col</span><span class="o">=</span><span class="m">0</span><span class="o">)</span>
+  The trace headers can be read back into Python using
+  pandas.read_csv(&lt;filename&gt;.csv, index_col=0)
 
 Options:
-<span class="w">  </span>-e,<span class="w"> </span>--ebcidc<span class="w">         </span>Output<span class="w"> </span>the<span class="w"> </span>text<span class="w"> </span>header
-<span class="w">  </span>-h,<span class="w"> </span>--trace-headers<span class="w">  </span>Output<span class="w"> </span>the<span class="w"> </span>trace<span class="w"> </span>headers<span class="w"> </span>to<span class="w"> </span>csv
-<span class="w">  </span>--help<span class="w">               </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
+  -e, --ebcidc         Output the text header
+  -h, --trace-headers  Output the trace headers to csv
+  --help               Show this message and exit.
 </code></pre></div>
-<h2 id="file-format-conversion">File format conversion</h2>
-<p><strong>segysak convert</strong></p>
-<div class="highlight"><span class="filename">Bash</span><pre><span></span><code>Usage:<span class="w"> </span>segysak<span class="w"> </span>convert<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span><span class="o">[</span>INPUT_FILES<span class="o">]</span>...
+<h2 id="file-loading-and-conversion">File loading and conversion</h2>
+<h3 id="segysak-sgy">segysak sgy</h3>
+<div class="highlight"><span class="filename">segysak sgy</span><pre><span></span><code>Usage: segysak sgy [OPTIONS]
 
-<span class="w">  </span>Convert<span class="w"> </span>file<span class="w"> </span>between<span class="w"> </span>SEG-Y<span class="w"> </span>and<span class="w"> </span>NETCDF<span class="w"> </span><span class="o">(</span>direction<span class="w"> </span>is<span class="w"> </span>guessed<span class="w"> </span>or<span class="w"> </span>can<span class="w"> </span>be<span class="w"> </span>made
-<span class="w">  </span>explicit<span class="w"> </span>with<span class="w"> </span>the<span class="w"> </span>--output-type<span class="w"> </span>option<span class="o">)</span>
+  Load or export a SEG-Y file [chainable [DS -&gt; FILE | FILE -&gt; DS]]
 
 Options:
-<span class="w">  </span>-o,<span class="w"> </span>--output-file<span class="w"> </span>TEXT<span class="w">        </span>Output<span class="w"> </span>file<span class="w"> </span>name
-<span class="w">  </span>-il,<span class="w"> </span>--iline<span class="w"> </span>INTEGER<span class="w">          </span>Inline<span class="w"> </span>byte<span class="w"> </span>location
-<span class="w">  </span>-xl,<span class="w"> </span>--xline<span class="w"> </span>INTEGER<span class="w">          </span>Crossline<span class="w"> </span>byte<span class="w"> </span>location
-<span class="w">  </span>-x,<span class="w"> </span>--cdp-x<span class="w"> </span>INTEGER<span class="w">           </span>CDP<span class="w"> </span>X<span class="w"> </span>byte<span class="w"> </span>location
-<span class="w">  </span>-y,<span class="w"> </span>--cdp-y<span class="w"> </span>INTEGER<span class="w">           </span>CDP<span class="w"> </span>Y<span class="w"> </span>byte<span class="w"> </span>location
-<span class="w">  </span>--crop<span class="w"> </span>INTEGER...<span class="w">             </span>Crop<span class="w"> </span>the<span class="w"> </span>input<span class="w"> </span>volume<span class="w"> </span>providing<span class="w"> </span><span class="m">4</span><span class="w"> </span>parameters:
-<span class="w">                                </span>minil<span class="w"> </span>maxil<span class="w"> </span>minxl<span class="w"> </span>maxxl
-<span class="w">  </span>--output-type<span class="w"> </span><span class="o">[</span>SEG-Y<span class="p">|</span>NETCDF<span class="o">]</span><span class="w">  </span>Explicitly<span class="w"> </span>state<span class="w"> </span>the<span class="w"> </span>desired<span class="w"> </span>output<span class="w"> </span>file<span class="w"> </span><span class="nb">type</span>
-<span class="w">                                </span>by<span class="w"> </span>choosing<span class="w"> </span>one<span class="w"> </span>of<span class="w"> </span>the<span class="w"> </span>options
-<span class="w">  </span>-d,<span class="w"> </span>--dimension<span class="w"> </span>TEXT<span class="w">          </span>Data<span class="w"> </span>dimension<span class="w"> </span><span class="o">(</span>domain<span class="o">)</span><span class="w"> </span>to<span class="w"> </span>write<span class="w"> </span>out,<span class="w"> </span>will
-<span class="w">                                </span>default<span class="w"> </span>to<span class="w"> </span>TWT<span class="w"> </span>or<span class="w"> </span>DEPTH.<span class="w"> </span>Only<span class="w"> </span>used<span class="w"> </span><span class="k">for</span><span class="w"> </span>writing
-<span class="w">                                </span>to<span class="w"> </span>SEG-Y.
-<span class="w">  </span>--help<span class="w">                        </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
+  -d, --dimension NAME BYTE  Data dimension NAME and trace header BYTE.
+  -v, --variable NAME BYTE   Data header variable NAME and trace header BYTE.
+  -o, --output FILE          Output file path
+  --help                     Show this message and exit.
+</code></pre></div>
+<h3 id="segysak-netcdf">segysak netcdf</h3>
+<div class="highlight"><span class="filename">segysak netcdf</span><pre><span></span><code>Usage: segysak netcdf [OPTIONS]
+
+  Load or export a NetCDF4 file [chainable [DS -&gt; FILE | FILE -&gt; DS]]
+
+Options:
+  -o, --output FILE  Output file path
+  --help             Show this message and exit.
+</code></pre></div>
+<h3 id="segysak-pyzgy">segysak pyzgy</h3>
+<div class="highlight"><span class="filename">segysak pyzgy</span><pre><span></span><code>Usage: segysak pyzgy [OPTIONS]
+
+  Load or export a ZGY file [chainable [DS -&gt; FILE | FILE -&gt; DS]]
+
+  Requires:     pyzgy     zfpy
+
+Options:
+  -o, --output FILE  Output file path
+  --help             Show this message and exit.
+</code></pre></div>
+<h2 id="data-manipulation">Data manipulation</h2>
+<h3 id="segysak-crop">segysak crop</h3>
+<div class="highlight"><span class="filename">segysak crop</span><pre><span></span><code>Usage: segysak crop [OPTIONS]
+
+  Crop an input volume [chainable DS -&gt; DS]
+
+Options:
+  -c, --crop DIM MIN MAX ...  The cropping dimension name with min and max
+                              values.
+  --help                      Show this message and exit.
 </code></pre></div>
 
 
@@ -1828,7 +2092,7 @@ Options:
     <script id="__config" type="application/json">{"base": "..", "features": ["navigations.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      <script src="../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
     
   </body>

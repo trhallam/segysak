@@ -121,6 +121,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://segysak.readthedocs.io/latest/cli/command-pipelines.html</loc>
+         <lastmod>2024-08-14</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://segysak.readthedocs.io/latest/examples/QuickOverview.html</loc>
          <lastmod>2024-08-14</lastmod>
          <changefreq>daily</changefreq>
@@ -131,22 +136,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/example_depth_conversion.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://segysak.readthedocs.io/latest/examples/example_extract_arbitrary_line.html</loc>
          <lastmod>2024-08-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://segysak.readthedocs.io/latest/examples/example_extract_data_on_a_horizon.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/example_holoviews.html</loc>
          <lastmod>2024-08-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -187,196 +182,6 @@
     </url>
     <url>
          <loc>https://segysak.readthedocs.io/latest/code_of_conduct.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples_about.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/history.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/tutorial.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/index.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/installation.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/seisnc.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/contributing.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/why-segysak.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/quickstart.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/upgrading.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/LICENSE.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/seisnc-standard.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/code_of_conduct.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/api.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/example_working_with_3d_gathers.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/example_extract_arbitrary_line.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/example_amplitude_extraction_displays.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/QuickOverview.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/example_segysak_dask.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/example_extract_data_on_a_horizon.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/example_segy_headers.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/example_holoviews.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/example_segysak_basics.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/example_segysak_segy_vectorisation.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/example_depth_conversion.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/examples/example_merge_surveys.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/cli/command-line-ref.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/cli/about.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/meta/faq.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/api/segy_text.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/api/segy_inspecting.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/api/xarray_new.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/api/geometry.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/api/segy_xarray.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/api/segy_loading.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/api/xarray_accessor.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/api/utils.html</loc>
-         <lastmod>2024-08-14</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://segysak.readthedocs.io/latest/v0.5.1/api/segy_writing.html</loc>
          <lastmod>2024-08-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
