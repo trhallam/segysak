@@ -93,7 +93,6 @@ class SegyWriter:
         should be trace_header_map key:values. This might happen if the user does ds.sel(iline=100) instead of ds.sel(iline=[100]).
         Using the former will drop the dimension from the DataArray which causes problems for the writer.
         """
-
         # The order of the keys determines the order of the segyfile trace numbering.
         trace_order = tuple(dim for dim in dim_kwargs)  # i.e. ('iline', 'xline')
         full_dim_order = trace_order + (vert_dimension,)
@@ -330,7 +329,9 @@ class SegyWriter:
 
         with (
             segyio.create(self.segy_file, spec) as segyf,
-            Progress(total=n_chunks, unit=" chunks", position=0) as pbar,
+            Progress(
+                total=n_chunks, unit=" chunks", position=0, desc="Processing chunks"
+            ) as pbar,
         ):
             segyf.bin.update(
                 # tsort=segyio.TraceSortingFormat.INLINE_SORTING,
