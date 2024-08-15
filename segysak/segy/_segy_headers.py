@@ -95,7 +95,7 @@ class TraceHeaders:
             silent = False
             n = len(range(*i.indices(self.ntraces)))
 
-        with Progress(unit=" traces", total=n) as pbar:
+        with Progress(unit=" traces", total=n, desc="Reading header") as pbar:
             for header in self.fh.header[i]:
                 pbar.update(1)
                 yield {key: header[key] for key in self.filter}
@@ -206,7 +206,9 @@ def segy_header_scrape(
 
         chunks = ntraces // chunk + min(ntraces % chunk, 1)
         _dfs = []
-        with Progress(unit=" trace-chunks", total=chunks) as pbar:
+        with Progress(
+            unit=" trace-chunks", total=chunks, desc="Processing Chunks"
+        ) as pbar:
             for chk in range(0, chunks):
                 chk_slc = slice(chk * chunk, min((chk + 1) * chunk, ntraces), None)
                 _dfs.append(headers.to_dataframe(selection=chk_slc))
