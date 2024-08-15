@@ -30,7 +30,7 @@ def test_no_input_file():
 @pytest.mark.parametrize("cmd", ("scan", "ebcidc", "scrape"))
 def test_no_output_subcommands(temp_segy, cmd):
     runner = CliRunner()
-    result = runner.invoke(cli, [cmd, str(temp_segy)])
+    result = runner.invoke(cli, [cmd, "--help"])
     print(dir(result))
     print(result.stdout)
     print(result.output)

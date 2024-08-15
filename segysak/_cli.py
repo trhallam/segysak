@@ -39,6 +39,7 @@ from segysak.segy import (
 
 # configuration setup
 NAME = "segysak"
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 # for openzgy warnings
 if not sys.warnoptions:
@@ -102,7 +103,12 @@ def guess_file_type(file):
         return None
 
 
-@click.group(no_args_is_help=True, chain=True)
+@click.group(
+    no_args_is_help=True,
+    chain=True,
+    invoke_without_command=True,
+    context_settings=CONTEXT_SETTINGS,
+)
 @click.option(
     "--version",
     "-v",
