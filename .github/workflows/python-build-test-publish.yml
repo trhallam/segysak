@@ -70,7 +70,7 @@ jobs:
 
   publish-test:
     if: needs.build-test.result == 'success'
-    name: Publish to test.PyPI and PyPI
+    name: Publish to test.PyPI
     runs-on: ubuntu-latest
     environment:
       name: testpypi
@@ -97,7 +97,7 @@ jobs:
 
   publish:
     if: needs.build-test.result == 'success' && !github.event.release.prerelease
-    name: Publish to test.PyPI and PyPI
+    name: Publish to PyPI
     runs-on: ubuntu-latest
     environment:
       name: pypi
