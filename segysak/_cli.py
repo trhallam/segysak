@@ -13,6 +13,8 @@ import xarray as xr
 import pandas as pd
 from loguru import logger
 
+from tqdm import tqdm
+
 try:
     from ._version import version as VERSION
 except ImportError:
@@ -34,8 +36,6 @@ from segysak.segy import (
     get_segy_texthead,
     put_segy_texthead,
 )
-from segysak.tools import fix_bad_chars
-from segysak.progress import Progress
 
 # configuration setup
 NAME = "segysak"
@@ -59,6 +59,7 @@ class Pipeline:
     variable: Union[Tuple[Tuple[str, int]], None] = (
         None  # the header variable name-byte pairs
     )
+    chunks: Tuple[Tuple[str, int]] = ()  # the chunk size for loading data
 
     @property
     def dims(self) -> Dict[str, int]:
@@ -74,8 +75,18 @@ class Pipeline:
             vd.update({v: b for v, b in self.variable})
         return vd
 
+    @property
+    def chunk(self) -> Dict[str, int]:
+        chunks = {}
+        if self.chunks:
+            chunks.update({d: chk_size for d, chk_size in self.chunks})
+        return chunks
+
     def debug_ds(self):
         logger.debug(f"pipeline.ds:\n--------------\n{self.ds}\n--------------")
+
+    def info_ds(self):
+        logger.info(f"pipeline.ds:\n{self.ds}")
 
 
 def guess_file_type(file):
@@ -102,17 +113,34 @@ def guess_file_type(file):
 @click.option(
     "--debug-level", default="INFO", type=click.Choice(["ERROR", "INFO", "DEBUG"])
 )
-@click.option("-f", "--file", metavar="FILE", type=click.Path(exists=True), nargs=1)
-def cli(version: str, debug_level: str, file: str):
+@click.option(
+    "-f",
+    "--file",
+    metavar="FILE",
+    type=click.Path(exists=True),
+    nargs=1,
+    help="The input file for subsequent pipeline operations.",
+)
+@click.option(
+    "-k",
+    "--chunk",
+    "chunks",
+    metavar="DIM CHK_SIZE",
+    type=(click.STRING, click.INT),
+    nargs=2,
+    help="""The chunk size to use for processing data. 
+    Necessary with large files. This will be used to lazily load slabs of data between input and output.
+    """,
+    multiple=True,
+)
+def cli(version: str, debug_level: str, file: str, chunks: Tuple[Tuple[str, int]]):
     """
     The SEG-Y Swiss Army Knife (SEGY-SAK) is a tool for managing segy data.
     It can read and dump ebcidc headers, scan trace headers, convert SEG-Y to SEISNC and vice versa.
     """
     if version:
         click.echo(f"{NAME} {VERSION}", err=True)
-        raise SystemExit
-    # elif debug_level == "DEBUG":
-    #     click.echo(f"segysak v{VERSION}", err=True)
+        raise SystemExit(0)
 
     logger.remove()
     logger.add(
@@ -133,11 +161,12 @@ def cli(version: str, debug_level: str, file: str):
 def pipeline(
     processors: List[Callable],
     file: Union[str, None],
+    chunks: Tuple[Tuple[str, int]],
     *args: Any,
     **kwargs: Dict[Any, Any],
 ):
     try:
-        pipe = Pipeline(input_file=pathlib.Path(file))
+        pipe = Pipeline(input_file=pathlib.Path(file), chunks=chunks)
     except TypeError:
         logger.exception(
             f"pipeline requires an input file set: segysak -f <input> <cmd>"
@@ -489,8 +518,11 @@ def sgy(
             raise SystemExit
 
         pipeline.ds.seisio.to_segy(
-            output, trace_header_map=pipeline.vars, **pipeline.dims
+            output,
+            trace_header_map=pipeline.vars,
+            **pipeline.dims,
         )
+
         logger.debug(f"Wrote SGY: {output}")
         pipeline.end = True
     else:
@@ -498,6 +530,7 @@ def sgy(
         pipeline.ds = xr.open_dataset(
             pipeline.input_file,
             dim_byte_fields=pipeline.dims,
+            chunks=pipeline.chunk,
             extra_byte_fields=pipeline.vars,
         )
         pipeline.debug_ds()
@@ -530,11 +563,21 @@ def netcdf(
         except AssertionError:
             logger.exception("Poorly formed pipeline for NetCDF output")
             raise SystemExit
-        pipeline.ds.to_netcdf(output)
+        task = pipeline.ds.to_netcdf(output, compute=False)
+
+        with TqdmCallback(
+            tqdm_class=tqdm,
+            desc="Output NetCDF",
+            leave=False,
+            unit_scale=True,
+            unit="chunks",
+        ):
+            task.compute()
+        logger.debug(f"Wrote NETCDF: {output}")
         pipeline.end = True
     else:
         # load the file
-        pipeline.ds = xr.open_dataset(pipeline.input_file)
+        pipeline.ds = xr.open_dataset(pipeline.input_file, chunks=pipeline.chunk)
         pipeline.debug_ds()
     return pipeline
 
@@ -579,7 +622,7 @@ def pyzgy(
         pipeline.end = True
     else:
         # load the file
-        pipeline.ds = xr.open_dataset(pipeline.input_file)
+        pipeline.ds = xr.open_dataset(pipeline.input_file, chunks=pipeline.chunk)
         pipeline.debug_ds()
     return pipeline
 
@@ -599,13 +642,23 @@ def pyzgy(
 @processor
 def crop(
     pipeline: Pipeline, ctx: click.Context, crops: Tuple[Tuple[str, float, float]]
-):
+) -> Pipeline:
     """Crop an input volume [chainable DS -> DS]"""
     logger.debug(f"PARAM: {ctx.params}")
 
     if crops:
         pipeline.ds = pipeline.ds.sel(**{d: slice(mi, mx) for d, mi, mx in crops})
     pipeline.debug_ds()
+    return pipeline
+
+
+@cli.command("print")
+@click.pass_context
+@processor
+def ds_print(pipeline: Pipeline, ctx: click.Context) -> Pipeline:
+    """Print the pipeline Xarray dataset"""
+    logger.debug(f"PARAM: {ctx.params}")
+    pipeline.info_ds()
     return pipeline
 
 
