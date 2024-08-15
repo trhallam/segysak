@@ -6,8 +6,8 @@ functions to allow fast an easy interrogation of/interaction wtih SEG-Y files.
 
 For example, it is possible to scrape the text header from a SEG-Y file
 
-```shell
-segysak -f volve10r12-full-twt-sub3d.sgy ebcidc
+```console
+$ segysak -f volve10r12-full-twt-sub3d.sgy ebcidc
 C 1 SEGY OUTPUT FROM Petrel 2017.2 Saturday, June 06 2020 10:15:00
 C 2 Name: ST10010ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534
 ÝCroC 3
