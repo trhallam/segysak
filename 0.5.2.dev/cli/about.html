@@ -1585,17 +1585,17 @@ You're not viewing the latest version.
 convert between data formats. These are convenience wrappers around core <code>segysak</code>
 functions to allow fast an easy interrogation of/interaction wtih SEG-Y files.</p>
 <p>For example, it is possible to scrape the text header from a SEG-Y file</p>
-<div class="highlight"><span class="filename">Bash</span><pre><span></span><code>segysak<span class="w"> </span>-f<span class="w"> </span>volve10r12-full-twt-sub3d.sgy<span class="w"> </span>ebcidc
-C<span class="w"> </span><span class="m">1</span><span class="w"> </span>SEGY<span class="w"> </span>OUTPUT<span class="w"> </span>FROM<span class="w"> </span>Petrel<span class="w"> </span><span class="m">2017</span>.2<span class="w"> </span>Saturday,<span class="w"> </span>June<span class="w"> </span><span class="m">06</span><span class="w"> </span><span class="m">2020</span><span class="w"> </span><span class="m">10</span>:15:00
-C<span class="w"> </span><span class="m">2</span><span class="w"> </span>Name:<span class="w"> </span>ST10010ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534
-ÝCroC<span class="w"> </span><span class="m">3</span>
-C<span class="w"> </span><span class="m">4</span><span class="w"> </span>First<span class="w"> </span>inline:<span class="w"> </span><span class="m">10090</span><span class="w">  </span>Last<span class="w"> </span>inline:<span class="w"> </span><span class="m">10150</span>
-C<span class="w"> </span><span class="m">5</span><span class="w"> </span>First<span class="w"> </span>xline:<span class="w">  </span><span class="m">2150</span><span class="w">   </span>Last<span class="w"> </span>xline:<span class="w">  </span><span class="m">2351</span>
-...
-C37
-C38
-C39
-C40<span class="w"> </span>END<span class="w"> </span>EBCDIC
+<div class="highlight"><span class="filename">Bash Session</span><pre><span></span><code><span class="gp">$ </span>segysak<span class="w"> </span>-f<span class="w"> </span>volve10r12-full-twt-sub3d.sgy<span class="w"> </span>ebcidc
+<span class="go">C 1 SEGY OUTPUT FROM Petrel 2017.2 Saturday, June 06 2020 10:15:00</span>
+<span class="go">C 2 Name: ST10010ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534</span>
+<span class="go">ÝCroC 3</span>
+<span class="go">C 4 First inline: 10090  Last inline: 10150</span>
+<span class="go">C 5 First xline:  2150   Last xline:  2351</span>
+<span class="go">...</span>
+<span class="go">C37</span>
+<span class="go">C38</span>
+<span class="go">C39</span>
+<span class="go">C40 END EBCDIC</span>
 </code></pre></div>
 <p>Standard linux redirects can be used to output the header to a file or to other
 command line tools.</p>

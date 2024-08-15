@@ -1799,7 +1799,7 @@ Options:
                                   Necessary with large files. This will be
                                   used to lazily load slabs of data between
                                   input and output.
-  --help                          Show this message and exit.
+  -h, --help                      Show this message and exit.
 
 Commands:
   convert  Convert file between SEG-Y and NETCDF (direction is guessed or...
@@ -1824,7 +1824,7 @@ Options:
   --no-colour          Decolourise output.
   -s, --set [TXTFILE]  Set the output files to have text from specified file
                        or stdin.
-  --help               Show this message and exit.
+  -h, --help           Show this message and exit.
 </code></pre></div>
 <h2 id="trace-headers">Trace Headers</h2>
 <h3 id="segysak-scan">segysak scan</h3>
@@ -1835,7 +1835,7 @@ Options:
 
 Options:
   -m, --max-traces INTEGER  Number of traces to scan
-  --help                    Show this message and exit.
+  -h, --help                Show this message and exit.
 </code></pre></div>
 <h3 id="segysak-scrape">segysak scrape</h3>
 <div class="highlight"><span class="filename">segysak scrape</span><pre><span></span><code>Usage: segysak scrape [OPTIONS]
@@ -1864,7 +1864,7 @@ Options:
   -d, --dimension NAME BYTE  Data dimension NAME and trace header BYTE.
   -v, --variable NAME BYTE   Data header variable NAME and trace header BYTE.
   -o, --output FILE          Output file path
-  --help                     Show this message and exit.
+  -h, --help                 Show this message and exit.
 </code></pre></div>
 <h3 id="segysak-netcdf">segysak netcdf</h3>
 <div class="highlight"><span class="filename">segysak netcdf</span><pre><span></span><code>Usage: segysak netcdf [OPTIONS]
@@ -1873,7 +1873,7 @@ Options:
 
 Options:
   -o, --output FILE  Output file path
-  --help             Show this message and exit.
+  -h, --help         Show this message and exit.
 </code></pre></div>
 <h3 id="segysak-pyzgy">segysak pyzgy</h3>
 <div class="highlight"><span class="filename">segysak pyzgy</span><pre><span></span><code>Usage: segysak pyzgy [OPTIONS]
@@ -1884,7 +1884,7 @@ Options:
 
 Options:
   -o, --output FILE  Output file path
-  --help             Show this message and exit.
+  -h, --help         Show this message and exit.
 </code></pre></div>
 <h2 id="data-manipulation">Data manipulation</h2>
 <h3 id="segysak-crop">segysak crop</h3>
@@ -1895,7 +1895,7 @@ Options:
 Options:
   -c, --crop DIM MIN MAX ...  The cropping dimension name with min and max
                               values.
-  --help                      Show this message and exit.
+  -h, --help                  Show this message and exit.
 </code></pre></div>
 <h2 id="data">Data</h2>
 <h3 id="segysak-print">segysak print</h3>
@@ -1904,7 +1904,7 @@ Options:
   Print the pipeline Xarray dataset
 
 Options:
-  --help  Show this message and exit.
+  -h, --help  Show this message and exit.
 </code></pre></div>
 
 
