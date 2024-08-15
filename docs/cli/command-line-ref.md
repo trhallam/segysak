@@ -1,6 +1,6 @@
 # CLI Reference
 
-## Base command
+## Base commands
 ### segysak
 ```text title="segysak"
 --8<-- "cli/segysak.txt"
@@ -43,4 +43,10 @@
 ### segysak crop
 ```text title="segysak crop"
 --8<-- "cli/crop.txt"
+```
+
+## Data
+### segysak print
+```text title="segysak print"
+--8<-- "cli/print.txt"
 ```

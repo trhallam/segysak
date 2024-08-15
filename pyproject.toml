@@ -121,6 +121,7 @@ cli-snippets = [
     "segysak pyzgy --help > $CLI_SNIPPETS/pyzgy.txt",
     "segysak netcdf --help > $CLI_SNIPPETS/netcdf.txt",
     "segysak crop --help > $CLI_SNIPPETS/crop.txt",
+    "segysak print --help > $CLI_SNIPPETS/print.txt",
 ]
 cff-snippets = [
     "echo $CFF_SNIPPETS",

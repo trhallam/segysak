@@ -18,9 +18,12 @@ theme:
     - navigation.tabs
     - navigation.sections
     - navigation.expand
+    - navigation.top
     - content.action.edit
     - content.action.view
     - content.code.copy
+    - toc.integrate
+    - toc.follow
   palette:
     primary: teal
   icon:
