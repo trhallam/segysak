@@ -20,8 +20,8 @@ enabling the transfer of data and state.
 For example, to load a 3D SEG-Y file and crop the inline dimension before output to new SEG-Y file, we could use (breaking 
 commands across lines)
 
-```shell
-segysak -f input_file.sgy \
+```console
+$ segysak -f input_file.sgy \
   sgy -d iline 189 -d xline 193 \
   crop -c iline 10 20 \
   sgy -o output_file.sgy
@@ -38,14 +38,36 @@ segysak -f input_file.sgy \
 Chaining of commands allows for more flexible use of input and output operators. For example, a SEG-Y file
 can be converted to NetCDF format and back again.
 
-```shell
-segysak -f in.segy \
+```console
+$ segysak -f in.segy \
   sgy -d iline 189 -d xline 193 -v cdpx 181 -v cdpy 185 \
   netcdf -o out.nc
 
-segysak -f out.nc \
+$ segysak -f out.nc \
   netcdf \
   sgy -o out.segy -d iline 189 -d xline 193 -v cdpx 181 -v cdpy 185
+```
+
+### Printing the pipeline Dataset
+
+A print command is included to quickly check the content of NetCDF files or to check loading operations into Xarray
+format.
+
+```console
+$ segysak -f in.nc netcdf print
+segysak:info_ds    pipeline.ds:
+<xarray.Dataset> Size: 1GB
+Dimensions:  (xline: 951, iline: 651, samples: 462)
+Coordinates:
+  * xline    (xline) int16 2kB 300 301 302 303 304 ... 1246 1247 1248 1249 1250
+  * iline    (iline) int16 1kB 100 101 102 103 104 105 ... 746 747 748 749 750
+  * samples  (samples) float32 2kB 4.0 8.0 12.0 ... 1.84e+03 1.844e+03 1.848e+03
+Data variables:
+    data     (iline, xline, samples) float32 1GB dask.array<chunksize=(651, 951, 462), meta=np.ndarray>
+    cdpx     (iline, xline) int32 2MB dask.array<chunksize=(651, 951), meta=np.ndarray>
+    cdpy     (iline, xline) int32 2MB dask.array<chunksize=(651, 951), meta=np.ndarray>
+Attributes:
+    seisnc:   {"coord_scalar": -100.0, "coord_scaled": false}
 ```
 
 ### Troubleshooting
@@ -53,9 +75,8 @@ segysak -f out.nc \
 Pipeline commands can be configured to provide additional output for troubleshooting/debugging
 using `--debug-level DEBUG` option.
 
-```shell
-segysak -f in.segy --debug-level DEBUG sgy -d iline 189 -d xline 193
-
+```console
+$ segysak -f in.segy --debug-level DEBUG sgy -d iline 189 -d xline 193
 segysak:cli        segysak v0.5.2.dev4
 segysak:cli        in.sgy
 segysak:pipeline   Begin process pipeline
