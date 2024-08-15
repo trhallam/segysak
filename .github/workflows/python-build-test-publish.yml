@@ -68,10 +68,15 @@ jobs:
           name: ${{ matrix.os }} Python ${{ matrix.python-version }} wheel
           path: dist/*
 
-  publish:
-    if: needs.build-test.result == 'success' && !github.event.release.prerelease
+  publish-test:
+    if: needs.build-test.result == 'success'
     name: Publish to test.PyPI and PyPI
     runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/segysak
+    permissions:
+      id-token: write
     needs: [build-test]
 
     steps:
@@ -88,12 +93,29 @@ jobs:
       - name: Publish package to test.PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: __token__
-          password: ${{ secrets.TEST_PYPI_PASSWORD }}
           repository_url: https://test.pypi.org/legacy/
+
+  publish:
+    if: needs.build-test.result == 'success' && !github.event.release.prerelease
+    name: Publish to test.PyPI and PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/segysak
+    permissions:
+      id-token: write
+    needs: [build-test]
+
+    steps:
+      - name: Get wheels
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Move to dist/
+        run: |
+          mkdir dist
+          find artifacts -name "*.whl" -exec mv '{}' dist/ \;
 
       - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_PASSWORD }}
