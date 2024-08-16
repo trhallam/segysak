@@ -190,7 +190,7 @@ def put_segy_texthead(
 
     # check size
     if len(header) > 3200:
-        warn("Byte EBCIDC is too large - truncating", UserWarning)
+        warn(f"Byte EBCIDC is too large ({len(header)}/3200) - truncating", UserWarning)
         header = header[:3200]
 
     segyio_kwargs["ignore_geometry"] = True
