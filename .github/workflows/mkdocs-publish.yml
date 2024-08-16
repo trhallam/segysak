@@ -30,20 +30,27 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install hatch
 
-      - name: Set ENV Vars
+      - name: Set ENV Vars default
         run: |
-          if [ "${{ env.GITHUB_REF_NAME }}" == "main" ]; then
-            echo "MIKE_ALIAS=latest" >> $GITHUB_ENV
-            echo "MKDOCS_VERSION=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-          else
-            echo "MIKE_ALIAS=dev" >> $GITHUB_ENV
-            echo "MKDOCS_VERSION=$(hatch version | grep -Po '.+dev')" >> $GITHUB_ENV
-          fi
+          echo "MIKE_ALIAS=dev" >> $GITHUB_ENV
+          echo "MKDOCS_VERSION=$(hatch version | grep -Po '.+dev')" >> $GITHUB_ENV
+          echo "BADGE_MSG=fail" >> $GITHUB_ENV
+          echo "BADGE_COLOUR=red" >> $GITHUB_ENV
+
+      - name: Set ENV Vars release
+        if: ${{ github.ref_type == 'tag' }}
+        run: |
+          echo $GITHUB_REF_NAME  
+          echo "MKDOCS_VERSION=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          echo "MIKE_ALIAS=${GITHUB_REF_NAME}" >> $GITHUB_ENV
           
           echo $MKDOCS_VERSION $MIKE_ALIAS
 
-          echo "BADGE_MSG=fail" >> $GITHUB_ENV
-          echo "BADGE_COLOUR=red" >> $GITHUB_ENV
+      - name: Set latest
+        if: ${{ github.ref_type == 'tag' && !github.event.release.prerelease }}
+        run: |
+          echo "MIKE_ALIAS='${MIKE_ALIAS} latest'" >> $GITHUB_ENV
+          echo $MKDOCS_VERSION $MIKE_ALIAS
 
       - name: Build docs examples
         id: build
