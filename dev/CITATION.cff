@@ -1,0 +1,27 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: SEGY-SAK
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Antony
+    family-names: Hallam
+    email: a.hallam@epcc.ed.ac.uk
+    affiliation: University of Edinburgh
+    orcid: 'https://orcid.org/0000-0002-0942-0234'
+repository-code: 'https://github.com/trhallam/segysak'
+url: 'https://trhallam.github.io/segysak/'
+repository-artifact: 'https://pypi.org/project/segysak/'
+abstract: >-
+  SEGY-SAK is a python package for interacting with SEG-Y
+  seismic data using Xarray.
+keywords:
+  - segy
+  - sgy
+  - seismic
+  - Xarray
+license: GPL-3.0
