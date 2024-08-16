@@ -121,6 +121,11 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
+         <loc>https://segysak.readthedocs.io/latest/cli/command-pipelines.html</loc>
+         <lastmod>2024-08-16</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
          <loc>https://segysak.readthedocs.io/latest/examples/QuickOverview.html</loc>
          <lastmod>2024-08-16</lastmod>
          <changefreq>daily</changefreq>

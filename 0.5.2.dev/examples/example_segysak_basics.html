@@ -335,7 +335,9 @@ You're not viewing the latest version.
   
 
 
-<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="SEGY-SAK Documentation" class="md-nav__button md-logo" aria-label="SEGY-SAK Documentation" data-md-component="logo">
       
@@ -1207,6 +1209,27 @@ You're not viewing the latest version.
   
   
     <li class="md-nav__item">
+      <a href="../cli/command-pipelines.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pipelines
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../cli/command-line-ref.html" class="md-nav__link">
         
   
@@ -1604,77 +1627,6 @@ You're not viewing the latest version.
                 </div>
               </div>
             
-            
-              
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
-                <div class="md-sidebar__scrollwrap">
-                  <div class="md-sidebar__inner">
-                    
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#creating-empty-3d-geometry" class="md-nav__link">
-    <span class="md-ellipsis">
-      Creating empty 3D geometry
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dimension-based-selection-and-transformation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Dimension based selection and transformation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#coordinates-selection" class="md-nav__link">
-    <span class="md-ellipsis">
-      Coordinates Selection
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#adding-data-to-an-empty-seisnc" class="md-nav__link">
-    <span class="md-ellipsis">
-      Adding data to an empty seisnc
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#other-useful-methods" class="md-nav__link">
-    <span class="md-ellipsis">
-      Other Useful Methods
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-                  </div>
-                </div>
-              </div>
             
           
           
@@ -2142,7 +2094,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </style>
 <!-- End of mermaid configuration --><div class="jupyter-wrapper">
 <div class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=dbfbf913">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bf03f413">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2153,10 +2105,10 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs celltag_hide-code">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs celltag_hide-code" id="cell-id=9f2c02b9">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs celltag_hide-code" id="cell-id=a8c25f41">
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=81feb058">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5e4c1817">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2168,7 +2120,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4b823fdb">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=750cac96">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2623,17 +2575,17 @@ Attributes: (12/17)
     coord_scaled:        None
     dimensions:          None
     vert_dimension:      None
-    vert_domain:         None</pre><div class="xr-wrap" style="display:none"><div class="xr-header"><div class="xr-obj-type">xarray.Dataset</div></div><ul class="xr-sections"><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-310242cc-8098-4dda-969c-0c6d1a505243" type="checkbox"/><label class="xr-section-summary" for="section-310242cc-8098-4dda-969c-0c6d1a505243" title="Expand/collapse section">Dimensions:</label><div class="xr-section-inline-details"><ul class="xr-dim-list"><li><span class="xr-has-index">iline</span>: 10</li><li><span class="xr-has-index">xline</span>: 5</li><li><span class="xr-has-index">twt</span>: 1000</li></ul></div><div class="xr-section-details"></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-1f8498b3-c1aa-45f8-ae56-22b46997dbdf" type="checkbox"/><label class="xr-section-summary" for="section-1f8498b3-c1aa-45f8-ae56-22b46997dbdf">Coordinates: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">iline</span></div><div class="xr-var-dims">(iline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">1 3 5 7 9 11 13 15 17 19</div><input class="xr-var-attrs-in" disabled="" id="attrs-6811d9f3-f4b5-42f3-af93-c1175982d38b" type="checkbox"/><label for="attrs-6811d9f3-f4b5-42f3-af93-c1175982d38b" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-a5d26d8b-c564-48e0-8e64-913e87e1df10" type="checkbox"/><label for="data-a5d26d8b-c564-48e0-8e64-913e87e1df10" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([ 1,  3,  5,  7,  9, 11, 13, 15, 17, 19])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">xline</span></div><div class="xr-var-dims">(xline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">10 11 12 13 14</div><input class="xr-var-attrs-in" disabled="" id="attrs-5f7cc7be-681c-4f53-bf67-999fb002bd9f" type="checkbox"/><label for="attrs-5f7cc7be-681c-4f53-bf67-999fb002bd9f" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-3840b199-0654-4aed-8ddc-9b27a5b5c1cc" type="checkbox"/><label for="data-3840b199-0654-4aed-8ddc-9b27a5b5c1cc" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([10, 11, 12, 13, 14])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">twt</span></div><div class="xr-var-dims">(twt)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">0 1 2 3 4 5 ... 995 996 997 998 999</div><input class="xr-var-attrs-in" disabled="" id="attrs-88952351-3208-4e10-ab84-43e7afbc3770" type="checkbox"/><label for="attrs-88952351-3208-4e10-ab84-43e7afbc3770" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-9e3bce6a-aa6f-43a8-bafa-588ff701ab01" type="checkbox"/><label for="data-9e3bce6a-aa6f-43a8-bafa-588ff701ab01" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([  0,   1,   2, ..., 997, 998, 999])</pre></div></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-f923c132-62e4-4ba4-90e3-4abf32f65e6a" type="checkbox"/><label class="xr-section-summary" for="section-f923c132-62e4-4ba4-90e3-4abf32f65e6a" title="Expand/collapse section">Data variables: <span>(0)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-e533f008-49d8-42d0-8706-3632410c373a" type="checkbox"/><label class="xr-section-summary" for="section-e533f008-49d8-42d0-8706-3632410c373a">Indexes: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-index-name"><div>iline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-739af828-60c0-4374-bb43-5cd039b5145d" type="checkbox"><label for="index-739af828-60c0-4374-bb43-5cd039b5145d" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([1, 3, 5, 7, 9, 11, 13, 15, 17, 19], dtype='int64', name='iline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>xline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-31bfc6c2-bdad-4855-a356-4a65473bae29" type="checkbox"><label for="index-31bfc6c2-bdad-4855-a356-4a65473bae29" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10, 11, 12, 13, 14], dtype='int64', name='xline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>twt</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-09e4784c-cb12-4772-86bd-a33f681bc044" type="checkbox"><label for="index-09e4784c-cb12-4772-86bd-a33f681bc044" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
+    vert_domain:         None</pre><div class="xr-wrap" style="display:none"><div class="xr-header"><div class="xr-obj-type">xarray.Dataset</div></div><ul class="xr-sections"><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-3f762e1f-a016-4435-be31-bd071951014f" type="checkbox"/><label class="xr-section-summary" for="section-3f762e1f-a016-4435-be31-bd071951014f" title="Expand/collapse section">Dimensions:</label><div class="xr-section-inline-details"><ul class="xr-dim-list"><li><span class="xr-has-index">iline</span>: 10</li><li><span class="xr-has-index">xline</span>: 5</li><li><span class="xr-has-index">twt</span>: 1000</li></ul></div><div class="xr-section-details"></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-ca10e572-ee9c-4e2d-bac6-dfed8497adaf" type="checkbox"/><label class="xr-section-summary" for="section-ca10e572-ee9c-4e2d-bac6-dfed8497adaf">Coordinates: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">iline</span></div><div class="xr-var-dims">(iline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">1 3 5 7 9 11 13 15 17 19</div><input class="xr-var-attrs-in" disabled="" id="attrs-62c7cf2a-3884-4398-8321-772315a8f1ce" type="checkbox"/><label for="attrs-62c7cf2a-3884-4398-8321-772315a8f1ce" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-6ca1761a-eb44-48f6-aa95-148c008a99c7" type="checkbox"/><label for="data-6ca1761a-eb44-48f6-aa95-148c008a99c7" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([ 1,  3,  5,  7,  9, 11, 13, 15, 17, 19])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">xline</span></div><div class="xr-var-dims">(xline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">10 11 12 13 14</div><input class="xr-var-attrs-in" disabled="" id="attrs-472c5ec1-069a-471b-a263-80b5f5e93e1e" type="checkbox"/><label for="attrs-472c5ec1-069a-471b-a263-80b5f5e93e1e" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-6a5d2894-234a-4edc-bee8-a7784a783776" type="checkbox"/><label for="data-6a5d2894-234a-4edc-bee8-a7784a783776" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([10, 11, 12, 13, 14])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">twt</span></div><div class="xr-var-dims">(twt)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">0 1 2 3 4 5 ... 995 996 997 998 999</div><input class="xr-var-attrs-in" disabled="" id="attrs-3b81bb1d-9e4e-4325-b15f-b69674b53c74" type="checkbox"/><label for="attrs-3b81bb1d-9e4e-4325-b15f-b69674b53c74" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-c9948d37-2d43-4971-bb6b-12e75a43293c" type="checkbox"/><label for="data-c9948d37-2d43-4971-bb6b-12e75a43293c" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([  0,   1,   2, ..., 997, 998, 999])</pre></div></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-c1a8c4a9-627e-4d03-9ea5-fdb532054a43" type="checkbox"/><label class="xr-section-summary" for="section-c1a8c4a9-627e-4d03-9ea5-fdb532054a43" title="Expand/collapse section">Data variables: <span>(0)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-5d10f528-44bc-483e-8c50-08b4841bc462" type="checkbox"/><label class="xr-section-summary" for="section-5d10f528-44bc-483e-8c50-08b4841bc462">Indexes: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-index-name"><div>iline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-9a4903f5-dfac-49cc-a6d9-5a657ecac6c9" type="checkbox"><label for="index-9a4903f5-dfac-49cc-a6d9-5a657ecac6c9" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([1, 3, 5, 7, 9, 11, 13, 15, 17, 19], dtype='int64', name='iline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>xline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-31319612-8c52-421c-8a61-b0c2c349c52a" type="checkbox"><label for="index-31319612-8c52-421c-8a61-b0c2c349c52a" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10, 11, 12, 13, 14], dtype='int64', name='xline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>twt</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-75dba9d7-65f2-4453-bab0-bf558b4e949a" type="checkbox"><label for="index-75dba9d7-65f2-4453-bab0-bf558b4e949a" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([  0,   1,   2,   3,   4,   5,   6,   7,   8,   9,
        ...
        990, 991, 992, 993, 994, 995, 996, 997, 998, 999],
-      dtype='int64', name='twt', length=1000))</pre></div></input></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-0f1db28e-da65-445d-9bbd-303318e83ba2" type="checkbox"/><label class="xr-section-summary" for="section-0f1db28e-da65-445d-9bbd-303318e83ba2">Attributes: <span>(17)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><dl class="xr-attrs"><dt><span>ns :</span></dt><dd>None</dd><dt><span>sample_rate :</span></dt><dd>1</dd><dt><span>text :</span></dt><dd>SEGY-SAK Create 3D Dataset</dd><dt><span>measurement_system :</span></dt><dd>None</dd><dt><span>d3_domain :</span></dt><dd>TWT</dd><dt><span>epsg :</span></dt><dd>None</dd><dt><span>corner_points :</span></dt><dd>[(np.int64(1), np.int64(10)), (np.int64(19), np.int64(10)), (np.int64(19), np.int64(14)), (np.int64(1), np.int64(14)), (np.int64(1), np.int64(10))]</dd><dt><span>corner_points_xy :</span></dt><dd>None</dd><dt><span>source_file :</span></dt><dd>None</dd><dt><span>srd :</span></dt><dd>None</dd><dt><span>datatype :</span></dt><dd>None</dd><dt><span>percentiles :</span></dt><dd>None</dd><dt><span>coord_scalar :</span></dt><dd>None</dd><dt><span>coord_scaled :</span></dt><dd>None</dd><dt><span>dimensions :</span></dt><dd>None</dd><dt><span>vert_dimension :</span></dt><dd>None</dd><dt><span>vert_domain :</span></dt><dd>None</dd></dl></div></li></ul></div></div>
+      dtype='int64', name='twt', length=1000))</pre></div></input></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-cd8dcb30-866f-492c-80ab-3de48b8dae64" type="checkbox"/><label class="xr-section-summary" for="section-cd8dcb30-866f-492c-80ab-3de48b8dae64">Attributes: <span>(17)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><dl class="xr-attrs"><dt><span>ns :</span></dt><dd>None</dd><dt><span>sample_rate :</span></dt><dd>1</dd><dt><span>text :</span></dt><dd>SEGY-SAK Create 3D Dataset</dd><dt><span>measurement_system :</span></dt><dd>None</dd><dt><span>d3_domain :</span></dt><dd>TWT</dd><dt><span>epsg :</span></dt><dd>None</dd><dt><span>corner_points :</span></dt><dd>[(np.int64(1), np.int64(10)), (np.int64(19), np.int64(10)), (np.int64(19), np.int64(14)), (np.int64(1), np.int64(14)), (np.int64(1), np.int64(10))]</dd><dt><span>corner_points_xy :</span></dt><dd>None</dd><dt><span>source_file :</span></dt><dd>None</dd><dt><span>srd :</span></dt><dd>None</dd><dt><span>datatype :</span></dt><dd>None</dd><dt><span>percentiles :</span></dt><dd>None</dd><dt><span>coord_scalar :</span></dt><dd>None</dd><dt><span>coord_scaled :</span></dt><dd>None</dd><dt><span>dimensions :</span></dt><dd>None</dd><dt><span>vert_dimension :</span></dt><dd>None</dd><dt><span>vert_domain :</span></dt><dd>None</dd></dl></div></li></ul></div></div>
 </div>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ec3d530c">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bb05719b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -2644,7 +2596,7 @@ Attributes: (12/17)
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=af8a1303">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=6dc6c367">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3105,14 +3057,14 @@ Attributes: (12/17)
     coord_scaled:        None
     dimensions:          None
     vert_dimension:      None
-    vert_domain:         None</pre><div class="xr-wrap" style="display:none"><div class="xr-header"><div class="xr-obj-type">xarray.Dataset</div></div><ul class="xr-sections"><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-f16775a9-62f6-4c91-a88e-ab2b507c64c1" type="checkbox"/><label class="xr-section-summary" for="section-f16775a9-62f6-4c91-a88e-ab2b507c64c1" title="Expand/collapse section">Dimensions:</label><div class="xr-section-inline-details"><ul class="xr-dim-list"><li><span class="xr-has-index">iline</span>: 4</li><li><span class="xr-has-index">xline</span>: 2</li></ul></div><div class="xr-section-details"></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-027b53e1-9488-438b-b084-5db4806dac8e" type="checkbox"/><label class="xr-section-summary" for="section-027b53e1-9488-438b-b084-5db4806dac8e">Coordinates: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">iline</span></div><div class="xr-var-dims">(iline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">1 3 5 7</div><input class="xr-var-attrs-in" disabled="" id="attrs-ffb3484e-eadf-4691-ba17-9456606576a0" type="checkbox"/><label for="attrs-ffb3484e-eadf-4691-ba17-9456606576a0" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-f258b8ba-0059-49e7-8d10-b8c88abc5981" type="checkbox"/><label for="data-f258b8ba-0059-49e7-8d10-b8c88abc5981" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([1, 3, 5, 7])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">xline</span></div><div class="xr-var-dims">(xline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">10 12</div><input class="xr-var-attrs-in" disabled="" id="attrs-37037d7a-6799-43fd-9d49-238b191b1cac" type="checkbox"/><label for="attrs-37037d7a-6799-43fd-9d49-238b191b1cac" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-1c266d0d-8c30-401c-8d39-2bb4a4ff9ef7" type="checkbox"/><label for="data-1c266d0d-8c30-401c-8d39-2bb4a4ff9ef7" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([10, 12])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span>twt</span></div><div class="xr-var-dims">()</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">9</div><input class="xr-var-attrs-in" disabled="" id="attrs-a4600ee5-327b-4c46-8dca-d1b3ceafedf7" type="checkbox"/><label for="attrs-a4600ee5-327b-4c46-8dca-d1b3ceafedf7" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-8ef5dfb3-20db-433f-81ce-c808b88f73b0" type="checkbox"/><label for="data-8ef5dfb3-20db-433f-81ce-c808b88f73b0" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array(9)</pre></div></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-53f98285-c95d-4067-9894-ab3c86e9a317" type="checkbox"/><label class="xr-section-summary" for="section-53f98285-c95d-4067-9894-ab3c86e9a317" title="Expand/collapse section">Data variables: <span>(0)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-509be220-bd5c-450c-b2ed-4f84a46f905c" type="checkbox"/><label class="xr-section-summary" for="section-509be220-bd5c-450c-b2ed-4f84a46f905c">Indexes: <span>(2)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-index-name"><div>iline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-f8cf4c6f-dcdd-4093-aa8e-5e73d8a53b33" type="checkbox"><label for="index-f8cf4c6f-dcdd-4093-aa8e-5e73d8a53b33" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([1, 3, 5, 7], dtype='int64', name='iline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>xline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-a5fc85ab-036b-45b7-a649-37a38f5c2aa0" type="checkbox"><label for="index-a5fc85ab-036b-45b7-a649-37a38f5c2aa0" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10, 12], dtype='int64', name='xline'))</pre></div></input></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-87704ce0-ce72-4d11-8377-c81108a29507" type="checkbox"/><label class="xr-section-summary" for="section-87704ce0-ce72-4d11-8377-c81108a29507">Attributes: <span>(17)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><dl class="xr-attrs"><dt><span>ns :</span></dt><dd>None</dd><dt><span>sample_rate :</span></dt><dd>1</dd><dt><span>text :</span></dt><dd>SEGY-SAK Create 3D Dataset</dd><dt><span>measurement_system :</span></dt><dd>None</dd><dt><span>d3_domain :</span></dt><dd>TWT</dd><dt><span>epsg :</span></dt><dd>None</dd><dt><span>corner_points :</span></dt><dd>[(np.int64(1), np.int64(10)), (np.int64(19), np.int64(10)), (np.int64(19), np.int64(14)), (np.int64(1), np.int64(14)), (np.int64(1), np.int64(10))]</dd><dt><span>corner_points_xy :</span></dt><dd>None</dd><dt><span>source_file :</span></dt><dd>None</dd><dt><span>srd :</span></dt><dd>None</dd><dt><span>datatype :</span></dt><dd>None</dd><dt><span>percentiles :</span></dt><dd>None</dd><dt><span>coord_scalar :</span></dt><dd>None</dd><dt><span>coord_scaled :</span></dt><dd>None</dd><dt><span>dimensions :</span></dt><dd>None</dd><dt><span>vert_dimension :</span></dt><dd>None</dd><dt><span>vert_domain :</span></dt><dd>None</dd></dl></div></li></ul></div></div>
+    vert_domain:         None</pre><div class="xr-wrap" style="display:none"><div class="xr-header"><div class="xr-obj-type">xarray.Dataset</div></div><ul class="xr-sections"><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-901db2bc-1d2f-4110-b495-ba2ed909dc03" type="checkbox"/><label class="xr-section-summary" for="section-901db2bc-1d2f-4110-b495-ba2ed909dc03" title="Expand/collapse section">Dimensions:</label><div class="xr-section-inline-details"><ul class="xr-dim-list"><li><span class="xr-has-index">iline</span>: 4</li><li><span class="xr-has-index">xline</span>: 2</li></ul></div><div class="xr-section-details"></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-02f0799b-f147-4555-ba79-27889a4bc54d" type="checkbox"/><label class="xr-section-summary" for="section-02f0799b-f147-4555-ba79-27889a4bc54d">Coordinates: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">iline</span></div><div class="xr-var-dims">(iline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">1 3 5 7</div><input class="xr-var-attrs-in" disabled="" id="attrs-4166dbc6-69dc-461b-9fc9-79c54b4d19cc" type="checkbox"/><label for="attrs-4166dbc6-69dc-461b-9fc9-79c54b4d19cc" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-4f3bec1e-84c0-4fb8-b5ac-cdd64724a402" type="checkbox"/><label for="data-4f3bec1e-84c0-4fb8-b5ac-cdd64724a402" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([1, 3, 5, 7])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">xline</span></div><div class="xr-var-dims">(xline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">10 12</div><input class="xr-var-attrs-in" disabled="" id="attrs-9436dc74-5a72-42c5-8692-a86311fb4ade" type="checkbox"/><label for="attrs-9436dc74-5a72-42c5-8692-a86311fb4ade" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-effc1801-e183-431a-baca-8f61b70cc5b5" type="checkbox"/><label for="data-effc1801-e183-431a-baca-8f61b70cc5b5" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([10, 12])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span>twt</span></div><div class="xr-var-dims">()</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">9</div><input class="xr-var-attrs-in" disabled="" id="attrs-d5e9c089-ef82-487e-ab22-cb67df34addc" type="checkbox"/><label for="attrs-d5e9c089-ef82-487e-ab22-cb67df34addc" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-331d26d0-1c5f-4a06-997b-75fb68eb3f20" type="checkbox"/><label for="data-331d26d0-1c5f-4a06-997b-75fb68eb3f20" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array(9)</pre></div></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-09b89d19-8911-406e-b0c9-f97a90d917f0" type="checkbox"/><label class="xr-section-summary" for="section-09b89d19-8911-406e-b0c9-f97a90d917f0" title="Expand/collapse section">Data variables: <span>(0)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-9937d36e-013b-4941-9079-db2eb7448537" type="checkbox"/><label class="xr-section-summary" for="section-9937d36e-013b-4941-9079-db2eb7448537">Indexes: <span>(2)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-index-name"><div>iline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-3675e86e-534b-4593-85fd-a3c47d84fa10" type="checkbox"><label for="index-3675e86e-534b-4593-85fd-a3c47d84fa10" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([1, 3, 5, 7], dtype='int64', name='iline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>xline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-26374795-32a6-49a4-8980-257a8410b15b" type="checkbox"><label for="index-26374795-32a6-49a4-8980-257a8410b15b" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10, 12], dtype='int64', name='xline'))</pre></div></input></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-0cb8f3ce-58b6-40a0-bf83-cc3dde815535" type="checkbox"/><label class="xr-section-summary" for="section-0cb8f3ce-58b6-40a0-bf83-cc3dde815535">Attributes: <span>(17)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><dl class="xr-attrs"><dt><span>ns :</span></dt><dd>None</dd><dt><span>sample_rate :</span></dt><dd>1</dd><dt><span>text :</span></dt><dd>SEGY-SAK Create 3D Dataset</dd><dt><span>measurement_system :</span></dt><dd>None</dd><dt><span>d3_domain :</span></dt><dd>TWT</dd><dt><span>epsg :</span></dt><dd>None</dd><dt><span>corner_points :</span></dt><dd>[(np.int64(1), np.int64(10)), (np.int64(19), np.int64(10)), (np.int64(19), np.int64(14)), (np.int64(1), np.int64(14)), (np.int64(1), np.int64(10))]</dd><dt><span>corner_points_xy :</span></dt><dd>None</dd><dt><span>source_file :</span></dt><dd>None</dd><dt><span>srd :</span></dt><dd>None</dd><dt><span>datatype :</span></dt><dd>None</dd><dt><span>percentiles :</span></dt><dd>None</dd><dt><span>coord_scalar :</span></dt><dd>None</dd><dt><span>coord_scaled :</span></dt><dd>None</dd><dt><span>dimensions :</span></dt><dd>None</dd><dt><span>vert_dimension :</span></dt><dd>None</dd><dt><span>vert_domain :</span></dt><dd>None</dd></dl></div></li></ul></div></div>
 </div>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=56fef1ea">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5908aba9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3123,7 +3075,7 @@ Attributes: (12/17)
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=44caaf64">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c265257e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3134,7 +3086,7 @@ Attributes: (12/17)
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2ce3698b">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=8e60d0b7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3185,7 +3137,7 @@ keys: ('xline', 'iline', 'twt') sizes: [5, 10, 1000]
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c37509fd">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d5a5d8dd">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3261,7 +3213,7 @@ new_seisnc.data.transpose("twt", "iline", "xline").isel(xline=2).plot(
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[5]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>&lt;matplotlib.collections.QuadMesh at 0x7ff8c4252cf0&gt;</pre>
+<pre>&lt;matplotlib.collections.QuadMesh at 0x7f7c41041cf0&gt;</pre>
 </div>
 </div>
 <div class="jp-OutputArea-child">
@@ -3274,7 +3226,7 @@ new_seisnc.data.transpose("twt", "iline", "xline").isel(xline=2).plot(
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3f301a10">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8d2246dc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3285,7 +3237,7 @@ new_seisnc.data.transpose("twt", "iline", "xline").isel(xline=2).plot(
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5e9cf504">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=65b729e3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3296,7 +3248,7 @@ new_seisnc.data.transpose("twt", "iline", "xline").isel(xline=2).plot(
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d54d0ad0">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3911a1d3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3341,7 +3293,7 @@ new_seisnc.iline.values</div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=df2f8b5d">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=46f377cd">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3352,7 +3304,7 @@ new_seisnc.iline.values</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=03cd245a">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c424f021">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3393,7 +3345,7 @@ array(-10.76364169)
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b1d99bdd">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=118e2c06">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3434,7 +3386,7 @@ array(0.08882943)
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d09da063">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=09841cd2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3445,7 +3397,7 @@ array(0.08882943)
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c8817b07">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=9816feb2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3486,7 +3438,7 @@ array(-538182.08430941)
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e74887a0">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=38c19b77">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3498,7 +3450,7 @@ Along with using masks this is a fundamental building block for performing horiz
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=57ac41f5">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=610be11a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3539,7 +3491,7 @@ img = map_data.plot()</div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=062f88c8">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=34710064">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3550,7 +3502,7 @@ img = map_data.plot()</div>
 </div>
 </div>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
-<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d00b59cc">
+<div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=50cd4c5e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -3967,7 +3919,7 @@ Attributes: (12/17)
     coord_scaled:        None
     dimensions:          None
     vert_dimension:      None
-    vert_domain:         None</pre><div class="xr-wrap" style="display:none"><div class="xr-header"><div class="xr-obj-type">xarray.Dataset</div></div><ul class="xr-sections"><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-7f012889-595d-48b6-8f59-daadc73619cb" type="checkbox"/><label class="xr-section-summary" for="section-7f012889-595d-48b6-8f59-daadc73619cb" title="Expand/collapse section">Dimensions:</label><div class="xr-section-inline-details"><ul class="xr-dim-list"><li><span class="xr-has-index">xline</span>: 5</li><li><span class="xr-has-index">iline</span>: 10</li><li><span class="xr-has-index">twt</span>: 1000</li></ul></div><div class="xr-section-details"></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-15f30ef9-e387-4eae-8e38-57513716f609" type="checkbox"/><label class="xr-section-summary" for="section-15f30ef9-e387-4eae-8e38-57513716f609">Coordinates: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">xline</span></div><div class="xr-var-dims">(xline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">10 11 12 13 14</div><input class="xr-var-attrs-in" disabled="" id="attrs-6b17e63e-43f8-450f-9406-e5c1d4218f6d" type="checkbox"/><label for="attrs-6b17e63e-43f8-450f-9406-e5c1d4218f6d" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-d0df9392-50ff-476a-b5bd-96e713bc1d0b" type="checkbox"/><label for="data-d0df9392-50ff-476a-b5bd-96e713bc1d0b" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([10, 11, 12, 13, 14])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">iline</span></div><div class="xr-var-dims">(iline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">10 30 50 70 90 110 130 150 170 190</div><input class="xr-var-attrs-in" disabled="" id="attrs-7bf276eb-1c5a-421e-9bd7-a7fc013ff030" type="checkbox"/><label for="attrs-7bf276eb-1c5a-421e-9bd7-a7fc013ff030" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-c562b40b-8042-4e18-a05e-eb7931e44749" type="checkbox"/><label for="data-c562b40b-8042-4e18-a05e-eb7931e44749" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([ 10,  30,  50,  70,  90, 110, 130, 150, 170, 190])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">twt</span></div><div class="xr-var-dims">(twt)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">1500 1501 1502 ... 2497 2498 2499</div><input class="xr-var-attrs-in" disabled="" id="attrs-19a83891-42b6-46ec-8a78-878b6f392e76" type="checkbox"/><label for="attrs-19a83891-42b6-46ec-8a78-878b6f392e76" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-a4758abb-ddda-4039-a7a5-e34feb95e450" type="checkbox"/><label for="data-a4758abb-ddda-4039-a7a5-e34feb95e450" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([1500, 1501, 1502, ..., 2497, 2498, 2499])</pre></div></li></ul></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-01f23e0e-d8ee-45c8-8fee-a86d1512de4d" type="checkbox"/><label class="xr-section-summary" for="section-01f23e0e-d8ee-45c8-8fee-a86d1512de4d">Data variables: <span>(1)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span>data</span></div><div class="xr-var-dims">(xline, iline, twt)</div><div class="xr-var-dtype">float64</div><div class="xr-var-preview xr-preview">-16.22 -16.21 ... -1.803 -1.811</div><input class="xr-var-attrs-in" disabled="" id="attrs-6ed9a77f-a86a-4186-b81c-0e760a00cf91" type="checkbox"/><label for="attrs-6ed9a77f-a86a-4186-b81c-0e760a00cf91" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-4c77fc9e-2f84-4c7b-a244-4e97ae6807f1" type="checkbox"/><label for="data-4c77fc9e-2f84-4c7b-a244-4e97ae6807f1" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([[[-16.2166637 , -16.20666387, -16.19666503, ..., -16.73527165,
+    vert_domain:         None</pre><div class="xr-wrap" style="display:none"><div class="xr-header"><div class="xr-obj-type">xarray.Dataset</div></div><ul class="xr-sections"><li class="xr-section-item"><input class="xr-section-summary-in" disabled="" id="section-050bfb54-7c33-42c9-af29-46539a7a2cd2" type="checkbox"/><label class="xr-section-summary" for="section-050bfb54-7c33-42c9-af29-46539a7a2cd2" title="Expand/collapse section">Dimensions:</label><div class="xr-section-inline-details"><ul class="xr-dim-list"><li><span class="xr-has-index">xline</span>: 5</li><li><span class="xr-has-index">iline</span>: 10</li><li><span class="xr-has-index">twt</span>: 1000</li></ul></div><div class="xr-section-details"></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-a8d91fab-987a-4726-aa1b-427acb4a54d4" type="checkbox"/><label class="xr-section-summary" for="section-a8d91fab-987a-4726-aa1b-427acb4a54d4">Coordinates: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">xline</span></div><div class="xr-var-dims">(xline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">10 11 12 13 14</div><input class="xr-var-attrs-in" disabled="" id="attrs-997f4dac-7674-4e2e-8aeb-68a0e604b232" type="checkbox"/><label for="attrs-997f4dac-7674-4e2e-8aeb-68a0e604b232" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-4afea653-5bec-4955-b301-3f14c02fb24e" type="checkbox"/><label for="data-4afea653-5bec-4955-b301-3f14c02fb24e" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([10, 11, 12, 13, 14])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">iline</span></div><div class="xr-var-dims">(iline)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">10 30 50 70 90 110 130 150 170 190</div><input class="xr-var-attrs-in" disabled="" id="attrs-bd088470-2feb-40fd-8ffe-c7ad2a8e06ae" type="checkbox"/><label for="attrs-bd088470-2feb-40fd-8ffe-c7ad2a8e06ae" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-bc41fd42-df13-4f6d-91ba-b08b01dc6474" type="checkbox"/><label for="data-bc41fd42-df13-4f6d-91ba-b08b01dc6474" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([ 10,  30,  50,  70,  90, 110, 130, 150, 170, 190])</pre></div></li><li class="xr-var-item"><div class="xr-var-name"><span class="xr-has-index">twt</span></div><div class="xr-var-dims">(twt)</div><div class="xr-var-dtype">int64</div><div class="xr-var-preview xr-preview">1500 1501 1502 ... 2497 2498 2499</div><input class="xr-var-attrs-in" disabled="" id="attrs-9ef0f5a9-5138-481f-b8b1-0367573ef28a" type="checkbox"/><label for="attrs-9ef0f5a9-5138-481f-b8b1-0367573ef28a" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-a6d289e2-8d84-415e-ae13-e52eb082c3bb" type="checkbox"/><label for="data-a6d289e2-8d84-415e-ae13-e52eb082c3bb" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([1500, 1501, 1502, ..., 2497, 2498, 2499])</pre></div></li></ul></div></li><li class="xr-section-item"><input checked="" class="xr-section-summary-in" id="section-1ac24389-0371-4de8-b89f-9534c904d633" type="checkbox"/><label class="xr-section-summary" for="section-1ac24389-0371-4de8-b89f-9534c904d633">Data variables: <span>(1)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-var-name"><span>data</span></div><div class="xr-var-dims">(xline, iline, twt)</div><div class="xr-var-dtype">float64</div><div class="xr-var-preview xr-preview">-16.22 -16.21 ... -1.803 -1.811</div><input class="xr-var-attrs-in" disabled="" id="attrs-2387386e-5a7f-455e-8bf1-2c7ec59bd15d" type="checkbox"/><label for="attrs-2387386e-5a7f-455e-8bf1-2c7ec59bd15d" title="Show/Hide attributes"><svg class="icon xr-icon-file-text2"><use xlink:href="#icon-file-text2"></use></svg></label><input class="xr-var-data-in" id="data-e3b93290-f4d9-4672-bcbc-d0b9e0aec8be" type="checkbox"/><label for="data-e3b93290-f4d9-4672-bcbc-d0b9e0aec8be" title="Show/Hide data repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-var-attrs"><dl class="xr-attrs"></dl></div><div class="xr-var-data"><pre>array([[[-16.2166637 , -16.20666387, -16.19666503, ..., -16.73527165,
          -16.7437957 , -16.75226703],
         [-14.96704323, -14.9570434 , -14.94704456, ..., -15.48565118,
          -15.49417523, -15.50264656],
@@ -4007,10 +3959,10 @@ Attributes: (12/17)
         [ -4.06169867,  -4.05169884,  -4.0417    , ...,  -4.58030662,
           -4.58883067,  -4.597302  ],
         [ -1.27563836,  -1.26563852,  -1.25563969, ...,  -1.79424631,
-          -1.80277036,  -1.81124169]]])</pre></div></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-0dc21b14-63a7-44cb-b48b-fd7b2ba77a48" type="checkbox"/><label class="xr-section-summary" for="section-0dc21b14-63a7-44cb-b48b-fd7b2ba77a48">Indexes: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-index-name"><div>xline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-f421fb10-e1b1-4818-b457-f4abaac396be" type="checkbox"><label for="index-f421fb10-e1b1-4818-b457-f4abaac396be" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10, 11, 12, 13, 14], dtype='int64', name='xline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>iline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-a071ac58-7bb8-4c13-9b61-58ca70d4ec07" type="checkbox"><label for="index-a071ac58-7bb8-4c13-9b61-58ca70d4ec07" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10, 30, 50, 70, 90, 110, 130, 150, 170, 190], dtype='int64', name='iline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>twt</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-b71050a1-3e35-4ac9-a21a-0d0899761890" type="checkbox"><label for="index-b71050a1-3e35-4ac9-a21a-0d0899761890" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([1500, 1501, 1502, 1503, 1504, 1505, 1506, 1507, 1508, 1509,
+          -1.80277036,  -1.81124169]]])</pre></div></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-ac925551-f987-4c38-8c49-5dce33536905" type="checkbox"/><label class="xr-section-summary" for="section-ac925551-f987-4c38-8c49-5dce33536905">Indexes: <span>(3)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><ul class="xr-var-list"><li class="xr-var-item"><div class="xr-index-name"><div>xline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-6a54db2d-8a92-491a-ba45-7f3d4531ae57" type="checkbox"><label for="index-6a54db2d-8a92-491a-ba45-7f3d4531ae57" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10, 11, 12, 13, 14], dtype='int64', name='xline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>iline</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-fa1a9eb8-6da1-4fde-9c5a-f5ef142a0c34" type="checkbox"><label for="index-fa1a9eb8-6da1-4fde-9c5a-f5ef142a0c34" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([10, 30, 50, 70, 90, 110, 130, 150, 170, 190], dtype='int64', name='iline'))</pre></div></input></li><li class="xr-var-item"><div class="xr-index-name"><div>twt</div></div><div class="xr-index-preview">PandasIndex</div><div></div><input class="xr-index-data-in" id="index-9ef69587-2196-4086-8e79-7bc846a4e2ec" type="checkbox"><label for="index-9ef69587-2196-4086-8e79-7bc846a4e2ec" title="Show/Hide index repr"><svg class="icon xr-icon-database"><use xlink:href="#icon-database"></use></svg></label><div class="xr-index-data"><pre>PandasIndex(Index([1500, 1501, 1502, 1503, 1504, 1505, 1506, 1507, 1508, 1509,
        ...
        2490, 2491, 2492, 2493, 2494, 2495, 2496, 2497, 2498, 2499],
-      dtype='int64', name='twt', length=1000))</pre></div></input></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-97a602a4-eaf2-479a-8224-e279e132b9b3" type="checkbox"/><label class="xr-section-summary" for="section-97a602a4-eaf2-479a-8224-e279e132b9b3">Attributes: <span>(17)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><dl class="xr-attrs"><dt><span>ns :</span></dt><dd>None</dd><dt><span>sample_rate :</span></dt><dd>1</dd><dt><span>text :</span></dt><dd>SEGY-SAK Create 3D Dataset</dd><dt><span>measurement_system :</span></dt><dd>None</dd><dt><span>d3_domain :</span></dt><dd>TWT</dd><dt><span>epsg :</span></dt><dd>None</dd><dt><span>corner_points :</span></dt><dd>[(np.int64(1), np.int64(10)), (np.int64(19), np.int64(10)), (np.int64(19), np.int64(14)), (np.int64(1), np.int64(14)), (np.int64(1), np.int64(10))]</dd><dt><span>corner_points_xy :</span></dt><dd>None</dd><dt><span>source_file :</span></dt><dd>None</dd><dt><span>srd :</span></dt><dd>None</dd><dt><span>datatype :</span></dt><dd>None</dd><dt><span>percentiles :</span></dt><dd>None</dd><dt><span>coord_scalar :</span></dt><dd>None</dd><dt><span>coord_scaled :</span></dt><dd>None</dd><dt><span>dimensions :</span></dt><dd>None</dd><dt><span>vert_dimension :</span></dt><dd>None</dd><dt><span>vert_domain :</span></dt><dd>None</dd></dl></div></li></ul></div></div>
+      dtype='int64', name='twt', length=1000))</pre></div></input></li></ul></div></li><li class="xr-section-item"><input class="xr-section-summary-in" id="section-c98e81e4-4d98-4e8d-a3c5-750e8931bdac" type="checkbox"/><label class="xr-section-summary" for="section-c98e81e4-4d98-4e8d-a3c5-750e8931bdac">Attributes: <span>(17)</span></label><div class="xr-section-inline-details"></div><div class="xr-section-details"><dl class="xr-attrs"><dt><span>ns :</span></dt><dd>None</dd><dt><span>sample_rate :</span></dt><dd>1</dd><dt><span>text :</span></dt><dd>SEGY-SAK Create 3D Dataset</dd><dt><span>measurement_system :</span></dt><dd>None</dd><dt><span>d3_domain :</span></dt><dd>TWT</dd><dt><span>epsg :</span></dt><dd>None</dd><dt><span>corner_points :</span></dt><dd>[(np.int64(1), np.int64(10)), (np.int64(19), np.int64(10)), (np.int64(19), np.int64(14)), (np.int64(1), np.int64(14)), (np.int64(1), np.int64(10))]</dd><dt><span>corner_points_xy :</span></dt><dd>None</dd><dt><span>source_file :</span></dt><dd>None</dd><dt><span>srd :</span></dt><dd>None</dd><dt><span>datatype :</span></dt><dd>None</dd><dt><span>percentiles :</span></dt><dd>None</dd><dt><span>coord_scalar :</span></dt><dd>None</dd><dt><span>coord_scaled :</span></dt><dd>None</dd><dt><span>dimensions :</span></dt><dd>None</dd><dt><span>vert_dimension :</span></dt><dd>None</dd><dt><span>vert_domain :</span></dt><dd>None</dd></dl></div></li></ul></div></div>
 </div>
 </div>
 </div>
@@ -4045,6 +3997,12 @@ Attributes: (12/17)
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
       </main>
       
         <footer class="md-footer">
@@ -4075,7 +4033,7 @@ Attributes: (12/17)
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigations.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigations.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "content.action.edit", "content.action.view", "content.code.copy", "toc.integrate", "toc.follow"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
