@@ -335,9 +335,7 @@ You're not viewing the latest version.
   
 
 
-  
-
-<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="SEGY-SAK Documentation" class="md-nav__button md-logo" aria-label="SEGY-SAK Documentation" data-md-component="logo">
       
@@ -1121,27 +1119,6 @@ You're not viewing the latest version.
   
   
     <li class="md-nav__item">
-      <a href="../cli/command-pipelines.html" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Pipelines
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../cli/command-line-ref.html" class="md-nav__link">
         
   
@@ -1648,6 +1625,99 @@ You're not viewing the latest version.
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#segysak.segy.TraceHeaders" class="md-nav__link">
+    <span class="md-ellipsis">
+      TraceHeaders
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TraceHeaders">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#segysak.segy.TraceHeaders.to_dataframe" class="md-nav__link">
+    <span class="md-ellipsis">
+      to_dataframe
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#segysak.segy.segy_header_scrape" class="md-nav__link">
+    <span class="md-ellipsis">
+      segy_header_scrape
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#segysak.segy.segy_bin_scrape" class="md-nav__link">
+    <span class="md-ellipsis">
+      segy_bin_scrape
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#segysak.segy.segy_header_scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      segy_header_scan
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#segysak.segy.get_segy_texthead" class="md-nav__link">
+    <span class="md-ellipsis">
+      get_segy_texthead
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#segysak.segy.header_as_dimensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      header_as_dimensions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           
             <div class="md-content" data-md-component="content">
@@ -1912,7 +1982,7 @@ headers. This class should be used with a context manager.</p>
             <span class="n">silent</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">*</span><span class="n">i</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ntraces</span><span class="p">)))</span>
 
-        <span class="k">with</span> <span class="n">Progress</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot; traces&quot;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Reading header&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">pbar</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">Progress</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot; traces&quot;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">n</span><span class="p">)</span> <span class="k">as</span> <span class="n">pbar</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">header</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fh</span><span class="o">.</span><span class="n">header</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
                 <span class="n">pbar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
                 <span class="k">yield</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">header</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="p">}</span>
@@ -2230,9 +2300,7 @@ that many traces. Defaults to None.</p>
 <span class="normal">213</span>
 <span class="normal">214</span>
 <span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">segy_header_scrape</span><span class="p">(</span>
+<span class="normal">216</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">segy_header_scrape</span><span class="p">(</span>
     <span class="n">segy_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">],</span>
     <span class="n">partial_scan</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">bytes_filter</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -2260,9 +2328,7 @@ that many traces. Defaults to None.</p>
 
         <span class="n">chunks</span> <span class="o">=</span> <span class="n">ntraces</span> <span class="o">//</span> <span class="n">chunk</span> <span class="o">+</span> <span class="nb">min</span><span class="p">(</span><span class="n">ntraces</span> <span class="o">%</span> <span class="n">chunk</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">_dfs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">with</span> <span class="n">Progress</span><span class="p">(</span>
-            <span class="n">unit</span><span class="o">=</span><span class="s2">&quot; trace-chunks&quot;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">chunks</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Processing Chunks&quot;</span>
-        <span class="p">)</span> <span class="k">as</span> <span class="n">pbar</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">Progress</span><span class="p">(</span><span class="n">unit</span><span class="o">=</span><span class="s2">&quot; trace-chunks&quot;</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">chunks</span><span class="p">)</span> <span class="k">as</span> <span class="n">pbar</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">chk</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">chunks</span><span class="p">):</span>
                 <span class="n">chk_slc</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">chk</span> <span class="o">*</span> <span class="n">chunk</span><span class="p">,</span> <span class="nb">min</span><span class="p">((</span><span class="n">chk</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">chunk</span><span class="p">,</span> <span class="n">ntraces</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="n">_dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">headers</span><span class="o">.</span><span class="n">to_dataframe</span><span class="p">(</span><span class="n">selection</span><span class="o">=</span><span class="n">chk_slc</span><span class="p">))</span>
@@ -2862,7 +2928,9 @@ geometry is correct and unique for each trace in a segy file header.</p>
 
             <details class="quote">
               <summary>Source code in <code>segysak/segy/_segy_headers.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Python</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">221</span>
+              <div class="highlight"><table class="highlighttable"><tr><th colspan="2" class="filename"><span class="filename">Python</span></th></tr><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
 <span class="normal">222</span>
 <span class="normal">223</span>
 <span class="normal">224</span>
@@ -2884,9 +2952,7 @@ geometry is correct and unique for each trace in a segy file header.</p>
 <span class="normal">240</span>
 <span class="normal">241</span>
 <span class="normal">242</span>
-<span class="normal">243</span>
-<span class="normal">244</span>
-<span class="normal">245</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">header_as_dimensions</span><span class="p">(</span><span class="n">head_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dims</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>
+<span class="normal">243</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">header_as_dimensions</span><span class="p">(</span><span class="n">head_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dims</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert dim_kwargs to a dictionary of dimensions. Also useful for checking</span>
 <span class="sd">    geometry is correct and unique for each trace in a segy file header.</span>
 
@@ -2945,12 +3011,6 @@ geometry is correct and unique for each trace in a segy file header.</p>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
-  Back to top
-</button>
-        
       </main>
       
         <footer class="md-footer">
@@ -2981,7 +3041,7 @@ geometry is correct and unique for each trace in a segy file header.</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "..", "features": ["navigations.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "content.action.edit", "content.action.view", "content.code.copy", "toc.integrate", "toc.follow"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigations.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.fe8b6f2b.min.js"></script>

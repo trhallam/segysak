@@ -6,8 +6,8 @@ functions to allow fast an easy interrogation of/interaction wtih SEG-Y files.
 
 For example, it is possible to scrape the text header from a SEG-Y file
 
-```console
-$ segysak -f volve10r12-full-twt-sub3d.sgy ebcidc
+```shell
+segysak ebcidc volve10r12-full-twt-sub3d.sgy
 C 1 SEGY OUTPUT FROM Petrel 2017.2 Saturday, June 06 2020 10:15:00
 C 2 Name: ST10010ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534
 ÝCroC 3
@@ -24,8 +24,17 @@ Standard linux redirects can be used to output the header to a file or to other
 command line tools.
 
 ```shell
-segysak -f volve10r12-full-twt-sub3d.sgy ebcidc  > header.txt
-segysak -f volve10r12-full-twt-sub3d.sgy ebcidc | less
+segysak ebcidc volve10r12-full-twt-sub3d.sgy > header.txt
+segysak ebcidc volve10r12-full-twt-sub3d.sgy | less
+```
+From `segysak>=0.5` file conversion is conducted with lazy loading, this should
+allow very large SEG-Y files to be converted to more performant file formats such
+as ZGY[^1] and NetCDF4.
+
+
+
+```shell
+segysak convert 
 ```
 
 A full list of sub-commands is available in the [CLI Reference](command-line-ref.md)
