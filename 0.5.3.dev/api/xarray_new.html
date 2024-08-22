@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.32">
     
     
       
@@ -3257,23 +3257,58 @@ should match good seisnc dimension names from CoordKeyField</p>
 
     <div class="doc doc-contents ">
 
-      <p>Scale the coordinates using a SEG-Y coord_scalar</p>
+      <p>Scale the dataset coordinates using a SEG-Y coord_scalar.</p>
 <p>The coordinate multiplier is given by:</p>
 <div class="codehilite"><pre><span></span><code>coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar))
 </code></pre></div>
 
-<p>Or
-| scalar | multiplier |
-| ------ | ---------- |
-| 1000   | 1000       |
-| 100    | 100        |
-| 10     | 10         |
-| 1      | 1          |
-| 0      | 1          |
-| -1     | 1          |
-| -10    | 0.1        |
-| -100   | 0.01       |
-| -1000  | 0.001      |</p>
+<p>Or</p>
+<table>
+<thead>
+<tr>
+<th>scalar</th>
+<th>multiplier</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1000</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>100</td>
+<td>100</td>
+</tr>
+<tr>
+<td>10</td>
+<td>10</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td>-1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>-10</td>
+<td>0.1</td>
+</tr>
+<tr>
+<td>-100</td>
+<td>0.01</td>
+</tr>
+<tr>
+<td>-1000</td>
+<td>0.001</td>
+</tr>
+</tbody>
+</table>
 
     </div>
 
@@ -3717,9 +3752,9 @@ at first offset. Defaults to None.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>vert_units(str,</code></td>
+            <td><code>vert_units</code></td>
             <td>
-                  <code>optional</code>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -3728,7 +3763,7 @@ One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>None</code>
             </td>
           </tr>
       </tbody>
@@ -3854,7 +3889,7 @@ One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.</p>
 <span class="sd">            at first offset. Defaults to None.</span>
 <span class="sd">        offset_step (int, float, optional): Required if first_offset is specified. The offset increment.</span>
 <span class="sd">        vert_domain (str, optional): Vertical domain, one of (&#39;DEPTH&#39;, &#39;TWT&#39;). Defaults to &#39;TWT&#39;.</span>
-<span class="sd">        vert_units(str, optional): Measurement system of of vertical coordinates.</span>
+<span class="sd">        vert_units (str, optional): Measurement system of of vertical coordinates.</span>
 <span class="sd">            One of (&#39;ms&#39;, &#39;s&#39;, &#39;m&#39;, &#39;km&#39;, &#39;ft&#39;): Defaults to None for unknown.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">vert_domain</span> <span class="o">=</span> <span class="n">vert_domain</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
@@ -4061,9 +4096,9 @@ at first offset. Defaults to None.</p>
             </td>
           </tr>
           <tr class="doc-section-item">
-            <td><code>vert_units(str,</code></td>
+            <td><code>vert_units</code></td>
             <td>
-                  <code>optional</code>
+                  <code>str</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -4072,7 +4107,7 @@ One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>None</code>
             </td>
           </tr>
       </tbody>
@@ -4163,7 +4198,7 @@ One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.</p>
 <span class="sd">            at first offset. Defaults to None.</span>
 <span class="sd">        offset_step (int, float, optional): Required if first_offset is specified. The offset increment.</span>
 <span class="sd">        vert_domain (str, optional): Vertical domain, one of (&#39;DEPTH&#39;, &#39;TWT&#39;). Defaults to &#39;TWT&#39;.</span>
-<span class="sd">        vert_units(str, optional): Measurement system of of vertical coordinates.</span>
+<span class="sd">        vert_units (str, optional): Measurement system of of vertical coordinates.</span>
 <span class="sd">            One of (&#39;ms&#39;, &#39;s&#39;, &#39;m&#39;, &#39;km&#39;, &#39;ft&#39;): Defaults to None for unknown.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">vert_domain</span> <span class="o">=</span> <span class="n">vert_domain</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
@@ -4635,7 +4670,7 @@ Use for pre-stack data. Defaults to None.</p>
     <script id="__config" type="application/json">{"base": "..", "features": ["navigations.instant", "navigation.tracking", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "content.action.edit", "content.action.view", "content.code.copy", "toc.integrate", "toc.follow"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="../assets/javascripts/bundle.471ce7a9.min.js"></script>
       
     
   </body>
