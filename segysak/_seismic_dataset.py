@@ -179,7 +179,7 @@ def create3d_dataset(
             at first offset. Defaults to None.
         offset_step (int, float, optional): Required if first_offset is specified. The offset increment.
         vert_domain (str, optional): Vertical domain, one of ('DEPTH', 'TWT'). Defaults to 'TWT'.
-        vert_units(str, optional): Measurement system of of vertical coordinates.
+        vert_units (str, optional): Measurement system of of vertical coordinates.
             One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.
     """
     vert_domain = vert_domain.upper()
@@ -266,7 +266,7 @@ def create2d_dataset(
             at first offset. Defaults to None.
         offset_step (int, float, optional): Required if first_offset is specified. The offset increment.
         vert_domain (str, optional): Vertical domain, one of ('DEPTH', 'TWT'). Defaults to 'TWT'.
-        vert_units(str, optional): Measurement system of of vertical coordinates.
+        vert_units (str, optional): Measurement system of of vertical coordinates.
             One of ('ms', 's', 'm', 'km', 'ft'): Defaults to None for unknown.
     """
     vert_domain = vert_domain.upper()

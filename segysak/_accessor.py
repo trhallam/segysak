@@ -107,7 +107,7 @@ class SeisIO:
                 **dim_kwargs,
             )
 
-    def to_netcdf(self, file_path: Union[str, os.PathLike], **kwargs):
+    def to_netcdf(self, file_path: Union[str, os.PathLike], **kwargs: Dict[str, Any]):
         """Output to netcdf4 with specs for seisnc.
 
         Args:
@@ -446,13 +446,14 @@ class SegysakDatasetAccessor(TemplateAccessor):
         return inferred_coords
 
     def scale_coords(self, coord_scalar: float = None):
-        """Scale the coordinates using a SEG-Y coord_scalar
+        """Scale the dataset coordinates using a SEG-Y coord_scalar.
 
         The coordinate multiplier is given by:
 
             coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar))
 
         Or
+
         | scalar | multiplier |
         | ------ | ---------- |
         | 1000   | 1000       |
@@ -464,6 +465,7 @@ class SegysakDatasetAccessor(TemplateAccessor):
         | -10    | 0.1        |
         | -100   | 0.01       |
         | -1000  | 0.001      |
+
         """
         if self.attrs.get(AttrKeyField.coord_scaled):
             raise UserWarning("Coordinates already scaled.")
