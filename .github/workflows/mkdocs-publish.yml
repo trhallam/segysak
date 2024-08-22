@@ -47,9 +47,14 @@ jobs:
           echo $MKDOCS_VERSION $MIKE_ALIAS
 
       - name: Set latest
-        if: ${{ github.ref_type == 'tag' && !github.event.release.prerelease }}
+        if: ${{ github.ref == 'refs/heads/main' }}
         run: |
           echo "MIKE_ALIAS='${MIKE_ALIAS} latest'" >> $GITHUB_ENV
+          
+      - name: Set stable
+        if: ${{ github.ref_type == 'tag' && github.event.type == 'release' }}
+        run: |
+          echo "MIKE_ALIAS='${MIKE_ALIAS} stable'" >> $GITHUB_ENV
           echo $MKDOCS_VERSION $MIKE_ALIAS
 
       - name: Build docs examples
