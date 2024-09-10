@@ -1,151 +1,155 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://segysak.readthedocs.io/latest/index.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/index.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/LICENSE.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/LICENSE.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/api.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/api.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/contributing.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/contributing.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples_about.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/examples_about.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/history.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/history.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/installation.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/installation.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/quickstart.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/quickstart.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/seisnc-standard.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/seisnc-standard.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/seisnc.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/seisnc.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/tutorial.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/tutorial.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/upgrading.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/upgrading.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/why-segysak.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/why-segysak.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/api/geometry.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/api/geometry.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/api/segy_inspecting.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/api/segy_inspecting.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/api/segy_loading.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/api/segy_loading.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/api/segy_text.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/api/segy_text.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/api/segy_writing.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/api/segy_writing.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/api/segy_xarray.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/api/segy_xarray.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/api/utils.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/api/utils.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/api/xarray_accessor.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/api/xarray_accessor.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/api/xarray_new.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/api/xarray_new.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/cli/about.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/cli/about.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/cli/command-line-ref.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/cli/command-line-ref.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/cli/command-pipelines.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/cli/command-pipelines.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/QuickOverview.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/examples/QuickOverview.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/example_amplitude_extraction_displays.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/examples/example_amplitude_extraction_displays.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/example_extract_arbitrary_line.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/examples/example_extract_arbitrary_line.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/example_extract_data_on_a_horizon.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/examples/example_extract_data_on_a_horizon.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/example_merge_surveys.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/examples/example_merge_surveys.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/example_segy_headers.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/examples/example_segy_headers.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/example_segysak_basics.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/examples/example_segysak_basics.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/example_segysak_dask.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/examples/example_segysak_dask.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/example_segysak_segy_vectorisation.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/examples/example_segysak_segy_vectorisation.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/examples/example_working_with_3d_gathers.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/examples/example_working_with_3d_gathers.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/meta/faq.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/meta/faq.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
     <url>
-         <loc>https://segysak.readthedocs.io/latest/code_of_conduct.html</loc>
+         <loc>https://segysak.readthedocs.io/stable/code_of_conduct.html</loc>
+         <lastmod>2024-09-10</lastmod>
+    </url>
+    <url>
+         <loc>https://segysak.readthedocs.io/stable/index.html</loc>
          <lastmod>2024-09-10</lastmod>
     </url>
 </urlset>
