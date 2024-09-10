@@ -18,9 +18,12 @@ theme:
     - navigation.tabs
     - navigation.sections
     - navigation.expand
+    - navigation.top
     - content.action.edit
     - content.action.view
     - content.code.copy
+    - toc.integrate
+    - toc.follow
   palette:
     primary: teal
   icon:
@@ -98,7 +101,7 @@ plugins:
       alias_type: symlink
       redirect_template: null
       deploy_prefix: ""
-      canonical_version: latest
+      canonical_version: stable
       version_selector: true
       css_dir: css
       javascript_dir: js
@@ -133,6 +136,7 @@ nav:
       - Lazy operations with Dask: examples/example_segysak_dask.ipynb
   - CLI:
       - About: cli/about.md
+      - Pipelines: cli/command-pipelines.md
       - Reference: cli/command-line-ref.md
   - Tutorial: tutorial.md
   - Meta:

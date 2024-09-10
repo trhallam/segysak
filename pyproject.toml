@@ -5,7 +5,7 @@ authors = [
     {name= "SEGY-SAK Developers", email= "segysak@gamil.com"}
 ]
 description = "SEG-Y Seismic Data Inspection and Manipulation Tools using Xarray"
-readme = {file = "README.rst", content-type = "text/x-rst"}
+readme = {file = "README.md", content-type = "text/markdown"}
 dependencies = [
     "numpy>=1.20",
     "pandas",
@@ -21,6 +21,7 @@ dependencies = [
     "addict",
     "more-itertools>=8.0",
     "typing-extensions",
+    "loguru"
 ]
 requires-python = ">=3.9"
 license = {file = "LICENSE"}
@@ -111,7 +112,11 @@ cli-snippets = [
     "segysak ebcidc --help > $CLI_SNIPPETS/ebcidc.txt",
     "segysak scan --help > $CLI_SNIPPETS/scan.txt",
     "segysak scrape --help > $CLI_SNIPPETS/scrape.txt",
-    "segysak convert --help > $CLI_SNIPPETS/convert.txt",
+    "segysak sgy --help > $CLI_SNIPPETS/sgy.txt",
+    "segysak pyzgy --help > $CLI_SNIPPETS/pyzgy.txt",
+    "segysak netcdf --help > $CLI_SNIPPETS/netcdf.txt",
+    "segysak crop --help > $CLI_SNIPPETS/crop.txt",
+    "segysak print --help > $CLI_SNIPPETS/print.txt",
 ]
 cff-snippets = [
     "echo $CFF_SNIPPETS",

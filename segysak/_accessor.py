@@ -107,7 +107,7 @@ class SeisIO:
                 **dim_kwargs,
             )
 
-    def to_netcdf(self, file_path: Union[str, os.PathLike], **kwargs):
+    def to_netcdf(self, file_path: Union[str, os.PathLike], **kwargs: Dict[str, Any]):
         """Output to netcdf4 with specs for seisnc.
 
         Args:
@@ -227,9 +227,11 @@ def coordinate_df(
     """
     cdp_x, cdp_y = ds.segysak.get_coords()
 
-    assert ds[cdp_x].dims == ds[cdp_y].dims
+    assert (
+        ds[cdp_x].dims == ds[cdp_y].dims
+    ), f"{cdp_x} and {cdp_y} vars do not have the same dims"
     dims = ds[cdp_x].dims
-    assert len(dims) == 2
+    assert len(dims) == 2, f"{cdp_x} and {cdp_y} are not 2D"
 
     df = ds[[cdp_x, cdp_y]].to_dataframe().reset_index()
     df_nona = df.dropna()
@@ -346,14 +348,16 @@ class TemplateAccessor:
         """
         attrs = {}
         for key, value in seisnc_dims.items():
-            assert key in DimKeyField
-            assert value in self._obj.dims
+            assert key in DimKeyField, f"{key} is not a valid dimension"
+            assert value in self._obj.dims, f"{value} is not in Dataset dims"
 
         if seisnc_dims is not None:
             attrs[AttrKeyField.dimensions] = seisnc_dims
 
         if seisnc_vert_dim is not None:
-            assert seisnc_vert_dim in self._obj.dims
+            assert (
+                seisnc_vert_dim in self._obj.dims
+            ), f"{seisnc_vert_dim} is not in Dataset dims"
             attrs[DimKeyField.samples] = seisnc_vert_dim
 
         self.store_attributes(**attrs)
@@ -410,8 +414,8 @@ class SegysakDatasetAccessor(TemplateAccessor):
         """
         attrs = {}
         for key, value in seisnc_coords.items():
-            assert key in CoordKeyField
-            assert value in self._obj.data_vars
+            assert key in CoordKeyField, f"{key} is not a valid Coordinate key"
+            assert value in self._obj.data_vars, f"{value} is not in Dataset variables"
 
         self.store_attributes(**seisnc_coords)
 
@@ -442,13 +446,14 @@ class SegysakDatasetAccessor(TemplateAccessor):
         return inferred_coords
 
     def scale_coords(self, coord_scalar: float = None):
-        """Scale the coordinates using a SEG-Y coord_scalar
+        """Scale the dataset coordinates using a SEG-Y coord_scalar.
 
         The coordinate multiplier is given by:
 
             coord_scalar_mult = np.power(abs(coord_scalar), np.sign(coord_scalar))
 
         Or
+
         | scalar | multiplier |
         | ------ | ---------- |
         | 1000   | 1000       |
@@ -460,6 +465,7 @@ class SegysakDatasetAccessor(TemplateAccessor):
         | -10    | 0.1        |
         | -100   | 0.01       |
         | -1000  | 0.001      |
+
         """
         if self.attrs.get(AttrKeyField.coord_scaled):
             raise UserWarning("Coordinates already scaled.")
@@ -494,9 +500,9 @@ class SegysakDatasetAccessor(TemplateAccessor):
         assert (
             self._obj[cdp_x].segysak.get_dimensions()
             == self._obj[cdp_y].segysak.get_dimensions()
-        )
+        ), f"{cdp_x} and {cdp_y} do not have the same dimensions"
         dims = self._obj[cdp_x].segysak.get_dimensions()
-        assert len(dims) <= 2
+        assert len(dims) <= 2, f"{cdp_x} and {cdp_y} are not 1D or 2D"
 
         # 3d or 2d selection (polygon vs line)
         if len(dims) == 2:

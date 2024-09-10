@@ -26,7 +26,6 @@ from . import (
 )
 from ._segy_globals import _SEGY_MEASUREMENT_SYSTEM
 from ._segy_core import sample_range, check_tracefield
-from ..progress import Progress
 
 
 class SgyBackendArray(BackendArray):
@@ -96,16 +95,8 @@ class SgyBackendArray(BackendArray):
         tracen_slice_df = tracen_slice_df.join(groups).reset_index(drop=True)
         tracen_slice_df.loc[0, "blocks"] = 0
         tracen_slice_df = tracen_slice_df.ffill()
-
         # extract the data from the segyfile into a flat trace x sample format
-        with (
-            segyio.open(str(self.sgy_file), "r", **self.segyio_kwargs) as segyf,
-            Progress(
-                total=tracen_slice_df.shape[0],
-                desc="Loading Traces",
-                unit=" traces",
-            ) as pb,
-        ):
+        with (segyio.open(str(self.sgy_file), "r", **self.segyio_kwargs) as segyf,):
             segyf.mmap()
             volume = np.zeros(
                 (tracen_slice_df.shape[0], out_sizes[-1]), dtype=self.dtype
@@ -121,7 +112,6 @@ class SgyBackendArray(BackendArray):
                             :, samp_slice
                         ]
                     idx += nt
-                    pb.update(nt)
 
         # this creates a temporary dataset in the dimensions of a segy file
         # before using xarray to unstack the data into a block

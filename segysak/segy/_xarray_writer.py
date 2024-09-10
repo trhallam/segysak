@@ -93,7 +93,6 @@ class SegyWriter:
         should be trace_header_map key:values. This might happen if the user does ds.sel(iline=100) instead of ds.sel(iline=[100]).
         Using the former will drop the dimension from the DataArray which causes problems for the writer.
         """
-
         # The order of the keys determines the order of the segyfile trace numbering.
         trace_order = tuple(dim for dim in dim_kwargs)  # i.e. ('iline', 'xline')
         full_dim_order = trace_order + (vert_dimension,)
@@ -130,7 +129,9 @@ class SegyWriter:
 
         # change numbering if dead traces
         if dead_trace_da is not None:
-            assert dead_trace_da.dtype == bool
+            assert (
+                dead_trace_da.dtype == bool
+            ), f"Dead trace map should be of type: bool"
             n_dead = dead_trace_da.sum()
             trace_numbers[:] = -1
             # use the dead_trace_da as a mask to assign trace numbering (skipping dead traces)
@@ -245,7 +246,7 @@ class SegyWriter:
                 to the function.
         """
         # test for bad args
-        assert data_var in ds
+        assert data_var in ds, f"Data variable '{data_var}' not found in Dataset"
 
         # process dimension arguments
         da_dims = tuple(ds[data_var].dims)
@@ -278,7 +279,7 @@ class SegyWriter:
         if not trace_header_map:
             trace_header_map = dict()
         for th in trace_header_map:
-            assert th in _dse
+            assert th in _dse, f"Trace header variable {th} not found in Dataset"
 
         header_vars = {
             byte: _dse[var]
@@ -328,7 +329,9 @@ class SegyWriter:
 
         with (
             segyio.create(self.segy_file, spec) as segyf,
-            Progress(total=n_chunks, unit=" chunks", position=0) as pbar,
+            Progress(
+                total=n_chunks, unit=" chunks", position=0, desc="Processing chunks"
+            ) as pbar,
         ):
             segyf.bin.update(
                 # tsort=segyio.TraceSortingFormat.INLINE_SORTING,
