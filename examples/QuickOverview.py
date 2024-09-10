@@ -36,6 +36,7 @@ print("3D", V3D_path, V3D_path.exists())
 # %% editable=true slideshow={"slide_type": ""} tags=["hide-code"]
 # Disable progress bars for small examples
 from segysak.progress import Progress
+
 Progress.set_defaults(disable=True)
 
 # %% [markdown] editable=true slideshow={"slide_type": ""}
@@ -63,7 +64,7 @@ import pandas as pd
 
 scan = segy_header_scan(V3D_path)
 
-with pd.option_context('display.max_rows', 100, 'display.max_columns', 10):
+with pd.option_context("display.max_rows", 100, "display.max_columns", 10):
     # drop byte locations where the mean is zero, these are likely empty.
     display(scan)
 
@@ -96,7 +97,7 @@ scrape
 # It is important to provide the `dim_bytes_fields` and if required the `extra_bytes_fields` variables.
 #
 # `dim_byte_fields` specifies the byte locations which determine the orthogonal geometry of your data. This could be CDP for 2D data,
-# iline and xline for 3D data, or iline, xline and offset for pre-stack gathers over 3D data. UTM coordinates are not usually valid dimensions, 
+# iline and xline for 3D data, or iline, xline and offset for pre-stack gathers over 3D data. UTM coordinates are not usually valid dimensions,
 # because if a survey is rotated relative to the UTM grid, you do not get orthogonal dimensions.
 #
 # UTM coordinates and other trace header information you require can be loaded via the `extra_bytes_fields` argument.
@@ -107,10 +108,11 @@ scrape
 
 # %% editable=true slideshow={"slide_type": ""}
 import xarray as xr
+
 V3D = xr.open_dataset(
     V3D_path,
-    dim_byte_fields={"iline":189, "xline":193},
-    extra_byte_fields={"cdp_x":73, "cdp_y":77}
+    dim_byte_fields={"iline": 189, "xline": 193},
+    extra_byte_fields={"cdp_x": 73, "cdp_y": 77},
 )
 V3D
 
@@ -142,7 +144,7 @@ V3D.to_netcdf("data/V3D.nc")
 
 # %% editable=true slideshow={"slide_type": ""}
 # Here the seismic volume to process one INLINE at a time to the NetCDF4 file.
-V3D.chunk({'iline':1, 'xline':-1, 'samples':-1}).to_netcdf("data/V3D_chks.nc")
+V3D.chunk({"iline": 1, "xline": -1, "samples": -1}).to_netcdf("data/V3D_chks.nc")
 
 # %% [markdown] editable=true slideshow={"slide_type": ""}
 # ## Saving data to SEG-Y
@@ -152,7 +154,7 @@ V3D.chunk({'iline':1, 'xline':-1, 'samples':-1}).to_netcdf("data/V3D_chks.nc")
 # %% editable=true slideshow={"slide_type": ""}
 V3D.seisio.to_segy(
     "data/V3D-out.segy",
-    trace_header_map={"cdp_x":73, "cdp_y":77},
+    trace_header_map={"cdp_x": 73, "cdp_y": 77},
     iline=189,
     xline=193,
 )
