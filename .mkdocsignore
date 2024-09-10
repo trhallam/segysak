@@ -2,3 +2,4 @@ tests
 segysak
 .pytest_cache
 examples/.ipynb*
+README.md
