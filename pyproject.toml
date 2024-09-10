@@ -5,7 +5,7 @@ authors = [
     {name= "SEGY-SAK Developers", email= "segysak@gamil.com"}
 ]
 description = "SEG-Y Seismic Data Inspection and Manipulation Tools using Xarray"
-readme = {file = "README.rst", content-type = "text/x-rst"}
+readme = {file = "README.md", content-type = "text/markdown"}
 dependencies = [
     "numpy>=1.20",
     "pandas",
