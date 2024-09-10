@@ -63,7 +63,8 @@ jobs:
           hatch run docs:build-examples
           hatch run docs:cli-snippets
           hatch run docs:cff-snippets
-          hatch run docs:mike deploy --update-aliases --push $MKDOCS_VERSION $MIKE_ALIAS
+          # hatch run docs:mike deploy --update-aliases --push $MKDOCS_VERSION $MIKE_ALIAS
+          hatch run docs:mike deploy --update-aliases $MKDOCS_VERSION $MIKE_ALIAS
           echo "BADGE_MSG=pass" >> $GITHUB_ENV
           echo "BADGE_COLOUR=green" >> $GITHUB_ENV
 

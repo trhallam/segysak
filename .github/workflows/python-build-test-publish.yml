@@ -18,6 +18,10 @@ on:
   release:
     types: [released]
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   build-test:
     name: Build and test segysak
