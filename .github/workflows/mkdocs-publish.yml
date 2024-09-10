@@ -1,6 +1,14 @@
 name: Publish docs via GitHub Pages
 
-on: [push, pull_request]
+on: 
+  push:
+    branches: [main]
+    tags-ignore:
+      - v*
+  pull_request:
+    branches: [main]
+  release:
+    types: [released]
 
 jobs:
   mkdocs:
