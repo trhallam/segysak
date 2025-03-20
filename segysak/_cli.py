@@ -29,8 +29,6 @@ if VERSION is None:
         VERSION = r"¯\_(ツ)_/¯"
 
 from segysak.segy import (
-    segy_converter,
-    segy_writer,
     segy_header_scan,
     segy_header_scrape,
     get_segy_texthead,
@@ -342,128 +340,6 @@ def scrape(
 
     pipeline.end = True
     return pipeline
-
-
-@cli.command(
-    help="Convert file between SEG-Y and NETCDF (direction is guessed or can be made explicit with the --output-type option)"
-)
-@click.argument(
-    "input-files",
-    type=click.Path(exists=True),
-    nargs=-1,
-)
-@click.option(
-    "--output-file", "-o", type=click.STRING, help="Output file name", default=None
-)
-@click.option(
-    "--iline", "-il", type=click.INT, default=189, help="Inline byte location"
-)
-@click.option(
-    "--xline", "-xl", type=click.INT, default=193, help="Crossline byte location"
-)
-@click.option("--cdp-x", "-x", type=click.INT, default=181, help="CDP X byte location")
-@click.option("--cdp-y", "-y", type=click.INT, default=185, help="CDP Y byte location")
-@click.option(
-    "--crop",
-    type=click.INT,
-    nargs=4,
-    default=None,
-    help="Crop the input volume providing 4 parameters: minil maxil minxl maxxl",
-)
-@click.option(
-    "--output-type",
-    type=click.Choice(["SEG-Y", "NETCDF"], case_sensitive=False),
-    default=None,
-    help="Explicitly state the desired output file type by choosing one of the options",
-)
-@click.option(
-    "--dimension",
-    "-d",
-    type=click.STRING,
-    default=None,
-    help="Data dimension (domain) to write out, will default to TWT or DEPTH. Only used for writing to SEG-Y.",
-)
-def convert(
-    output_file, input_files, iline, xline, cdp_x, cdp_y, crop, output_type, dimension
-):
-
-    if len(input_files) > 1 and output_file is not None:
-        raise ValueError(
-            "The output file option should not be used with multiple input files."
-        )
-
-    for input_file in input_files:
-        input_file = pathlib.Path(input_file)
-        if output_type is None and output_file is not None:
-            output_type = guess_file_type(output_file)
-        elif output_type is None and output_file is None:
-            """Because currently only one conversion exists we can guess the output from the input"""
-            input_type = guess_file_type(input_file)
-            if input_type:
-                output_type = "SEGY" if input_type == "NETCDF" else "NETCDF"
-
-        if output_type is None:
-            click.echo(
-                "Output type not recognised! Please provide the desired output file type explicitly using the --output-type option"
-            )
-            raise SystemExit
-
-        click.echo(f"Converting file {input_file.name} to {output_type}")
-
-        if crop is None:
-            crop_loc = None
-        elif isinstance(crop, (list, tuple)) and len(crop) == 0:
-            crop_loc = None
-        else:
-            crop_loc = crop
-
-        if output_type == "NETCDF":
-            if output_file is None:
-                output_file_loc = input_file.stem + ".SEISNC"
-            else:
-                output_file_loc = output_file
-
-            segy_converter(
-                input_file,
-                ncfile=output_file_loc,
-                iline=iline,
-                xline=xline,
-                ix_crop=crop_loc,
-                cdp_x=cdp_x,
-                cdp_y=cdp_y,
-            )
-            click.echo(f"Converted file saved as {output_file_loc}")
-            click.echo(f"NetCDF output written to {output_file_loc}")
-        elif output_type == "SEG-Y":
-            if output_file is None:
-                output_file_loc = input_file.stem + ".segy"
-            else:
-                output_file_loc = output_file
-
-            cdp_x = cdp_x
-            cdp_y = cdp_y
-            vars = locals()
-
-            trace_header_map = {
-                key: vars[key]
-                for key in ["iline", "xline", "cdp_x", "cdp_y"]
-                if vars[key] is not None
-            }
-            segy_writer(
-                input_file,
-                output_file_loc,
-                trace_header_map=trace_header_map,
-                dimension=dimension,
-            )
-            click.echo(f"Converted file saved as {output_file_loc}")
-            click.echo(f"SEG-Y output written to {output_file_loc}")
-        else:
-            click.echo(
-                f"Conversion to output-type {output_type} is not implemented yet"
-            )
-            raise SystemExit
-
-    return 0
 
 
 @cli.command("sgy")

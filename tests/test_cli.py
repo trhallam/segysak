@@ -37,22 +37,3 @@ def test_no_output_subcommands(temp_segy, cmd):
     print(result.exception)
 
     assert result.exit_code == 0
-
-
-def test_converter(temp_segy):
-    runner = CliRunner()
-    result = runner.invoke(
-        cli,
-        [
-            "convert",
-            "--output-file",
-            str(temp_segy.with_suffix(".seisnc")),
-            str(temp_segy),
-        ],
-    )
-    print(dir(result))
-    print(result.stdout)
-    print(result.output)
-    print(result.exception)
-
-    assert result.exit_code == 0

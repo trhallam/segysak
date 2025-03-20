@@ -259,13 +259,6 @@ def test_humanbytes(f3_dataset):
     assert isinstance(f3_dataset.seis.humanbytes, str)
 
 
-def test_get_measurement_system(f3_dataset):
-    assert f3_dataset.seis.get_measurement_system() == "m"
-    local = f3_dataset.copy(deep=True)
-    local.attrs = {}
-    assert local.seis.get_measurement_system() is None
-
-
 def test_surface_from_points_nparray(f3_dataset, f3_horizon_exact):
     interpolated = f3_dataset.seis.surface_from_points(
         f3_horizon_exact[["cdp_x", "cdp_y"]].values,
@@ -282,8 +275,8 @@ def test_surface_from_points_df(f3_dataset, f3_horizon_shift):
 
 
 def test_subsample_dims(f3_dataset):
-    ss = f3_dataset.seis.subsample_dims(twt=2, xline=1)
-    assert ss["twt"].size == (f3_dataset.twt.values.size * 2**2 - 3)
+    ss = f3_dataset.seis.subsample_dims(samples=2, xline=1)
+    assert ss["samples"].size == (f3_dataset.samples.values.size * 2**2 - 3)
     assert ss["xline"].size == (f3_dataset.xline.values.size * 2 - 1)
 
 
@@ -297,7 +290,7 @@ def test_fill_cdpna(f3_dataset):
 
 
 def test_get_affine_transform(geometry_dataset):
-    at = geometry_dataset.seis.get_affine_transform()
+    at = geometry_dataset.segysak.get_affine_transform()
     df = geometry_dataset.drop_vars("data").to_dataframe().reset_index()
     print(at.transform(df[["iline", "xline"]]))
     print(df[["cdp_x", "cdp_y"]])
@@ -352,55 +345,33 @@ def test_get_affine_transform2(tfm):
 
 
 def test_calc_corner_points(f3_dataset):
-    f3_dataset.seis.calc_corner_points()
-    print(f3_dataset.attrs["corner_points"])
-    print(f3_dataset.attrs["corner_points_xy"])
+    cp = f3_dataset.segysak.calc_corner_points()
 
-    assert f3_dataset.attrs["corner_points"] == (
-        (111, 875),
-        (111, 892),
-        (133, 892),
-        (133, 875),
-    )
     assert np.allclose(
-        np.array(f3_dataset.attrs["corner_points_xy"]),
+        np.array(cp),
         np.array(
             (
                 (620197.2, 6074233.0),
                 (620622.1, 6074245.0),
                 (620606.7, 6074794.5),
                 (620181.94, 6074782.5),
+                (620197.2, 6074233.0),
             )
         ),
     )
 
 
 def test_calc_corner_points2d(volve_2d_dataset):
-    volve_2d_dataset.seis.calc_corner_points()
-    assert volve_2d_dataset.attrs["corner_points"] == (1, 202)
+    cp = volve_2d_dataset.segysak.calc_corner_points()
     assert np.allclose(
-        np.array(volve_2d_dataset.attrs["corner_points_xy"]),
+        np.array(cp),
         np.array(
             (
                 (436482.16, 6477774.5),
-                (436482.16, 6477774.5),
-                (434044.3, 6477777.0),
-                (434044.3, 6477777.0),
+                (434044.3, 6478382.41),
             )
         ),
     )
-
-
-def test_get_dead_trace_map(f3_withdead_dataset):
-    dead = f3_withdead_dataset.seis.get_dead_trace_map(zeros_as_nan=True)
-    assert isinstance(dead, xr.DataArray)
-    assert dead.sum().values == 175
-
-    dead = f3_withdead_dataset.seis.get_dead_trace_map(
-        scan=[30, 31, 32], zeros_as_nan=True
-    )
-    assert isinstance(dead, xr.DataArray)
-    assert dead.sum().values == 175
 
 
 class TestIsFunctions:
@@ -559,7 +530,7 @@ def create_xy_dataset(dims, translate, scale, shear, rotate, **dim_kwargs):
     dataset = create3d_dataset(dims=dims, **dim_kwargs)
     il_grid, xl_grid = xr.broadcast(dataset.iline, dataset.xline)
     dataset["empty"] = xr.zeros_like(il_grid)
-    df = dataset.drop_dims("twt").to_dataframe()
+    df = dataset.drop_dims("samples").to_dataframe()
 
     transform = (
         Affine2D().translate(*translate).scale(scale).skew(*shear).rotate(rotate)
@@ -621,7 +592,7 @@ class TestCreate_xysel_segysak:
         dataset, trsfm = create_xy_dataset(
             dims, translate, scale, shear, rotate, first_offset=f, offset_step=s
         )
-        dataset["data"] = (("iline", "xline", "twt", "offset"), np.random.rand(*dims))
+        dataset["data"] = (("iline", "xline", "samples", "offset"), np.random.rand(*dims))
 
         test_points = np.dstack(
             [

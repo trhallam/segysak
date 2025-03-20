@@ -1,13 +1,11 @@
 [project]
 name = "segysak"
 dynamic = ["version"]
-authors = [
-    {name= "SEGY-SAK Developers", email= "segysak@gamil.com"}
-]
+authors = [{ name = "SEGY-SAK Developers", email = "segysak@gamil.com" }]
 description = "SEG-Y Seismic Data Inspection and Manipulation Tools using Xarray"
-readme = {file = "README.md", content-type = "text/markdown"}
+readme = { file = "README.md", content-type = "text/markdown" }
 dependencies = [
-    "numpy>=1.20",
+    "numpy>=2.0.2",
     "pandas",
     "matplotlib",
     "segyio",
@@ -15,16 +13,17 @@ dependencies = [
     "dask",
     "distributed",
     "tqdm",
-    "scipy!=1.10.0",  # version introduced bug with interp
+    "scipy!=1.10.0",       # version introduced bug with interp
     "click",
     "h5netcdf",
     "addict",
     "more-itertools>=8.0",
     "typing-extensions",
-    "loguru"
+    "loguru",
 ]
+
 requires-python = ">=3.9"
-license = {file = "LICENSE"}
+license = { file = "LICENSE" }
 
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -32,19 +31,14 @@ classifiers = [
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3 :: Only",
-    "Topic :: Scientific/Engineering"
+    "Topic :: Scientific/Engineering",
 ]
 
 [project.urls]
 Repository = "https://github.com/trhallam/segysak"
 
 [project.optional-dependencies]
-test = [
-    "pytest",
-    "pylint",
-    "hypothesis",
-    "affine",
-]
+test = ["pytest", "pylint", "hypothesis", "affine"]
 docs = [
     "jupytext",
     "pyvista",
@@ -69,24 +63,18 @@ docs = [
 # testing config
 
 [tool.pytest.ini_options]
-testpaths = [
-    "tests"
-]
+testpaths = ["tests"]
 
 [tool.hatch.envs.hatch-test]
-features = [
-    "test"
-]
+features = ["test"]
 
 [[tool.hatch.envs.hatch-test.matrix]]
-python = ["3.12", "3.11", "3.10", "3.9"]
+python = ["3.13", "3.12", "3.11", "3.10", "3.9"]
 
 # docs config
 
 [tool.hatch.envs.docs]
-features = [
-    "docs"
-]
+features = ["docs"]
 
 [tool.hatch.envs.docs.env-vars]
 CLI_SNIPPETS = "docs/.snippets/cli"
@@ -96,9 +84,9 @@ JUPYTER_PLATFORM_DIRS = "1"
 
 [tool.hatch.envs.docs.scripts]
 clean = [
-  "if [ -d docs/examples ]; then rm -rf $DOC_EXAMPLES; fi",
-  "if [ -d docs/.snippets/cli ]; then rm -rf docs/.snippets/cli; fi",
-  "if [ -d docs/.snippets/cff ]; then rm -rf docs/.snippets/cff; fi",
+    "if [ -d docs/examples ]; then rm -rf $DOC_EXAMPLES; fi",
+    "if [ -d docs/.snippets/cli ]; then rm -rf docs/.snippets/cli; fi",
+    "if [ -d docs/.snippets/cff ]; then rm -rf docs/.snippets/cff; fi",
 ]
 build-examples = [
     "jupytext --to ipynb --execute examples/*.py",
@@ -125,23 +113,18 @@ cff-snippets = [
     "cffconvert -i CITATION.cff -f bibtex -o $CFF_SNIPPETS/bibtex.txt",
 ]
 
-serve = [
-    """if [ ! -d $DOC_EXAMPLES ]; then
+serve = ["""if [ ! -d $DOC_EXAMPLES ]; then
         jupytext --to ipynb examples/*.py;
         mkdir -p $DOC_EXAMPLES;
         mv examples/*.ipynb $DOC_EXAMPLES/.;
-    fi""",
-    "cli-snippets",
-    "cff-snippets",
-    "mkdocs serve",
-]
+    fi""", "cli-snippets", "cff-snippets", "mkdocs serve"]
 build = "mkdocs build -v"
 deploy = [
     "clean",
     "build-examples",
     "cli-snippets",
     "cff-snippets",
-    "mike deploy --update-aliases $(hatch version) dev"
+    "mike deploy --update-aliases $(hatch version) dev",
 ]
 
 # extras

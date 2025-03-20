@@ -31,7 +31,7 @@ def test_chunk_iterator(f3_dataset):
     assert len(chunks) == 1
 
     # manual chunking
-    ds_chunked = f3_dataset.chunk({"iline": 2, "xline": 2, "twt": -1})
+    ds_chunked = f3_dataset.chunk({"iline": 2, "xline": 2, "samples": -1})
     chunks = [chk for chk in chunk_iterator(ds_chunked["data"])]
     assert len(chunks) == 12 * 9
 
@@ -59,16 +59,16 @@ def test_SegyWriter_write_text_header_no_file():
 
 @pytest.fixture(
     params=[
-        {"iline": slice(0, 25), "xline": slice(0, 20), "twt": slice(0, 100)},
-        {"iline": slice(10, 11), "xline": slice(0, 20), "twt": slice(0, 100)},
-        {"iline": 10, "xline": slice(0, 20), "twt": slice(0, 100)},
-        {"iline": slice(0, 25), "xline": slice(10, 11), "twt": slice(0, 100)},
-        {"iline": slice(0, 25), "xline": 10, "twt": slice(0, 100)},
-        {"iline": slice(0, 5), "xline": slice(10, 15), "twt": slice(0, 30)},
-        {"iline": slice(0, 25), "xline": slice(0, 20), "twt": slice(50, 51)},
-        {"iline": slice(0, 25), "xline": slice(0, 20), "twt": 50},
-        {"iline": slice(0, 25), "xline": slice(0, 20), "twt": slice(20, 50)},
-        {"iline": 1, "xline": 1, "twt": slice(0, 100)},
+        {"iline": slice(0, 25), "xline": slice(0, 20), "samples": slice(0, 100)},
+        {"iline": slice(10, 11), "xline": slice(0, 20), "samples": slice(0, 100)},
+        {"iline": 10, "xline": slice(0, 20), "samples": slice(0, 100)},
+        {"iline": slice(0, 25), "xline": slice(10, 11), "samples": slice(0, 100)},
+        {"iline": slice(0, 25), "xline": 10, "samples": slice(0, 100)},
+        {"iline": slice(0, 5), "xline": slice(10, 15), "samples": slice(0, 30)},
+        {"iline": slice(0, 25), "xline": slice(0, 20), "samples": slice(50, 51)},
+        {"iline": slice(0, 25), "xline": slice(0, 20), "samples": 50},
+        {"iline": slice(0, 25), "xline": slice(0, 20), "samples": slice(20, 50)},
+        {"iline": 1, "xline": 1, "samples": slice(0, 100)},
     ],
     scope="module",
     ids=[
@@ -90,10 +90,10 @@ def f3_dataset_slicing(request):
 
 @pytest.fixture(
     params=[
-        {"iline": -1, "xline": 10, "twt": -1},
-        {"iline": 10, "xline": -1, "twt": -1},
-        {"iline": 10, "xline": 10, "twt": -1},
-        {"iline": 10, "xline": 10, "twt": 50},
+        {"iline": -1, "xline": 10, "samples": -1},
+        {"iline": 10, "xline": -1, "samples": -1},
+        {"iline": 10, "xline": 10, "samples": -1},
+        {"iline": 10, "xline": 10, "samples": 50},
         {},
     ],
     ids=["xline2-chunk", "iline2-chunk", "dual-chunk", "sub-chunk", "no-chunk"],
@@ -118,7 +118,7 @@ def test_SegyWriter_f3(
     with SegyWriter(out_file, use_text=True) as writer:
         writer.to_segy(
             ds,
-            vert_dimension="twt",
+            vert_dimension="samples",
             trace_header_map={"cdp_x": 181, "cdp_y": 185},
             iline=189,
             xline=193,
@@ -130,8 +130,6 @@ def test_SegyWriter_f3(
             dim_byte_fields={"iline": 189, "xline": 193},
             extra_byte_fields={"cdp_x": 181, "cdp_y": 185},
         )
-        .rename_dims({"samples": "twt"})
-        .rename_vars({"samples": "twt"})
     )
 
     for dim in ds.dims:
@@ -156,9 +154,9 @@ def test_SegyWriter_f3_withdead(
         ds = f3_dataset.isel(**slices)
 
     # find dead traces - don't do this lazy
-    if "twt" in ds.data.dims:
+    if "samples" in ds.data.dims:
         ds["dead_traces"] = np.logical_not(
-            np.abs(ds.data).sum(dim="twt").astype(bool)
+            np.abs(ds.data).sum(dim="samples").astype(bool)
         ).compute()
     else:
         # slices need to be handled without sum as no twt dim
@@ -170,7 +168,7 @@ def test_SegyWriter_f3_withdead(
     with SegyWriter(out_file, use_text=True) as writer:
         writer.to_segy(
             ds,
-            vert_dimension="twt",
+            vert_dimension="samples",
             trace_header_map={"cdp_x": 181, "cdp_y": 185},
             dead_trace_var=dead_traces,
             iline=189,
@@ -183,8 +181,6 @@ def test_SegyWriter_f3_withdead(
             dim_byte_fields={"iline": 189, "xline": 193},
             extra_byte_fields={"cdp_x": 181, "cdp_y": 185},
         )
-        .rename_dims({"samples": "twt"})
-        .rename_vars({"samples": "twt"})
     )
 
     # because some traces are dropped, the full original dimensions may not be
