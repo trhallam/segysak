@@ -15,6 +15,3 @@ from ._keyfield import (
     AttrKeyField,
     VerticalKeyDim,
 )
-
-# to be depreciated
-from ._accessor import open_seisnc
