@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.17.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -81,7 +81,7 @@ top_hugin_df.head()
 # Alternativey we can use the points to output a `xarray.Dataset` which comes with coordinates for plotting already gridded up for Pyvista.
 
 # %%
-top_hugin_ds = volve_3d.seis.surface_from_points(
+top_hugin_ds = volve_3d.segysak.surface_from_points(
     top_hugin_df, "samples", right=("cdp_x", "cdp_y")
 )
 top_hugin_ds

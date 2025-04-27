@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.16.2
+#       jupytext_version: 1.17.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -18,7 +18,7 @@
 #
 # This notebook demonstrates depth conversion with Xarray (data loaded via SEGY-SAK). For larger volumes, the dask example should be followed, by creating a client with workers first.
 
-# %% editable=true slideshow={"slide_type": ""}
+# %% slideshow={"slide_type": ""}
 import pathlib
 import xarray as xr
 import pandas as pd
@@ -34,7 +34,7 @@ from segysak.segy import segy_header_scan
 # client.cluster.scale(2, memory="0.5gb")
 # client
 
-# %% editable=true slideshow={"slide_type": ""} tags=["hide-code"]
+# %% slideshow={"slide_type": ""} tags=["hide-code"]
 # Disable progress bars for small examples
 from segysak.progress import Progress
 
@@ -45,12 +45,12 @@ Progress.set_defaults(disable=True)
 #
 # First the seismic data and velocity data needs to be loaded. Note the Velocity data is in depth and has significantly fewer inlines and crosslines. That is because the velocity data is sub-sampled relative to the seismic data. This is common where velocities have been picked or calculated on a sparse grid through the seismic volume.
 
-# %% editable=true slideshow={"slide_type": ""}
+# %% slideshow={"slide_type": ""}
 # the data files
 volve3d_path = pathlib.Path("data/volve10r12-full-twt-sub3d.sgy")
 volve3d_vels_path = pathlib.Path("data/volve10-migvel-depth-sub3d.sgy")
 
-# %% editable=true slideshow={"slide_type": ""}
+# %% slideshow={"slide_type": ""}
 # load the data
 vel_ds = xr.open_dataset(
     volve3d_vels_path,
@@ -75,7 +75,7 @@ volve_ds = volve_ds.rename(
 print("Velocity data dims:", vel_ds.dims)
 print("Seismic data dims:", volve_ds.dims)
 
-# %% [markdown] editable=true slideshow={"slide_type": ""}
+# %% [markdown] slideshow={"slide_type": ""}
 # ## Create a TWT volume from the velocity cube
 #
 # The velocity cube is in depth. So a mapping to TWT needs to be created to match
@@ -174,7 +174,7 @@ vel_ds
 # like `linear` but we will use `cubic` or spline based interpolation.
 # Xarray interpolation uses the `scipy.interpolate` library.
 
-# %% editable=true slideshow={"slide_type": ""}
+# %% slideshow={"slide_type": ""}
 # interpolate velocities to volve volume
 vel_dsi = vel_ds.interp_like(volve_ds.data, method="cubic")
 print("Velocity interpolated data dims:", vel_dsi.dims)
@@ -183,7 +183,7 @@ print("Velocity interpolated data dims:", vel_dsi.dims)
 # The original (left) and upsampled data (right), velocity (top) and TWT (bottom).
 # The vertical axis is depth.
 
-# %% editable=true slideshow={"slide_type": ""}
+# %% slideshow={"slide_type": ""}
 fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(10, 10), sharex=True, sharey=True)
 vel_ds.sel(iline=10095).migintvel.T.plot(yincrease=False, ax=axs[0, 0])
 vel_dsi.sel(iline=10095).migintvel.T.plot(yincrease=False, ax=axs[0, 1])
@@ -268,7 +268,7 @@ plt.tight_layout()
 #
 # > `map_blocks` is still in beta, and its arguments may change.
 
-# %% editable=true slideshow={"slide_type": ""}
+# %% slideshow={"slide_type": ""}
 volve_dsZ = volve_ds.map_blocks(
     trace_resample, args=("dataZ",), template=volve_ds["twtc"]
 )

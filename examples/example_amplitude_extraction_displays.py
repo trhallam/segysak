@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.17.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -106,7 +106,7 @@ ax.set_title("Top Hugin fm.")
 
 # %%
 cube = cube.set_coords(('cdp_x', 'cdp_y'))
-hrz_mapped = cube.seis.surface_from_points(hrz, "twt", right=("cdp_x", "cdp_y"))
+hrz_mapped = cube.segysak.surface_from_points(hrz, "twt", right=("cdp_x", "cdp_y"))
 
 # %% [markdown]
 # And to extract seismic amplitudes along this horizon we use the magic of `xarray`:
@@ -272,7 +272,7 @@ ax.invert_xaxis()
 # To get the horizon window extraction for sum of amplitudes we now need to sum along the time axis. Or
 # we can use the `np.apply_along_axis` function to apply a custom function to our masked cube.
 
-# %% tags=[]
+# %%
 summed_amp = masked_data.sum(dim="samples")
 
 f, ax = plt.subplots(figsize=(12, 4))

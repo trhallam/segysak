@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.17.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -106,7 +106,7 @@ line_A = volve_3d.segysak.interp_line(arb_line_A, bin_spacing_hint=10)
 toc = time()
 print(f"That took {toc-tic} seconds")
 
-# %% tags=[]
+# %%
 line_A.data.T.plot(yincrease=False, cmap="RdBu", vmin=-10, vmax=10)
 
 # %% [markdown]
@@ -288,6 +288,6 @@ twt.plot(color="k", ax=axs)
 # %% [markdown]
 # To extract the data along the well path we just need to interpolate using the additional `twt` DataArray.
 
-# %% tags=[]
+# %%
 well_seismic = volve_3d.interp(**f12_dev_ilxl, samples=twt)
 well_seismic.data.plot()

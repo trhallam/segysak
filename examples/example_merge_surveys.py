@@ -6,7 +6,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.14.4
+#       jupytext_version: 1.17.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -32,7 +32,7 @@ import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
 from matplotlib.transforms import Affine2D
-from segysak import open_seisnc, create_seismic_dataset
+from segysak import create_seismic_dataset
 
 from dask.distributed import Client
 
@@ -146,8 +146,8 @@ del survey_2
 # Let us reimport the surveys we created but in a chunked (lazy) way.
 
 # %%
-survey_1 = open_seisnc("data/survey_1.seisnc", chunks=dict(iline=10, xline=10, twt=100))
-survey_2 = open_seisnc("data/survey_2.seisnc", chunks=dict(iline=10, xline=10, twt=100))
+survey_1 = xr.open_dataset("data/survey_1.seisnc", chunks=dict(iline=10, xline=10, twt=100))
+survey_2 = xr.open_dataset("data/survey_2.seisnc", chunks=dict(iline=10, xline=10, twt=100))
 
 # %% [markdown]
 # Check that the survey is chunked by looking at the printout for our datasets. Lazy and chunked data will have a `dask.array<chunksize=` where the values are usually displayed.
@@ -173,8 +173,8 @@ survey_1
 
 # %%
 ilxl2_to_ilxl1 = (
-    survey_2.seis.get_affine_transform()
-    + survey_1.seis.get_affine_transform().inverted()
+    survey_2.segysak.get_affine_transform()
+    + survey_1.segysak.get_affine_transform().inverted()
 )
 
 # %% [markdown]
@@ -212,7 +212,7 @@ new_ilxl = ilxl2_to_ilxl1.transform(
     )[0]
 ).reshape((survey_2.iline.size, survey_2.xline.size, 2))
 
-survey_2.seis.calc_corner_points()
+survey_2.segysak.calc_corner_points()
 s2_corner_points_in_s1 = ilxl2_to_ilxl1.transform(survey_2.attrs["corner_points"])
 
 print("Min Iline:", s2_corner_points_in_s1[:, 0].min(), survey_1.iline.min().values)
