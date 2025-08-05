@@ -18,6 +18,7 @@ argument.
         segyfile_path,
         dim_byte_fields={'iline':189, 'xline':193},
         extra_byte_fields={'cdp_x':181, 'cdp_y':185},
+        engine="sgy_engine"
     )
     ds.segysak.scale_coords() # if required
     ```
@@ -42,6 +43,7 @@ argument.
         segyfile_path,
         dim_byte_fields={'cdp':22},
         extra_byte_fields={'cdp_x':181, 'cdp_y':185},
+        engine="sgy_engine"
     )
     ds.segysak.scale_coords() # if required
     ```
