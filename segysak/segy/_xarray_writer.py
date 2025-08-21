@@ -387,7 +387,7 @@ class SegyWriter:
                 # create the work chunk headers
                 head = (
                     trace_headers.sel(**chunk_labels)
-                    .transpose(*trace_order)
+                    .transpose(..., *trace_order)
                     .stack({"ravel": trace_order})
                 )
 
