@@ -448,6 +448,24 @@ class SegysakDatasetAccessor(TemplateAccessor):
 
         return corner_points
 
+    def subsample_dims(self, **dim_kwargs):
+        """Return a dictionary of subsampled dims suitable for xarray.interp.
+
+        This tool halves
+
+        Args:
+            dim_kwargs: dimension names as keyword arguments with values of how
+                many times we should divide the dimension by 2.
+        """
+        output = dict()
+        for dim in dim_kwargs:
+            ar = self._obj[dim].values
+            while dim_kwargs[dim] > 0:  # only for 3.8
+                ar = tools.halfsample(ar)
+                dim_kwargs[dim] = dim_kwargs[dim] - 1
+            output[dim] = ar
+        return output
+
     def fill_cdpna(self, method: str = "linear"):
         """Fills NaN cdp_x and cdp_y locations, usually caused by dead traces.
 
