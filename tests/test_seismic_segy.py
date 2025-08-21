@@ -21,8 +21,6 @@ from segysak.segy import (
     header_as_dimensions,
 )
 
-from segysak import open_seisnc
-
 # from test_fixtures import *
 from .fixtures_segy import TEST_SEGY_SIZE
 

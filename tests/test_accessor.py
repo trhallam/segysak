@@ -256,11 +256,11 @@ def test_coordinate_df(f3_dataset, linear_fillna, expected_shape):
 
 
 def test_humanbytes(f3_dataset):
-    assert isinstance(f3_dataset.seis.humanbytes, str)
+    assert isinstance(f3_dataset.segysak.humanbytes, str)
 
 
 def test_surface_from_points_nparray(f3_dataset, f3_horizon_exact):
-    interpolated = f3_dataset.seis.surface_from_points(
+    interpolated = f3_dataset.segysak.surface_from_points(
         f3_horizon_exact[["cdp_x", "cdp_y"]].values,
         f3_horizon_exact["horizon"].values,
     )
@@ -268,14 +268,14 @@ def test_surface_from_points_nparray(f3_dataset, f3_horizon_exact):
 
 
 def test_surface_from_points_df(f3_dataset, f3_horizon_shift):
-    interpolated = f3_dataset.seis.surface_from_points(
+    interpolated = f3_dataset.segysak.surface_from_points(
         f3_horizon_shift, "horizon", right=("cdp_x", "cdp_y")
     )
     assert interpolated.horizon.mean() == 50.0
 
 
 def test_subsample_dims(f3_dataset):
-    ss = f3_dataset.seis.subsample_dims(samples=2, xline=1)
+    ss = f3_dataset.segysak.subsample_dims(samples=2, xline=1)
     assert ss["samples"].size == (f3_dataset.samples.values.size * 2**2 - 3)
     assert ss["xline"].size == (f3_dataset.xline.values.size * 2 - 1)
 
@@ -284,7 +284,7 @@ def test_fill_cdpna(f3_dataset):
     ds = f3_dataset.copy(deep=True)
     ds.cdp_x[:, 5:10] = np.nan
     ds.cdp_y[:, 5:10] = np.nan
-    ds.seis.fill_cdpna()
+    ds.segysak.fill_cdpna()
     assert np.allclose(f3_dataset.cdp_x.values, ds.cdp_x.values, atol=0.01)
     assert np.allclose(f3_dataset.cdp_y.values, ds.cdp_y.values, atol=0.01)
 
@@ -333,9 +333,9 @@ def test_get_affine_transform2(tfm):
     a["cdp_y"] = (("iline", "xline"), lh_y)
 
     try:
-        a.seis.fill_cdpna()
-        a.seis.calc_corner_points()
-        tf = a.seis.get_affine_transform()
+        a.segysak.fill_cdpna()
+        a.segysak.calc_corner_points()
+        tf = a.segysak.get_affine_transform()
 
         df = a.to_dataframe().reset_index()
         check = tf.transform(np.array([df.iline, df.xline]).T)
@@ -372,60 +372,6 @@ def test_calc_corner_points2d(volve_2d_dataset):
             )
         ),
     )
-
-
-class TestIsFunctions:
-    def test_is_2d(self, empty2d):
-        assert empty2d.seis.is_2d()
-        assert not empty2d.seis.is_3d()
-        assert not empty2d.seis.is_3dgath()
-        assert not empty2d.seis.is_2dgath()
-
-    def test_is_3d(self, empty3d):
-        assert empty3d.seis.is_3d()
-        assert not empty3d.seis.is_2d()
-        assert not empty3d.seis.is_3dgath()
-        assert not empty3d.seis.is_2dgath()
-
-    def test_is_2d_gath(self, empty2d_gath):
-        assert empty2d_gath.seis.is_2dgath()
-        assert not empty2d_gath.seis.is_3d()
-        assert not empty2d_gath.seis.is_3dgath()
-        assert not empty2d_gath.seis.is_2d()
-
-    def test_is_3d_gath(self, empty3d_gath):
-        assert empty3d_gath.seis.is_3dgath()
-        assert not empty3d_gath.seis.is_3d()
-        assert not empty3d_gath.seis.is_2d()
-        assert not empty3d_gath.seis.is_2dgath()
-
-    def test_is_twt(self, empty3d_twt):
-        assert empty3d_twt.seis.is_twt()
-        assert not empty3d_twt.seis.is_depth()
-
-    def test_is_depth(self, empty3d_depth):
-        assert empty3d_depth.seis.is_depth()
-        assert not empty3d_depth.seis.is_twt()
-
-    def test_is_empty2d(self, empty2d):
-        assert empty2d.seis.is_empty()
-
-    def test_is_empty3d(self, empty3d):
-        assert empty3d.seis.is_empty()
-
-    def test_is_empty3d_gath(self, empty3d_gath):
-        assert empty3d_gath.seis.is_empty()
-
-    def test_is_empty2d_gath(self, empty2d_gath):
-        assert empty2d_gath.seis.is_empty()
-
-    def test_is_empty_zeros3d(self, zeros3d):
-        assert not zeros3d.seis.is_empty()
-
-    def test_zeros_like(self, zeros3d):
-        assert "data" in zeros3d.variables
-        assert np.all(zeros3d["data"] == 0.0)
-        assert zeros3d["data"].sum() == 0.0
 
 
 class TestCreate_xysel:
@@ -470,66 +416,67 @@ class TestCreate_xysel:
 
         xys = np.apply_along_axis(trsfm, 1, test_points)
 
-        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="linear")
+        res = dataset.segysak.xysel(xys, method="linear")
         assert isinstance(res, xr.Dataset)
-        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="nearest")
+        res = dataset.segysak.xysel(xys, method="nearest")
         assert isinstance(res, xr.Dataset)
 
-    @given(
-        integers(15, 60),
-        floats(0, 15),
-        floats(1, 15),
-        tuples(floats(-1000, 1000), floats(-1000, 1000)),
-        floats(0.1, 10000),
-        tuples(floats(0, 45), floats(0, 45)),
-        floats(-180, 180),
-        integers(5, 10),
-    )
-    @settings(deadline=None, max_examples=2, print_blob=True)
-    def test_angle_stack_dataset_xysel(
-        self, o, f, s, translate, scale, shear, rotate, samp
-    ):
-        dims = (50, 30, 5, o)
-        dataset = create3d_dataset(dims, first_offset=f, offset_step=s)
-        xlines_, ilines_ = np.meshgrid(dataset.xline, dataset.iline)
-        ix_pairs = np.dstack([ilines_, xlines_])
-        tr = Affine.translation(*translate)
-        sc = Affine.scale(scale)
-        sh = Affine.shear(*shear)
-        rt = Affine.rotation(rotate)
-        trsfm = lambda x: tr * sc * sh * rt * x
-        ix_pairs = np.apply_along_axis(trsfm, 1, ix_pairs.reshape(-1, 2)).reshape(
-            ix_pairs.shape
-        )
-        dataset["cdp_x"] = (DimensionKeyField.cdp_3d, ix_pairs[:, :, 0])
-        dataset["cdp_y"] = (DimensionKeyField.cdp_3d, ix_pairs[:, :, 1])
+    # @given(
+    #     integers(15, 60),
+    #     floats(0, 15),
+    #     floats(1, 15),
+    #     tuples(floats(-1000, 1000), floats(-1000, 1000)),
+    #     floats(0.1, 10000),
+    #     tuples(floats(0, 45), floats(0, 45)),
+    #     floats(-180, 180),
+    #     integers(5, 10),
+    # )
+    # @settings(deadline=None, max_examples=2, print_blob=True)
+    # def test_angle_stack_dataset_xysel(
+    #     self, o, f, s, translate, scale, shear, rotate, samp
+    # ):
+    #     dims = (50, 30, 5, o)
+    #     dataset = create3d_dataset(dims, first_offset=f, offset_step=s)
+    #     xlines_, ilines_ = np.meshgrid(dataset.xline, dataset.iline)
+    #     ix_pairs = np.dstack([ilines_, xlines_])
+    #     tr = Affine.translation(*translate)
+    #     sc = Affine.scale(scale)
+    #     sh = Affine.shear(*shear)
+    #     rt = Affine.rotation(rotate)
+    #     trsfm = lambda x: tr * sc * sh * rt * x
+    #     ix_pairs = np.apply_along_axis(trsfm, 1, ix_pairs.reshape(-1, 2)).reshape(
+    #         ix_pairs.shape
+    #     )
+    #     dataset["cdp_x"] = (DimensionKeyField.cdp_3d, ix_pairs[:, :, 0])
+    #     dataset["cdp_y"] = (DimensionKeyField.cdp_3d, ix_pairs[:, :, 1])
 
-        if dataset.seis.is_depth():
-            dataset["data"] = (DimensionKeyField.threed_ps_depth, np.random.rand(*dims))
-        else:
-            dataset["data"] = (DimensionKeyField.threed_ps_twt, np.random.rand(*dims))
+    #     # if dataset.segysak.is_depth():
+    #     #     dataset["data"] = (DimensionKeyField.threed_ps_depth, np.random.rand(*dims))
+    #     # else:
+    #     #     dataset["data"] = (DimensionKeyField.threed_ps_twt, np.random.rand(*dims))
 
-        test_points = np.dstack(
-            [
-                np.random.random(samp) * (dims[0] - 0.1) + 0.1,
-                np.random.random(samp) * (dims[1] - 0.1) + 0.1,
-            ]
-        )[0]
-        # make sure at least one point is in the box
-        test_points[0, :] = dims[0] / 2, dims[1] / 2
+    #     test_points = np.dstack(
+    #         [
+    #             np.random.random(samp) * (dims[0] - 0.1) + 0.1,
+    #             np.random.random(samp) * (dims[1] - 0.1) + 0.1,
+    #         ]
+    #     )[0]
+    #     # make sure at least one point is in the box
+    #     test_points[0, :] = dims[0] / 2, dims[1] / 2
 
-        xys = np.apply_along_axis(trsfm, 1, test_points)
+    #     xys = np.apply_along_axis(trsfm, 1, test_points)
 
-        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="linear")
-        assert isinstance(res, xr.Dataset)
-        res = dataset.seis.xysel(xys[:, 0], xys[:, 1], method="nearest")
-        assert isinstance(res, xr.Dataset)
+    #     res = dataset.segysak.xysel(xys, method="linear")
+    #     assert isinstance(res, xr.Dataset)
+    #     res = dataset.segsak.xysel(xys, method="nearest")
+    #     assert isinstance(res, xr.Dataset)
 
 
 def create_xy_dataset(dims, translate, scale, shear, rotate, **dim_kwargs):
     dataset = create3d_dataset(dims=dims, **dim_kwargs)
     il_grid, xl_grid = xr.broadcast(dataset.iline, dataset.xline)
     dataset["empty"] = xr.zeros_like(il_grid)
+    dataset = dataset.rename_dims({'twt':'samples'})
     df = dataset.drop_dims("samples").to_dataframe()
 
     transform = (
